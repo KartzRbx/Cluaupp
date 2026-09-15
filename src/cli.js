@@ -87,6 +87,11 @@ function siblingCpp(file) {
 	return file.replace(/\.(h|hpp|hh)$/i, ".cpp");
 }
 
+function resolveKey(file) {
+	const resolved = path.resolve(file);
+	return process.platform === "win32" ? resolved.toLowerCase() : resolved;
+}
+
 function build(root, options = {}) {
 	const exitOnError = options.exitOnError !== false;
 	const config = loadConfig(root);
@@ -123,12 +128,12 @@ function build(root, options = {}) {
 				const dest = path.join(root, config.outDir, artifact.name);
 				fs.mkdirSync(path.dirname(dest), { recursive: true });
 				fs.writeFileSync(dest, artifact.contents, "utf8");
-				written.add(path.resolve(dest));
+				written.add(resolveKey(dest));
 				console.log("cluaupp:", rel, "→", path.relative(root, dest));
 			}
 			for (const stale of result.stale || []) {
 				const dest = path.join(root, config.outDir, stale);
-				if (fs.existsSync(dest) && !written.has(path.resolve(dest))) {
+				if (fs.existsSync(dest) && !written.has(resolveKey(dest))) {
 					fs.unlinkSync(dest);
 					console.log("cluaupp: removed", path.relative(root, dest));
 				}
