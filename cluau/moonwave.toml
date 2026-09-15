@@ -1,0 +1,48 @@
+title = "Cluaupp"
+gitRepoUrl = "https://github.com/kartzDev/cluaupp"
+gitSourceBranch = "main"
+changelog = true
+classPath = "runtime"
+
+apiCategories = ["constructor", "lifecycle", "events"]
+
+[[classOrder]]
+section = "Core"
+classes = ["Janitor", "Promise", "Net"]
+
+[[classOrder]]
+section = "Gameplay"
+classes = ["MathUtils", "FormatNumber", "Module3D", "Twinkle"]
+
+[[classOrder]]
+section = "Types"
+classes = ["ArrayIndexer", "Occlude"]
+
+[home]
+enabled = true
+includeReadme = true
+
+[[home.features]]
+title = "C++ × Luau"
+description = "Write a C++ subset. Cluaupp emits modern Luau (--!strict, local, const) with first-class Roblox APIs — no WASM, no lua_call."
+
+[[home.features]]
+title = "Libraries that compile with you"
+description = "Janitor, Promise, buffer Net, Module3D, Twinkle, MathUtils, FormatNumber ship in CluauppLibs. DataServiceV2, Fusion, Cmdr and the rest install from Wally with C++ headers for IntelliSense."
+
+[[home.features]]
+title = "Output treated as a king"
+description = "A tiny leaderstats.cpp becomes LeaderStats/Main, PlayersManager, CacheController, and a Types module — --!strict, no any, PascalCase folders Studio can read."
+
+[docusaurus]
+organizationName = "kartzDev"
+projectName = "cluaupp"
+url = "https://kartzdev.github.io"
+baseUrl = "/cluaupp/"
+tagline = "The definitive merge of C++ and modern Luau"
+onBrokenLinks = "warn"
+onBrokenMarkdownLinks = "warn"
+
+[footer]
+style = "dark"
+copyright = "Built with Moonwave and Docusaurus"

@@ -1,0 +1,421 @@
+"use strict";
+
+const { tokenize } = require("./lex");
+
+function parse(source, fileName) {
+	const tokens = tokenize(source);
+	let i = 0;
+
+	const peek = (offset = 0) => tokens[i + offset] || tokens[tokens.length - 1];
+	const at = (type, value) => {
+		const token = peek();
+		if (type && token.type !== type) {
+			return false;
+		}
+		if (value !== undefined && token.value !== value) {
+			return false;
+		}
+		return true;
+	};
+	const eat = (type, value) => {
+		if (!at(type, value)) {
+			const token = peek();
+			throw error(`expected ${value || type}, got '${token.value}'`, token);
+		}
+		const token = peek();
+		i += 1;
+		return token;
+	};
+	const error = (message, token = peek()) => {
+		const err = new Error(`${fileName}:${token.line}:${token.col}: ${message}`);
+		err.line = token.line;
+		err.col = token.col;
+		return err;
+	};
+
+	const skipSemicolons = () => {
+		while (at("op", ";")) {
+			i += 1;
+		}
+	};
+
+	const skipTemplate = () => {
+		if (!at("op", "<")) {
+			return null;
+		}
+		eat("op", "<");
+		const name = eat("ident").value;
+		eat("op", ">");
+		return name;
+	};
+
+	function parseType() {
+		if (at("kw", "const")) {
+			i += 1;
+		}
+		if (at("kw", "auto") || at("kw", "void") || at("kw", "int") || at("kw", "bool") || at("kw", "float") || at("kw", "double")) {
+			const name = eat("kw").value;
+			while (at("op", "*")) {
+				i += 1;
+			}
+			return name;
+		}
+		if (!at("ident")) {
+			return null;
+		}
+		const name = eat("ident").value;
+		while (at("op", "*")) {
+			i += 1;
+		}
+		return name;
+	}
+
+	function parseArgs() {
+		eat("op", "(");
+		const args = [];
+		if (!at("op", ")")) {
+			args.push(parseExpr());
+			while (at("op", ",")) {
+				i += 1;
+				args.push(parseExpr());
+			}
+		}
+		eat("op", ")");
+		return args;
+	}
+
+	function parsePrimary() {
+		if (at("kw", "true") || at("kw", "false")) {
+			return { type: "bool", value: eat("kw").value === "true" };
+		}
+		if (at("kw", "nullptr")) {
+			i += 1;
+			return { type: "null" };
+		}
+		if (at("number")) {
+			return { type: "number", value: eat("number").value };
+		}
+		if (at("string")) {
+			return { type: "string", value: eat("string").value };
+		}
+		if (at("kw", "new")) {
+			i += 1;
+			const className = eat("ident").value;
+			const args = at("op", "(") ? parseArgs() : [];
+			return { type: "new", className, args };
+		}
+		if (at("ident", "GetService") && peek(1).value === "<") {
+			i += 1;
+			const service = skipTemplate();
+			eat("op", "(");
+			eat("op", ")");
+			return { type: "getService", service };
+		}
+		if (at("ident")) {
+			return { type: "ident", name: eat("ident").value };
+		}
+		if (at("op", "(")) {
+			i += 1;
+			const expr = parseExpr();
+			eat("op", ")");
+			return expr;
+		}
+		throw error("invalid expression");
+	}
+
+	function parseUnary() {
+		if (at("op", "-") || at("op", "!")) {
+			const op = eat("op").value;
+			return { type: "unary", op, argument: parseUnary() };
+		}
+		return parsePostfix();
+	}
+
+	function parsePostfix() {
+		let node = parsePrimary();
+		for (;;) {
+			if (at("op", "->") || at("op", ".") || at("op", "::")) {
+				const access = eat("op").value;
+				const name = eat("ident").value;
+				if (name === "GetService" && at("op", "<")) {
+					const service = skipTemplate();
+					eat("op", "(");
+					eat("op", ")");
+					node = { type: "getService", service };
+					continue;
+				}
+				if (at("op", "(")) {
+					node = { type: "call", object: node, name, args: parseArgs(), access };
+				} else {
+					node = { type: "member", object: node, name, access };
+				}
+				continue;
+			}
+			if (at("op", "(") && node.type === "ident") {
+				node = { type: "call", object: null, name: node.name, args: parseArgs(), access: "." };
+				continue;
+			}
+			break;
+		}
+		return node;
+	}
+
+	function parseBinary() {
+		let left = parseUnary();
+		while (["==", "!=", "<=", ">=", "<", ">", "&&", "||", "+", "-", "*", "/"].includes(peek().value)) {
+			const op = eat("op").value;
+			const right = parseUnary();
+			left = { type: "binary", op, left, right };
+		}
+		return left;
+	}
+
+	function parseExpr() {
+		const left = parseBinary();
+		if (at("op", "=")) {
+			i += 1;
+			return { type: "assign", left, right: parseExpr() };
+		}
+		return left;
+	}
+
+	function parseBlock() {
+		eat("op", "{");
+		const body = [];
+		while (!at("op", "}") && !at("eof")) {
+			skipSemicolons();
+			if (at("op", "}")) {
+				break;
+			}
+			body.push(parseStmt());
+			skipSemicolons();
+		}
+		eat("op", "}");
+		return body;
+	}
+
+	function parseIf() {
+		eat("kw", "if");
+		eat("op", "(");
+		const test = parseExpr();
+		eat("op", ")");
+		const consequent = at("op", "{") ? parseBlock() : [parseStmt()];
+		let alternate = null;
+		if (at("kw", "else")) {
+			i += 1;
+			alternate = at("op", "{") ? parseBlock() : [parseStmt()];
+		}
+		return { type: "if", test, consequent, alternate };
+	}
+
+	function parseFor() {
+		eat("kw", "for");
+		eat("op", "(");
+		if (at("kw", "auto") || at("ident") || at("kw", "int") || at("kw", "const")) {
+			const isConst = at("kw", "const");
+			if (isConst) {
+				i += 1;
+			}
+			parseType();
+			const name = eat("ident").value;
+			if (at("op", ":")) {
+				i += 1;
+				const iter = parseExpr();
+				eat("op", ")");
+				const body = at("op", "{") ? parseBlock() : [parseStmt()];
+				return { type: "foreach", name, iter, body, isConst };
+			}
+		}
+		throw error("only range-for is supported: for (auto* x : list)");
+	}
+
+	function parseDeclOrExpr() {
+		const isConst = at("kw", "const");
+		if (isConst) {
+			i += 1;
+		}
+		const saved = i;
+		const maybeType = parseType();
+		if (maybeType && at("ident") && (peek(1).value === "=" || peek(1).value === ";")) {
+			const name = eat("ident").value;
+			let value = null;
+			if (at("op", "=")) {
+				i += 1;
+				value = parseExpr();
+			}
+			return { type: "decl", name, valueType: maybeType, value, isConst: isConst || maybeType === "const" };
+		}
+		i = saved;
+		if (isConst) {
+			i = saved - 1;
+		}
+		return { type: "expr", expr: parseExpr() };
+	}
+
+	function parseStmt() {
+		if (at("kw", "if")) {
+			return parseIf();
+		}
+		if (at("kw", "for")) {
+			return parseFor();
+		}
+		if (at("kw", "return")) {
+			i += 1;
+			const value = at("op", ";") || at("op", "}") ? null : parseExpr();
+			return { type: "return", value };
+		}
+		if (at("kw", "while")) {
+			i += 1;
+			eat("op", "(");
+			const test = parseExpr();
+			eat("op", ")");
+			const body = at("op", "{") ? parseBlock() : [parseStmt()];
+			return { type: "while", test, body };
+		}
+		return parseDeclOrExpr();
+	}
+
+	function parseParam() {
+		const valueType = parseType();
+		if (at("ident")) {
+			return { name: eat("ident").value, valueType };
+		}
+		return { name: "arg", valueType };
+	}
+
+	function parseFunction() {
+		const returnType = parseType();
+		if (!returnType || !at("ident")) {
+			throw error("invalid function declaration");
+		}
+		const name = eat("ident").value;
+		eat("op", "(");
+		const params = [];
+		if (!at("op", ")")) {
+			params.push(parseParam());
+			while (at("op", ",")) {
+				i += 1;
+				params.push(parseParam());
+			}
+		}
+		eat("op", ")");
+		if (at("op", ";")) {
+			i += 1;
+			return { type: "proto", name, returnType, params };
+		}
+		const body = parseBlock();
+		return { type: "function", name, returnType, params, body };
+	}
+
+	function parseTopLevelDecl(isConst, valueType) {
+		const name = eat("ident").value;
+		let value = null;
+		if (at("op", "=")) {
+			i += 1;
+			value = parseExpr();
+		}
+		skipSemicolons();
+		return { type: "decl", name, valueType, value, isConst };
+	}
+
+	function skipBalanced() {
+		if (at("op", "{")) {
+			let depth = 0;
+			while (!at("eof")) {
+				if (at("op", "{")) {
+					depth += 1;
+				} else if (at("op", "}")) {
+					depth -= 1;
+					i += 1;
+					if (depth === 0) {
+						break;
+					}
+					continue;
+				}
+				i += 1;
+			}
+			skipSemicolons();
+			return;
+		}
+		while (!at("op", ";") && !at("eof") && !at("op", "}")) {
+			i += 1;
+		}
+		skipSemicolons();
+	}
+
+	function skipTypeDecl() {
+		while (at("kw", "template") || at("kw", "struct") || at("kw", "class") || at("kw", "enum") || at("kw", "typedef") || at("kw", "extern")) {
+			i += 1;
+		}
+		while (!at("eof") && !at("op", "{") && !at("op", ";")) {
+			i += 1;
+		}
+		skipBalanced();
+	}
+
+	function skipNamespace() {
+		eat("kw", "namespace");
+		if (at("ident")) {
+			i += 1;
+		}
+		if (at("op", "{")) {
+			const inner = parseProgramInside();
+			eat("op", "}");
+			return inner;
+		}
+		eat("op", ";");
+		return [];
+	}
+
+	function parseProgramInside() {
+		const decls = [];
+		while (!at("eof") && !at("op", "}")) {
+			skipSemicolons();
+			if (at("eof") || at("op", "}")) {
+				break;
+			}
+			if (at("kw", "namespace")) {
+				decls.push(...skipNamespace());
+				continue;
+			}
+			if (at("kw", "using")) {
+				while (!at("op", ";") && !at("eof")) {
+					i += 1;
+				}
+				skipSemicolons();
+				continue;
+			}
+			if (at("kw", "struct") || at("kw", "class") || at("kw", "enum") || at("kw", "template") || at("kw", "typedef") || at("kw", "extern")) {
+				skipTypeDecl();
+				continue;
+			}
+			const saved = i;
+			const isConst = at("kw", "const");
+			if (isConst) {
+				i += 1;
+			}
+			const maybeType = parseType();
+			if (maybeType && at("ident")) {
+				const next = peek(1);
+				if (next.value === "(") {
+					i = saved;
+					decls.push(parseFunction());
+					skipSemicolons();
+					continue;
+				}
+				if (next.value === "=" || next.value === ";") {
+					decls.push(parseTopLevelDecl(isConst, maybeType));
+					continue;
+				}
+			}
+			i = saved;
+			decls.push(parseFunction());
+			skipSemicolons();
+		}
+		return decls;
+	}
+
+	return { type: "program", body: parseProgramInside(), fileName };
+}
+
+module.exports = { parse };

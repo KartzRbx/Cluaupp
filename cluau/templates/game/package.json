@@ -1,0 +1,9 @@
+{
+	"name": "cluaupp-game",
+	"private": true,
+	"scripts": {
+		"build": "cluaupp build",
+		"watch": "cluaupp watch",
+		"dev": "cluaupp watch"
+	}
+}

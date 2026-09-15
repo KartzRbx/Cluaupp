@@ -1,0 +1,34 @@
+#pragma once
+// Cluaupp — full Roblox API for IntelliSense.
+// Source: official client dump + datatypes from create.roblox.com
+// The compiler ignores #include and emits real Luau (Vector3.new, Instance.new, :GetPlayers, ...).
+
+using string = const char*;
+
+#include <cluaupp/generated/enums.hpp>
+#include <cluaupp/datatypes.hpp>
+#include <cluaupp/generated/instances.hpp>
+#include <cluaupp/libs.hpp>
+
+template <typename T>
+T* GetService();
+
+template <typename T>
+T* GetService(Instance* game_);
+
+extern DataModel* game;
+extern Workspace* workspace;
+extern LuaSourceContainer* script;
+
+void print(string message);
+void warn(string message);
+void error(string message);
+double tick();
+double time();
+void wait(double seconds);
+void spawn(void (*callback)());
+void delay(double seconds, void (*callback)());
+
+#ifndef nullptr
+#define nullptr 0
+#endif

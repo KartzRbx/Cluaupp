@@ -1,0 +1,32 @@
+#pragma once
+
+// howmanysmall/Janitor — vendored into CluauppLibs.Janitor
+class Janitor {
+public:
+	bool CurrentlyCleaning;
+	bool SuppressInstanceReDestroy;
+	bool UnsafeThreadCleanup;
+	Janitor();
+	template <typename T>
+	T Add(T object);
+	template <typename T>
+	T Add(T object, string methodName);
+	template <typename T>
+	T Add(T object, string methodName, string index);
+	template <typename T>
+	T AddObject(T constructor);
+	template <typename P>
+	P AddPromise(P promise);
+	Janitor* Remove(string index);
+	Janitor* RemoveNoClean(string index);
+	Janitor* RemoveList(string index);
+	auto Get(string index);
+	auto GetAll();
+	bool Has(string index);
+	void Cleanup();
+	void Destroy();
+	RBXScriptConnection LinkToInstance(Instance* object);
+	RBXScriptConnection LinkToInstance(Instance* object, bool allowMultiple);
+	Janitor* LinkToInstances(Instance* object);
+	static bool Is(auto value);
+};
