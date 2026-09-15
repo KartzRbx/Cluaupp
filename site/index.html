@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs · Cluaupp</title>
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<header>
+  <strong><a href="./index.html">Cluaupp</a></strong>
+  <nav>
+    <a href="./index.html">Home</a>
+    <a href="./guide/getting-started.html">Get started</a>
+    <a href="./api/datatypes/index.html">Datatypes</a>
+    <a href="./api/classes/index.html">Classes</a>
+    <a href="./api/enums/index.html">Enums</a>
+    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
+  </nav>
+</header>
+<div class="hero">
+<h1>Cluaupp</h1>
+<p>The definitive merge of C++ and modern Luau. Docs generated from the official Roblox API dump (1) — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
+<pre>npm install -g cluaupp
+cluaupp init my-game
+cluaupp build
+rojo serve</pre>
+<div class="grid">
+  <a class="card" href="guide/getting-started.html"><strong>Get started</strong><br><span class="muted">install, init, Rojo, IntelliSense</span></a>
+  <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><br><span class="muted">Vector3, CFrame, UDim, UDim2, Color3…</span></a>
+  <a class="card" href="api/classes/index.html"><strong>Classes</strong><br><span class="muted">925 instances and services</span></a>
+  <a class="card" href="api/enums/index.html"><strong>Enums</strong><br><span class="muted">636 enumerations</span></a>
+</div>
+<h2>Libraries</h2>
+<p class="muted">First-party: Janitor, Promise, Net (buffer remotes), Module3D, Twinkle, MathUtils, FormatNumber. Wally: DataServiceV2, Fusion, Cmdr, EzVisualz, TopbarPlus. C++ headers under <code>#include &lt;cluaupp/libs/…&gt;</code>.</p>
+<h2>C++ → Luau</h2>
+<table>
+<tr><th>C++</th><th>Luau</th></tr>
+<tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
+<tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
+<tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
+<tr><td><code>Color3::fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
+<tr><td><code>Enum::Material::Plastic</code></td><td><code>Enum.Material.Plastic</code></td></tr>
+<tr><td><code>new Part(workspace)</code></td><td><code>Instance.new("Part")</code> + <code>.Parent</code></td></tr>
+<tr><td><code>part-&gt;Position</code></td><td><code>part.Position</code></td></tr>
+<tr><td><code>part-&gt;CFrame</code></td><td><code>part.CFrame</code></td></tr>
+<tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code></td></tr>
+<tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
+<tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
+<tr><td><code>Net::Event("Coins")</code></td><td><code>Net.Event("Coins")</code></td></tr>
+<tr><td><code>janitor-&gt;Add(conn)</code></td><td><code>janitor:Add(conn)</code></td></tr>
+</table>
+</div>
+</body>
+</html>

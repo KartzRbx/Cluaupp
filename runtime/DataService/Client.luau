@@ -4,7 +4,7 @@ assert(RunService:IsClient(), "DataService.Client may only be required on the cl
 
 local packages = script.Parent.Packages
 
-const Janitor = require(packages.janitor)
+const Janitor = require(script.Parent.Parent.Janitor)
 const Signal = require(packages.signal)
 
 const Data = require(script.Parent.Data)
@@ -48,11 +48,11 @@ function Client:Init()
 	if not self._initialized then
 		self._initialized = true
 		self._janitor = Janitor.new()
-		self._janitor:add(self._loaded, "Destroy")
+		self._janitor:Add(self._loaded, "Destroy")
 		local bufferChangedConnection = Replicator.BufferChanged:Connect(function(stats)
 			self._bufferStats = stats
 		end)
-		self._janitor:add(function()
+		self._janitor:Add(function()
 			bufferChangedConnection:Disconnect()
 		end, true)
 
@@ -161,7 +161,7 @@ function Client:Destroy()
 		self._data = nil
 	end
 	if self._janitor then
-		self._janitor:cleanup()
+		self._janitor:Cleanup()
 		self._janitor = nil
 	end
 	Replicator:Destroy()

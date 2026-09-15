@@ -1,0 +1,10 @@
+node_modules/
+vendor/
+*.tgz
+*.log
+game/out/
+game/libs/
+game/Packages/_Index
+.rojo.pid
+build/
+.DS_Store

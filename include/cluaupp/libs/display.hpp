@@ -1,8 +1,13 @@
 #pragma once
 
-// nightcycle/display — pretty-print any Luau value (Rust Display-style).
+// nightcycle/display — pretty-print Luau values (Rust Display-style).
 // Vendored into CluauppLibs.Display with nightcycle/option bundled.
+class DisplayBuilder {};
+
 namespace Display {
-	auto builder();
-	string display(auto value);
+	DisplayBuilder* builder();
+	string display(string value);
+	string display(double value);
+	string display(bool value);
+	string display(Instance* value);
 }

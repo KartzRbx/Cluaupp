@@ -4,25 +4,36 @@
 class NetEvent {
 public:
 	void Fire(Player* player);
-	void Fire(Player* player, auto a);
-	void Fire(Player* player, auto a, auto b);
-	void Fire(Player* player, auto a, auto b, auto c);
+	template <typename A>
+	void Fire(Player* player, A a);
+	template <typename A, typename B>
+	void Fire(Player* player, A a, B b);
+	template <typename A, typename B, typename C>
+	void Fire(Player* player, A a, B b, C c);
 	void FireAll();
-	void FireAll(auto a);
-	void FireAll(auto a, auto b);
+	template <typename A>
+	void FireAll(A a);
+	template <typename A, typename B>
+	void FireAll(A a, B b);
 	void FireServer();
-	void FireServer(auto a);
-	void FireServer(auto a, auto b);
+	template <typename A>
+	void FireServer(A a);
+	template <typename A, typename B>
+	void FireServer(A a, B b);
 	void On(void (*callback)());
 };
 
 class NetFunction {
 public:
 	void On(void (*callback)());
-	auto Invoke(Player* player);
-	auto Invoke(Player* player, auto a);
-	auto InvokeServer();
-	auto InvokeServer(auto a);
+	template <typename R>
+	R Invoke(Player* player);
+	template <typename R, typename A>
+	R Invoke(Player* player, A a);
+	template <typename R>
+	R InvokeServer();
+	template <typename R, typename A>
+	R InvokeServer(A a);
 };
 
 namespace Net {

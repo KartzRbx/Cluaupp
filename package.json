@@ -29,11 +29,13 @@
 		"cluau": "node bin/cluaupp.js",
 		"build": "node bin/cluaupp.js build",
 		"watch": "node bin/cluaupp.js watch",
-		"test": "node test/leaderstats.test.js && node test/understand.test.js && node test/datatypes.test.js && node test/headers.test.js && node test/libs.test.js && node test/runtime-libs.test.js",
+		"test": "node test/leaderstats.test.js && node test/understand.test.js && node test/datatypes.test.js && node test/headers.test.js && node test/libs.test.js && node test/runtime-libs.test.js && node test/intellisense.test.js",
 		"generate-api": "node scripts/generate-api.js",
 		"vendor-libs": "node scripts/vendor-libs.js",
 		"docs": "moonwave dev",
 		"docs:build": "moonwave build",
+		"dev": "node scripts/dev.js",
+		"stop": "node scripts/stop.js",
 		"prepublishOnly": "npm test"
 	},
 	"engines": {
@@ -52,10 +54,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/kartzDev/cluaupp.git"
+		"url": "git+https://github.com/KartzRbx/Cluaupp.git"
 	},
 	"bugs": {
-		"url": "https://github.com/kartzDev/cluaupp/issues"
+		"url": "https://github.com/KartzRbx/Cluaupp/issues"
 	},
-	"homepage": "https://github.com/kartzDev/cluaupp#readme"
+	"homepage": "https://github.com/KartzRbx/Cluaupp#readme"
 }

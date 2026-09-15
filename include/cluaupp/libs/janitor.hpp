@@ -20,13 +20,16 @@ public:
 	Janitor* Remove(string index);
 	Janitor* RemoveNoClean(string index);
 	Janitor* RemoveList(string index);
-	auto Get(string index);
-	auto GetAll();
+	template <typename T>
+	T Get(string index);
+	template <typename T>
+	T GetAll();
 	bool Has(string index);
 	void Cleanup();
 	void Destroy();
 	RBXScriptConnection LinkToInstance(Instance* object);
 	RBXScriptConnection LinkToInstance(Instance* object, bool allowMultiple);
 	Janitor* LinkToInstances(Instance* object);
-	static bool Is(auto value);
+	static bool Is(Instance* value);
+	static bool Is(string value);
 };

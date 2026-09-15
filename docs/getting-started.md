@@ -122,9 +122,13 @@ If a file defines `void init()`, Cluaupp calls `init()` at the end of the `.luau
 
 ## IntelliSense
 
-`cluaupp init` copies `include/cluaupp/roblox.hpp` and a `.vscode/c_cpp_properties.json`. The include path points at `include/`.
+`cluaupp init` copies `include/cluaupp/roblox.hpp`, `.vscode/c_cpp_properties.json`, and `compile_flags.txt` (clangd). `cluaupp build` refreshes `include/cluaupp/` so completions stay in sync with the compiler.
 
-Complete `Player`, `FindFirstChild`, `GetPlayers` in the editor. The header is **not** compiled to Luau; it only feeds the C++ language server.
+In this repo the include path is `cluau/include` (and `game/include`). After opening a `.cpp` file, complete `Player`, `FindFirstChild`, `GetPlayers`, and `Vector3`.
+
+The header is **not** compiled to Luau; it only feeds the C++ language server. Use `#include <cluaupp/roblox.hpp>` at the top of each source file.
+
+Reload the window (Command Palette → **Developer: Reload Window**) if completions were missing before the include path existed.
 
 ## Watch
 

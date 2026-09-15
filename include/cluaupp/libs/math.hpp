@@ -9,6 +9,6 @@ namespace MathUtils {
 	double AngleDiff(double a, double b);
 	double LerpAngle(double a, double b, double alpha);
 	double Random(double min, double max);
-	int Weighted(auto weights);
+	int Weighted(LuaArray<double> weights);
 	Vector3 LerpVector(Vector3 a, Vector3 b, double alpha);
 }

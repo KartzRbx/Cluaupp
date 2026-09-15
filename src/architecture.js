@@ -2,7 +2,7 @@
 
 const path = require("path");
 const { emit } = require("./emit");
-const { collectLibraries, insertRequires } = require("./libs");
+const { collectLibraries, insertRequires, requireCluauppLib } = require("./libs");
 const {
 	VALUE_CLASSES,
 	analyze,
@@ -22,11 +22,12 @@ function header(plan) {
 }
 
 function cluauppLib(name) {
-	return `require(game:GetService("ReplicatedStorage"):WaitForChild("CluauppLibs"):WaitForChild("${name}"))`;
+	return requireCluauppLib(name);
 }
 
 function emitTypes(plan) {
 	const lines = [header(plan).trimEnd(), ""];
+	lines.push('local ReplicatedStorage = game:GetService("ReplicatedStorage")');
 	lines.push(`local Occlude = ${cluauppLib("Occlude")}`);
 	lines.push(`local ArrayIndexer = ${cluauppLib("ArrayIndexer")}`);
 	lines.push("");
@@ -101,12 +102,14 @@ function emitTypes(plan) {
 function emitPlayersManager(plan) {
 	return `${header(plan)}
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Janitor = ${cluauppLib("Janitor")}
+type Janitor = Janitor.Janitor
 
 export type PlayerHandler = (player: Player) -> ()
 
 local PlayersManager = {}
-local lifetime: typeof(Janitor.new())? = nil
+local lifetime: Janitor? = nil
 
 function PlayersManager.Start(onPlayer: PlayerHandler, onLeave: PlayerHandler?)
 	PlayersManager.Stop()

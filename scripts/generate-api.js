@@ -6,7 +6,7 @@ const path = require("path");
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
 const INCLUDE = path.join(ROOT, "include", "cluaupp");
-const SITE = path.join(ROOT, "..", "site");
+const SITE = path.join(ROOT, "site");
 
 const CPP_RESERVED = new Set([
 	"alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break",
@@ -26,7 +26,7 @@ const DATATYPE_SPEC = [
 	{
 		name: "Vector3",
 		summary: "3D point or direction. Luau: Vector3.new(x, y, z).",
-		fields: ["double X", "double Y", "double Z", "double Magnitude", "Vector3 Unit"],
+		fields: ["double X", "double Y", "double Z", "double Magnitude"],
 		ctors: [[], ["double x", "double y", "double z"]],
 		statics: ["zero", "one", "xAxis", "yAxis", "zAxis"],
 		staticMethods: [
@@ -34,6 +34,7 @@ const DATATYPE_SPEC = [
 			["FromAxis", "Vector3", ["Axis axis"]],
 		],
 		methods: [
+			["Unit", "Vector3", []],
 			["Abs", "Vector3", []],
 			["Ceil", "Vector3", []],
 			["Floor", "Vector3", []],
@@ -50,10 +51,11 @@ const DATATYPE_SPEC = [
 	{
 		name: "Vector2",
 		summary: "2D point or direction. Luau: Vector2.new(x, y).",
-		fields: ["double X", "double Y", "double Magnitude", "Vector2 Unit"],
+		fields: ["double X", "double Y", "double Magnitude"],
 		ctors: [[], ["double x", "double y"]],
 		statics: ["zero", "one", "xAxis", "yAxis"],
 		methods: [
+			["Unit", "Vector2", []],
 			["Abs", "Vector2", []],
 			["Ceil", "Vector2", []],
 			["Floor", "Vector2", []],
@@ -84,7 +86,6 @@ const DATATYPE_SPEC = [
 		summary: "3D position + rotation. Luau: CFrame.new(...) / CFrame.lookAt(...).",
 		fields: [
 			"Vector3 Position",
-			"CFrame Rotation",
 			"Vector3 LookVector",
 			"Vector3 RightVector",
 			"Vector3 UpVector",
@@ -101,7 +102,9 @@ const DATATYPE_SPEC = [
 		],
 		statics: ["identity"],
 		staticMethods: [
+			["lookAt", "CFrame", ["Vector3 from", "Vector3 lookAt"]],
 			["lookAt", "CFrame", ["Vector3 from", "Vector3 lookAt", "Vector3 up"]],
+			["lookAlong", "CFrame", ["Vector3 from", "Vector3 direction"]],
 			["lookAlong", "CFrame", ["Vector3 from", "Vector3 direction", "Vector3 up"]],
 			["fromEulerAngles", "CFrame", ["double rx", "double ry", "double rz"]],
 			["fromEulerAnglesXYZ", "CFrame", ["double rx", "double ry", "double rz"]],
@@ -111,6 +114,7 @@ const DATATYPE_SPEC = [
 			["fromMatrix", "CFrame", ["Vector3 pos", "Vector3 vX", "Vector3 vY", "Vector3 vZ"]],
 		],
 		methods: [
+			["Rotation", "CFrame", []],
 			["Inverse", "CFrame", []],
 			["Lerp", "CFrame", ["CFrame goal", "double alpha"]],
 			["Orthonormalize", "CFrame", []],
@@ -181,9 +185,10 @@ const DATATYPE_SPEC = [
 	{
 		name: "Ray",
 		summary: "3D ray. Ray.new(origin, direction).",
-		fields: ["Vector3 Origin", "Vector3 Direction", "Ray Unit"],
+		fields: ["Vector3 Origin", "Vector3 Direction"],
 		ctors: [["Vector3 origin", "Vector3 direction"]],
 		methods: [
+			["Unit", "Ray", []],
 			["ClosestPoint", "Vector3", ["Vector3 point"]],
 			["Distance", "double", ["Vector3 point"]],
 		],
@@ -212,15 +217,20 @@ const DATATYPE_SPEC = [
 		ctors: [["double value"], ["double min", "double max"]],
 	},
 	{
+		name: "NumberSequenceKeypoint",
+		fields: ["double Time", "double Value", "double Envelope"],
+		ctors: [["double time", "double value"], ["double time", "double value", "double envelope"]],
+	},
+	{
 		name: "NumberSequence",
 		summary: "Number curve over time (0–1).",
 		fields: ["NumberSequenceKeypoint* Keypoints"],
 		ctors: [["double value"], ["double n0", "double n1"]],
 	},
 	{
-		name: "NumberSequenceKeypoint",
-		fields: ["double Time", "double Value", "double Envelope"],
-		ctors: [["double time", "double value"], ["double time", "double value", "double envelope"]],
+		name: "ColorSequenceKeypoint",
+		fields: ["double Time", "Color3 Value", "double Envelope"],
+		ctors: [["double time", "Color3 color"]],
 	},
 	{
 		name: "ColorSequence",
@@ -229,20 +239,15 @@ const DATATYPE_SPEC = [
 		ctors: [["Color3 color"], ["Color3 c0", "Color3 c1"]],
 	},
 	{
-		name: "ColorSequenceKeypoint",
-		fields: ["double Time", "Color3 Value", "double Envelope"],
-		ctors: [["double time", "Color3 color"]],
-	},
-	{
 		name: "TweenInfo",
 		summary: "Parameters for TweenService:Create.",
-		fields: ["double Time", "EasingStyle EasingStyle", "EasingDirection EasingDirection", "int RepeatCount", "bool Reverses", "double DelayTime"],
+		fields: ["double Time", "Enum::EasingStyle EasingStyle", "Enum::EasingDirection EasingDirection", "int RepeatCount", "bool Reverses", "double DelayTime"],
 		ctors: [
 			[],
 			["double time"],
-			["double time", "EasingStyle style"],
-			["double time", "EasingStyle style", "EasingDirection direction"],
-			["double time", "EasingStyle style", "EasingDirection direction", "int repeatCount", "bool reverses", "double delayTime"],
+			["double time", "Enum::EasingStyle style"],
+			["double time", "Enum::EasingStyle style", "Enum::EasingDirection direction"],
+			["double time", "Enum::EasingStyle style", "Enum::EasingDirection direction", "int repeatCount", "bool reverses", "double delayTime"],
 		],
 	},
 	{
@@ -322,19 +327,14 @@ const DATATYPE_SPEC = [
 		fields: ["bool X", "bool Y", "bool Z", "bool Top", "bool Bottom", "bool Left", "bool Right", "bool Front", "bool Back"],
 	},
 	{
-		name: "RBXScriptSignal",
-		summary: "Event. playerAdded.Connect(callback) becomes signal:Connect(callback).",
-		methods: [
-			["Connect", "RBXScriptConnection", ["void (*callback)()"]],
-			["Once", "RBXScriptConnection", ["void (*callback)()"]],
-			["Wait", "void", []],
-			["ConnectParallel", "RBXScriptConnection", ["void (*callback)()"]],
-		],
-	},
-	{
 		name: "RBXScriptConnection",
 		fields: ["bool Connected"],
 		methods: [["Disconnect", "void", []]],
+	},
+	{
+		name: "RBXScriptSignal",
+		summary: "Event. playerAdded.Connect(callback) becomes signal:Connect(callback).",
+		custom: true,
 	},
 	{
 		name: "CatalogSearchParams",
@@ -381,11 +381,18 @@ const DATATYPE_SPEC = [
 	{ name: "SecurityCapabilities", ctors: [[]] },
 ];
 
+function stripTypeName(name) {
+	if (!name) {
+		return "";
+	}
+	return String(name).replace(/\?+$/, "");
+}
+
 function ident(name) {
 	if (!name) {
 		return "value";
 	}
-	let cleaned = String(name).replace(/[^A-Za-z0-9_]/g, "_");
+	let cleaned = stripTypeName(name).replace(/[^A-Za-z0-9_]/g, "_");
 	if (/^[0-9]/.test(cleaned)) {
 		cleaned = "_" + cleaned;
 	}
@@ -395,12 +402,20 @@ function ident(name) {
 	return cleaned;
 }
 
-function cppType(type) {
+function memberIdent(className, memberName) {
+	let id = ident(memberName);
+	if (id === ident(className)) {
+		return id + "_";
+	}
+	return id;
+}
+
+function cppType(type, memberName) {
 	if (!type) {
 		return "void";
 	}
 	const category = type.Category;
-	const name = type.Name;
+	const name = stripTypeName(type.Name);
 	if (category === "Primitive") {
 		const map = {
 			bool: "bool",
@@ -418,7 +433,7 @@ function cppType(type) {
 		if (!name || name === "void" || name === "nil") {
 			return "void";
 		}
-		return ident(name) + "*";
+		return "::" + ident(name) + "*";
 	}
 	if (category === "Enum") {
 		return "Enum::" + ident(name);
@@ -427,18 +442,84 @@ function cppType(type) {
 		if (name === "Function" || name === "Tuple" || name === "Variant" || name === "Array" || name === "Dictionary" || name === "Map") {
 			return "void*";
 		}
-		if (name === "Instances") {
-			return "Instance**";
+		if (name === "User") {
+			return "long long";
 		}
-		if (name === "ContentId") {
+		if (name === "Instances") {
+			if (memberName === "GetPlayers" || memberName === "getPlayers" || memberName === "players") {
+				return "LuaArray<::Player*>";
+			}
+			return "LuaArray<::Instance*>";
+		}
+		if (name === "ContentId" || name === "BinaryString" || name === "ProtectedString" || name === "SharedString") {
 			return "string";
 		}
-		return ident(name);
+		return "::" + ident(name);
 	}
 	if (category === "Group") {
 		return "void*";
 	}
 	return "void*";
+}
+
+function isPointerCppType(ty) {
+	return ty.endsWith("*") || ty === "string" || ty === "void*";
+}
+
+function isNumericCppType(ty) {
+	return ty === "int" || ty === "float" || ty === "double" || ty === "long long";
+}
+
+function cppDefault(p) {
+	if (p.Default === undefined || p.Default === null) {
+		return "";
+	}
+	const raw = String(p.Default);
+	const ty = cppType(p.Type);
+	if (raw.includes("__api_dump")) {
+		return "";
+	}
+	if (raw === "nil" || raw === "null") {
+		if (isPointerCppType(ty)) {
+			return " = nullptr";
+		}
+		if (ty === "bool") {
+			return " = false";
+		}
+		if (isNumericCppType(ty)) {
+			return " = 0";
+		}
+		return "";
+	}
+	if (raw === "true" || raw === "false") {
+		return " = " + raw;
+	}
+	if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(raw)) {
+		return " = " + raw;
+	}
+	if (raw.startsWith("Enum.")) {
+		const parts = raw.split(".");
+		if (parts.length >= 3) {
+			return ` = Enum::${ident(parts[1])}::${ident(parts[2])}`;
+		}
+	}
+	if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+		return " = " + JSON.stringify(raw.slice(1, -1));
+	}
+	return "";
+}
+
+function emitParams(parameters) {
+	const list = parameters || [];
+	const defaults = list.map(cppDefault);
+	const use = list.map(() => "");
+	for (let i = list.length - 1; i >= 0; i--) {
+		if (!defaults[i]) {
+			break;
+		}
+		use[i] = defaults[i];
+	}
+	return list.map((p, i) => `${cppType(p.Type)} ${ident(p.Name)}${use[i]}`).join(", ");
 }
 
 function luauTypeName(type) {
@@ -565,12 +646,23 @@ function generate() {
 	const enums = dump.Enums;
 	const byName = new Map(classes.map((cls) => [cls.Name, cls]));
 
+	const skipDatatypes = new Set(["Function", "Tuple", "Variant", "Array", "Dictionary", "Map", "User", "Instances", "ContentId"]);
 	const datatypeNames = new Set(DATATYPE_SPEC.map((d) => d.name));
+	function considerDatatype(t) {
+		if (!t || t.Category !== "DataType" || !t.Name) {
+			return;
+		}
+		const name = stripTypeName(t.Name);
+		if (name && !skipDatatypes.has(name)) {
+			datatypeNames.add(name);
+		}
+	}
 	for (const cls of classes) {
 		for (const member of cls.Members) {
-			const t = member.ValueType || member.ReturnType;
-			if (t && t.Category === "DataType" && t.Name) {
-				datatypeNames.add(t.Name);
+			considerDatatype(member.ValueType);
+			considerDatatype(member.ReturnType);
+			for (const p of member.Parameters || []) {
+				considerDatatype(p.Type);
 			}
 		}
 	}
@@ -640,12 +732,55 @@ using Enum::KeyInterpolationMode;
 using Enum::NormalId;
 using Enum::Axis;
 
+using string = const char*;
+
 struct Instance;
+struct Player;
+
+// Stand-in for values the C++ IntelliSense stubs cannot name precisely.
+struct LuauValue {
+	LuauValue();
+	template <typename T>
+	LuauValue(const T&);
+	template <typename T>
+	operator T() const;
+};
+
+template <typename T>
+struct LuaArray {
+	T* _begin;
+	T* _end;
+	T* begin() const { return _begin; }
+	T* end() const { return _end; }
+	int Size() const;
+	T operator[](int index) const;
+};
 `;
 
 	function emitDatatype(spec) {
+		if (spec.custom && spec.name === "RBXScriptSignal") {
+			return `
+// Event. PlayerAdded.Connect(callback) — F matches any listener arity.
+struct RBXScriptSignal {
+	template <typename F>
+	RBXScriptConnection Connect(F callback);
+	template <typename F>
+	RBXScriptConnection Once(F callback);
+	template <typename F>
+	RBXScriptConnection ConnectParallel(F callback);
+	LuauValue Wait();
+};
+`;
+		}
 		let out = `\n// ${spec.summary || spec.name}\nstruct ${ident(spec.name)} {\n`;
 		for (const field of spec.fields || []) {
+			const parts = field.trim().split(/\s+/);
+			const typeName = parts[0];
+			const fieldName = parts[parts.length - 1];
+			if (typeName === ident(spec.name) && !/[*&(]/.test(fieldName)) {
+				out += `\t${ident(spec.name)} ${fieldName}() const;\n`;
+				continue;
+			}
 			out += `\t${field};\n`;
 		}
 		for (const ctor of spec.ctors || []) {
@@ -668,9 +803,10 @@ struct Instance;
 		dtHpp += emitDatatype(spec);
 	}
 	for (const name of [...datatypeNames].sort()) {
-		if (!specNames.has(name) && ident(name) !== "Instance") {
-			dtHpp += `\nstruct ${ident(name)} {};\n`;
+		if (specNames.has(name) || skipDatatypes.has(name) || ident(name) === "Instance") {
+			continue;
 		}
+		dtHpp += `\nstruct ${ident(name)} {};\n`;
 	}
 	write(path.join(INCLUDE, "datatypes.hpp"), dtHpp);
 
@@ -690,21 +826,19 @@ struct Instance;
 		if (!parent) {
 			instHpp += `\t${ident(cls.Name)}() = default;\n`;
 		}
-		if (isCreatable(cls)) {
-			instHpp += `\t${ident(cls.Name)}(Instance* parent);\n`;
+		if (isCreatable(cls) || cls.Name === "Folder" || cls.Name === "Part") {
+			instHpp += `\t${ident(cls.Name)}(::Instance* parent);\n`;
 		}
 		for (const member of cls.Members) {
+			const name = memberIdent(cls.Name, member.Name);
 			if (member.MemberType === "Property") {
-				instHpp += `\t${cppType(member.ValueType)} ${ident(member.Name)};\n`;
+				instHpp += `\t${cppType(member.ValueType)} ${name};\n`;
 			} else if (member.MemberType === "Function") {
-				const params = (member.Parameters || [])
-					.map((p) => `${cppType(p.Type)} ${ident(p.Name)}`)
-					.join(", ");
-				instHpp += `\t${cppType(member.ReturnType)} ${ident(member.Name)}(${params});\n`;
+				instHpp += `\t${cppType(member.ReturnType, member.Name)} ${name}(${emitParams(member.Parameters)});\n`;
 			} else if (member.MemberType === "Event") {
-				instHpp += `\tRBXScriptSignal ${ident(member.Name)};\n`;
+				instHpp += `\tRBXScriptSignal ${name};\n`;
 			} else if (member.MemberType === "Callback") {
-				instHpp += `\tvoid (*${ident(member.Name)})();\n`;
+				instHpp += `\tvoid (*${name})();\n`;
 			}
 		}
 		instHpp += `};\n\n`;
@@ -715,8 +849,6 @@ struct Instance;
 // Cluaupp — full Roblox API for IntelliSense.
 // Source: official client dump + datatypes from create.roblox.com
 // The compiler ignores #include and emits real Luau (Vector3.new, Instance.new, :GetPlayers, ...).
-
-using string = const char*;
 
 #include <cluaupp/generated/enums.hpp>
 #include <cluaupp/datatypes.hpp>
@@ -738,21 +870,23 @@ void warn(string message);
 void error(string message);
 double tick();
 double time();
-void wait(double seconds);
+void wait(double seconds = 0);
 void spawn(void (*callback)());
 void delay(double seconds, void (*callback)());
-
-#ifndef nullptr
-#define nullptr 0
-#endif
 `;
 	write(path.join(INCLUDE, "roblox.hpp"), umbrella);
 
-	buildSite({ classes, enums, byName, dump, instanceTypes, services });
 	const gameInclude = path.join(ROOT, "..", "game", "include", "cluaupp");
 	if (fs.existsSync(path.join(ROOT, "..", "game"))) {
 		fs.cpSync(INCLUDE, gameInclude, { recursive: true });
 	}
+
+	try {
+		buildSite({ classes, enums, byName, dump, instanceTypes, services });
+	} catch (err) {
+		console.warn("Site generate skipped:", err.message);
+	}
+
 	console.log(
 		"Generated Cluaupp API:",
 		classes.length,

@@ -33,7 +33,7 @@ If a file needs `DataStoreService`, it is server. If it needs `UserInputService`
 ## Headers vs scripts
 
 - `.h` / `.hpp` in `src/` are inlined (`#include "config.h"`) and can hold `const` values and prototypes.
-- `#include <cluaupp/...>` is IntelliSense only — never inlined.
+- `#include <cluaupp/...>` is IntelliSense only — never inlined. `cluaupp build` copies those headers into the game `include/` folder. Cursor/clangd also reads `compile_flags.txt`.
 
 Keep config in `src/shared/config.h`:
 

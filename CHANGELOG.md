@@ -11,7 +11,8 @@
 - Datatypes: Vector3, Vector2, CFrame, UDim, UDim2, Color3, BrickColor, Rect, Ray, …
 - `Enum::Material::Plastic` → `Enum.Material.Plastic`
 - GitHub Pages site for every class, method, and event
-- Game template + IntelliSense header
+- Game template + IntelliSense header (`roblox.hpp`, `compile_flags.txt`, clangd)
+- IntelliSense headers are valid C++: `LuaArray` for `GetPlayers`, templated `Connect`, optional dump defaults (`FindFirstChild`), no recursive `Vector3.Unit` field
 - Libraries: full GitHub systems in CluauppLibs (Janitor, Promise, Fusion, Iris, Cmdr, TopbarPlus, Chrono, DataServiceV2, EzVisualz, StateMachine, Spring, Display, Module3D, FormatNumber) plus Cluaupp originals (Net, MathUtils, Twinkle, StickyBillboard, VfxUtil)
 - Wally is optional; `node scripts/vendor-libs.js` re-copies from `vendor/` clones
 - Moonwave docs (C++ types, const, safety, organization)

@@ -1,32 +1,41 @@
 #pragma once
 
 // dphfox/Fusion 0.4 — vendored into CluauppLibs.Fusion
+class FusionScope {};
+class FusionState {};
+class FusionKey {};
+class FusionObserver {};
+class FusionContextual {};
+
 namespace Fusion {
-	auto scoped();
-	auto New(string className);
-	auto Value(auto initial);
-	auto Computed(void (*callback)());
-	auto Observer(auto value);
-	auto peek(auto value);
-	auto Hydrate(Instance* instance);
-	auto Children();
-	auto Child();
-	auto OnEvent(string eventName);
-	auto OnChange(string propertyName);
-	auto Out(string propertyName);
-	auto Attribute(string name);
-	auto AttributeChange(string name);
-	auto AttributeOut(string name);
-	auto Tag(string name);
-	auto Tween(auto value, auto tweenInfo);
-	auto Spring(auto value, double speed, double damping);
-	auto ForKeys(auto input, void (*processor)());
-	auto ForValues(auto input, void (*processor)());
-	auto ForPairs(auto input, void (*processor)());
-	auto doCleanup(auto task);
-	auto deriveScope(auto scope);
-	auto innerScope(auto scope);
-	auto insert(auto scope, auto task);
-	auto Contextual(auto defaultValue);
-	auto Safe(void (*callback)());
+	FusionScope scoped();
+	FusionKey New(string className);
+	template <typename T>
+	FusionState Value(T initial);
+	FusionState Computed(void (*callback)());
+	FusionObserver Observer(FusionState value);
+	template <typename T>
+	T peek(FusionState value);
+	FusionKey Hydrate(Instance* instance);
+	FusionKey Children();
+	FusionKey Child();
+	FusionKey OnEvent(string eventName);
+	FusionKey OnChange(string propertyName);
+	FusionKey Out(string propertyName);
+	FusionKey Attribute(string name);
+	FusionKey AttributeChange(string name);
+	FusionKey AttributeOut(string name);
+	FusionKey Tag(string name);
+	FusionState Tween(FusionState value, TweenInfo tweenInfo);
+	FusionState Spring(FusionState value, double speed, double damping);
+	FusionState ForKeys(FusionState input, void (*processor)());
+	FusionState ForValues(FusionState input, void (*processor)());
+	FusionState ForPairs(FusionState input, void (*processor)());
+	void doCleanup(Instance* task);
+	FusionScope deriveScope(FusionScope scope);
+	FusionScope innerScope(FusionScope scope);
+	void insert(FusionScope scope, Instance* task);
+	template <typename T>
+	FusionContextual Contextual(T defaultValue);
+	void Safe(void (*callback)());
 }

@@ -75,33 +75,26 @@ function rmDir(dir) {
 	}
 }
 
-const KEEP_FILES = new Set([
-	"Net.luau",
-	"MathUtils.luau",
-	"Twinkle.luau",
-	"ArrayIndexer.luau",
-	"Occlude.luau",
-	"StickyBillboard.luau",
-	"VfxUtil.luau",
+const KEEP_TOP = new Set([
+	"Net",
+	"MathUtils",
+	"Twinkle",
+	"ArrayIndexer",
+	"Occlude",
+	"StickyBillboard",
+	"VfxUtil",
+	"DataService",
 	"SOURCES.md",
 ]);
 
-function clearReplacedRuntime() {
-	for (const entry of fs.readdirSync(RUNTIME, { withFileTypes: true })) {
-		if (KEEP_FILES.has(entry.name)) {
-			continue;
-		}
-		const full = path.join(RUNTIME, entry.name);
-		if (entry.isDirectory()) {
-			rmDir(full);
-		} else if (entry.name.endsWith(".luau") || entry.name.endsWith(".lua") || entry.name === "_wally.luau") {
-			fs.unlinkSync(full);
-		}
+function clearStaleRuntimeStubs() {
+	for (const name of ["Fusion.luau", "Iris.luau", "Cmdr.luau", "DataService.luau", "Janitor.luau", "_wally.luau"]) {
+		rmIfFile(path.join(RUNTIME, name));
 	}
 }
 
-function vendorPackage({ destName, sourceDir, repoDir, skip }) {
-	const dest = path.join(RUNTIME, destName);
+function vendorImpl({ destName, sourceDir, repoDir, skip }) {
+	const dest = path.join(RUNTIME, destName, "_impl");
 	rmDir(dest);
 	copyTree(sourceDir, dest, { skip });
 	if (repoDir) {
@@ -118,22 +111,28 @@ function patchFile(file, transform) {
 	write(file, next);
 }
 
-clearReplacedRuntime();
+clearStaleRuntimeStubs();
 
-vendorPackage({
+vendorImpl({
 	destName: "Janitor",
 	sourceDir: path.join(VENDOR, "Janitor", "src"),
 	repoDir: path.join(VENDOR, "Janitor"),
-	skip: ["__tests__", "jest.config.luau"],
+	skip: ["__tests__", "jest.config.luau", "Promise.luau", "Promise.lua"],
 });
+rmIfFile(path.join(RUNTIME, "Janitor", "_impl", "Promise.luau"));
+patchFile(path.join(RUNTIME, "Janitor", "_impl", "init.luau"), (text) =>
+	text
+		.replace(/require\(script\.Promise\)/g, "require(script.Parent.Parent.Promise)")
+		.replace(/require\(script\.Parent\.Promise\)/g, "require(script.Parent.Parent.Promise)"),
+);
 
-vendorPackage({
+vendorImpl({
 	destName: "Promise",
 	sourceDir: path.join(VENDOR, "Promise", "lib"),
 	repoDir: path.join(VENDOR, "Promise"),
 	skip: ["init.spec.lua"],
 });
-patchFile(path.join(RUNTIME, "Promise", "init.lua"), (text) => {
+patchFile(path.join(RUNTIME, "Promise", "_impl", "init.lua"), (text) => {
 	if (text.includes("Promise.prototype.Then = Promise.prototype.andThen")) {
 		return text;
 	}
@@ -147,151 +146,51 @@ Promise.prototype.Catch = Promise.prototype.catch
 Promise.prototype.Finally = Promise.prototype.finally
 Promise.prototype.Await = Promise.prototype.await
 Promise.prototype.Cancel = Promise.prototype.cancel
+Promise.prototype.GetStatus = Promise.prototype.getStatus
 
 return Promise
 `,
 	);
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "Fusion",
 	sourceDir: path.join(VENDOR, "Fusion", "src"),
 	repoDir: path.join(VENDOR, "Fusion"),
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "Iris",
 	sourceDir: path.join(VENDOR, "Iris", "lib"),
 	repoDir: path.join(VENDOR, "Iris"),
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "Cmdr",
 	sourceDir: path.join(VENDOR, "Cmdr", "Cmdr"),
 	repoDir: path.join(VENDOR, "Cmdr"),
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "TopbarPlus",
 	sourceDir: path.join(VENDOR, "TopbarPlus", "src"),
 	repoDir: path.join(VENDOR, "TopbarPlus"),
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "Chrono",
 	sourceDir: path.join(VENDOR, "Chrono", "src"),
 	repoDir: path.join(VENDOR, "Chrono"),
 });
 
-vendorPackage({
-	destName: "DataService",
-	sourceDir: path.join(VENDOR, "dataservicev2", "src"),
-	repoDir: path.join(VENDOR, "dataservicev2"),
-});
-patchFile(path.join(RUNTIME, "DataService", "init.luau"), (text) => {
-	if (text.includes("Cluaupp C++ surface")) {
-		return text;
-	}
-	return text.replace(
-		/\nreturn DataService\s*$/,
-		`
+// DataService is a typed Cluaupp border over KartzRbx/dataservicev2 — do not dump over init.luau.
 
-local function sessionOf(player: Player?)
-	if RunService:IsServer() then
-		if player == nil then
-			return nil
-		end
-		return DataService.Server:Get(player)
-	end
-	return DataService.Client:Get()
-end
-
--- Cluaupp C++ surface: DataService::Get(player, path)
-function DataService.Get(player: Player, path: any): any
-	local data = sessionOf(player)
-	if data == nil then
-		return nil
-	end
-	return data:Get(path)
-end
-
-function DataService.GetPersisted(player: Player, path: any): any
-	local data = sessionOf(player)
-	if data == nil then
-		return nil
-	end
-	return data:GetPersisted(path)
-end
-
-function DataService.Set(player: Player, path: any, value: any)
-	local data = sessionOf(player)
-	if data then
-		data:Set(path, value)
-	end
-end
-
-function DataService.SetTransient(player: Player, path: any, value: any)
-	local data = sessionOf(player)
-	if data then
-		data:SetTransient(path, value)
-	end
-end
-
-function DataService.UpdateTransient(player: Player, path: any, value: any)
-	local data = sessionOf(player)
-	if data then
-		data:UpdateTransient(path, function()
-			return value
-		end)
-	end
-end
-
-function DataService.ClearTransient(player: Player, path: any)
-	local data = sessionOf(player)
-	if data then
-		data:ClearTransient(path)
-	end
-end
-
-function DataService.GetOrderedList(player: Player, path: any): any
-	local data = sessionOf(player)
-	if data == nil then
-		return nil
-	end
-	return data:GetOrderedList(path, {})
-end
-
-function DataService.GetOrderedListWithPriority(player: Player, path: any): any
-	local data = sessionOf(player)
-	if data == nil then
-		return nil
-	end
-	return data:GetOrderedListWithPriority(path, "Priority")
-end
-
-function DataService.WaitFor(player: Player): any
-	if RunService:IsServer() then
-		return DataService.Server:WaitFor(player)
-	end
-	return DataService.Client:WaitForData()
-end
-
-function DataService.Observe(player: Player, path: any, callback: (...any) -> ()): RBXScriptConnection
-	local data = DataService.WaitFor(player)
-	return data:GetChangedSignal(path):Connect(callback)
-end
-
-return DataService
-`,
-	);
-});
-
-vendorPackage({
+vendorImpl({
 	destName: "EzVisualz",
 	sourceDir: path.join(VENDOR, "ezVisualz", "lib", "EasyVisuals"),
 	repoDir: path.join(VENDOR, "ezVisualz"),
 });
-patchFile(path.join(RUNTIME, "EzVisualz", "init.luau"), (text) => {
+patchFile(path.join(RUNTIME, "EzVisualz", "_impl", "init.luau"), (text) => {
 	if (text.includes("function Effect:Play()")) {
 		return text;
 	}
@@ -309,12 +208,12 @@ return Effect;`,
 	);
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "StateMachine",
 	sourceDir: path.join(VENDOR, "RobloxStateMachine", "src", "StateMachine"),
 	repoDir: path.join(VENDOR, "RobloxStateMachine"),
 });
-patchFile(path.join(RUNTIME, "StateMachine", "init.lua"), (text) => {
+patchFile(path.join(RUNTIME, "StateMachine", "_impl", "init.lua"), (text) => {
 	if (text.includes("function StateMachine:GetState()")) {
 		return text;
 	}
@@ -328,12 +227,12 @@ return setmetatable(StateMachine, {`,
 	);
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "Spring",
 	sourceDir: path.join(VENDOR, "spring", "src"),
 	repoDir: path.join(VENDOR, "spring"),
 });
-patchFile(path.join(RUNTIME, "Spring", "init.luau"), (text) => {
+patchFile(path.join(RUNTIME, "Spring", "_impl", "init.luau"), (text) => {
 	if (text.includes("function Spring:Impulse")) {
 		return text;
 	}
@@ -361,7 +260,7 @@ return Spring
 	);
 });
 
-const displayDest = vendorPackage({
+const displayDest = vendorImpl({
 	destName: "Display",
 	sourceDir: path.join(VENDOR, "display", "src"),
 	repoDir: path.join(VENDOR, "display"),
@@ -372,24 +271,24 @@ patchFile(path.join(displayDest, "init.luau"), (text) =>
 	text.replace('require("@pkg/@nightcycle/option")', "require(script.option)"),
 );
 
-vendorPackage({
+vendorImpl({
 	destName: "Module3D",
 	sourceDir: path.join(VENDOR, "Module3D", "src"),
 	repoDir: path.join(VENDOR, "Module3D"),
 });
 
-vendorPackage({
+vendorImpl({
 	destName: "FormatNumber",
 	sourceDir: path.join(VENDOR, "FormatNumber", "src"),
 	repoDir: path.join(VENDOR, "FormatNumber"),
 	skip: ["Test"],
 });
-patchFile(path.join(RUNTIME, "FormatNumber", "Simple", "init.lua"), (text) =>
+patchFile(path.join(RUNTIME, "FormatNumber", "_impl", "Simple", "init.lua"), (text) =>
 	text.replace(/local COMPACT_SUFFIX = \{[\s\S]*?\}/, `local COMPACT_SUFFIX = {
 	"K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No",
 }`),
 );
-patchFile(path.join(RUNTIME, "FormatNumber", "init.lua"), (text) => {
+patchFile(path.join(RUNTIME, "FormatNumber", "_impl", "init.lua"), (text) => {
 	text = text.replace(/\nFormatNumber\.Test = require\(script\.Test\)\s*/g, "\n");
 	if (text.includes("function FormatNumber.Abbreviate")) {
 		return text;

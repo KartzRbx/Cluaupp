@@ -1,5 +1,36 @@
 "use strict";
 
+const TYPE_EXPORTS = {
+	Janitor: "Janitor",
+	Promise: "Promise",
+	Net: "Net",
+	Icon: "Icon",
+	StateMachine: "StateMachine",
+	Spring: "Spring",
+	StickyBillboard: "StickyBillboard",
+	EzVisualz: "EzVisualz",
+	Module3D: "Module3D",
+	MathUtils: "MathUtils",
+	Twinkle: "Twinkle",
+	VfxUtil: "VfxUtil",
+	FormatNumber: "FormatNumber",
+	Fusion: "Fusion",
+	Iris: "Iris",
+	Cmdr: "Cmdr",
+	Chrono: "Chrono",
+	DataService: "DataService",
+	Display: "Display",
+};
+
+const EXTRA_TYPE_EXPORTS = {
+	DataService: {
+		Data: "Data",
+		DataPath: "Path",
+		DataServiceServer: "ServerApi",
+		DataServiceClient: "ClientApi",
+	},
+};
+
 const MODULES = {
 	Janitor: { file: "Janitor", bind: "Janitor" },
 	Promise: { file: "Promise", bind: "Promise" },
@@ -25,6 +56,8 @@ const MODULES = {
 	Fusion: { file: "Fusion", bind: "Fusion" },
 	StateMachine: { file: "StateMachine", bind: "StateMachine" },
 	VfxUtil: { file: "VfxUtil", bind: "VfxUtil" },
+	ArrayIndexer: { file: "ArrayIndexer", bind: "ArrayIndexer" },
+	Occlude: { file: "Occlude", bind: "Occlude" },
 };
 
 const INCLUDE_TO_MODULE = {
@@ -53,6 +86,8 @@ const INCLUDE_TO_MODULE = {
 	robloxstatemachine: "StateMachine",
 	vfx: "VfxUtil",
 	vfxutil: "VfxUtil",
+	arrayindexer: "ArrayIndexer",
+	occlude: "Occlude",
 	libs: null,
 };
 
@@ -91,12 +126,29 @@ const LIBRARY_METHODS = new Set([
 	"SetDepthMultiplier",
 	"GetDepthMultiplier",
 	"GetPersisted",
+	"GetTransient",
+	"HasTransient",
 	"SetTransient",
 	"UpdateTransient",
 	"ClearTransient",
+	"ArrayInsert",
+	"ArrayInsertTransient",
+	"ArrayRemove",
+	"ArrayRemoveTransient",
 	"GetOrderedList",
 	"GetOrderedListWithPriority",
+	"GetChangedSignal",
+	"GetPathChangedSignal",
+	"GetIndexChangedSignal",
+	"GetArrayInsertedSignal",
+	"GetArrayRemovedSignal",
+	"Typed",
 	"WaitFor",
+	"WaitForData",
+	"HasData",
+	"GetProfile",
+	"GetBufferStats",
+	"Init",
 	"Observe",
 	"Impulse",
 	"SetGoal",
@@ -245,13 +297,28 @@ function collectLibraries(source, ast) {
 	return unique;
 }
 
+function requireCluauppLib(name) {
+	return `require(ReplicatedStorage.CluauppLibs.${name})`;
+}
+
 function emitRequires(libraries) {
 	if (!libraries.length) {
 		return "";
 	}
-	const lines = libraries.map((spec) => {
-		return `local ${spec.bind} = require(game:GetService("ReplicatedStorage"):WaitForChild("CluauppLibs"):WaitForChild("${spec.file}"))`;
-	});
+	const lines = ['local ReplicatedStorage = game:GetService("ReplicatedStorage")'];
+	for (const spec of libraries) {
+		lines.push(`local ${spec.bind} = ${requireCluauppLib(spec.file)}`);
+		const exported = TYPE_EXPORTS[spec.bind];
+		if (exported) {
+			lines.push(`type ${spec.bind} = ${spec.bind}.${exported}`);
+		}
+		const extra = EXTRA_TYPE_EXPORTS[spec.bind];
+		if (extra) {
+			for (const [alias, exportedName] of Object.entries(extra)) {
+				lines.push(`type ${alias} = ${spec.bind}.${exportedName}`);
+			}
+		}
+	}
 	return `${lines.join("\n")}\n`;
 }
 
@@ -274,11 +341,15 @@ function insertRequires(luau, libraries) {
 
 module.exports = {
 	MODULES,
+	TYPE_EXPORTS,
+	EXTRA_TYPE_EXPORTS,
 	LIBRARY_TYPES,
 	LIBRARY_METHODS,
 	MODULE_COLON,
 	isLibraryType,
 	isLibraryMethod,
 	collectLibraries,
+	requireCluauppLib,
+	emitRequires,
 	insertRequires,
 };

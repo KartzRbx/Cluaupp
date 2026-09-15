@@ -45,6 +45,18 @@ function copyRuntime(dest) {
 	}
 }
 
+function copyHeaders(dest) {
+	const from = path.join(__dirname, "..", "include", "cluaupp");
+	const to = path.join(dest, "include", "cluaupp");
+	if (!fs.existsSync(from)) {
+		return;
+	}
+	if (fs.existsSync(to)) {
+		fs.rmSync(to, { recursive: true, force: true });
+	}
+	copyDir(from, to);
+}
+
 function loadConfig(root) {
 	const configNames = ["cluaupp.config.json", "cluau.config.json"];
 	for (const name of configNames) {
@@ -79,6 +91,7 @@ function build(root, options = {}) {
 	const exitOnError = options.exitOnError !== false;
 	const config = loadConfig(root);
 	copyRuntime(root);
+	copyHeaders(root);
 	const files = collectCpp(path.join(root, config.rootDir));
 	if (files.length === 0) {
 		console.error("no .cpp/.h/.hpp files in", config.rootDir);

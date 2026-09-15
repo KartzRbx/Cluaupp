@@ -1,22 +1,10 @@
 title = "Cluaupp"
-gitRepoUrl = "https://github.com/kartzDev/cluaupp"
+gitRepoUrl = "https://github.com/KartzRbx/Cluaupp"
 gitSourceBranch = "main"
 changelog = true
 classPath = "runtime"
 
 apiCategories = ["constructor", "lifecycle", "events"]
-
-[[classOrder]]
-section = "Core"
-classes = ["Janitor", "Promise", "Net"]
-
-[[classOrder]]
-section = "Gameplay"
-classes = ["MathUtils", "FormatNumber", "Module3D", "Twinkle"]
-
-[[classOrder]]
-section = "Types"
-classes = ["ArrayIndexer", "Occlude"]
 
 [home]
 enabled = true
@@ -28,17 +16,17 @@ description = "Write a C++ subset. Cluaupp emits modern Luau (--!strict, local, 
 
 [[home.features]]
 title = "Libraries that compile with you"
-description = "Janitor, Promise, buffer Net, Module3D, Twinkle, MathUtils, FormatNumber ship in CluauppLibs. DataServiceV2, Fusion, Cmdr and the rest install from Wally with C++ headers for IntelliSense."
+description = "Janitor, Promise, buffer Net, Module3D, Twinkle, MathUtils, FormatNumber, and DataService ship in CluauppLibs. Fusion, Cmdr and the rest sit behind typed init.luau borders."
 
 [[home.features]]
 title = "Output treated as a king"
 description = "A tiny leaderstats.cpp becomes LeaderStats/Main, PlayersManager, CacheController, and a Types module — --!strict, no any, PascalCase folders Studio can read."
 
 [docusaurus]
-organizationName = "kartzDev"
-projectName = "cluaupp"
-url = "https://kartzdev.github.io"
-baseUrl = "/cluaupp/"
+organizationName = "KartzRbx"
+projectName = "Cluaupp"
+url = "https://kartzrbx.github.io"
+baseUrl = "/Cluaupp/"
 tagline = "The definitive merge of C++ and modern Luau"
 onBrokenLinks = "warn"
 onBrokenMarkdownLinks = "warn"

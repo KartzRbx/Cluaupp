@@ -5,7 +5,7 @@ assert(RunService:IsServer(), "DataService.Server may only be required on the se
 
 local packages = script.Parent.Packages
 
-const Janitor = require(packages.janitor)
+const Janitor = require(script.Parent.Parent.Janitor)
 const Signal = require(packages.signal)
 
 const Data = require(script.Parent.Data)
@@ -148,7 +148,7 @@ function Server:Init<T>(options: Options<T>)
 			self:_sendInit(player)
 		end
 	end)
-	self._janitor:add(function()
+	self._janitor:Add(function()
 		onReadyConnection:Disconnect()
 	end, true)
 
@@ -157,10 +157,10 @@ function Server:Init<T>(options: Options<T>)
 			self:_playerAdded(player)
 		end)
 	end
-	self._janitor:add(Players.PlayerAdded:Connect(function(p)
+	self._janitor:Add(Players.PlayerAdded:Connect(function(p)
 		self:_playerAdded(p)
 	end), "Disconnect")
-	self._janitor:add(Players.PlayerRemoving:Connect(function(p)
+	self._janitor:Add(Players.PlayerRemoving:Connect(function(p)
 		self:_playerRemoving(p)
 	end), "Disconnect")
 end
@@ -172,7 +172,7 @@ end
 
 function Server:_playerAdded(player: Player)
 	if self._playerJanitors[player] then
-		self._playerJanitors[player]:cleanup()
+		self._playerJanitors[player]:Cleanup()
 	end
 	local playerJanitor = Janitor.new()
 	self._playerJanitors[player] = playerJanitor
@@ -197,7 +197,7 @@ function Server:_playerAdded(player: Player)
 			player:Kick("Data session ended - please rejoin")
 		end
 	end)
-	playerJanitor:add(function()
+	playerJanitor:Add(function()
 		sessionEndConnection:Disconnect()
 	end, true)
 
@@ -223,7 +223,7 @@ function Server:_playerAdded(player: Player)
 		end
 		Replicator:Send(player, action, path, ...)
 	end)
-	playerJanitor:add(function()
+	playerJanitor:Add(function()
 		dataChangedConnection:Disconnect()
 	end, true)
 
@@ -251,7 +251,7 @@ end
 function Server:_playerRemoving(player: Player)
 	local playerJanitor = self._playerJanitors[player]
 	if playerJanitor then
-		playerJanitor:cleanup()
+		playerJanitor:Cleanup()
 		self._playerJanitors[player] = nil
 	end
 
@@ -347,7 +347,7 @@ function Server:Destroy()
 		self:_playerRemoving(player)
 	end
 	if self._janitor then
-		self._janitor:cleanup()
+		self._janitor:Cleanup()
 		self._janitor = nil
 	end
 	Replicator:Destroy()

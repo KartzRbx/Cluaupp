@@ -1,6 +1,63 @@
-const RunService = game:GetService("RunService")
+--!strict
+-- Cluaupp DataService — typed Path tokens on the public border.
+-- Engine: KartzRbx/dataservicev2 (Server / Client / Data / Path).
+-- Cleanup uses the sibling CluauppLibs.Janitor, never Packages.janitor.
 
-const Path = require(script.Path)
+--[=[
+	@class DataService
+	ProfileStore persistence, typed Paths, and Data signals (`GetChangedSignal`, …).
+]=]
+
+local RunService = game:GetService("RunService")
+
+local Path = require(script.Path)
+local Data = require(script.Data)
+local EnumModule = require(script.Enum)
+
+export type Path<V = unknown> = Path.PathToken<V>
+export type PathArray = Path.Path
+export type PathLike<V = unknown> = Path<V> | PathArray
+export type PathTree<T> = Path.PathTree<T>
+export type Data<T> = Data.Data<T>
+export type OrderedListOptions = Data.OrderedListOptions
+export type OrderedListEntry<V> = Data.OrderedListEntry<V>
+export type DataBufferStats = {
+	Bytes: number,
+	Messages: number,
+	LastPacketBytes: number,
+	LastUtilization: number,
+}
+
+export type ServerApi<T> = {
+	Init: (
+		self: ServerApi<T>,
+		options: {
+			Template: T,
+			StoreName: string?,
+			UseMock: boolean?,
+			KeyPrefix: string?,
+			Exclude: { PathArray }?,
+			StrictPaths: boolean?,
+			AutoCreateMissingTables: boolean?,
+		}
+	) -> ServerApi<T>,
+	WaitFor: (self: ServerApi<T>, player: Player) -> Data<T>,
+	Get: (self: ServerApi<T>, player: Player) -> Data<T>?,
+	HasData: (self: ServerApi<T>, player: Player) -> boolean,
+	GetProfile: (self: ServerApi<T>, player: Player) -> unknown?,
+	GetBufferStats: (self: ServerApi<T>, player: Player?) -> DataBufferStats?,
+	Destroy: (self: ServerApi<T>) -> (),
+	Paths: PathTree<T>,
+}
+
+export type ClientApi<T> = {
+	Init: (self: ClientApi<T>) -> Data<T>,
+	WaitForData: (self: ClientApi<T>) -> Data<T>,
+	Get: (self: ClientApi<T>) -> Data<T>?,
+	GetBufferStats: (self: ClientApi<T>) -> DataBufferStats?,
+	Destroy: (self: ClientApi<T>) -> (),
+	Paths: PathTree<T>,
+}
 
 local function createUnavailableContext(contextName: string)
 	local rootPaths = Path.rootToken()
@@ -18,6 +75,12 @@ local function createUnavailableContext(contextName: string)
 		Get = function()
 			error(`DataService.{contextName}:Get is not available in this runtime context`, 2)
 		end,
+		HasData = function()
+			error(`DataService.{contextName}:HasData is not available in this runtime context`, 2)
+		end,
+		GetProfile = function()
+			error(`DataService.{contextName}:GetProfile is not available in this runtime context`, 2)
+		end,
 		GetBufferStats = function()
 			return nil
 		end,
@@ -26,66 +89,67 @@ local function createUnavailableContext(contextName: string)
 	}
 end
 
-const DataService = {
+local DataService = {
 	Paths = Path.rootToken(),
-	Enum = require(script.Enum),
+	Enum = EnumModule,
+	Server = nil :: ServerApi<unknown>?,
+	Client = nil :: ClientApi<unknown>?,
 }
 
 if RunService:IsServer() then
-	const Server = require(script.Server)
-	DataService.Server = Server
-	DataService.Client = createUnavailableContext("Client")
-	DataService.Paths = Server.Paths
+	DataService.Server = require(script.Server) :: ServerApi<unknown>
+	DataService.Client = createUnavailableContext("Client") :: ClientApi<unknown>
+	DataService.Paths = DataService.Server.Paths
 else
-	const Client = require(script.Client)
-	DataService.Client = Client
-	DataService.Server = createUnavailableContext("Server")
-	DataService.Paths = Client.Paths
+	DataService.Client = require(script.Client) :: ClientApi<unknown>
+	DataService.Server = createUnavailableContext("Server") :: ServerApi<unknown>
+	DataService.Paths = DataService.Client.Paths
 end
 
-
-local function sessionOf(player: Player?)
+local function sessionOf(player: Player?): Data<unknown>?
 	if RunService:IsServer() then
-		if player == nil then
+		if player == nil or DataService.Server == nil then
 			return nil
 		end
 		return DataService.Server:Get(player)
 	end
+	if DataService.Client == nil then
+		return nil
+	end
 	return DataService.Client:Get()
 end
 
--- Cluaupp C++ surface: DataService::Get(player, path)
-function DataService.Get(player: Player, path: any): any
+function DataService.Get<V>(player: Player, path: PathLike<V>): V?
 	local data = sessionOf(player)
 	if data == nil then
 		return nil
 	end
-	return data:Get(path)
+	return data:Get(path) :: V
 end
 
-function DataService.GetPersisted(player: Player, path: any): any
+function DataService.GetPersisted<V>(player: Player, path: PathLike<V>): V?
 	local data = sessionOf(player)
 	if data == nil then
 		return nil
 	end
-	return data:GetPersisted(path)
+	return data:GetPersisted(path) :: V
 end
 
-function DataService.Set(player: Player, path: any, value: any)
+function DataService.Set<V>(player: Player, path: PathLike<V>, value: V)
 	local data = sessionOf(player)
 	if data then
 		data:Set(path, value)
 	end
 end
 
-function DataService.SetTransient(player: Player, path: any, value: any)
+function DataService.SetTransient<V>(player: Player, path: PathLike<V>, value: V)
 	local data = sessionOf(player)
 	if data then
 		data:SetTransient(path, value)
 	end
 end
 
-function DataService.UpdateTransient(player: Player, path: any, value: any)
+function DataService.UpdateTransient<V>(player: Player, path: PathLike<V>, value: V)
 	local data = sessionOf(player)
 	if data then
 		data:UpdateTransient(path, function()
@@ -94,22 +158,22 @@ function DataService.UpdateTransient(player: Player, path: any, value: any)
 	end
 end
 
-function DataService.ClearTransient(player: Player, path: any)
+function DataService.ClearTransient(player: Player, path: PathLike<unknown>)
 	local data = sessionOf(player)
 	if data then
 		data:ClearTransient(path)
 	end
 end
 
-function DataService.GetOrderedList(player: Player, path: any): any
+function DataService.GetOrderedList<V>(player: Player, path: PathLike<{ V }>): { Data.OrderedListEntry<V> }?
 	local data = sessionOf(player)
 	if data == nil then
 		return nil
 	end
-	return data:GetOrderedList(path, {})
+	return data:GetOrderedList(path, { key = "Priority" })
 end
 
-function DataService.GetOrderedListWithPriority(player: Player, path: any): any
+function DataService.GetOrderedListWithPriority<V>(player: Player, path: PathLike<{ V }>): { Data.OrderedListEntry<V> }?
 	local data = sessionOf(player)
 	if data == nil then
 		return nil
@@ -117,16 +181,24 @@ function DataService.GetOrderedListWithPriority(player: Player, path: any): any
 	return data:GetOrderedListWithPriority(path, "Priority")
 end
 
-function DataService.WaitFor(player: Player): any
+function DataService.WaitFor<T>(player: Player): Data<T>
 	if RunService:IsServer() then
-		return DataService.Server:WaitFor(player)
+		assert(DataService.Server, "DataService.Server is unavailable")
+		return DataService.Server:WaitFor(player) :: Data<T>
 	end
-	return DataService.Client:WaitForData()
+	assert(DataService.Client, "DataService.Client is unavailable")
+	return DataService.Client:WaitForData() :: Data<T>
 end
 
-function DataService.Observe(player: Player, path: any, callback: (...any) -> ()): RBXScriptConnection
+function DataService.Observe<V>(
+	player: Player,
+	path: PathLike<V>,
+	callback: (newValue: V, oldValue: V) -> ()
+): RBXScriptConnection
 	local data = DataService.WaitFor(player)
 	return data:GetChangedSignal(path):Connect(callback)
 end
+
+export type DataService = typeof(DataService)
 
 return DataService

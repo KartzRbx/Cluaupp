@@ -1,6 +1,8 @@
 #pragma once
 
 // 1ForeverHD/TopbarPlus — vendored into CluauppLibs.TopbarPlus (class Icon)
+class IconTheme {};
+
 class Icon {
 public:
 	static Icon* new_();
@@ -16,8 +18,8 @@ public:
 	Icon* setRight();
 	Icon* bindEvent(string eventName, void (*callback)());
 	Icon* bindToggleItem(GuiObject* gui);
-	Icon* modifyTheme(auto modifications);
-	Icon* setTheme(auto theme);
+	Icon* modifyTheme(IconTheme* modifications);
+	Icon* setTheme(IconTheme* theme);
 	Icon* notify();
 	Icon* clearNotices();
 	Icon* select();
