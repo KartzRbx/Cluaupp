@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { localLayout, homeBody, learnBody } = require("./site-html");
+const { localLayout, homeBody, introBody, movedBody, learnBody } = require("./site-html");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
@@ -869,7 +869,25 @@ function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
 		path.join(SITE, "index.html"),
 		localLayout("Docs", homeBody({ dump, classCount: classes.length, enumCount: enums.length }), "", 0, "home"),
 	);
-	write(path.join(SITE, "learn", "index.html"), localLayout("Learn", learnBody(), "", 1, "learn"));
+	write(path.join(SITE, "intro.html"), localLayout("Intro", introBody("./"), "", 0, "home"));
+	mkdirp(path.join(SITE, "intro"));
+	write(path.join(SITE, "intro", "index.html"), localLayout("Intro", introBody("../"), "", 1, "home"));
+	write(
+		path.join(SITE, "getting-started.html"),
+		localLayout("Get started", movedBody("./", "guide/getting-started.html", "Getting started"), "", 0, "start"),
+	);
+	write(
+		path.join(SITE, "404.html"),
+		localLayout(
+			"Not found",
+			`<article class="docs-article"><h1>Not found</h1><p class="muted">That Moonwave path is gone. Try the home page, Learn, or Getting started.</p><p><a class="btn btn-primary" href="./index.html">Home</a> <a class="btn btn-ghost" href="./intro.html">Intro</a> <a class="btn btn-ghost" href="./learn/index.html">Learn</a></p></article>`,
+			"",
+			0,
+			"home",
+		),
+	);
+	mkdirp(path.join(SITE, "docs"));
+	write(path.join(SITE, "docs", "intro.html"), localLayout("Intro", introBody("../"), "", 1, "home"));
 
 	const getting = `
 <div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>

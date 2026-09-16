@@ -5,6 +5,8 @@
 	"installCommand": "echo skip",
 	"buildCommand": "echo skip",
 	"rewrites": [
-		{ "source": "/api/chat", "destination": "/api/chat" }
+		{ "source": "/api/chat", "destination": "/api/chat" },
+		{ "source": "/intro", "destination": "/intro.html" },
+		{ "source": "/getting-started", "destination": "/guide/getting-started.html" }
 	]
 }

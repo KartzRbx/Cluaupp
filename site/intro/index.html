@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro · Cluaupp</title>
+<link rel="icon" href="../assets/logo.png">
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+(function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../index.html"><img src="../assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
+  <div class="nav-wrap">
+    <nav class="nav-links" aria-label="Primary">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="../index.html" aria-current="page">Home</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../guide/getting-started.html">Start</a>
+      <a href="../api/datatypes/index.html">Datatypes</a>
+      <a href="../api/classes/index.html">Classes</a>
+      <a href="../api/enums/index.html">Enums</a>
+    </nav>
+  </div>
+  <div class="header-tools">
+    <label class="sr-only" for="theme-select">Theme</label>
+    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
+      <option value="dark">Dark Modern</option>
+      <option value="tokyo">Tokyo Night</option>
+      <option value="dracula">Dracula</option>
+      <option value="nord">Nord</option>
+      <option value="carbon">Carbon</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
+</header>
+<div class="page" id="content"><article class="docs-article">
+<div class="crumb"><a href="../index.html">Cluaupp</a> / Intro</div>
+<p class="eyebrow">C++ × Luau</p>
+<h1>Cluaupp</h1>
+<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>--!strict</code>, <code>local</code>, and <code>const</code>, and calls the Roblox API the way Studio does.</p>
+<p>This page is the old Moonwave <code>/intro</code> route. The public site is this cinematic dump — not ISO C++, not WASM.</p>
+<div class="hero-actions">
+  <a class="btn btn-primary" href="../learn/index.html">Learn the language</a>
+  <a class="btn btn-ghost" href="../guide/getting-started.html">Get started</a>
+</div>
+<h2>What you get</h2>
+<ol>
+<li>A compiler (<code>cluaupp init</code> / <code>build</code> / <code>watch</code>)</li>
+<li>Headers for IntelliSense (<code>#include &lt;cluaupp/roblox.hpp&gt;</code>)</li>
+<li>First-party libraries in <code>ReplicatedStorage.CluauppLibs</code></li>
+<li>Optional Wally only for extra community packages</li>
+</ol>
+<h2>First program</h2>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-2-cpp" id="pair-2-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-2-luau" id="pair-2-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-2-cpp" aria-labelledby="pair-2-tab-cpp"><pre>#include &lt;cluaupp/roblox.hpp&gt;
+#include &lt;cluaupp/libs/janitor.hpp&gt;
+
+void OnPlayer(Player* player) {
+	auto* janitor = new Janitor();
+	janitor-&gt;LinkToInstance(player);
+	janitor-&gt;Add(player-&gt;AncestryChanged.Connect(OnPlayer));
+}
+
+void init() {
+	auto* players = GetService&lt;Players&gt;();
+	players-&gt;PlayerAdded.Connect(OnPlayer);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-2-luau" aria-labelledby="pair-2-tab-luau" hidden><pre>--!strict
+local ReplicatedStorage = game:GetService(&quot;ReplicatedStorage&quot;)
+local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
+
+local function OnPlayer(player: Player)
+	local janitor = Janitor.new()
+	janitor:LinkToInstance(player)
+	janitor:Add(player.AncestryChanged:Connect(OnPlayer))
+end
+
+local function init()
+	local players: Players = game:GetService(&quot;Players&quot;)
+	players.PlayerAdded:Connect(OnPlayer)
+end
+
+init()</pre></div>
+</div>
+<p>Next: <a href="../guide/getting-started.html">Getting started</a>, then the <a href="../learn/index.html">Learn</a> tabs for types, safety, and libraries.</p>
+</article></div>
+<footer class="site-footer">
+  <span>Cluaupp — C++ × Luau</span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
+<div class="ask-panel" data-ask-panel hidden>
+  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
+  <form class="ask-form" data-ask-form>
+    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
+    <button type="submit">Send</button>
+  </form>
+</div>
+</body>
+</html>

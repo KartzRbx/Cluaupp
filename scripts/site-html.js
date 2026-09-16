@@ -167,6 +167,69 @@ players.PlayerAdded:Connect(CreateLeaderstats)`,
 `;
 }
 
+function introBody(p) {
+	return `<article class="docs-article">
+<div class="crumb"><a href="${p}index.html">Cluaupp</a> / Intro</div>
+<p class="eyebrow">C++ × Luau</p>
+<h1>Cluaupp</h1>
+<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>--!strict</code>, <code>local</code>, and <code>const</code>, and calls the Roblox API the way Studio does.</p>
+<p>This page is the old Moonwave <code>/intro</code> route. The public site is this cinematic dump — not ISO C++, not WASM.</p>
+<div class="hero-actions">
+  <a class="btn btn-primary" href="${p}learn/index.html">Learn the language</a>
+  <a class="btn btn-ghost" href="${p}guide/getting-started.html">Get started</a>
+</div>
+<h2>What you get</h2>
+<ol>
+<li>A compiler (<code>cluaupp init</code> / <code>build</code> / <code>watch</code>)</li>
+<li>Headers for IntelliSense (<code>#include &lt;cluaupp/roblox.hpp&gt;</code>)</li>
+<li>First-party libraries in <code>ReplicatedStorage.CluauppLibs</code></li>
+<li>Optional Wally only for extra community packages</li>
+</ol>
+<h2>First program</h2>
+${codePair(
+	`#include <cluaupp/roblox.hpp>
+#include <cluaupp/libs/janitor.hpp>
+
+void OnPlayer(Player* player) {
+	auto* janitor = new Janitor();
+	janitor->LinkToInstance(player);
+	janitor->Add(player->AncestryChanged.Connect(OnPlayer));
+}
+
+void init() {
+	auto* players = GetService<Players>();
+	players->PlayerAdded.Connect(OnPlayer);
+}`,
+	`--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
+
+local function OnPlayer(player: Player)
+	local janitor = Janitor.new()
+	janitor:LinkToInstance(player)
+	janitor:Add(player.AncestryChanged:Connect(OnPlayer))
+end
+
+local function init()
+	local players: Players = game:GetService("Players")
+	players.PlayerAdded:Connect(OnPlayer)
+end
+
+init()`,
+)}
+<p>Next: <a href="${p}guide/getting-started.html">Getting started</a>, then the <a href="${p}learn/index.html">Learn</a> tabs for types, safety, and libraries.</p>
+</article>`;
+}
+
+function movedBody(p, href, label) {
+	return `<article class="docs-article">
+<h1>Moved</h1>
+<p>This Moonwave URL now lives at <a href="${href}">${label}</a>.</p>
+<meta http-equiv="refresh" content="0; url=${href}">
+<p><a class="btn btn-primary" href="${href}">Continue</a></p>
+</article>`;
+}
+
 function learnPanel(id, selected, title, inner) {
 	return `<section class="learn-panel" role="tabpanel" id="${id}" aria-labelledby="${id}-tab"${selected ? "" : " hidden"}>
 	<h1>${title}</h1>
@@ -456,5 +519,7 @@ module.exports = {
 	mappingTable,
 	localLayout,
 	homeBody,
+	introBody,
+	movedBody,
 	learnBody,
 };
