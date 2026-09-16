@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learn · Cluaupp</title>
 <link rel="icon" href="../assets/logo.png">
-<link rel="stylesheet" href="../assets/style.css?v=2">
+<link rel="stylesheet" href="../assets/style.css?v=3">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -20,6 +20,7 @@
       <a href="../index.html">Home</a>
       <a href="../learn/index.html" aria-current="page">Learn</a>
       <a href="../guide/getting-started.html">Start</a>
+      <a href="../guide/examples.html">Examples</a>
       <a href="../api/datatypes/index.html">Datatypes</a>
       <a href="../api/classes/index.html">Classes</a>
       <a href="../api/enums/index.html">Enums</a>
@@ -49,7 +50,10 @@
 		<button type="button" role="tab" id="learn-types-tab" aria-controls="learn-types" aria-selected="false" tabindex="-1">Types and safety</button>
 		<button type="button" role="tab" id="learn-org-tab" aria-controls="learn-org" aria-selected="false" tabindex="-1">Organization</button>
 		<button type="button" role="tab" id="learn-arch-tab" aria-controls="learn-arch" aria-selected="false" tabindex="-1">Architecture</button>
+		<button type="button" role="tab" id="learn-oop-tab" aria-controls="learn-oop" aria-selected="false" tabindex="-1">OOP structure</button>
 		<button type="button" role="tab" id="learn-libs-tab" aria-controls="learn-libs" aria-selected="false" tabindex="-1">Libraries</button>
+		<button type="button" role="tab" id="learn-cout-tab" aria-controls="learn-cout" aria-selected="false" tabindex="-1">print / cout</button>
+		<button type="button" role="tab" id="learn-examples-tab" aria-controls="learn-examples" aria-selected="false" tabindex="-1">Examples</button>
 		<button type="button" role="tab" id="learn-practice-tab" aria-controls="learn-practice" aria-selected="false" tabindex="-1">Best practices</button>
 	</nav>
 	<div>
@@ -596,17 +600,17 @@ janitor:<span data-tok="fn">Add</span>(players.PlayerAdded:<span data-tok="fn">C
 	<span data-tok="keyword">auto</span>* coins = <span data-tok="keyword">new</span> <span data-tok="type">IntValue</span>(folder);
 	coins-&gt;Name = <span data-tok="string">"Coins"</span>;
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-18-luau" aria-labelledby="pair-18-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- out/server/LeaderStats/init.server.luau</span>
+	<div class="pair-panel" role="tabpanel" id="pair-18-luau" aria-labelledby="pair-18-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- out/server/LeaderStats/init.luau</span>
 <span data-tok="comment">--!strict</span>
 <span data-tok="fn">require</span>(script.Main):<span data-tok="fn">Start</span>()
 
-<span data-tok="comment">-- LeaderStats (Script)</span>
+<span data-tok="comment">-- LeaderStats (Script, RunContext Server via init.meta.json)</span>
 <span data-tok="comment">--   Main, PlayersManager, CacheController, LeaderStatsTypes</span></pre></div>
 </div>
 <div class="explorer-stage">
 	<div class="explorer">
 	<div class="explorer-title">Disk · out/server/LeaderStats/</div>
-	<ul class="ex-root"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">init.server.luau</span><span class="ex-kind">becomes the Script</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Main.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">PlayersManager.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">CacheController.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">LeaderStatsTypes.luau</span><span class="ex-kind">ModuleScript child</span></div></li></ul>
+	<ul class="ex-root"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">init.luau</span><span class="ex-kind">Script + RunContext Server</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">init.meta.json</span><span class="ex-kind">className Script</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Main.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">PlayersManager.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">CacheController.luau</span><span class="ex-kind">ModuleScript child</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">LeaderStatsTypes.luau</span><span class="ex-kind">ModuleScript child</span></div></li></ul>
 </div>
 	<p class="explorer-flow" aria-hidden="true"><span>Rojo init</span><span class="explorer-arrow">→</span></p>
 	<div class="explorer">
@@ -619,55 +623,741 @@ AST features  →  GetService, Instance.new, methods, identifiers
 intent scores →  combat:2, character:1, …
 roles         →  Main + Managers + Controllers + Types</pre>
 <p>A tiny <code>leaderstats.server.cpp</code> becomes <code>LeaderStats/</code> with Main, PlayersManager, CacheController, LeaderStatsTypes. A combat file with TakeDamage becomes CombatController — not a fake CacheController.</p>
+<p>The OOP tab is how you <em>write</em> that service with typed structs. The Examples tab is copy-paste systems.</p>
 <p>Trivial files that only <code>print</code> stay a single LocalScript. The planner does not invent Managers for hello-world.</p>
 <p>ForeverHD-style rules in the output: PascalCase folders, <code>--!strict</code>, public <code>Start</code> / <code>Stop</code>, Janitor in the Manager, Types modules <code>return {}</code>.</p>
 <p>Set <code>"architecture": false</code> in <code>cluaupp.config.json</code> (or use <code>.legacy.*.cpp</code>) for a 1:1 dump.</p>
-	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-libs">Next lesson · Libraries</button></div>
+	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-oop">Next lesson · OOP structure</button></div>
 </section>
-		<section class="learn-panel" role="tabpanel" id="learn-libs" aria-labelledby="learn-libs-tab" hidden>
-	<h1>CluauppLibs</h1>
-	<p class="muted"><code>cluaupp build</code> copies full Luau systems into <code>libs/</code> (Rojo: <code>ReplicatedStorage.CluauppLibs</code>). Include a header; the compiler injects require. Wally is optional — only for extra community packages.</p>
+		<section class="learn-panel" role="tabpanel" id="learn-oop" aria-labelledby="learn-oop-tab" hidden>
+	<h1>OOP structure</h1>
+	<p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>services</em> so Studio gets Main / Controller / Types — the same idea as roblox-ts filename keys + Flamework <code>@Service</code>, without decorators.</p>
+<h2>The three layers</h2>
 <table>
-<tr><th>Library</th><th>Header</th><th>Role</th></tr>
-<tr><td>Janitor</td><td><code>&lt;cluaupp/libs/janitor.hpp&gt;</code></td><td>lifetime</td></tr>
-<tr><td>Promise</td><td><code>&lt;cluaupp/libs/promise.hpp&gt;</code></td><td>async</td></tr>
-<tr><td>Net</td><td><code>&lt;cluaupp/libs/net.hpp&gt;</code></td><td>buffer remotes</td></tr>
-<tr><td>Fusion</td><td><code>&lt;cluaupp/libs/fusion.hpp&gt;</code></td><td>UI state</td></tr>
-<tr><td>Cmdr</td><td><code>&lt;cluaupp/libs/cmdr.hpp&gt;</code></td><td>commands</td></tr>
-<tr><td>DataService</td><td><code>&lt;cluaupp/libs/dataservice.hpp&gt;</code></td><td>profiles</td></tr>
-<tr><td>Twinkle</td><td><code>&lt;cluaupp/libs/twinkle.hpp&gt;</code></td><td>UI motion</td></tr>
-<tr><td>FormatNumber</td><td><code>&lt;cluaupp/libs/formatnumber.hpp&gt;</code></td><td>abbreviate</td></tr>
+<tr><th>Layer</th><th>You write</th><th>Runtime</th></tr>
+<tr><td>Data object</td><td><code>struct TemplateData</code>, <code>struct CombatConfig</code></td><td>Luau table + <code>export type</code> in <code>*Types.luau</code></td></tr>
+<tr><td>Methods</td><td>named functions with typed args (<code>Player*</code>, <code>Humanoid*</code>, <code>int</code>)</td><td><code>const function</code> on the Controller</td></tr>
+<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>generated <code>Main.Start</code> / <code>Main.Stop</code></td></tr>
 </table>
+<h2>File tags decide the instance</h2>
+<table>
+<tr><th>Source</th><th>Instance</th><th>RunContext</th></tr>
+<tr><td><code>CombatServer.server.cpp</code></td><td><strong>Script</strong></td><td><strong>Server</strong> (<code>init.luau</code> + <code>init.meta.json</code>)</td></tr>
+<tr><td><code>CombatClient.client.cpp</code></td><td>LocalScript</td><td>Client</td></tr>
+<tr><td><code>Sword.legacy.server.cpp</code></td><td>Script</td><td>Legacy (1:1 dump, lives under a Tool)</td></tr>
+<tr><td><code>Damage.cpp</code> (no tag)</td><td>ModuleScript</td><td>—</td></tr>
+</table>
+<p class="note"><code>.server.cpp</code> is not <code>init.server.luau</code>. Rojo maps <code>*.server.luau</code> to RunContext <strong>Legacy</strong>. Cluaupp emits <code>init.luau</code> + meta <code>Enum.RunContext.Server</code>.</p>
+<h2>Structs are the typed class fields</h2>
+<p>Put shapes in shared headers. Designated initializers become tables. Methods are functions that take the instance in — composition, not <code>this-&gt;</code>.</p>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
 		<button type="button" role="tab" aria-selected="true" aria-controls="pair-19-cpp" id="pair-19-tab-cpp">C++</button>
 		<button type="button" role="tab" aria-selected="false" aria-controls="pair-19-luau" id="pair-19-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-19-cpp" aria-labelledby="pair-19-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/libs/janitor.hpp&gt;
+	<div class="pair-panel" role="tabpanel" id="pair-19-cpp" aria-labelledby="pair-19-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> <span data-tok="keyword">once</span>
+
+<span data-tok="keyword">struct</span> <span data-tok="type">CombatConfig</span> {
+	<span data-tok="keyword">double</span> Range = <span data-tok="number">12</span>;
+	<span data-tok="keyword">double</span> Cooldown = <span data-tok="number">0.4</span>;
+	<span data-tok="keyword">int</span> Damage = <span data-tok="number">12</span>;
+	<span data-tok="keyword">int</span> KillReward = <span data-tok="number">5</span>;
+};
+
+<span data-tok="keyword">struct</span> EconomySnapshot {
+	<span data-tok="keyword">int</span> Money = <span data-tok="number">0</span>;
+	<span data-tok="keyword">int</span> Level = <span data-tok="number">1</span>;
+};
+
+<span data-tok="keyword">struct</span> <span data-tok="type">TemplateData</span> {
+	<span data-tok="keyword">struct</span> Currencies {
+		<span data-tok="keyword">int</span> Money = <span data-tok="number">0</span>;
+		<span data-tok="keyword">int</span> Level = <span data-tok="number">1</span>;
+	} Currencies;
+};</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-19-luau" aria-labelledby="pair-19-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- generated *Types.luau (shape)</span>
+<span data-tok="keyword">export</span> <span data-tok="keyword">type</span> <span data-tok="type">CombatConfig</span> = {
+	Range: number,
+	Cooldown: number,
+	Damage: number,
+	KillReward: number,
+}
+
+<span data-tok="keyword">export</span> <span data-tok="keyword">type</span> EconomySnapshot = {
+	Money: number,
+	Level: number,
+}
+
+<span data-tok="keyword">return</span> {}</pre></div>
+</div>
+<h2>What you do not write</h2>
+<pre data-lang="cpp" data-highlighted="1">class Shop {
+	<span data-tok="keyword">int</span> price;
+	<span data-tok="keyword">void</span> <span data-tok="fn">Buy</span>(<span data-tok="type">Player</span>* player);
+};</pre>
+<p>Split that into a <code>struct</code> (fields) + functions (methods) + a <code>.server.cpp</code> (lifetime).</p>
+<h2>Advanced typed service — Combat</h2>
+<p>Config is a typed struct. Each check is a function with Instance types. Damage is a <code>const</code> on the config — the client never sends it. This is the OOP you can ship today.</p>
+<p><code>src/shared/types/CombatTypes.hpp</code></p>
+<pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> <span data-tok="keyword">once</span>
+
+<span data-tok="keyword">struct</span> <span data-tok="type">CombatConfig</span> {
+	<span data-tok="keyword">double</span> Range = <span data-tok="number">12</span>;
+	<span data-tok="keyword">double</span> Cooldown = <span data-tok="number">0.4</span>;
+	<span data-tok="keyword">int</span> Damage = <span data-tok="number">12</span>;
+	<span data-tok="keyword">int</span> KillReward = <span data-tok="number">5</span>;
+};</pre>
+<p><code>src/server/services/combat/CombatServer.server.cpp</code></p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-20-cpp" id="pair-20-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-20-luau" id="pair-20-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-20-cpp" aria-labelledby="pair-20-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/janitor.hpp&gt;
 #<span data-tok="keyword">include</span> &lt;cluaupp/libs/net.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/dataservice.hpp&gt;
+#<span data-tok="keyword">include</span> <span data-tok="string">"../../../shared/types/CombatTypes.hpp"</span>
+
+<span data-tok="type">Players</span>* <span data-tok="type">Players</span> = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
+<span data-tok="type">Janitor</span>* janitor = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
+<span data-tok="type">NetEvent</span>* Attack = <span data-tok="type">Net</span>::<span data-tok="fn">Event</span>(<span data-tok="string">"Attack"</span>);
+
+<span data-tok="type">CombatConfig</span> Config = <span data-tok="type">CombatConfig</span> {
+	.Range = <span data-tok="number">12</span>,
+	.Cooldown = <span data-tok="number">0.4</span>,
+	.Damage = <span data-tok="number">12</span>,
+	.KillReward = <span data-tok="number">5</span>,
+};
+
+<span data-tok="type">Humanoid</span>* <span data-tok="fn">HumanoidOf</span>(<span data-tok="type">Model</span>* character) {
+	<span data-tok="keyword">if</span> (character == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> character-&gt;<span data-tok="fn">FindFirstChildOfClass</span>(<span data-tok="string">"Humanoid"</span>);
+}
+
+<span data-tok="type">BasePart</span>* <span data-tok="fn">RootOf</span>(<span data-tok="type">Model</span>* character) {
+	<span data-tok="keyword">if</span> (character == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> character-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"HumanoidRootPart"</span>);
+}
+
+<span data-tok="type">Player</span>* <span data-tok="fn">ResolveTarget</span>(<span data-tok="keyword">int</span> targetUserId) {
+	<span data-tok="keyword">if</span> (targetUserId &lt; <span data-tok="number">1</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerByUserId</span>(targetUserId);
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">IsAlive</span>(<span data-tok="type">Humanoid</span>* humanoid) {
+	<span data-tok="keyword">if</span> (humanoid == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (humanoid-&gt;Health &lt;= <span data-tok="number">0</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">InRange</span>(<span data-tok="type">Model</span>* a, <span data-tok="type">Model</span>* b, <span data-tok="keyword">double</span> maxRange) {
+	<span data-tok="type">BasePart</span>* rootA = <span data-tok="fn">RootOf</span>(a);
+	<span data-tok="type">BasePart</span>* rootB = <span data-tok="fn">RootOf</span>(b);
+	<span data-tok="keyword">if</span> (rootA == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (rootB == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="type">Vector3</span> delta = rootA-&gt;Position - rootB-&gt;Position;
+	<span data-tok="keyword">if</span> (delta.Magnitude &gt; maxRange) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">OnCooldown</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">NumberValue</span>* last = attacker-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"LastAttackAt"</span>);
+	<span data-tok="keyword">if</span> (last == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">tick</span>() - last-&gt;Value &lt; Config.Cooldown) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">StampCooldown</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">NumberValue</span>* last = attacker-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"LastAttackAt"</span>);
+	<span data-tok="keyword">if</span> (last == <span data-tok="keyword">nullptr</span>) {
+		last = <span data-tok="keyword">new</span> <span data-tok="type">NumberValue</span>(attacker);
+		last-&gt;Name = <span data-tok="string">"LastAttackAt"</span>;
+	}
+	last-&gt;Value = <span data-tok="fn">tick</span>();
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">GrantKill</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">Get</span>(attacker);
+	<span data-tok="keyword">if</span> (data == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">int</span> money = data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money);
+	data-&gt;<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money, money + Config.KillReward);
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">OnAttack</span>(<span data-tok="type">Player</span>* attacker, <span data-tok="keyword">int</span> targetUserId) {
+	<span data-tok="keyword">if</span> (attacker == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">OnCooldown</span>(attacker)) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Player</span>* target = <span data-tok="fn">ResolveTarget</span>(targetUserId);
+	<span data-tok="keyword">if</span> (target == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (target == attacker) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Humanoid</span>* attackerHum = <span data-tok="fn">HumanoidOf</span>(attacker-&gt;Character);
+	<span data-tok="type">Humanoid</span>* targetHum = <span data-tok="fn">HumanoidOf</span>(target-&gt;Character);
+	<span data-tok="keyword">if</span> (<span data-tok="fn">IsAlive</span>(attackerHum) == <span data-tok="keyword">false</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">IsAlive</span>(targetHum) == <span data-tok="keyword">false</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">InRange</span>(attacker-&gt;Character, target-&gt;Character, Config.Range) == <span data-tok="keyword">false</span>) {
+		cout::ping &lt;&lt; attacker-&gt;Name &lt;&lt; <span data-tok="string">" out of range"</span> &lt;&lt; endl;
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="fn">StampCooldown</span>(attacker);
+	<span data-tok="keyword">double</span> healthBefore = targetHum-&gt;Health;
+	targetHum-&gt;<span data-tok="fn">TakeDamage</span>(Config.Damage);
+	<span data-tok="keyword">if</span> (healthBefore &gt; <span data-tok="number">0</span>) {
+		<span data-tok="keyword">if</span> (targetHum-&gt;Health &lt;= <span data-tok="number">0</span>) {
+			<span data-tok="fn">GrantKill</span>(attacker);
+		}
+	}
+}
 
 <span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
-	<span data-tok="keyword">auto</span>* janitor = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
-	<span data-tok="keyword">auto</span>* coins = <span data-tok="type">Net</span>::<span data-tok="fn">Event</span>(<span data-tok="string">"Coins"</span>);
-	janitor-&gt;<span data-tok="fn">Add</span>(coins);
+	Attack-&gt;<span data-tok="fn">On</span>(OnAttack);
+	janitor-&gt;<span data-tok="fn">Add</span>(Attack);
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-19-luau" aria-labelledby="pair-19-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">local</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
-<span data-tok="keyword">local</span> <span data-tok="type">Janitor</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Janitor</span>)
-<span data-tok="keyword">local</span> <span data-tok="type">Net</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Net</span>)
+	<div class="pair-panel" role="tabpanel" id="pair-20-luau" aria-labelledby="pair-20-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="comment">-- CombatServer (Script, RunContext Server)</span>
+<span data-tok="comment">-- roles Main, CombatController, NetController, DataController, CombatServerTypes</span>
 
-<span data-tok="keyword">local</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
-	<span data-tok="keyword">local</span> janitor = <span data-tok="type">Janitor</span>.<span data-tok="fn">new</span>()
-	<span data-tok="keyword">local</span> coins = <span data-tok="type">Net</span>.<span data-tok="fn">Event</span>(<span data-tok="string">"Coins"</span>)
-	janitor:<span data-tok="fn">Add</span>(coins)
+<span data-tok="keyword">const</span> <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">Janitor</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Janitor</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">Net</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Net</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">DataService</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">DataService</span>)
+
+<span data-tok="keyword">const</span> Config = {
+	Range = <span data-tok="number">12</span>,
+	Cooldown = <span data-tok="number">0.4</span>,
+	Damage = <span data-tok="number">12</span>,
+	KillReward = <span data-tok="number">5</span>,
+}
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">HumanoidOf</span>(character: <span data-tok="type">Model</span>): <span data-tok="type">Humanoid</span>?
+	<span data-tok="keyword">if</span> character == <span data-tok="keyword">nil</span> <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nil</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">return</span> character:<span data-tok="fn">FindFirstChildOfClass</span>(<span data-tok="string">"Humanoid"</span>)
+<span data-tok="keyword">end</span>
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnAttack</span>(attacker: <span data-tok="type">Player</span>, targetUserId: number)
+	<span data-tok="comment">-- ResolveTarget, IsAlive, InRange, StampCooldown, TakeDamage(Config.Damage)</span>
 <span data-tok="keyword">end</span></pre></div>
 </div>
+<p>Cluaupp turns that file into a PascalCase folder:</p>
+<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer/
+  init.luau              Script · RunContext Server
+  init.meta.json
+  Main.luau              Start / Stop  → constructor / destructor
+  CombatController.luau  your typed functions
+  NetController.luau
+  DataController.luau
+  CombatServerTypes.luau export type … return {}</pre>
+<p><code>Main</code> is the class. Controllers are the methods. <code>*Types</code> is the typed public surface. Janitor is the destructor.</p>
+<h2>Client half (intent only)</h2>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-21-cpp" id="pair-21-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-21-luau" id="pair-21-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-21-cpp" aria-labelledby="pair-21-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">void</span> <span data-tok="fn">OnInputBegan</span>(<span data-tok="type">InputObject</span>* input, <span data-tok="keyword">bool</span> gameProcessed) {
+	<span data-tok="keyword">if</span> (gameProcessed) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (input-&gt;UserInputType != <span data-tok="type">Enum</span>::UserInputType::MouseButton1) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Player</span>* localPlayer = <span data-tok="type">Players</span>-&gt;LocalPlayer;
+	<span data-tok="type">Mouse</span>* mouse = localPlayer-&gt;<span data-tok="fn">GetMouse</span>();
+	<span data-tok="type">Instance</span>* model = mouse-&gt;Target-&gt;<span data-tok="fn">FindFirstAncestorOfClass</span>(<span data-tok="string">"Model"</span>);
+	<span data-tok="type">Player</span>* target = <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerFromCharacter</span>(model);
+	<span data-tok="keyword">if</span> (target == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	Attack-&gt;<span data-tok="fn">FireServer</span>(target-&gt;UserId);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-21-luau" aria-labelledby="pair-21-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnInputBegan</span>(input: <span data-tok="type">InputObject</span>, gameProcessed: boolean)
+	<span data-tok="keyword">if</span> gameProcessed <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">if</span> input.UserInputType ~= <span data-tok="type">Enum</span>.UserInputType.MouseButton1 <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">local</span> target = <span data-tok="type">Players</span>:<span data-tok="fn">GetPlayerFromCharacter</span>(model)
+	Attack:<span data-tok="fn">FireServer</span>(target.UserId)
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<p>The remote payload is <code>UserId</code> — never <code>Config.Damage</code>.</p>
+<h2>Suggested disk layout</h2>
+<pre data-lang="plain" data-highlighted="1">src/
+  shared/types/CombatTypes.hpp
+  shared/constants/TemplateData.hpp
+  server/boot/DataBoot.server.cpp
+  client/boot/DataBoot.client.cpp
+  server/services/combat/CombatServer.server.cpp
+  client/controllers/combat/CombatClient.client.cpp
+  server/services/leaderstats/LeaderstatsServer.server.cpp</pre>
+<p>One tagged file per system. Boot <code>Init</code> once. Other services <code>WaitFor</code>.</p>
+	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-libs">Next lesson · Libraries</button></div>
+</section>
+		<section class="learn-panel" role="tabpanel" id="learn-libs" aria-labelledby="learn-libs-tab" hidden>
+	<h1>CluauppLibs</h1>
+	<p class="muted"><code>#include &lt;cluaupp/libs/…hpp&gt;</code> is IntelliSense. <code>cluaupp build</code> copies Luau into <code>ReplicatedStorage.CluauppLibs</code>. You do not <code>require</code> by hand in C++.</p>
+<h2>DataService — Init</h2>
+<p>The save <strong>shape is yours</strong>. Do not put <code>Currencies</code> on the library type. Define a struct in the game and pass it as <code>.Template</code>.</p>
+<pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> <span data-tok="keyword">once</span>
+
+<span data-tok="keyword">struct</span> <span data-tok="type">TemplateData</span> {
+	<span data-tok="keyword">struct</span> Currencies {
+		<span data-tok="keyword">int</span> Money = <span data-tok="number">0</span>;
+		<span data-tok="keyword">int</span> Level = <span data-tok="number">1</span>;
+	} Currencies;
+};</pre>
+<p>Server boot — <code>void init()</code>, not <code>int main()</code>:</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-22-cpp" id="pair-22-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-22-luau" id="pair-22-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-22-cpp" aria-labelledby="pair-22-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/dataservice.hpp&gt;
+#<span data-tok="keyword">include</span> <span data-tok="string">"../../shared/constants/TemplateData.hpp"</span>
+
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="type">TemplateData</span> playerData = <span data-tok="type">TemplateData</span> {};
+	<span data-tok="type">DataService</span>::Server.<span data-tok="fn">Init</span>(<span data-tok="type">DataServiceOptions</span> {
+		.Template = playerData,
+		.StoreName = <span data-tok="string">"PlayerData_v1"</span>,
+		.UseMock = <span data-tok="keyword">true</span>,
+	});
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-22-luau" aria-labelledby="pair-22-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">DataService</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">DataService</span>)
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+	<span data-tok="keyword">const</span> playerData = {}
+	<span data-tok="type">DataService</span>.Server:<span data-tok="fn">Init</span>({
+		Template = playerData,
+		StoreName = <span data-tok="string">"PlayerData_v1"</span>,
+		UseMock = <span data-tok="keyword">true</span>,
+	})
+<span data-tok="keyword">end</span>
+
+<span data-tok="fn">init</span>()</pre></div>
+</div>
+<p>Client: <code>DataService::Client.Init();</code> with no Template. Gameplay scripts <code>WaitFor</code> — they never call <code>Init</code> again.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-23-cpp" id="pair-23-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-23-luau" id="pair-23-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-23-cpp" aria-labelledby="pair-23-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">WaitFor</span>(player);
+<span data-tok="keyword">if</span> (data == <span data-tok="keyword">nullptr</span>) {
+	<span data-tok="keyword">return</span>;
+}
+<span data-tok="keyword">int</span> money = data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money);
+data-&gt;<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money, money + <span data-tok="number">5</span>);
+data-&gt;<span data-tok="fn">GetChangedSignal</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies).<span data-tok="fn">Connect</span>(OnCurrenciesChanged);</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-23-luau" aria-labelledby="pair-23-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">local</span> data = <span data-tok="type">DataService</span>.Server:<span data-tok="fn">WaitFor</span>(player)
+<span data-tok="keyword">if</span> data == <span data-tok="keyword">nil</span> <span data-tok="keyword">then</span>
+	<span data-tok="keyword">return</span>
+<span data-tok="keyword">end</span>
+<span data-tok="keyword">local</span> money = data:<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>.Server.Paths.Currencies.Money)
+data:<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>.Server.Paths.Currencies.Money, money + <span data-tok="number">5</span>)
+data:<span data-tok="fn">GetChangedSignal</span>(<span data-tok="type">DataService</span>.Server.Paths.Currencies):<span data-tok="fn">Connect</span>(OnCurrenciesChanged)</pre></div>
+</div>
+<p class="note"><code>Paths.Currencies</code> exists because <em>your</em> Template had that table.</p>
+<h2>Janitor</h2>
+<p>No fake <code>Has</code>. Use <code>Get</code>. <code>Remove</code> on a missing index is a no-op.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-24-cpp" id="pair-24-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-24-luau" id="pair-24-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-24-cpp" aria-labelledby="pair-24-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">auto</span>* janitor = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
+janitor-&gt;<span data-tok="fn">Add</span>(<span data-tok="type">Players</span>-&gt;PlayerAdded.<span data-tok="fn">Connect</span>(OnPlayer));
+janitor-&gt;<span data-tok="fn">Add</span>(part, <span data-tok="string">"Destroy"</span>);
+janitor-&gt;<span data-tok="fn">Add</span>(section, <span data-tok="string">"Destroy"</span>, player-&gt;Name);
+<span data-tok="keyword">if</span> (janitor-&gt;<span data-tok="fn">Get</span>(player-&gt;Name)) {
+	janitor-&gt;<span data-tok="fn">Remove</span>(player-&gt;Name);
+}
+janitor-&gt;<span data-tok="fn">LinkToInstance</span>(player);
+janitor-&gt;<span data-tok="fn">Cleanup</span>();
+janitor-&gt;<span data-tok="fn">Destroy</span>();</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-24-luau" aria-labelledby="pair-24-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">local</span> janitor = <span data-tok="type">Janitor</span>.<span data-tok="fn">new</span>()
+janitor:<span data-tok="fn">Add</span>(<span data-tok="type">Players</span>.PlayerAdded:<span data-tok="fn">Connect</span>(OnPlayer))
+janitor:<span data-tok="fn">Add</span>(part, <span data-tok="string">"Destroy"</span>)
+janitor:<span data-tok="fn">Add</span>(section, <span data-tok="string">"Destroy"</span>, player.Name)
+<span data-tok="keyword">if</span> janitor:<span data-tok="fn">Get</span>(player.Name) <span data-tok="keyword">then</span>
+	janitor:<span data-tok="fn">Remove</span>(player.Name)
+<span data-tok="keyword">end</span>
+janitor:<span data-tok="fn">LinkToInstance</span>(player)
+janitor:<span data-tok="fn">Cleanup</span>()
+janitor:<span data-tok="fn">Destroy</span>()</pre></div>
+</div>
+<h2>Net</h2>
+<p>Same string on server and client. Client sends <strong>intent</strong>, never the new balance.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-25-cpp" id="pair-25-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-25-luau" id="pair-25-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-25-cpp" aria-labelledby="pair-25-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">auto</span>* buy = <span data-tok="type">Net</span>::<span data-tok="fn">Event</span>(<span data-tok="string">"Buy"</span>);
+buy-&gt;<span data-tok="fn">On</span>(OnBuy);
+buy-&gt;<span data-tok="fn">FireServer</span>(PRODUCT_HEALTH_PACK);</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-25-luau" aria-labelledby="pair-25-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">local</span> buy = <span data-tok="type">Net</span>.<span data-tok="fn">Event</span>(<span data-tok="string">"Buy"</span>)
+buy:<span data-tok="fn">On</span>(OnBuy)
+buy:<span data-tok="fn">FireServer</span>(PRODUCT_HEALTH_PACK)</pre></div>
+</div>
+<table>
+<tr><th>Library</th><th>Header</th><th>Role</th></tr>
+<tr><td>Janitor</td><td><code>&lt;cluaupp/libs/janitor.hpp&gt;</code></td><td>lifetime</td></tr>
+<tr><td>Promise</td><td><code>&lt;cluaupp/libs/promise.hpp&gt;</code></td><td>Then / Catch / Await</td></tr>
+<tr><td>Net</td><td><code>&lt;cluaupp/libs/net.hpp&gt;</code></td><td>buffer remotes</td></tr>
+<tr><td>DataService</td><td><code>&lt;cluaupp/libs/dataservice.hpp&gt;</code></td><td>profiles</td></tr>
+<tr><td>FormatNumber</td><td><code>&lt;cluaupp/libs/formatnumber.hpp&gt;</code></td><td>Abbreviate / Comma</td></tr>
+<tr><td>Twinkle</td><td><code>&lt;cluaupp/libs/twinkle.hpp&gt;</code></td><td>UI motion</td></tr>
+<tr><td>Fusion / Cmdr / Iris</td><td>matching headers</td><td>upstream APIs behind typed borders</td></tr>
+</table>
+<p>Wally is optional. Do not install a second Janitor from Wally.</p>
+	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-cout">Next lesson · print / cout</button></div>
+</section>
+		<section class="learn-panel" role="tabpanel" id="learn-cout" aria-labelledby="learn-cout-tab" hidden>
+	<h1>print and cout</h1>
+	<p class="muted">Cluaupp has no <code>&lt;iostream&gt;</code>. Logging is Roblox <code>print</code> / <code>warn</code> / <code>error</code>. You can still write C++-style <code>cout</code> / <code>cerr</code> / <code>endl</code> — the compiler flattens them.</p>
+<h2>Globals</h2>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-26-cpp" id="pair-26-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-26-luau" id="pair-26-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-26-cpp" aria-labelledby="pair-26-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="fn">print</span>(<span data-tok="string">"ok"</span>);
+<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>);
+<span data-tok="fn">error</span>(<span data-tok="string">"fail"</span>);</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-26-luau" aria-labelledby="pair-26-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="fn">print</span>(<span data-tok="string">"ok"</span>)
+<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>)
+<span data-tok="fn">error</span>(<span data-tok="string">"fail"</span>)</pre></div>
+</div>
+<h2>Stream: cout &lt;&lt; … &lt;&lt; endl</h2>
+<p>Each <code>&lt;&lt;</code> is another argument. <code>endl</code> ends the statement. <code>cerr</code> emits <code>warn</code>.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-27-cpp" id="pair-27-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-27-luau" id="pair-27-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-27-cpp" aria-labelledby="pair-27-tab-cpp"><pre data-lang="cpp" data-highlighted="1">cout &lt;&lt; <span data-tok="string">"EnsureStat: "</span> &lt;&lt; name &lt;&lt; <span data-tok="string">" not found"</span> &lt;&lt; endl;
+cerr &lt;&lt; <span data-tok="string">"failed to load "</span> &lt;&lt; player-&gt;Name &lt;&lt; endl;</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-27-luau" aria-labelledby="pair-27-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="fn">print</span>(<span data-tok="string">"EnsureStat: "</span>, name, <span data-tok="string">" not found"</span>)
+<span data-tok="fn">warn</span>(<span data-tok="string">"failed to load "</span>, player.Name)</pre></div>
+</div>
+<h2>Levels: cout::print / warn / error / ping</h2>
+<p><code>cout::ping</code> is a debug alias of <code>print</code>.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-28-cpp" id="pair-28-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-28-luau" id="pair-28-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-28-cpp" aria-labelledby="pair-28-tab-cpp"><pre data-lang="cpp" data-highlighted="1">cout::<span data-tok="fn">print</span> &lt;&lt; <span data-tok="string">"EnsureStat: "</span> &lt;&lt; name &lt;&lt; <span data-tok="string">" not found"</span> &lt;&lt; endl;
+cout::<span data-tok="fn">warn</span> &lt;&lt; <span data-tok="string">"missing folder for "</span> &lt;&lt; player-&gt;Name &lt;&lt; endl;
+cout::<span data-tok="fn">error</span> &lt;&lt; <span data-tok="string">"profile failed"</span> &lt;&lt; endl;
+cout::ping &lt;&lt; <span data-tok="string">"here"</span> &lt;&lt; endl;
+cout::<span data-tok="fn">print</span>(<span data-tok="string">"ok"</span>);
+cout::<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>);</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-28-luau" aria-labelledby="pair-28-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="fn">print</span>(<span data-tok="string">"EnsureStat: "</span>, name, <span data-tok="string">" not found"</span>)
+<span data-tok="fn">warn</span>(<span data-tok="string">"missing folder for "</span>, player.Name)
+<span data-tok="fn">error</span>(<span data-tok="string">"profile failed"</span>)
+<span data-tok="fn">print</span>(<span data-tok="string">"here"</span>)
+<span data-tok="fn">print</span>(<span data-tok="string">"ok"</span>)
+<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>)</pre></div>
+</div>
+<table>
+<tr><th>C++</th><th>Luau</th></tr>
+<tr><td><code>cout &lt;&lt; … &lt;&lt; endl</code></td><td><code>print(…)</code></td></tr>
+<tr><td><code>cout::print &lt;&lt; … &lt;&lt; endl</code></td><td><code>print(…)</code></td></tr>
+<tr><td><code>cout::warn &lt;&lt; … &lt;&lt; endl</code></td><td><code>warn(…)</code></td></tr>
+<tr><td><code>cout::error &lt;&lt; … &lt;&lt; endl</code></td><td><code>error(…)</code></td></tr>
+<tr><td><code>cout::ping &lt;&lt; … &lt;&lt; endl</code></td><td><code>print(…)</code></td></tr>
+<tr><td><code>cerr &lt;&lt; … &lt;&lt; endl</code></td><td><code>warn(…)</code></td></tr>
+</table>
+<p class="note"><code>struct cout</code> lives in <code>&lt;cluaupp/roblox.hpp&gt;</code> so clangd knows <code>operator&lt;&lt;</code>.</p>
+	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-examples">Next lesson · Examples</button></div>
+</section>
+		<section class="learn-panel" role="tabpanel" id="learn-examples" aria-labelledby="learn-examples-tab" hidden>
+	<h1>Examples</h1>
+	<p class="muted">Copy-paste systems. Entry is <code>void init()</code>. No lambdas. No custom C++ classes.</p>
+<h2>1. Data boot</h2>
+<p>Call <code>Init</code> once on server and once on client. Other services only <code>WaitFor</code>.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-29-cpp" id="pair-29-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-29-luau" id="pair-29-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-29-cpp" aria-labelledby="pair-29-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/dataservice.hpp&gt;
+#<span data-tok="keyword">include</span> <span data-tok="string">"../../shared/constants/TemplateData.hpp"</span>
+
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="type">TemplateData</span> playerData = <span data-tok="type">TemplateData</span> {};
+	<span data-tok="type">DataService</span>::Server.<span data-tok="fn">Init</span>(<span data-tok="type">DataServiceOptions</span> {
+		.Template = playerData,
+		.StoreName = <span data-tok="string">"PlayerData_v1"</span>,
+		.UseMock = <span data-tok="keyword">true</span>,
+	});
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-29-luau" aria-labelledby="pair-29-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+	<span data-tok="type">DataService</span>.Server:<span data-tok="fn">Init</span>({
+		Template = {},
+		StoreName = <span data-tok="string">"PlayerData_v1"</span>,
+		UseMock = <span data-tok="keyword">true</span>,
+	})
+<span data-tok="keyword">end</span>
+
+<span data-tok="fn">init</span>()</pre></div>
+</div>
+<p>Client: <code>DataService::Client.Init();</code></p>
+<h2>2. Leaderstats</h2>
+<p>Create the Folder and the stats when they are missing. Refresh from DataService. Section Janitor per player.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-30-cpp" id="pair-30-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-30-luau" id="pair-30-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-30-cpp" aria-labelledby="pair-30-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">void</span> <span data-tok="fn">EnsureStat</span>(<span data-tok="type">Folder</span>* leaderstats, <span data-tok="keyword">string</span> name) {
+	<span data-tok="type">Instance</span>* existing = leaderstats-&gt;<span data-tok="fn">FindFirstChild</span>(name);
+	<span data-tok="keyword">if</span> (existing != <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">StringValue</span>* stat = <span data-tok="keyword">new</span> <span data-tok="type">StringValue</span>(leaderstats);
+	stat-&gt;Name = name;
+	stat-&gt;Value = <span data-tok="string">"0"</span>;
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">SetStat</span>(<span data-tok="type">Folder</span>* leaderstats, <span data-tok="keyword">string</span> name, <span data-tok="keyword">int</span> value) {
+	<span data-tok="type">StringValue</span>* stat = leaderstats-&gt;<span data-tok="fn">FindFirstChild</span>(name);
+	<span data-tok="keyword">if</span> (stat == <span data-tok="keyword">nullptr</span>) {
+		cout::<span data-tok="fn">warn</span> &lt;&lt; <span data-tok="string">"leaderstats missing "</span> &lt;&lt; name &lt;&lt; endl;
+		<span data-tok="keyword">return</span>;
+	}
+	stat-&gt;Value = <span data-tok="type">FormatNumber</span>::<span data-tok="fn">Abbreviate</span>(value);
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">ApplyCurrencies</span>(<span data-tok="type">Player</span>* player) {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">Get</span>(player);
+	<span data-tok="keyword">if</span> (data == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Folder</span>* leaderstats = player-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"leaderstats"</span>);
+	<span data-tok="keyword">if</span> (leaderstats == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="fn">SetStat</span>(leaderstats, <span data-tok="string">"Money"</span>, data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money));
+	<span data-tok="fn">SetStat</span>(leaderstats, <span data-tok="string">"Level"</span>, data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Level));
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">SetupPlayer</span>(<span data-tok="type">Player</span>* player) {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">WaitFor</span>(player);
+	<span data-tok="keyword">if</span> (data == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Folder</span>* leaderstats = player-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"leaderstats"</span>);
+	<span data-tok="keyword">if</span> (leaderstats == <span data-tok="keyword">nullptr</span>) {
+		leaderstats = <span data-tok="keyword">new</span> <span data-tok="type">Folder</span>(player);
+		leaderstats-&gt;Name = <span data-tok="string">"leaderstats"</span>;
+	}
+	<span data-tok="fn">EnsureStat</span>(leaderstats, <span data-tok="string">"Money"</span>);
+	<span data-tok="fn">EnsureStat</span>(leaderstats, <span data-tok="string">"Level"</span>);
+	<span data-tok="fn">ApplyCurrencies</span>(player);
+	<span data-tok="type">Janitor</span>* section = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
+	section-&gt;<span data-tok="fn">Add</span>(data-&gt;<span data-tok="fn">GetChangedSignal</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies).<span data-tok="fn">Connect</span>(OnCurrenciesChanged));
+	janitor-&gt;<span data-tok="fn">Add</span>(section, <span data-tok="string">"Destroy"</span>, player-&gt;Name);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-30-luau" aria-labelledby="pair-30-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">EnsureStat</span>(leaderstats: <span data-tok="type">Folder</span>, name: string)
+	<span data-tok="keyword">if</span> leaderstats:<span data-tok="fn">FindFirstChild</span>(name) ~= <span data-tok="keyword">nil</span> <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">local</span> stat = <span data-tok="type">Instance</span>.<span data-tok="fn">new</span>(<span data-tok="string">"StringValue"</span>)
+	stat.Parent = leaderstats
+	stat.Name = name
+	stat.Value = <span data-tok="string">"0"</span>
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<p class="note">Do not <code>if (!money) { money-&gt;Value = … }</code> — that writes only when the child is missing. Set when the child <strong>exists</strong>.</p>
+<h2>3. Combat (server validation)</h2>
+<p>Full typed version lives in the <strong>OOP</strong> tab. Short rule: client fires <code>Attack-&gt;FireServer(target-&gt;UserId)</code>. Server checks cooldown, range, alive, then <code>TakeDamage(Config.Damage)</code>.</p>
+<table>
+<tr><th>Client cheat</th><th>Server check</th></tr>
+<tr><td><code>FireServer(99999)</code> damage</td><td>Damage is <code>Config.Damage</code> — not an argument</td></tr>
+<tr><td>Hit across the map</td><td><code>delta.Magnitude &gt; Config.Range</code></td></tr>
+<tr><td>Spam click</td><td><code>LastAttackAt</code> + cooldown</td></tr>
+<tr><td>Target self / userId 0</td><td><code>ResolveTarget</code>, <code>target == attacker</code></td></tr>
+</table>
+<h2>4. Shop</h2>
+<p>Cluaupp has no maps. A function with early returns is the catalog — the server copy is the one that matters.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-31-cpp" id="pair-31-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-31-luau" id="pair-31-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-31-cpp" aria-labelledby="pair-31-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">int</span> PRODUCT_HEALTH_PACK = <span data-tok="number">1</span>;
+
+<span data-tok="keyword">int</span> <span data-tok="fn">PriceOf</span>(<span data-tok="keyword">int</span> productId) {
+	<span data-tok="keyword">if</span> (productId == PRODUCT_HEALTH_PACK) {
+		<span data-tok="keyword">return</span> <span data-tok="number">50</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="number">0</span>;
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">OnBuy</span>(<span data-tok="type">Player</span>* player, <span data-tok="keyword">int</span> productId) {
+	<span data-tok="keyword">int</span> price = <span data-tok="fn">PriceOf</span>(productId);
+	<span data-tok="keyword">if</span> (price &lt; <span data-tok="number">1</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">WaitFor</span>(player);
+	<span data-tok="keyword">int</span> money = data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money);
+	<span data-tok="keyword">if</span> (money &lt; price) {
+		<span data-tok="keyword">return</span>;
+	}
+	data-&gt;<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money, money - price);
+	<span data-tok="fn">ApplyProduct</span>(player, productId);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-31-luau" aria-labelledby="pair-31-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnBuy</span>(player: <span data-tok="type">Player</span>, productId: number)
+	<span data-tok="keyword">local</span> price = <span data-tok="fn">PriceOf</span>(productId)
+	<span data-tok="keyword">if</span> price &lt; <span data-tok="number">1</span> <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">local</span> data = <span data-tok="type">DataService</span>.Server:<span data-tok="fn">WaitFor</span>(player)
+	<span data-tok="keyword">local</span> money = data:<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>.Server.Paths.Currencies.Money)
+	<span data-tok="keyword">if</span> money &lt; price <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	data:<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>.Server.Paths.Currencies.Money, money - price)
+	<span data-tok="fn">ApplyProduct</span>(player, productId)
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<h2>5. HUD (client)</h2>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-32-cpp" id="pair-32-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-32-luau" id="pair-32-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-32-cpp" aria-labelledby="pair-32-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">void</span> <span data-tok="fn">OnCurrenciesChanged</span>() {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Client.<span data-tok="fn">Get</span>();
+	<span data-tok="type">TextLabel</span>* moneyLabel = <span data-tok="fn">FindLabel</span>(playerGui, <span data-tok="string">"MoneyLabel"</span>);
+	<span data-tok="keyword">if</span> (moneyLabel != <span data-tok="keyword">nullptr</span>) {
+		moneyLabel-&gt;Text = <span data-tok="type">FormatNumber</span>::<span data-tok="fn">Abbreviate</span>(data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Client.Paths.Currencies.Money));
+	}
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Client.<span data-tok="fn">WaitForData</span>();
+	<span data-tok="fn">Render</span>(data);
+	janitor-&gt;<span data-tok="fn">Add</span>(data-&gt;<span data-tok="fn">GetChangedSignal</span>(<span data-tok="type">DataService</span>::Client.Paths.Currencies).<span data-tok="fn">Connect</span>(OnCurrenciesChanged));
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-32-luau" aria-labelledby="pair-32-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+	<span data-tok="keyword">local</span> data = <span data-tok="type">DataService</span>.Client:<span data-tok="fn">WaitForData</span>()
+	<span data-tok="fn">Render</span>(data)
+	janitor:<span data-tok="fn">Add</span>(data:<span data-tok="fn">GetChangedSignal</span>(<span data-tok="type">DataService</span>.Client.Paths.Currencies):<span data-tok="fn">Connect</span>(OnCurrenciesChanged))
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<p>Display only. Never <code>Set</code> Money from the HUD.</p>
+<h2>6. Sword — Touched on the server</h2>
+<p>Use <code>.legacy.server.cpp</code> so the Script can live <em>inside</em> the Tool. <code>tool-&gt;Parent</code> is the Character while equipped.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-33-cpp" id="pair-33-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-33-luau" id="pair-33-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-33-cpp" aria-labelledby="pair-33-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="type">Tool</span>* tool = script-&gt;Parent;
+
+<span data-tok="keyword">void</span> <span data-tok="fn">OnTouched</span>(<span data-tok="type">Instance</span>* hit) {
+	<span data-tok="type">Player</span>* attacker = <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerFromCharacter</span>(tool-&gt;Parent);
+	<span data-tok="type">Player</span>* victim = <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerFromCharacter</span>(hit-&gt;<span data-tok="fn">FindFirstAncestorOfClass</span>(<span data-tok="string">"Model"</span>));
+	<span data-tok="keyword">if</span> (victim == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (victim == attacker) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Humanoid</span>* humanoid = victim-&gt;Character-&gt;<span data-tok="fn">FindFirstChildOfClass</span>(<span data-tok="string">"Humanoid"</span>);
+	humanoid-&gt;<span data-tok="fn">TakeDamage</span>(SWORD_DAMAGE);
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="type">BasePart</span>* handle = tool-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"Handle"</span>);
+	handle-&gt;Touched.<span data-tok="fn">Connect</span>(OnTouched);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-33-luau" aria-labelledby="pair-33-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> tool = script.Parent
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnTouched</span>(hit: <span data-tok="type">Instance</span>)
+	<span data-tok="keyword">local</span> attacker = <span data-tok="type">Players</span>:<span data-tok="fn">GetPlayerFromCharacter</span>(tool.Parent)
+	<span data-tok="comment">-- cooldown, ignore self, TakeDamage(SWORD_DAMAGE)</span>
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<h2>Layout</h2>
+<pre data-lang="plain" data-highlighted="1">src/
+  shared/constants/TemplateData.hpp
+  shared/types/CombatTypes.hpp
+  server/boot/DataBoot.server.cpp
+  client/boot/DataBoot.client.cpp
+  server/services/leaderstats/LeaderstatsServer.server.cpp
+  server/services/combat/CombatServer.server.cpp
+  client/controllers/combat/CombatClient.client.cpp
+  server/services/shop/ShopServer.server.cpp
+  client/controllers/hud/HudClient.client.cpp
+  server/tools/Sword.legacy.server.cpp</pre>
 	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-practice">Next lesson · Best practices</button></div>
 </section>
 		<section class="learn-panel" role="tabpanel" id="learn-practice" aria-labelledby="learn-practice-tab" hidden>
 	<h1>Best practices</h1>
 	<ul>
 <li>One system per file. Name it after the job: <code>inventory.server.cpp</code>, <code>shop.client.cpp</code>.</li>
+<li>Typed data lives in shared <code>struct</code> headers. Methods are named functions. Lifetime is <code>init</code> + Janitor.</li>
 <li>Keep config in <code>src/shared/config.h</code> as <code>const</code> values.</li>
 <li>Do not edit <code>out/</code>. It is generated. Source of truth is <code>src/</code>.</li>
 <li>Never trust FireServer payloads. Validate on the server. Persist only from the server.</li>
@@ -677,8 +1367,9 @@ roles         →  Main + Managers + Controllers + Types</pre>
 <li>Net packs buffers — do not JSONEncode a whole inventory every heartbeat. Send deltas.</li>
 <li>Do not install a second Janitor from Wally. CluauppLibs already has it.</li>
 <li>Shared modules must be safe on both server and client.</li>
+<li><code>.server.cpp</code> emits <code>init.luau</code> + RunContext Server — not Legacy.</li>
 </ul>
-<p>Next: <a href="../guide/getting-started.html">install and Rojo</a>, or open the <a href="../api/classes/index.html">class API</a>.</p>
+<p>Next: <a href="../guide/oop.html">OOP structure</a>, <a href="../guide/examples.html">examples</a>, or the <a href="../api/classes/index.html">class API</a>.</p>
 	<div class="learn-next"><a class="btn btn-primary" href="../guide/getting-started.html">Next · Get started</a></div>
 </section>
 	</div>
@@ -687,7 +1378,7 @@ roles         →  Main + Managers + Controllers + Types</pre>
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="../assets/app.js?v=2"></script>
+<script src="../assets/app.js?v=3"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

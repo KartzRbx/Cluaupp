@@ -7,7 +7,7 @@
 - Emit: injected `require` / `GetService` are `const`. C++ functions emit as `const function` instead of `local function`.
 - `.server.cpp` emits `init.luau` + `init.meta.json` with `RunContext.Server`. `init.server.luau` is Legacy and is pruned.
 - `cout << ... << endl` emits `print(...)`. `cerr <<` emits `warn`. `cout::print` / `cout::warn` / `cout::error` / `cout::ping` map to the Roblox globals.
-- Docs: [print and cout](docs/print-cout.md); [Libraries](docs/libraries/index.md) how-tos (DataService Init, Janitor, Promise, Net); [OOP structure](docs/oop/index.md) (file tags, services, modules); [Examples](docs/examples/index.md) (leaderstats, combat validation, shop, HUD, sword).
+- Docs: [print and cout](docs/print-cout.md); [Libraries](docs/libraries/index.md) how-tos (DataService Init, Janitor, Promise, Net); [OOP structure](docs/oop/index.md) (file tags, services, modules); [Examples](docs/examples/index.md) (leaderstats, combat validation, shop, HUD, sword). GitHub Pages Learn tabs: OOP, Libraries, print/cout, Examples — generated into `site/` (`guide/oop.html`, `guide/examples.html`).
 
 ## 0.1.2
 

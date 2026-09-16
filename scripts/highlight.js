@@ -17,14 +17,14 @@ const LUAU_KEYWORDS = new Set([
 
 const TYPE_NAMES = new Set([
 	"Attach3D", "Axes", "BasePart", "BillboardGui", "BindableEvent", "BoolValue", "BrickColor",
-	"Camera", "CFrame", "ClickDetector", "Cmdr", "Color3", "ColorSequence", "Content", "DataModel",
-	"DataService", "DataStoreService", "DateTime", "Enum", "Folder", "Font", "Frame", "Fusion",
-	"GuiObject", "Humanoid", "ImageLabel", "Instance", "IntValue", "Iris", "Janitor", "Lighting",
-	"LocalScript", "Model", "ModuleScript", "Net", "NumberSequence", "NumberValue", "Part",
+	"Camera", "CFrame", "ClickDetector", "Cmdr", "Color3", "ColorSequence", "CombatConfig", "Content", "DataModel",
+	"Data", "DataService", "DataServiceOptions", "DataStoreService", "DateTime", "Enum", "Folder", "Font", "FormatNumber", "Frame", "Fusion",
+	"GuiObject", "Humanoid", "ImageLabel", "InputObject", "Instance", "IntValue", "Iris", "Janitor", "Lighting",
+	"LocalScript", "Model", "ModuleScript", "Mouse", "Net", "NetEvent", "NumberSequence", "NumberValue", "Part",
 	"PathWaypoint", "Player", "PlayerGui", "Players", "Promise", "ProximityPrompt", "Random",
 	"Ray", "RaycastParams", "RaycastResult", "Rect", "Region3", "RemoteEvent", "ReplicatedStorage",
 	"RunService", "ScreenGui", "Script", "ScrollingFrame", "ServerStorage", "Sound", "SpawnLocation",
-	"StringValue", "TextBox", "TextButton", "TextLabel", "Tool", "TweenInfo", "TweenService",
+	"StringValue", "TemplateData", "TextBox", "TextButton", "TextLabel", "Tool", "TweenInfo", "TweenService",
 	"Twinkle", "UDim", "UDim2", "UICorner", "UIListLayout", "UIPadding", "UIStroke", "UserInputService",
 	"Vector2", "Vector2int16", "Vector3", "Vector3int16", "ViewportFrame", "Workspace",
 ]);

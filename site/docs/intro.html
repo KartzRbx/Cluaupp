@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Intro · Cluaupp</title>
 <link rel="icon" href="../assets/logo.png">
-<link rel="stylesheet" href="../assets/style.css?v=2">
+<link rel="stylesheet" href="../assets/style.css?v=3">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -20,6 +20,7 @@
       <a href="../index.html" aria-current="page">Home</a>
       <a href="../learn/index.html">Learn</a>
       <a href="../guide/getting-started.html">Start</a>
+      <a href="../guide/examples.html">Examples</a>
       <a href="../api/datatypes/index.html">Datatypes</a>
       <a href="../api/classes/index.html">Classes</a>
       <a href="../api/enums/index.html">Enums</a>
@@ -58,10 +59,10 @@
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
-		<button type="button" role="tab" aria-selected="true" aria-controls="pair-22-cpp" id="pair-22-tab-cpp">C++</button>
-		<button type="button" role="tab" aria-selected="false" aria-controls="pair-22-luau" id="pair-22-tab-luau" tabindex="-1">Luau</button>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-36-cpp" id="pair-36-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-36-luau" id="pair-36-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-22-cpp" aria-labelledby="pair-22-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+	<div class="pair-panel" role="tabpanel" id="pair-36-cpp" aria-labelledby="pair-36-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
 #<span data-tok="keyword">include</span> &lt;cluaupp/libs/janitor.hpp&gt;
 
 <span data-tok="keyword">void</span> <span data-tok="fn">OnPlayer</span>(<span data-tok="type">Player</span>* player) {
@@ -74,7 +75,7 @@
 	<span data-tok="keyword">auto</span>* players = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
 	players-&gt;PlayerAdded.<span data-tok="fn">Connect</span>(OnPlayer);
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-22-luau" aria-labelledby="pair-22-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+	<div class="pair-panel" role="tabpanel" id="pair-36-luau" aria-labelledby="pair-36-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
 <span data-tok="keyword">local</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
 <span data-tok="keyword">local</span> <span data-tok="type">Janitor</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Janitor</span>)
 
@@ -91,13 +92,13 @@
 
 <span data-tok="fn">init</span>()</pre></div>
 </div>
-<p>Next: <a href="../guide/getting-started.html">Getting started</a>, then the <a href="../learn/index.html">Learn</a> tabs for types, safety, and libraries.</p>
+<p>Next: <a href="../guide/getting-started.html">Getting started</a>, then <a href="../learn/index.html">Learn</a> for OOP, libraries, and examples.</p>
 </article></div>
 <footer class="site-footer">
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="../assets/app.js?v=2"></script>
+<script src="../assets/app.js?v=3"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

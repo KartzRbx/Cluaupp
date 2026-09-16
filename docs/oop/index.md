@@ -5,6 +5,12 @@ sidebar_position: 1
 
 # OOP structure
 
+The **live site** (not just these markdown files) is GitHub Pages:
+
+- [Learn → OOP structure](https://kartzrbx.github.io/Cluaupp/learn/index.html)
+- [Guide → OOP](https://kartzrbx.github.io/Cluaupp/guide/oop.html)
+- [Examples](https://kartzrbx.github.io/Cluaupp/guide/examples.html)
+
 Cluaupp does **not** compile custom C++ `class` types yet. “OOP” here is how you **lay out systems** so Studio gets services, modules, and lifecycle — the same idea as roblox-ts filename keys + Flamework `@Service`, without decorators.
 
 | Page | What you learn |

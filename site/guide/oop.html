@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OOP structure · Cluaupp</title>
+<link rel="icon" href="../assets/logo.png">
+<link rel="stylesheet" href="../assets/style.css?v=3">
+<script>
+(function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../index.html"><img src="../assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
+  <div class="nav-wrap">
+    <nav class="nav-links" aria-label="Primary">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="../index.html">Home</a>
+      <a href="../learn/index.html" aria-current="page">Learn</a>
+      <a href="../guide/getting-started.html">Start</a>
+      <a href="../guide/examples.html">Examples</a>
+      <a href="../api/datatypes/index.html">Datatypes</a>
+      <a href="../api/classes/index.html">Classes</a>
+      <a href="../api/enums/index.html">Enums</a>
+    </nav>
+  </div>
+  <div class="header-tools">
+    <label class="sr-only" for="theme-select">Theme</label>
+    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
+      <option value="dark">Dark Modern</option>
+      <option value="tokyo">Tokyo Night</option>
+      <option value="dracula">Dracula</option>
+      <option value="nord">Nord</option>
+      <option value="carbon">Carbon</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
+</header>
+<div class="page" id="content"><article class="docs-article"><div class="crumb"><a href="../index.html">Cluaupp</a> / OOP structure</div><h1>OOP structure</h1><p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>services</em> so Studio gets Main / Controller / Types — the same idea as roblox-ts filename keys + Flamework <code>@Service</code>, without decorators.</p>
+<h2>The three layers</h2>
+<table>
+<tr><th>Layer</th><th>You write</th><th>Runtime</th></tr>
+<tr><td>Data object</td><td><code>struct TemplateData</code>, <code>struct CombatConfig</code></td><td>Luau table + <code>export type</code> in <code>*Types.luau</code></td></tr>
+<tr><td>Methods</td><td>named functions with typed args (<code>Player*</code>, <code>Humanoid*</code>, <code>int</code>)</td><td><code>const function</code> on the Controller</td></tr>
+<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>generated <code>Main.Start</code> / <code>Main.Stop</code></td></tr>
+</table>
+<h2>File tags decide the instance</h2>
+<table>
+<tr><th>Source</th><th>Instance</th><th>RunContext</th></tr>
+<tr><td><code>CombatServer.server.cpp</code></td><td><strong>Script</strong></td><td><strong>Server</strong> (<code>init.luau</code> + <code>init.meta.json</code>)</td></tr>
+<tr><td><code>CombatClient.client.cpp</code></td><td>LocalScript</td><td>Client</td></tr>
+<tr><td><code>Sword.legacy.server.cpp</code></td><td>Script</td><td>Legacy (1:1 dump, lives under a Tool)</td></tr>
+<tr><td><code>Damage.cpp</code> (no tag)</td><td>ModuleScript</td><td>—</td></tr>
+</table>
+<p class="note"><code>.server.cpp</code> is not <code>init.server.luau</code>. Rojo maps <code>*.server.luau</code> to RunContext <strong>Legacy</strong>. Cluaupp emits <code>init.luau</code> + meta <code>Enum.RunContext.Server</code>.</p>
+<h2>Structs are the typed class fields</h2>
+<p>Put shapes in shared headers. Designated initializers become tables. Methods are functions that take the instance in — composition, not <code>this-&gt;</code>.</p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-37-cpp" id="pair-37-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-37-luau" id="pair-37-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-37-cpp" aria-labelledby="pair-37-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> <span data-tok="keyword">once</span>
+
+<span data-tok="keyword">struct</span> <span data-tok="type">CombatConfig</span> {
+	<span data-tok="keyword">double</span> Range = <span data-tok="number">12</span>;
+	<span data-tok="keyword">double</span> Cooldown = <span data-tok="number">0.4</span>;
+	<span data-tok="keyword">int</span> Damage = <span data-tok="number">12</span>;
+	<span data-tok="keyword">int</span> KillReward = <span data-tok="number">5</span>;
+};
+
+<span data-tok="keyword">struct</span> EconomySnapshot {
+	<span data-tok="keyword">int</span> Money = <span data-tok="number">0</span>;
+	<span data-tok="keyword">int</span> Level = <span data-tok="number">1</span>;
+};
+
+<span data-tok="keyword">struct</span> <span data-tok="type">TemplateData</span> {
+	<span data-tok="keyword">struct</span> Currencies {
+		<span data-tok="keyword">int</span> Money = <span data-tok="number">0</span>;
+		<span data-tok="keyword">int</span> Level = <span data-tok="number">1</span>;
+	} Currencies;
+};</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-37-luau" aria-labelledby="pair-37-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- generated *Types.luau (shape)</span>
+<span data-tok="keyword">export</span> <span data-tok="keyword">type</span> <span data-tok="type">CombatConfig</span> = {
+	Range: number,
+	Cooldown: number,
+	Damage: number,
+	KillReward: number,
+}
+
+<span data-tok="keyword">export</span> <span data-tok="keyword">type</span> EconomySnapshot = {
+	Money: number,
+	Level: number,
+}
+
+<span data-tok="keyword">return</span> {}</pre></div>
+</div>
+<h2>What you do not write</h2>
+<pre data-lang="cpp" data-highlighted="1">class Shop {
+	<span data-tok="keyword">int</span> price;
+	<span data-tok="keyword">void</span> <span data-tok="fn">Buy</span>(<span data-tok="type">Player</span>* player);
+};</pre>
+<p>Split that into a <code>struct</code> (fields) + functions (methods) + a <code>.server.cpp</code> (lifetime).</p>
+<h2>Advanced typed service — Combat</h2>
+<p>Config is a typed struct. Each check is a function with Instance types. Damage is a <code>const</code> on the config — the client never sends it. This is the OOP you can ship today.</p>
+<p><code>src/shared/types/CombatTypes.hpp</code></p>
+<pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> <span data-tok="keyword">once</span>
+
+<span data-tok="keyword">struct</span> <span data-tok="type">CombatConfig</span> {
+	<span data-tok="keyword">double</span> Range = <span data-tok="number">12</span>;
+	<span data-tok="keyword">double</span> Cooldown = <span data-tok="number">0.4</span>;
+	<span data-tok="keyword">int</span> Damage = <span data-tok="number">12</span>;
+	<span data-tok="keyword">int</span> KillReward = <span data-tok="number">5</span>;
+};</pre>
+<p><code>src/server/services/combat/CombatServer.server.cpp</code></p>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-38-cpp" id="pair-38-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-38-luau" id="pair-38-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-38-cpp" aria-labelledby="pair-38-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/janitor.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/net.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/dataservice.hpp&gt;
+#<span data-tok="keyword">include</span> <span data-tok="string">"../../../shared/types/CombatTypes.hpp"</span>
+
+<span data-tok="type">Players</span>* <span data-tok="type">Players</span> = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
+<span data-tok="type">Janitor</span>* janitor = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
+<span data-tok="type">NetEvent</span>* Attack = <span data-tok="type">Net</span>::<span data-tok="fn">Event</span>(<span data-tok="string">"Attack"</span>);
+
+<span data-tok="type">CombatConfig</span> Config = <span data-tok="type">CombatConfig</span> {
+	.Range = <span data-tok="number">12</span>,
+	.Cooldown = <span data-tok="number">0.4</span>,
+	.Damage = <span data-tok="number">12</span>,
+	.KillReward = <span data-tok="number">5</span>,
+};
+
+<span data-tok="type">Humanoid</span>* <span data-tok="fn">HumanoidOf</span>(<span data-tok="type">Model</span>* character) {
+	<span data-tok="keyword">if</span> (character == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> character-&gt;<span data-tok="fn">FindFirstChildOfClass</span>(<span data-tok="string">"Humanoid"</span>);
+}
+
+<span data-tok="type">BasePart</span>* <span data-tok="fn">RootOf</span>(<span data-tok="type">Model</span>* character) {
+	<span data-tok="keyword">if</span> (character == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> character-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"HumanoidRootPart"</span>);
+}
+
+<span data-tok="type">Player</span>* <span data-tok="fn">ResolveTarget</span>(<span data-tok="keyword">int</span> targetUserId) {
+	<span data-tok="keyword">if</span> (targetUserId &lt; <span data-tok="number">1</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nullptr</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerByUserId</span>(targetUserId);
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">IsAlive</span>(<span data-tok="type">Humanoid</span>* humanoid) {
+	<span data-tok="keyword">if</span> (humanoid == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (humanoid-&gt;Health &lt;= <span data-tok="number">0</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">InRange</span>(<span data-tok="type">Model</span>* a, <span data-tok="type">Model</span>* b, <span data-tok="keyword">double</span> maxRange) {
+	<span data-tok="type">BasePart</span>* rootA = <span data-tok="fn">RootOf</span>(a);
+	<span data-tok="type">BasePart</span>* rootB = <span data-tok="fn">RootOf</span>(b);
+	<span data-tok="keyword">if</span> (rootA == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (rootB == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="type">Vector3</span> delta = rootA-&gt;Position - rootB-&gt;Position;
+	<span data-tok="keyword">if</span> (delta.Magnitude &gt; maxRange) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+}
+
+<span data-tok="keyword">bool</span> <span data-tok="fn">OnCooldown</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">NumberValue</span>* last = attacker-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"LastAttackAt"</span>);
+	<span data-tok="keyword">if</span> (last == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">tick</span>() - last-&gt;Value &lt; Config.Cooldown) {
+		<span data-tok="keyword">return</span> <span data-tok="keyword">true</span>;
+	}
+	<span data-tok="keyword">return</span> <span data-tok="keyword">false</span>;
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">StampCooldown</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">NumberValue</span>* last = attacker-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"LastAttackAt"</span>);
+	<span data-tok="keyword">if</span> (last == <span data-tok="keyword">nullptr</span>) {
+		last = <span data-tok="keyword">new</span> <span data-tok="type">NumberValue</span>(attacker);
+		last-&gt;Name = <span data-tok="string">"LastAttackAt"</span>;
+	}
+	last-&gt;Value = <span data-tok="fn">tick</span>();
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">GrantKill</span>(<span data-tok="type">Player</span>* attacker) {
+	<span data-tok="type">Data</span>* data = <span data-tok="type">DataService</span>::Server.<span data-tok="fn">Get</span>(attacker);
+	<span data-tok="keyword">if</span> (data == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">int</span> money = data-&gt;<span data-tok="fn">Get</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money);
+	data-&gt;<span data-tok="fn">Set</span>(<span data-tok="type">DataService</span>::Server.Paths.Currencies.Money, money + Config.KillReward);
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">OnAttack</span>(<span data-tok="type">Player</span>* attacker, <span data-tok="keyword">int</span> targetUserId) {
+	<span data-tok="keyword">if</span> (attacker == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">OnCooldown</span>(attacker)) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Player</span>* target = <span data-tok="fn">ResolveTarget</span>(targetUserId);
+	<span data-tok="keyword">if</span> (target == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (target == attacker) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Humanoid</span>* attackerHum = <span data-tok="fn">HumanoidOf</span>(attacker-&gt;Character);
+	<span data-tok="type">Humanoid</span>* targetHum = <span data-tok="fn">HumanoidOf</span>(target-&gt;Character);
+	<span data-tok="keyword">if</span> (<span data-tok="fn">IsAlive</span>(attackerHum) == <span data-tok="keyword">false</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">IsAlive</span>(targetHum) == <span data-tok="keyword">false</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (<span data-tok="fn">InRange</span>(attacker-&gt;Character, target-&gt;Character, Config.Range) == <span data-tok="keyword">false</span>) {
+		cout::ping &lt;&lt; attacker-&gt;Name &lt;&lt; <span data-tok="string">" out of range"</span> &lt;&lt; endl;
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="fn">StampCooldown</span>(attacker);
+	<span data-tok="keyword">double</span> healthBefore = targetHum-&gt;Health;
+	targetHum-&gt;<span data-tok="fn">TakeDamage</span>(Config.Damage);
+	<span data-tok="keyword">if</span> (healthBefore &gt; <span data-tok="number">0</span>) {
+		<span data-tok="keyword">if</span> (targetHum-&gt;Health &lt;= <span data-tok="number">0</span>) {
+			<span data-tok="fn">GrantKill</span>(attacker);
+		}
+	}
+}
+
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	Attack-&gt;<span data-tok="fn">On</span>(OnAttack);
+	janitor-&gt;<span data-tok="fn">Add</span>(Attack);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-38-luau" aria-labelledby="pair-38-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="comment">-- CombatServer (Script, RunContext Server)</span>
+<span data-tok="comment">-- roles Main, CombatController, NetController, DataController, CombatServerTypes</span>
+
+<span data-tok="keyword">const</span> <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">Janitor</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Janitor</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">Net</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Net</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">DataService</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">DataService</span>)
+
+<span data-tok="keyword">const</span> Config = {
+	Range = <span data-tok="number">12</span>,
+	Cooldown = <span data-tok="number">0.4</span>,
+	Damage = <span data-tok="number">12</span>,
+	KillReward = <span data-tok="number">5</span>,
+}
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">HumanoidOf</span>(character: <span data-tok="type">Model</span>): <span data-tok="type">Humanoid</span>?
+	<span data-tok="keyword">if</span> character == <span data-tok="keyword">nil</span> <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span> <span data-tok="keyword">nil</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">return</span> character:<span data-tok="fn">FindFirstChildOfClass</span>(<span data-tok="string">"Humanoid"</span>)
+<span data-tok="keyword">end</span>
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnAttack</span>(attacker: <span data-tok="type">Player</span>, targetUserId: number)
+	<span data-tok="comment">-- ResolveTarget, IsAlive, InRange, StampCooldown, TakeDamage(Config.Damage)</span>
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<p>Cluaupp turns that file into a PascalCase folder:</p>
+<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer/
+  init.luau              Script · RunContext Server
+  init.meta.json
+  Main.luau              Start / Stop  → constructor / destructor
+  CombatController.luau  your typed functions
+  NetController.luau
+  DataController.luau
+  CombatServerTypes.luau export type … return {}</pre>
+<p><code>Main</code> is the class. Controllers are the methods. <code>*Types</code> is the typed public surface. Janitor is the destructor.</p>
+<h2>Client half (intent only)</h2>
+<div class="pair" data-tabs>
+	<div class="pair-tabs">
+		<span class="tab-ink" aria-hidden="true"></span>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-39-cpp" id="pair-39-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-39-luau" id="pair-39-tab-luau" tabindex="-1">Luau</button>
+	</div>
+	<div class="pair-panel" role="tabpanel" id="pair-39-cpp" aria-labelledby="pair-39-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">void</span> <span data-tok="fn">OnInputBegan</span>(<span data-tok="type">InputObject</span>* input, <span data-tok="keyword">bool</span> gameProcessed) {
+	<span data-tok="keyword">if</span> (gameProcessed) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="keyword">if</span> (input-&gt;UserInputType != <span data-tok="type">Enum</span>::UserInputType::MouseButton1) {
+		<span data-tok="keyword">return</span>;
+	}
+	<span data-tok="type">Player</span>* localPlayer = <span data-tok="type">Players</span>-&gt;LocalPlayer;
+	<span data-tok="type">Mouse</span>* mouse = localPlayer-&gt;<span data-tok="fn">GetMouse</span>();
+	<span data-tok="type">Instance</span>* model = mouse-&gt;Target-&gt;<span data-tok="fn">FindFirstAncestorOfClass</span>(<span data-tok="string">"Model"</span>);
+	<span data-tok="type">Player</span>* target = <span data-tok="type">Players</span>-&gt;<span data-tok="fn">GetPlayerFromCharacter</span>(model);
+	<span data-tok="keyword">if</span> (target == <span data-tok="keyword">nullptr</span>) {
+		<span data-tok="keyword">return</span>;
+	}
+	Attack-&gt;<span data-tok="fn">FireServer</span>(target-&gt;UserId);
+}</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-39-luau" aria-labelledby="pair-39-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnInputBegan</span>(input: <span data-tok="type">InputObject</span>, gameProcessed: boolean)
+	<span data-tok="keyword">if</span> gameProcessed <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">if</span> input.UserInputType ~= <span data-tok="type">Enum</span>.UserInputType.MouseButton1 <span data-tok="keyword">then</span>
+		<span data-tok="keyword">return</span>
+	<span data-tok="keyword">end</span>
+	<span data-tok="keyword">local</span> target = <span data-tok="type">Players</span>:<span data-tok="fn">GetPlayerFromCharacter</span>(model)
+	Attack:<span data-tok="fn">FireServer</span>(target.UserId)
+<span data-tok="keyword">end</span></pre></div>
+</div>
+<p>The remote payload is <code>UserId</code> — never <code>Config.Damage</code>.</p>
+<h2>Suggested disk layout</h2>
+<pre data-lang="plain" data-highlighted="1">src/
+  shared/types/CombatTypes.hpp
+  shared/constants/TemplateData.hpp
+  server/boot/DataBoot.server.cpp
+  client/boot/DataBoot.client.cpp
+  server/services/combat/CombatServer.server.cpp
+  client/controllers/combat/CombatClient.client.cpp
+  server/services/leaderstats/LeaderstatsServer.server.cpp</pre>
+<p>One tagged file per system. Boot <code>Init</code> once. Other services <code>WaitFor</code>.</p></article></div>
+<footer class="site-footer">
+  <span>Cluaupp — C++ × Luau</span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+</footer>
+<script src="../assets/app.js?v=3"></script>
+<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
+<div class="ask-panel" data-ask-panel hidden>
+  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
+  <form class="ask-form" data-ask-form>
+    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
+    <button type="submit">Send</button>
+  </form>
+</div>
+</body>
+</html>

@@ -1,8 +1,9 @@
 "use strict";
 
 const { preCode } = require("./highlight");
+const { createGuides } = require("./site-guides");
 
-const ASSET_V = "2";
+const ASSET_V = "3";
 
 let pairSeq = 0;
 
@@ -135,7 +136,8 @@ function studioExplorer() {
 function serviceExplorers() {
 	return `<div class="explorer-stage">
 	${explorerPane("Disk · out/server/LeaderStats/", [
-		exLeaf("script", "init.server.luau", "becomes the Script"),
+		exLeaf("script", "init.luau", "Script + RunContext Server"),
+		exLeaf("script", "init.meta.json", "className Script"),
 		exLeaf("module", "Main.luau", "ModuleScript child"),
 		exLeaf("module", "PlayersManager.luau", "ModuleScript child"),
 		exLeaf("module", "CacheController.luau", "ModuleScript child"),
@@ -171,7 +173,10 @@ function learnNextBar(id) {
 		["learn-types", "Types and safety"],
 		["learn-org", "Organization"],
 		["learn-arch", "Architecture"],
+		["learn-oop", "OOP structure"],
 		["learn-libs", "Libraries"],
+		["learn-cout", "print / cout"],
+		["learn-examples", "Examples"],
 		["learn-practice", "Best practices"],
 	];
 	const index = lessons.findIndex((item) => item[0] === id);
@@ -180,6 +185,17 @@ function learnNextBar(id) {
 		return `<div class="learn-next"><a class="btn btn-primary" href="../guide/getting-started.html">Next · Get started</a></div>`;
 	}
 	return `<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="${next[0]}">Next lesson · ${escapeHtml(next[1])}</button></div>`;
+}
+
+function guides() {
+	if (!guides._cache) {
+		guides._cache = createGuides({ codePair, preCode, escapeHtml });
+	}
+	return guides._cache;
+}
+
+function guideArticle(title, inner) {
+	return `<article class="docs-article"><div class="crumb"><a href="../index.html">Cluaupp</a> / ${escapeHtml(title)}</div><h1>${escapeHtml(title)}</h1>${inner}</article>`;
 }
 
 function navItem(href, label, page, id) {
@@ -214,6 +230,7 @@ function localLayout(title, body, sidebar, depth, page = "") {
       ${navItem(`${prefix}index.html`, "Home", page, "home")}
       ${navItem(`${prefix}learn/index.html`, "Learn", page, "learn")}
       ${navItem(`${prefix}guide/getting-started.html`, "Start", page, "start")}
+      ${navItem(`${prefix}guide/examples.html`, "Examples", page, "examples")}
       ${navItem(`${prefix}api/datatypes/index.html`, "Datatypes", page, "datatypes")}
       ${navItem(`${prefix}api/classes/index.html`, "Classes", page, "classes")}
       ${navItem(`${prefix}api/enums/index.html`, "Enums", page, "enums")}
@@ -273,8 +290,10 @@ rojo serve`, "plain")}
   <h2>Engine, not a dump</h2>
   <p class="muted">Docs generated from the official Roblox API dump${version ? ` (${version})` : ""} — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
   <div class="grid">
-    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, Luau output, architecture, safety</span></a>
+    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, OOP, Luau output, safety</span></a>
     <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, IntelliSense</span></a>
+    <a class="card" href="guide/oop.html"><strong>OOP structure</strong><span class="muted">structs, services, typed Combat</span></a>
+    <a class="card" href="guide/examples.html"><strong>Examples</strong><span class="muted">leaderstats, combat, shop, HUD, sword</span></a>
     <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><span class="muted">Vector3, CFrame, UDim2, Color3</span></a>
     <a class="card" href="api/classes/index.html"><strong>Classes</strong><span class="muted">${classCount} instances and services</span></a>
     <a class="card" href="api/enums/index.html"><strong>Enums</strong><span class="muted">${enumCount} enumerations</span></a>
@@ -300,7 +319,7 @@ players.PlayerAdded:Connect(CreateLeaderstats)`,
 </section>
 <section class="section" data-reveal>
   <h2>Libraries that compile with you</h2>
-  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>.</p>
+  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>. How-to: <a href="guide/libraries.html">Libraries</a>.</p>
 </section>
 `;
 }
@@ -355,7 +374,7 @@ end
 
 init()`,
 )}
-<p>Next: <a href="${p}guide/getting-started.html">Getting started</a>, then the <a href="${p}learn/index.html">Learn</a> tabs for types, safety, and libraries.</p>
+<p>Next: <a href="${p}guide/getting-started.html">Getting started</a>, then <a href="${p}learn/index.html">Learn</a> for OOP, libraries, and examples.</p>
 </article>`;
 }
 
@@ -393,7 +412,10 @@ function learnBody() {
 		${learnTab("learn-types", false, "Types and safety")}
 		${learnTab("learn-org", false, "Organization")}
 		${learnTab("learn-arch", false, "Architecture")}
+		${learnTab("learn-oop", false, "OOP structure")}
 		${learnTab("learn-libs", false, "Libraries")}
+		${learnTab("learn-cout", false, "print / cout")}
+		${learnTab("learn-examples", false, "Examples")}
 		${learnTab("learn-practice", false, "Best practices")}
 	</nav>
 	<div>
@@ -833,11 +855,11 @@ void CreateLeaderstats(Player* player) {
 	auto* coins = new IntValue(folder);
 	coins->Name = "Coins";
 }`,
-	`-- out/server/LeaderStats/init.server.luau
+	`-- out/server/LeaderStats/init.luau
 --!strict
 require(script.Main):Start()
 
--- LeaderStats (Script)
+-- LeaderStats (Script, RunContext Server via init.meta.json)
 --   Main, PlayersManager, CacheController, LeaderStatsTypes`,
 )}
 ${serviceExplorers()}
@@ -846,52 +868,22 @@ AST features  →  GetService, Instance.new, methods, identifiers
 intent scores →  combat:2, character:1, …
 roles         →  Main + Managers + Controllers + Types`, "plain")}
 <p>A tiny <code>leaderstats.server.cpp</code> becomes <code>LeaderStats/</code> with Main, PlayersManager, CacheController, LeaderStatsTypes. A combat file with TakeDamage becomes CombatController — not a fake CacheController.</p>
+<p>The OOP tab is how you <em>write</em> that service with typed structs. The Examples tab is copy-paste systems.</p>
 <p>Trivial files that only <code>print</code> stay a single LocalScript. The planner does not invent Managers for hello-world.</p>
 <p>ForeverHD-style rules in the output: PascalCase folders, <code>--!strict</code>, public <code>Start</code> / <code>Stop</code>, Janitor in the Manager, Types modules <code>return {}</code>.</p>
 <p>Set <code>"architecture": false</code> in <code>cluaupp.config.json</code> (or use <code>.legacy.*.cpp</code>) for a 1:1 dump.</p>`,
 		)}
-		${learnPanel(
-			"learn-libs",
-			false,
-			"CluauppLibs",
-			`<p class="muted"><code>cluaupp build</code> copies full Luau systems into <code>libs/</code> (Rojo: <code>ReplicatedStorage.CluauppLibs</code>). Include a header; the compiler injects require. Wally is optional — only for extra community packages.</p>
-<table>
-<tr><th>Library</th><th>Header</th><th>Role</th></tr>
-<tr><td>Janitor</td><td><code>&lt;cluaupp/libs/janitor.hpp&gt;</code></td><td>lifetime</td></tr>
-<tr><td>Promise</td><td><code>&lt;cluaupp/libs/promise.hpp&gt;</code></td><td>async</td></tr>
-<tr><td>Net</td><td><code>&lt;cluaupp/libs/net.hpp&gt;</code></td><td>buffer remotes</td></tr>
-<tr><td>Fusion</td><td><code>&lt;cluaupp/libs/fusion.hpp&gt;</code></td><td>UI state</td></tr>
-<tr><td>Cmdr</td><td><code>&lt;cluaupp/libs/cmdr.hpp&gt;</code></td><td>commands</td></tr>
-<tr><td>DataService</td><td><code>&lt;cluaupp/libs/dataservice.hpp&gt;</code></td><td>profiles</td></tr>
-<tr><td>Twinkle</td><td><code>&lt;cluaupp/libs/twinkle.hpp&gt;</code></td><td>UI motion</td></tr>
-<tr><td>FormatNumber</td><td><code>&lt;cluaupp/libs/formatnumber.hpp&gt;</code></td><td>abbreviate</td></tr>
-</table>
-${codePair(
-	`#include <cluaupp/libs/janitor.hpp>
-#include <cluaupp/libs/net.hpp>
-
-void init() {
-	auto* janitor = new Janitor();
-	auto* coins = Net::Event("Coins");
-	janitor->Add(coins);
-}`,
-	`local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
-local Net = require(ReplicatedStorage.CluauppLibs.Net)
-
-local function init()
-	local janitor = Janitor.new()
-	local coins = Net.Event("Coins")
-	janitor:Add(coins)
-end`,
-)}`,
-		)}
+		${learnPanel("learn-oop", false, "OOP structure", guides().oopInner())}
+		${learnPanel("learn-libs", false, "CluauppLibs", guides().librariesInner())}
+		${learnPanel("learn-cout", false, "print and cout", guides().printCoutInner())}
+		${learnPanel("learn-examples", false, "Examples", guides().examplesInner())}
 		${learnPanel(
 			"learn-practice",
 			false,
 			"Best practices",
 			`<ul>
 <li>One system per file. Name it after the job: <code>inventory.server.cpp</code>, <code>shop.client.cpp</code>.</li>
+<li>Typed data lives in shared <code>struct</code> headers. Methods are named functions. Lifetime is <code>init</code> + Janitor.</li>
 <li>Keep config in <code>src/shared/config.h</code> as <code>const</code> values.</li>
 <li>Do not edit <code>out/</code>. It is generated. Source of truth is <code>src/</code>.</li>
 <li>Never trust FireServer payloads. Validate on the server. Persist only from the server.</li>
@@ -901,8 +893,9 @@ end`,
 <li>Net packs buffers — do not JSONEncode a whole inventory every heartbeat. Send deltas.</li>
 <li>Do not install a second Janitor from Wally. CluauppLibs already has it.</li>
 <li>Shared modules must be safe on both server and client.</li>
+<li><code>.server.cpp</code> emits <code>init.luau</code> + RunContext Server — not Legacy.</li>
 </ul>
-<p>Next: <a href="../guide/getting-started.html">install and Rojo</a>, or open the <a href="../api/classes/index.html">class API</a>.</p>`,
+<p>Next: <a href="../guide/oop.html">OOP structure</a>, <a href="../guide/examples.html">examples</a>, or the <a href="../api/classes/index.html">class API</a>.</p>`,
 		)}
 	</div>
 </div>`;
@@ -917,5 +910,10 @@ module.exports = {
 	introBody,
 	movedBody,
 	learnBody,
+	guideArticle,
+	oopGuide: () => guideArticle("OOP structure", guides().oopInner()),
+	examplesGuide: () => guideArticle("Examples", guides().examplesInner()),
+	librariesGuide: () => guideArticle("Libraries", guides().librariesInner()),
+	printCoutGuide: () => guideArticle("print and cout", guides().printCoutInner()),
 	preCode,
 };

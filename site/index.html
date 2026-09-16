@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Docs · Cluaupp</title>
 <link rel="icon" href="./assets/logo.png">
-<link rel="stylesheet" href="./assets/style.css?v=2">
+<link rel="stylesheet" href="./assets/style.css?v=3">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -20,6 +20,7 @@
       <a href="./index.html" aria-current="page">Home</a>
       <a href="./learn/index.html">Learn</a>
       <a href="./guide/getting-started.html">Start</a>
+      <a href="./guide/examples.html">Examples</a>
       <a href="./api/datatypes/index.html">Datatypes</a>
       <a href="./api/classes/index.html">Classes</a>
       <a href="./api/enums/index.html">Enums</a>
@@ -58,8 +59,10 @@ rojo serve</pre>
   <h2>Engine, not a dump</h2>
   <p class="muted">Docs generated from the official Roblox API dump (1) — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
   <div class="grid">
-    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, Luau output, architecture, safety</span></a>
+    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, OOP, Luau output, safety</span></a>
     <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, IntelliSense</span></a>
+    <a class="card" href="guide/oop.html"><strong>OOP structure</strong><span class="muted">structs, services, typed Combat</span></a>
+    <a class="card" href="guide/examples.html"><strong>Examples</strong><span class="muted">leaderstats, combat, shop, HUD, sword</span></a>
     <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><span class="muted">Vector3, CFrame, UDim2, Color3</span></a>
     <a class="card" href="api/classes/index.html"><strong>Classes</strong><span class="muted">925 instances and services</span></a>
     <a class="card" href="api/enums/index.html"><strong>Enums</strong><span class="muted">636 enumerations</span></a>
@@ -111,14 +114,14 @@ players.PlayerAdded:<span data-tok="fn">Connect</span>(CreateLeaderstats)</pre><
 </section>
 <section class="section" data-reveal>
   <h2>Libraries that compile with you</h2>
-  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>.</p>
+  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>. How-to: <a href="guide/libraries.html">Libraries</a>.</p>
 </section>
 </div>
 <footer class="site-footer">
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="./assets/app.js?v=2"></script>
+<script src="./assets/app.js?v=3"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

@@ -7,7 +7,7 @@ sidebar_position: 1
 
 **The definitive merge of C++ and modern Luau.** You write a C++ subset. Cluaupp emits [Luau](https://luau.org/getting-started) with `--!strict`, `local`, and `const`, and calls the Roblox API the way Studio does.
 
-This site is built with [Moonwave](https://eryn.io/moonwave/) for local markdown docs (`npm run docs`). The public site is the cinematic engine dump at [GitHub Pages](https://kartzrbx.github.io/Cluaupp/). The language is in the same spirit as [roblox-ts](https://roblox-ts.com): a familiar syntax, a restricted subset, readable output.
+This site is built with [Moonwave](https://eryn.io/moonwave/) for local markdown (`npm run docs`). The **public** site is generated into `site/` and deployed to [GitHub Pages](https://kartzrbx.github.io/Cluaupp/) (Learn tabs, OOP, Examples, API). The language is in the same spirit as [roblox-ts](https://roblox-ts.com): a familiar syntax, a restricted subset, readable output.
 
 ## What you get
 

@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { localLayout, homeBody, introBody, movedBody, learnBody, preCode } = require("./site-html");
+const { localLayout, homeBody, introBody, movedBody, learnBody, preCode, oopGuide, examplesGuide, librariesGuide, printCoutGuide } = require("./site-html");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
@@ -809,6 +809,25 @@ extern LuaSourceContainer* script;
 void print(string message);
 void warn(string message);
 void error(string message);
+
+struct cout {
+	static void print(string message);
+	static void warn(string message);
+	static void error(string message);
+	static void ping(string message);
+	static void endl();
+	cout& operator<<(string value);
+	cout& operator<<(int value);
+	cout& operator<<(double value);
+	cout& operator<<(bool value);
+} cout;
+
+struct cerr {
+	cerr& operator<<(string value);
+	cerr& operator<<(int value);
+} cerr;
+
+const int endl = 0;
 double tick();
 double time();
 void wait(double seconds = 0);
@@ -900,7 +919,7 @@ cluaupp init my-game
 cd my-game
 cluaupp build
 rojo serve`, "plain")}
-<p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, or the <a href="../api/classes/index.html">class API</a>.</p>
+<p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, <a href="oop.html">OOP</a> for typed services, or <a href="examples.html">Examples</a> for copy-paste systems.</p>
 <h2>Datatypes in C++</h2>
 ${preCode(`#include <cluaupp/roblox.hpp>
 
@@ -923,6 +942,10 @@ void init() {
 <p>Official reference: <a href="https://create.roblox.com/docs/reference/engine/datatypes">datatypes</a> and <a href="https://create.roblox.com/docs/reference/engine/classes">classes</a>.</p>
 `;
 	write(path.join(SITE, "guide", "getting-started.html"), localLayout("Get started", article(getting), "", 1, "start"));
+	write(path.join(SITE, "guide", "oop.html"), localLayout("OOP structure", oopGuide(), "", 1, "learn"));
+	write(path.join(SITE, "guide", "examples.html"), localLayout("Examples", examplesGuide(), "", 1, "examples"));
+	write(path.join(SITE, "guide", "libraries.html"), localLayout("Libraries", librariesGuide(), "", 1, "learn"));
+	write(path.join(SITE, "guide", "print-cout.html"), localLayout("print and cout", printCoutGuide(), "", 1, "learn"));
 
 	const dtIndex = DATATYPE_SPEC.map(
 		(d) => `<a class="card" href="${d.name}.html"><strong>${d.name}</strong><br><span class="muted">${escapeHtml(d.summary || "datatype")}</span></a>`,
