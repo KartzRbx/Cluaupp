@@ -40,33 +40,32 @@
 <div class="page" id="content"><article class="docs-article">
 <div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>
 <h1>Getting started</h1>
-<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>--!strict</code>, <code>local</code>, <code>const</code>) with first-class Roblox APIs.</p>
+<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>--!strict</code>, <code>local</code>, and <code>const</code>) with first-class Roblox APIs.</p>
 <h2>Install</h2>
-<pre>npm install -g cluaupp
+<pre data-lang="plain" data-highlighted="1">npm install -g cluaupp
 cluaupp init my-game
 cd my-game
 cluaupp build
 rojo serve</pre>
 <p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, or the <a href="../api/classes/index.html">class API</a>.</p>
 <h2>Datatypes in C++</h2>
-<pre>#include &lt;cluaupp/roblox.hpp&gt;
+<pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
 
-void init() {
-  auto* part = new Part(workspace);
-  part-&gt;Name = "Platform";
-  part-&gt;Size = Vector3(8, 1, 8);
-  part-&gt;Position = Vector3(0, 10, 0);
-  part-&gt;CFrame = CFrame::lookAt(Vector3(0, 10, 0), Vector3(0, 10, -10));
-  part-&gt;Anchored = true;
-  part-&gt;BrickColor = BrickColor("Bright red");
-  part-&gt;Color = Color3::fromRGB(255, 0, 0);
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+  <span data-tok="keyword">auto</span>* part = <span data-tok="keyword">new</span> <span data-tok="type">Part</span>(workspace);
+  part-&gt;Name = <span data-tok="string">"Platform"</span>;
+  part-&gt;Size = <span data-tok="type">Vector3</span>(<span data-tok="number">8</span>, <span data-tok="number">1</span>, <span data-tok="number">8</span>);
+  part-&gt;Position = <span data-tok="type">Vector3</span>(<span data-tok="number">0</span>, <span data-tok="number">10</span>, <span data-tok="number">0</span>);
+  part-&gt;CFrame = <span data-tok="type">CFrame</span>::<span data-tok="fn">lookAt</span>(<span data-tok="type">Vector3</span>(<span data-tok="number">0</span>, <span data-tok="number">10</span>, <span data-tok="number">0</span>), <span data-tok="type">Vector3</span>(<span data-tok="number">0</span>, <span data-tok="number">10</span>, -<span data-tok="number">10</span>));
+  part-&gt;Anchored = <span data-tok="keyword">true</span>;
+  part-&gt;BrickColor = <span data-tok="type">BrickColor</span>(<span data-tok="string">"Bright red"</span>);
+  part-&gt;Color = <span data-tok="type">Color3</span>::<span data-tok="fn">fromRGB</span>(<span data-tok="number">255</span>, <span data-tok="number">0</span>, <span data-tok="number">0</span>);
 
-  auto* gui = new ScreenGui(GetService&lt;Players&gt;()-&gt;LocalPlayer-&gt;FindFirstChild("PlayerGui"));
-  auto* frame = new Frame(gui);
-  frame-&gt;Size = UDim2::fromScale(1, 1);
-  frame-&gt;Position = UDim2(0, 0, 0, 0);
-}
-</pre>
+  <span data-tok="keyword">auto</span>* gui = <span data-tok="keyword">new</span> <span data-tok="type">ScreenGui</span>(<span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;()-&gt;LocalPlayer-&gt;<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"PlayerGui"</span>));
+  <span data-tok="keyword">auto</span>* frame = <span data-tok="keyword">new</span> <span data-tok="type">Frame</span>(gui);
+  frame-&gt;Size = <span data-tok="type">UDim2</span>::<span data-tok="fn">fromScale</span>(<span data-tok="number">1</span>, <span data-tok="number">1</span>);
+  frame-&gt;Position = <span data-tok="type">UDim2</span>(<span data-tok="number">0</span>, <span data-tok="number">0</span>, <span data-tok="number">0</span>, <span data-tok="number">0</span>);
+}</pre>
 <p>This becomes <code>Vector3.new</code>, <code>CFrame.lookAt</code>, <code>UDim2.fromScale</code>, <code>Color3.fromRGB</code>, and <code>Instance.new("Part")</code>.</p>
 <p>Official reference: <a href="https://create.roblox.com/docs/reference/engine/datatypes">datatypes</a> and <a href="https://create.roblox.com/docs/reference/engine/classes">classes</a>.</p>
 </article></div>

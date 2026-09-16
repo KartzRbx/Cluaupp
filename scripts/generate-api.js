@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { localLayout, homeBody, introBody, movedBody, learnBody } = require("./site-html");
+const { localLayout, homeBody, introBody, movedBody, learnBody, preCode } = require("./site-html");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
@@ -869,6 +869,7 @@ function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
 		path.join(SITE, "index.html"),
 		localLayout("Docs", homeBody({ dump, classCount: classes.length, enumCount: enums.length }), "", 0, "home"),
 	);
+	write(path.join(SITE, "learn", "index.html"), localLayout("Learn", learnBody(), "", 1, "learn"));
 	write(path.join(SITE, "intro.html"), localLayout("Intro", introBody("./"), "", 0, "home"));
 	mkdirp(path.join(SITE, "intro"));
 	write(path.join(SITE, "intro", "index.html"), localLayout("Intro", introBody("../"), "", 1, "home"));
@@ -892,33 +893,32 @@ function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
 	const getting = `
 <div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>
 <h1>Getting started</h1>
-<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>--!strict</code>, <code>local</code>, <code>const</code>) with first-class Roblox APIs.</p>
+<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>--!strict</code>, <code>local</code>, and <code>const</code>) with first-class Roblox APIs.</p>
 <h2>Install</h2>
-<pre>npm install -g cluaupp
+${preCode(`npm install -g cluaupp
 cluaupp init my-game
 cd my-game
 cluaupp build
-rojo serve</pre>
+rojo serve`, "plain")}
 <p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, or the <a href="../api/classes/index.html">class API</a>.</p>
 <h2>Datatypes in C++</h2>
-<pre>#include &lt;cluaupp/roblox.hpp&gt;
+${preCode(`#include <cluaupp/roblox.hpp>
 
 void init() {
   auto* part = new Part(workspace);
-  part-&gt;Name = "Platform";
-  part-&gt;Size = Vector3(8, 1, 8);
-  part-&gt;Position = Vector3(0, 10, 0);
-  part-&gt;CFrame = CFrame::lookAt(Vector3(0, 10, 0), Vector3(0, 10, -10));
-  part-&gt;Anchored = true;
-  part-&gt;BrickColor = BrickColor("Bright red");
-  part-&gt;Color = Color3::fromRGB(255, 0, 0);
+  part->Name = "Platform";
+  part->Size = Vector3(8, 1, 8);
+  part->Position = Vector3(0, 10, 0);
+  part->CFrame = CFrame::lookAt(Vector3(0, 10, 0), Vector3(0, 10, -10));
+  part->Anchored = true;
+  part->BrickColor = BrickColor("Bright red");
+  part->Color = Color3::fromRGB(255, 0, 0);
 
-  auto* gui = new ScreenGui(GetService&lt;Players&gt;()-&gt;LocalPlayer-&gt;FindFirstChild("PlayerGui"));
+  auto* gui = new ScreenGui(GetService<Players>()->LocalPlayer->FindFirstChild("PlayerGui"));
   auto* frame = new Frame(gui);
-  frame-&gt;Size = UDim2::fromScale(1, 1);
-  frame-&gt;Position = UDim2(0, 0, 0, 0);
-}
-</pre>
+  frame->Size = UDim2::fromScale(1, 1);
+  frame->Position = UDim2(0, 0, 0, 0);
+}`, "cpp")}
 <p>This becomes <code>Vector3.new</code>, <code>CFrame.lookAt</code>, <code>UDim2.fromScale</code>, <code>Color3.fromRGB</code>, and <code>Instance.new("Part")</code>.</p>
 <p>Official reference: <a href="https://create.roblox.com/docs/reference/engine/datatypes">datatypes</a> and <a href="https://create.roblox.com/docs/reference/engine/classes">classes</a>.</p>
 `;
@@ -1005,13 +1005,13 @@ void init() {
 			body += `Official: <a href="${official}">create.roblox.com — ${escapeHtml(cls.Name)}</a></p>`;
 		body += tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("") || "";
 		if (isCreatable(cls)) {
-			body += `<h2>Construct</h2><pre>auto* obj = new ${cls.Name}(parent);
+			body += `<h2>Construct</h2>${preCode(`auto* obj = new ${cls.Name}(parent);
 // Instance.new("${cls.Name}")
-// obj.Parent = parent</pre>`;
+// obj.Parent = parent`, "cpp")}`;
 		}
 		if (isService(cls)) {
-			body += `<h2>Service</h2><pre>auto* svc = GetService&lt;${cls.Name}&gt;();
-// game:GetService("${cls.Name}")</pre>`;
+			body += `<h2>Service</h2>${preCode(`auto* svc = GetService<${cls.Name}>();
+// game:GetService("${cls.Name}")`, "cpp")}`;
 		}
 
 		const props = cls.Members.filter((m) => m.MemberType === "Property");

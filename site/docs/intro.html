@@ -58,38 +58,38 @@
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
-		<button type="button" role="tab" aria-selected="true" aria-controls="pair-3-cpp" id="pair-3-tab-cpp">C++</button>
-		<button type="button" role="tab" aria-selected="false" aria-controls="pair-3-luau" id="pair-3-tab-luau" tabindex="-1">Luau</button>
+		<button type="button" role="tab" aria-selected="true" aria-controls="pair-22-cpp" id="pair-22-tab-cpp">C++</button>
+		<button type="button" role="tab" aria-selected="false" aria-controls="pair-22-luau" id="pair-22-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-3-cpp" aria-labelledby="pair-3-tab-cpp"><pre>#include &lt;cluaupp/roblox.hpp&gt;
-#include &lt;cluaupp/libs/janitor.hpp&gt;
+	<div class="pair-panel" role="tabpanel" id="pair-22-cpp" aria-labelledby="pair-22-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/janitor.hpp&gt;
 
-void OnPlayer(Player* player) {
-	auto* janitor = new Janitor();
-	janitor-&gt;LinkToInstance(player);
-	janitor-&gt;Add(player-&gt;AncestryChanged.Connect(OnPlayer));
+<span data-tok="keyword">void</span> <span data-tok="fn">OnPlayer</span>(<span data-tok="type">Player</span>* player) {
+	<span data-tok="keyword">auto</span>* janitor = <span data-tok="keyword">new</span> <span data-tok="type">Janitor</span>();
+	janitor-&gt;<span data-tok="fn">LinkToInstance</span>(player);
+	janitor-&gt;<span data-tok="fn">Add</span>(player-&gt;AncestryChanged.<span data-tok="fn">Connect</span>(OnPlayer));
 }
 
-void init() {
-	auto* players = GetService&lt;Players&gt;();
-	players-&gt;PlayerAdded.Connect(OnPlayer);
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="keyword">auto</span>* players = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
+	players-&gt;PlayerAdded.<span data-tok="fn">Connect</span>(OnPlayer);
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-3-luau" aria-labelledby="pair-3-tab-luau" hidden><pre>--!strict
-local ReplicatedStorage = game:GetService(&quot;ReplicatedStorage&quot;)
-local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
+	<div class="pair-panel" role="tabpanel" id="pair-22-luau" aria-labelledby="pair-22-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="keyword">local</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
+<span data-tok="keyword">local</span> <span data-tok="type">Janitor</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">Janitor</span>)
 
-local function OnPlayer(player: Player)
-	local janitor = Janitor.new()
-	janitor:LinkToInstance(player)
-	janitor:Add(player.AncestryChanged:Connect(OnPlayer))
-end
+<span data-tok="keyword">local</span> <span data-tok="keyword">function</span> <span data-tok="fn">OnPlayer</span>(player: <span data-tok="type">Player</span>)
+	<span data-tok="keyword">local</span> janitor = <span data-tok="type">Janitor</span>.<span data-tok="fn">new</span>()
+	janitor:<span data-tok="fn">LinkToInstance</span>(player)
+	janitor:<span data-tok="fn">Add</span>(player.AncestryChanged:<span data-tok="fn">Connect</span>(OnPlayer))
+<span data-tok="keyword">end</span>
 
-local function init()
-	local players: Players = game:GetService(&quot;Players&quot;)
-	players.PlayerAdded:Connect(OnPlayer)
-end
+<span data-tok="keyword">local</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+	<span data-tok="keyword">local</span> players: <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
+	players.PlayerAdded:<span data-tok="fn">Connect</span>(OnPlayer)
+<span data-tok="keyword">end</span>
 
-init()</pre></div>
+<span data-tok="fn">init</span>()</pre></div>
 </div>
 <p>Next: <a href="../guide/getting-started.html">Getting started</a>, then the <a href="../learn/index.html">Learn</a> tabs for types, safety, and libraries.</p>
 </article></div>

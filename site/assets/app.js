@@ -117,7 +117,17 @@
 		}
 
 		tabs.forEach((tab, index) => {
-			tab.addEventListener("click", () => show(tab.getAttribute("aria-controls")));
+			tab.addEventListener("click", () => {
+				const id = tab.getAttribute("aria-controls");
+				show(id);
+				if (rootTabs.classList.contains("learn") && id) {
+					try {
+						history.replaceState(null, "", `#${id}`);
+					} catch {
+						location.hash = id;
+					}
+				}
+			});
 			tab.addEventListener("keydown", (event) => {
 				if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "ArrowDown" && event.key !== "ArrowUp") {
 					return;
@@ -132,6 +142,28 @@
 		const selected = tabs.find((tab) => tab.getAttribute("aria-selected") === "true") || tabs[0];
 		if (selected) {
 			show(selected.getAttribute("aria-controls"));
+		}
+
+		if (rootTabs.classList.contains("learn")) {
+			const fromHash = location.hash.replace(/^#/, "");
+			if (fromHash && document.getElementById(fromHash) && tabs.some((tab) => tab.getAttribute("aria-controls") === fromHash)) {
+				show(fromHash);
+			}
+			rootTabs.querySelectorAll("[data-learn-next]").forEach((btn) => {
+				btn.addEventListener("click", () => {
+					const id = btn.getAttribute("data-learn-next");
+					show(id);
+					try {
+						history.replaceState(null, "", `#${id}`);
+					} catch {
+						location.hash = id;
+					}
+					const panel = document.getElementById(id);
+					if (panel) {
+						panel.scrollIntoView({ behavior: "smooth", block: "start" });
+					}
+				});
+			});
 		}
 	});
 
@@ -185,66 +217,15 @@
 		return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	}
 
-	function highlightSource(source, lang) {
-		const keywords =
-			lang === "luau"
-				? "and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while|const|export|type"
-				: "alignas|alignof|and|auto|bool|break|case|catch|char|class|const|continue|default|delete|do|double|else|enum|explicit|export|extern|false|float|for|friend|goto|if|inline|int|long|mutable|namespace|new|noexcept|not|nullptr|operator|or|private|protected|public|register|return|short|signed|sizeof|static|struct|switch|template|this|throw|true|try|typedef|typename|union|unsigned|using|virtual|void|volatile|while|string|include|pragma|once";
-		const types =
-			"Player|Players|Folder|Part|Instance|IntValue|StringValue|BoolValue|NumberValue|Vector3|Vector2|CFrame|UDim|UDim2|Color3|BrickColor|Ray|RaycastParams|TweenService|UserInputService|DataStoreService|Humanoid|ScreenGui|Frame|Janitor|Workspace|DataModel";
-		const parts = [];
-		const pattern =
-			lang === "luau"
-				? /(\-\-[^\n]*)|("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')/g
-				: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')/g;
-		let last = 0;
-		let match;
-		while ((match = pattern.exec(source))) {
-			if (match.index > last) {
-				parts.push({ type: "code", text: source.slice(last, match.index) });
+	document.querySelectorAll(".explorer").forEach((explorer) => {
+		explorer.addEventListener("click", (event) => {
+			const row = event.target.closest(".ex-row");
+			if (!row || !explorer.contains(row)) {
+				return;
 			}
-			parts.push({ type: match[1] ? "comment" : "string", text: match[0] });
-			last = match.index + match[0].length;
-		}
-		if (last < source.length) {
-			parts.push({ type: "code", text: source.slice(last) });
-		}
-		const kw = new RegExp(`\\b(${keywords})\\b`, "g");
-		const ty = new RegExp(`\\b(${types})\\b`, "g");
-		const fn = /\b([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g;
-		const num = /\b\d+(?:\.\d+)?\b/g;
-		return parts
-			.map((part) => {
-				if (part.type === "comment") {
-					return `<span class="tok-comment">${escapeHtml(part.text)}</span>`;
-				}
-				if (part.type === "string") {
-					return `<span class="tok-string">${escapeHtml(part.text)}</span>`;
-				}
-				let html = escapeHtml(part.text);
-				html = html.replace(ty, '<span class="tok-type">$1</span>');
-				html = html.replace(kw, '<span class="tok-keyword">$1</span>');
-				html = html.replace(fn, '<span class="tok-fn">$1</span>');
-				html = html.replace(num, '<span class="tok-number">$&</span>');
-				return html;
-			})
-			.join("");
-	}
-
-	function langForPre(pre) {
-		const id = (pre.parentElement && pre.parentElement.id) || "";
-		if (id.endsWith("-luau") || /--!strict|\blocal\b|\bthen\b|\bend\b/.test(pre.textContent)) {
-			return "luau";
-		}
-		return "cpp";
-	}
-
-	document.querySelectorAll("pre").forEach((pre) => {
-		if (pre.dataset.highlighted) {
-			return;
-		}
-		pre.dataset.highlighted = "1";
-		pre.innerHTML = highlightSource(pre.textContent, langForPre(pre));
+			explorer.querySelectorAll(".ex-row.is-on").forEach((item) => item.classList.remove("is-on"));
+			row.classList.add("is-on");
+		});
 	});
 
 	const askPanel = document.querySelector("[data-ask-panel]");

@@ -47,7 +47,7 @@
       <a class="btn btn-primary" href="learn/index.html">Learn the language</a>
       <a class="btn btn-ghost" href="api/classes/index.html">Open the API</a>
     </div>
-    <pre>npm install -g cluaupp
+    <pre data-lang="plain" data-highlighted="1">npm install -g cluaupp
 cluaupp init my-game
 cluaupp build
 rojo serve</pre>
@@ -74,20 +74,25 @@ rojo serve</pre>
 		<button type="button" role="tab" aria-selected="true" aria-controls="pair-1-cpp" id="pair-1-tab-cpp">C++</button>
 		<button type="button" role="tab" aria-selected="false" aria-controls="pair-1-luau" id="pair-1-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-1-cpp" aria-labelledby="pair-1-tab-cpp"><pre>auto* players = GetService&lt;Players&gt;();
-for (auto* player : players-&gt;GetPlayers()) {
-	CreateLeaderstats(player);
+	<div class="pair-panel" role="tabpanel" id="pair-1-cpp" aria-labelledby="pair-1-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">auto</span>* players = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
+<span data-tok="keyword">for</span> (<span data-tok="keyword">auto</span>* player : players-&gt;<span data-tok="fn">GetPlayers</span>()) {
+	<span data-tok="fn">CreateLeaderstats</span>(player);
 }
-players-&gt;PlayerAdded.Connect(CreateLeaderstats);</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-1-luau" aria-labelledby="pair-1-tab-luau" hidden><pre>--!strict
-local players: Players = game:GetService(&quot;Players&quot;)
-for _, player in players:GetPlayers() do
-	CreateLeaderstats(player)
-end
-players.PlayerAdded:Connect(CreateLeaderstats)</pre></div>
+players-&gt;PlayerAdded.<span data-tok="fn">Connect</span>(CreateLeaderstats);</pre></div>
+	<div class="pair-panel" role="tabpanel" id="pair-1-luau" aria-labelledby="pair-1-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="keyword">local</span> players: <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
+<span data-tok="keyword">for</span> _, player <span data-tok="keyword">in</span> players:<span data-tok="fn">GetPlayers</span>() <span data-tok="keyword">do</span>
+	<span data-tok="fn">CreateLeaderstats</span>(player)
+<span data-tok="keyword">end</span>
+players.PlayerAdded:<span data-tok="fn">Connect</span>(CreateLeaderstats)</pre></div>
 </div>
   <table>
 <tr><th>C++</th><th>Luau</th></tr>
+<tr><td><code>int</code> / <code>float</code> / <code>double</code></td><td><code>number</code></td></tr>
+<tr><td><code>bool</code></td><td><code>boolean</code></td></tr>
+<tr><td><code>string</code></td><td><code>string</code></td></tr>
+<tr><td><code>const int N = 1</code></td><td><code>const N: number = 1</code></td></tr>
+<tr><td><code>Part*</code> / <code>auto*</code></td><td><code>Part</code> (Instance handle)</td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
 <tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
 <tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
