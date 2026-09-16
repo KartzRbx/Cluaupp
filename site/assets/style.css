@@ -600,18 +600,12 @@ pre {
 	tab-size: 4;
 }
 
-pre [data-tok="comment"],
-pre .tok-comment { color: var(--code-comment); font-style: italic; }
-pre [data-tok="keyword"],
-pre .tok-keyword { color: var(--code-keyword); }
-pre [data-tok="string"],
-pre .tok-string { color: var(--code-string); }
-pre [data-tok="fn"],
-pre .tok-fn { color: var(--code-fn); }
-pre [data-tok="type"],
-pre .tok-type { color: var(--code-type); }
-pre [data-tok="number"],
-pre .tok-number { color: var(--code-number); }
+pre [data-tok="comment"] { color: var(--code-comment); font-style: italic; }
+pre [data-tok="keyword"] { color: var(--code-keyword); }
+pre [data-tok="string"] { color: var(--code-string); }
+pre [data-tok="fn"] { color: var(--code-fn); }
+pre [data-tok="type"] { color: var(--code-type); }
+pre [data-tok="number"] { color: var(--code-number); }
 
 .ask-toggle {
 	position: fixed;

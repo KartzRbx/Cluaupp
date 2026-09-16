@@ -2,6 +2,8 @@
 
 const { preCode } = require("./highlight");
 
+const ASSET_V = "2";
+
 let pairSeq = 0;
 
 function escapeHtml(text) {
@@ -197,7 +199,7 @@ function localLayout(title, body, sidebar, depth, page = "") {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)} · Cluaupp</title>
 <link rel="icon" href="${prefix}assets/logo.png">
-<link rel="stylesheet" href="${prefix}assets/style.css">
+<link rel="stylesheet" href="${prefix}assets/style.css?v=${ASSET_V}">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -234,7 +236,7 @@ function localLayout(title, body, sidebar, depth, page = "") {
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="${prefix}assets/app.js"></script>
+<script src="${prefix}assets/app.js?v=${ASSET_V}"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
