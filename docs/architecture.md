@@ -105,9 +105,9 @@ No PlayersManager unless you actually listen to players. No CacheController unle
 
 - PascalCase folders and modules; camelCase locals
 - `--!strict` everywhere
-- Public API `Start` / `Stop`
+- Public API `Start` / `Stop`. `Start` is idempotent (`Stop` first). Domain `Stop` is `janitor:Cleanup()` (unbind, janitor stays reusable). `OnClose` / `Destroy` stay for `BindToClose`. `PlayersManager.Stop` disconnects and runs `onLeave`. `CacheController.ClearAll` drops the cache.
 - Janitor owns connections in the Manager
-- Types modules `return {}`
+- Module layout in generated Luau (no section banners): requires, types, constants, variables, functions, cleanup, return.
 - Transparent `require(script.Parent.X)`
 
 ## Config

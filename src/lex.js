@@ -28,6 +28,10 @@ const KEYWORDS = new Set([
 	"typedef",
 	"extern",
 	"enum",
+	"switch",
+	"case",
+	"default",
+	"break",
 ]);
 
 function tokenize(source) {
@@ -36,8 +40,8 @@ function tokenize(source) {
 	let line = 1;
 	let col = 1;
 
-	const push = (type, value, startLine, startCol) => {
-		tokens.push({ type, value, line: startLine, col: startCol });
+	const push = (type, value, startLine, startCol, start, end) => {
+		tokens.push({ type, value, line: startLine, col: startCol, start, end });
 	};
 
 	while (i < source.length) {
@@ -87,6 +91,7 @@ function tokenize(source) {
 		const startCol = col;
 
 		if (c === '"') {
+			const start = i;
 			i += 1;
 			col += 1;
 			let value = "";
@@ -103,46 +108,49 @@ function tokenize(source) {
 			}
 			i += 1;
 			col += 1;
-			push("string", value, startLine, startCol);
+			push("string", value, startLine, startCol, start, i);
 			continue;
 		}
 
 		if (/[0-9]/.test(c)) {
+			const start = i;
 			let value = "";
 			while (i < source.length && /[0-9.]/.test(source[i])) {
 				value += source[i];
 				i += 1;
 				col += 1;
 			}
-			push("number", value, startLine, startCol);
+			push("number", value, startLine, startCol, start, i);
 			continue;
 		}
 
 		if (/[A-Za-z_]/.test(c)) {
+			const start = i;
 			let value = "";
 			while (i < source.length && /[A-Za-z0-9_]/.test(source[i])) {
 				value += source[i];
 				i += 1;
 				col += 1;
 			}
-			push(KEYWORDS.has(value) ? "kw" : "ident", value, startLine, startCol);
+			push(KEYWORDS.has(value) ? "kw" : "ident", value, startLine, startCol, start, i);
 			continue;
 		}
 
 		const two = source.slice(i, i + 2);
+		const start = i;
 		if (["->", "==", "!=", "<=", ">=", "&&", "||", "::", "<<", ">>"].includes(two)) {
-			push("op", two, startLine, startCol);
+			push("op", two, startLine, startCol, start, i + 2);
 			i += 2;
 			col += 2;
 			continue;
 		}
 
-		push("op", c, startLine, startCol);
+		push("op", c, startLine, startCol, start, i + 1);
 		i += 1;
 		col += 1;
 	}
 
-	push("eof", "", line, col);
+	push("eof", "", line, col, source.length, source.length);
 	return tokens;
 }
 

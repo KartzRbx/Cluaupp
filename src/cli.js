@@ -3,7 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 const { compileService } = require("./compile");
-const { isSourceFile, isHeaderFile, toLuauPath } = require("./preprocess");
+const { isSourceFile, isHeaderFile, toLuauPath, siblingImplementation } = require("./preprocess");
+const { syncEditorSupport, installEditorSupport } = require("./intellisense");
 const pkg = require("../package.json");
 
 function printHelp() {
@@ -13,6 +14,8 @@ Usage:
   cluaupp init [folder]    create a game (src/server, src/client, src/shared)
   cluaupp build [folder]   transpile src → out (PascalCase services)
   cluaupp watch [folder]   rebuild on save
+  cluaupp lsp [folder]     language server (stdio JSON-RPC)
+  cluaupp intellisense     install Cursor/VS Code IntelliSense
   cluaupp --version        print version
   cluaupp --help           this help
 
@@ -144,7 +147,7 @@ function collectFiles(dir, files = []) {
 }
 
 function siblingCpp(file) {
-	return file.replace(/\.(h|hpp|hh)$/i, ".cpp");
+	return siblingImplementation(file) || file.replace(/\.(h|hpp|hh)$/i, ".cpp");
 }
 
 function resolveKey(file) {
@@ -238,6 +241,7 @@ function compileProject(root, config) {
 				outName: toLuauPath(rel),
 				architecture: config.architecture !== false,
 				includeDirs: [path.dirname(file), srcDir, path.join(root, "include")],
+				srcDir,
 			});
 			jobs.push({ rel, files: result.files, stale: result.stale || [] });
 		} catch (err) {
@@ -316,6 +320,11 @@ function build(root, options = {}) {
 		}
 		if (holdOnError) {
 			console.error(`cluaupp: out not updated (${compiled.errors.length} compile error${compiled.errors.length === 1 ? "" : "s"})`);
+			try {
+				syncEditorSupport(root, config);
+			} catch (err) {
+				console.error("cluaupp: intellisense sync failed", err.message);
+			}
 			return { failed: compiled.errors.length, written: new Set() };
 		}
 	}
@@ -323,21 +332,31 @@ function build(root, options = {}) {
 	const written = writeJobs(root, config, compiled.jobs);
 	const failedPrefixes = compiled.errors.flatMap((err) => err.prefixes);
 	pruneOut(root, config, written, failedPrefixes);
+	try {
+		syncEditorSupport(root, config);
+	} catch (err) {
+		console.error("cluaupp: intellisense sync failed", err.message);
+	}
 	if (compiled.errors.length > 0 && exitOnError) {
 		process.exit(1);
 	}
 	return { failed: compiled.errors.length, written };
 }
 
-function init(dest) {
+async function init(dest) {
 	const template = path.join(__dirname, "..", "templates", "game");
 	const include = path.join(__dirname, "..", "include");
 	copyDir(template, dest);
 	copyDir(include, path.join(dest, "include"));
 	copyRuntime(dest);
+	syncEditorSupport(dest);
+	const installed = await installEditorSupport();
 	console.log("Cluaupp ready in", dest);
 	console.log("  cluaupp build");
 	console.log("  rojo serve");
+	if (installed.local.length || (installed.cpp && installed.cpp.status === "installed")) {
+		console.log("  reload Cursor (Ctrl+Shift+P → Developer: Reload Window)");
+	}
 }
 
 function pidAlive(pid) {
@@ -421,11 +440,31 @@ function dispatch(args) {
 	const cmd = args[0] || "help";
 	const cwd = process.cwd();
 	if (cmd === "init") {
-		init(path.resolve(cwd, args[1] || "."));
+		return init(path.resolve(cwd, args[1] || ".")).catch((err) => {
+			console.error(err.message || err);
+			process.exit(1);
+		});
 	} else if (cmd === "build") {
 		build(path.resolve(cwd, args[1] || "."));
 	} else if (cmd === "watch") {
 		watch(path.resolve(cwd, args[1] || "."));
+	} else if (cmd === "lsp") {
+		const { start } = require("./lsp");
+		start({ projectRoot: path.resolve(cwd, args[1] || ".") });
+	} else if (cmd === "intellisense" || cmd === "intelisense") {
+		const root = path.resolve(cwd, args[1] || ".");
+		syncEditorSupport(root, loadConfig(root));
+		return installEditorSupport().then((installed) => {
+			console.log("cluaupp: compile_commands.json, .clangd, and .vscode updated in", root);
+			if (installed.local.length) {
+				for (const dest of installed.local) {
+					console.log("cluaupp: Cluaupp IntelliSense", dest);
+				}
+			}
+		}).catch((err) => {
+			console.error(err.message || err);
+			process.exit(1);
+		});
 	} else if (cmd === "--version" || cmd === "-v" || cmd === "version") {
 		console.log(pkg.version);
 	} else {

@@ -12,3 +12,15 @@ build/
 .env.local
 .env*.local
 .vercel
+
+# Accidental game tree if someone runs cluaupp in the compiler repo
+/Packages/
+/libs/
+/out/
+/src/client/
+/src/server/
+/src/shared/
+/wally.toml
+/default.project.json
+/cluaupp.config.json
+/.cluaupp-watch.lock

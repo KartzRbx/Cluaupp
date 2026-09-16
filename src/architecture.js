@@ -3,6 +3,7 @@
 const path = require("path");
 const { emit } = require("./emit");
 const { collectLibraries, insertRequires, requireCluauppLib } = require("./libs");
+const { organizeDecls, janitorNames, emitSection, joinBlocks, SECTION, ENTRY_FN } = require("./layout");
 const {
 	VALUE_CLASSES,
 	analyze,
@@ -60,6 +61,7 @@ function emitTypes(plan) {
 		manifest.push("		Get: (player: Player) -> PlayerCache?,");
 		manifest.push("		Ensure: (player: Player) -> PlayerCache,");
 		manifest.push("		Clear: (player: Player) -> (),");
+		manifest.push("		ClearAll: () -> (),");
 		manifest.push("	},");
 	}
 	if (plan.roles.players) {
@@ -100,21 +102,24 @@ function emitTypes(plan) {
 }
 
 function emitPlayersManager(plan) {
-	return `${header(plan)}
+	return `${header(plan).trimEnd()}
+
 const Players = game:GetService("Players")
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
 const Janitor = ${cluauppLib("Janitor")}
-type Janitor = Janitor.Janitor
 
+type Janitor = Janitor.Janitor
 export type PlayerHandler = (player: Player) -> ()
 
 local PlayersManager = {}
 local lifetime: Janitor? = nil
+local leaveHandler: PlayerHandler? = nil
 
 function PlayersManager.Start(onPlayer: PlayerHandler, onLeave: PlayerHandler?)
 	PlayersManager.Stop()
 	local janitor = Janitor.new()
 	lifetime = janitor
+	leaveHandler = onLeave
 
 	const function accept(player: Player)
 		onPlayer(player)
@@ -134,6 +139,13 @@ function PlayersManager.Stop()
 	if lifetime == nil then
 		return
 	end
+	local onLeave = leaveHandler
+	leaveHandler = nil
+	if onLeave then
+		for _, player in Players:GetPlayers() do
+			onLeave(player)
+		end
+	end
 	lifetime:Cleanup()
 	lifetime = nil
 end
@@ -149,8 +161,8 @@ function emitCacheController(plan) {
 	lines.push(`const Types = require(script.Parent.${types})`);
 	lines.push("");
 	lines.push(`const FOLDER_NAME = "${folder}"`);
-	lines.push("local cache: { [Player]: Types.PlayerCache } = {}");
 	lines.push("");
+	lines.push("local cache: { [Player]: Types.PlayerCache } = {}");
 	lines.push("local CacheController = {}");
 	lines.push("");
 	lines.push("function CacheController.Get(player: Player): Types.PlayerCache?");
@@ -201,6 +213,10 @@ function emitCacheController(plan) {
 	lines.push("	cache[player] = nil");
 	lines.push("end");
 	lines.push("");
+	lines.push("function CacheController.ClearAll()");
+	lines.push("	table.clear(cache)");
+	lines.push("end");
+	lines.push("");
 	lines.push("return CacheController");
 	lines.push("");
 	return lines.join("\n");
@@ -242,8 +258,14 @@ function emitMain(plan) {
 	if (plan.roles.domain) {
 		lines.push(`	${plan.roles.domain}.Stop()`);
 	}
+	if (plan.roles.cache) {
+		lines.push("	CacheController.ClearAll()");
+	}
 	if (plan.roles.players) {
 		lines.push("	PlayersManager.Stop()");
+	}
+	if (!plan.roles.domain && !plan.roles.cache && !plan.roles.players) {
+		lines.push("	return");
 	}
 	lines.push("end");
 	lines.push("");
@@ -258,6 +280,10 @@ function emitBootstrap(plan) {
 }
 
 function emitConfig(plan, ast, options) {
+	const owned = (ast.body || []).some((decl) => decl.owner);
+	if (owned) {
+		return `${header(plan).trimEnd()}\n\n${emit(ast, { ...options, skipHeader: true, skipInit: true }).trimEnd()}\n`;
+	}
 	const lines = [];
 	if (plan.onlyConsts) {
 		lines.push(header(plan).trimEnd());
@@ -282,34 +308,54 @@ function emitConfig(plan, ast, options) {
 	}
 	if ((ast.body || []).some((decl) => decl.type === "function" && decl.name === "init")) {
 		lines.push("	Start = init,");
+		lines.push("	Init = init,");
+		lines.push("	init = init,");
 	}
 	lines.push("}");
 	lines.push("");
 	return lines.join("\n");
 }
 
+function emitDecls(decls, options) {
+	if (!decls || decls.length === 0) {
+		return "";
+	}
+	return emit({ type: "program", body: decls }, { ...options, skipHeader: true, skipInit: true }).trimEnd();
+}
+
 function emitDomainController(plan, ast, options) {
 	const keep = (ast.body || []).filter((decl) => {
-		return decl.type === "decl" || decl.type === "proto" || decl.type === "function";
+		return decl.type === "decl" || decl.type === "proto" || decl.type === "function" || decl.type === "expr";
 	});
+	const groups = organizeDecls(keep);
 	const subset = { type: "program", body: keep };
-	const code = emit(subset, { ...options, skipHeader: true, skipInit: true }).trimEnd();
 	const name = plan.roles.domain;
 	const libs = collectLibraries(options.source || "", subset);
-	const body = `${header(plan)}${code}
-
-local ${name} = {}
-
-function ${name}.Start()
-	${keep.some((decl) => decl.type === "function" && decl.name === "init") ? "init()" : "return"}
-end
-
-function ${name}.Stop()
-	return
-end
-
-return ${name}
-`;
+	const entry = keep.find((decl) => decl.type === "function" && ENTRY_FN.test(decl.name || ""));
+	const bootExprs = keep.filter((decl) => decl.type === "expr");
+	const janitors = janitorNames(keep);
+	const closer = keep.find((decl) => decl.type === "function" && /^(OnClose|Cleanup|Shutdown)$/i.test(decl.name));
+	const stopLines = [];
+	if (janitors.length > 0) {
+		for (const janitor of janitors) {
+			stopLines.push(`	${janitor}:Cleanup()`);
+		}
+	} else if (closer) {
+		stopLines.push(`	${closer.name}()`);
+	} else {
+		stopLines.push("	return");
+	}
+	const boot = entry
+		? `	${entry.name}()`
+		: bootExprs.length
+			? emitDecls(bootExprs, options)
+					.split("\n")
+					.map((line) => (line ? `\t${line}` : line))
+					.join("\n")
+			: "	return";
+	const startFn = `function ${name}.Start()\n	${name}.Stop()\n${boot}\nend`;
+	const stopFn = `function ${name}.Stop()\n${stopLines.join("\n")}\nend`;
+	const body = `${header(plan).trimEnd()}\n\n${emitSection(SECTION.api, emitDecls(groups.api, options))}${emitSection(SECTION.constants, emitDecls(groups.constants, options))}${emitSection(SECTION.variables, joinBlocks([emitDecls(groups.variables, options), `local ${name} = {}`]))}${emitSection(SECTION.support, emitDecls(groups.support, options))}${emitSection(SECTION.principal, joinBlocks([emitDecls(groups.principal, options), startFn]))}${emitSection(SECTION.cleanup, joinBlocks([emitDecls(groups.cleanup, options), stopFn]))}${emitSection(SECTION.returns, `return ${name}`)}`;
 	return insertRequires(body, libs);
 }
 

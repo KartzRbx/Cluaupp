@@ -693,7 +693,7 @@ folder.Parent = player`,
 )}
 <p><code>auto</code> infers the type when the value is <code>new Class(...)</code> or <code>GetService&lt;T&gt;()</code>.</p>
 <h2>Control flow</h2>
-<p>The only <code>for</code> accepted today is range-for: <code>for (auto* x : list)</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> is not supported yet. <code>switch</code> is not supported.</p>
+<p>The only <code>for</code> accepted today is range-for: <code>for (auto* x : list)</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> is not supported yet. <code>switch</code> becomes <code>if</code> / <code>elseif</code> / <code>else</code> inside <code>repeat … until true</code> so <code>break</code> still exits the switch. Stacked <code>case</code> labels share a body; there is no fall-through into the next case’s statements.</p>
 ${codePair(
 	`if (player->FindFirstChild("leaderstats") != nullptr) {
 	return;
@@ -703,6 +703,22 @@ ${codePair(
 
 for (auto* player : players->GetPlayers()) {
 	CreateLeaderstats(player);
+}
+
+switch (action) {
+case "buy":
+case "purchase":
+	Grant(player);
+	break;
+case "sell":
+	if (amount <= 0) {
+		break;
+	}
+	Take(player);
+	break;
+default:
+	warn("unknown");
+	break;
 }`,
 	`if player:FindFirstChild("leaderstats") ~= nil then
 	return
@@ -712,7 +728,20 @@ end
 
 for _, player in players:GetPlayers() do
 	CreateLeaderstats(player)
-end`,
+end
+
+repeat
+	if action == "buy" or action == "purchase" then
+		Grant(player)
+	elseif action == "sell" then
+		if amount <= 0 then
+			break
+		end
+		Take(player)
+	else
+		warn("unknown")
+	end
+until true`,
 )}
 <h2>new and services</h2>
 <p>The first argument of <code>new Class(parent)</code> becomes <code>.Parent</code>.</p>

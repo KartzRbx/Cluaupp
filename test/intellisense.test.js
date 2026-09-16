@@ -111,6 +111,39 @@ if (!templateFlags.includes("-Iinclude")) {
 	fail("game template compile_flags.txt must include -Iinclude");
 }
 
+const templateProps = JSON.parse(read(path.join(ROOT, "templates", "game", ".vscode", "c_cpp_properties.json")));
+const templateCfg = templateProps.configurations[0];
+if (!templateCfg.includePath.join("\n").includes("${workspaceFolder}/include") || !templateCfg.includePath.join("\n").includes("${workspaceFolder}/src")) {
+	fail("game template c_cpp_properties.json must include include/ and src/");
+}
+if (!String(templateCfg.compileCommands || "").includes("compile_commands.json")) {
+	fail("game template must set compileCommands");
+}
+if (!(templateCfg.forcedInclude || []).some((item) => item.includes("roblox.hpp"))) {
+	fail("game template must forcedInclude roblox.hpp");
+}
+
+const templateSettings = JSON.parse(read(path.join(ROOT, "templates", "game", ".vscode", "settings.json")));
+if (templateSettings["C_Cpp.intelliSenseEngine"] !== "default") {
+	fail("game template must enable Microsoft C_Cpp.intelliSenseEngine");
+}
+if (templateSettings["clangd.enable"] !== false) {
+	fail("game template must disable clangd so it does not fight cpptools");
+}
+
+const templateExt = JSON.parse(read(path.join(ROOT, "templates", "game", ".vscode", "extensions.json")));
+if (!(templateExt.recommendations || []).includes("ms-vscode.cpptools")) {
+	fail("game template must recommend ms-vscode.cpptools");
+}
+
+const { vsixAssetName } = require("../src/editor-install");
+if (vsixAssetName("win32", "x64") !== "cpptools-windows-x64.vsix") {
+	fail("Windows VSIX asset name");
+}
+if (vsixAssetName("darwin", "arm64") !== "cpptools-macOS-arm64.vsix") {
+	fail("macOS VSIX asset name");
+}
+
 const probe = `#include <cluaupp/roblox.hpp>
 
 struct PlayerSave {

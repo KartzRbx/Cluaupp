@@ -73,6 +73,22 @@ while (true) {
 for (auto* player : players->GetPlayers()) {
 	CreateLeaderstats(player);
 }
+
+switch (action) {
+case "buy":
+case "purchase":
+	Grant(player);
+	break;
+case "sell":
+	if (amount <= 0) {
+		break;
+	}
+	Take(player);
+	break;
+default:
+	warn("unknown");
+	break;
+}
 ```
 
 ```luau
@@ -89,9 +105,22 @@ end
 for _, player in players:GetPlayers() do
 	CreateLeaderstats(player)
 end
+
+repeat
+	if action == "buy" or action == "purchase" then
+		Grant(player)
+	elseif action == "sell" then
+		if amount <= 0 then
+			break
+		end
+		Take(player)
+	else
+		warn("unknown")
+	end
+until true
 ```
 
-The only `for` accepted today is **range-for**: `for (auto* x : list)`. C-style `for (int i = 0; i < n; i++)` is not supported yet.
+`switch` evaluates the discriminant **once**, then becomes `if` / `elseif` / `else` inside `repeat … until true` so `break` still exits the switch (even from inside an `if`). Stacked `case` labels share a body (`case "buy": case "purchase":`). There is no C-style fall-through into the next case’s statements. C-style `for (int i = 0; i < n; i++)` is not supported yet.
 
 ## Expressions
 
@@ -170,6 +199,6 @@ Full table and IntelliSense notes: [print and cout](print-cout.md).
 
 ## Not supported yet
 
-Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `switch`, `std::`, overloading, macros (except skipping `#` lines).
+Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `std::`, overloading, macros (except skipping `#` lines).
 
 If you need one of those patterns, open an issue with the C++ and the expected Luau.

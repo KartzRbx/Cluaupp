@@ -1,0 +1,25 @@
+{
+	"name": "cluaupp-intellisense",
+	"displayName": "Cluaupp IntelliSense",
+	"description": "Completions, hover, and go-to-definition for Cluaupp C++ (Roblox APIs, DataService paths, project structs).",
+	"version": "0.1.3",
+	"publisher": "kartzdev",
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onLanguage:cpp"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "cluaupp.restartIntelliSense",
+				"title": "Cluaupp: Restart IntelliSense"
+			}
+		]
+	}
+}

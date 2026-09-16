@@ -15,6 +15,64 @@ function emit(ast, options = {}) {
 	}
 
 	const indentOf = (n) => "\t".repeat(n);
+	let switchId = 0;
+
+	const classOwners = new Set();
+	const classFields = new Set();
+	const classMethods = new Set();
+	for (const decl of ast.body || []) {
+		if (decl.owner) {
+			classOwners.add(decl.owner);
+		}
+		if (decl.type === "decl" && decl.owner) {
+			classFields.add(decl.name);
+		}
+		if ((decl.type === "function" || decl.type === "proto") && decl.owner && decl.name) {
+			classMethods.add(decl.name);
+		}
+	}
+	const ownedFns = (ast.body || []).filter((decl) => decl.type === "function");
+	const classModule = ownedFns.length > 0 && ownedFns.every((decl) => Boolean(decl.owner));
+
+	const localNames = new Set();
+	let selfOwner = null;
+
+	const isBareGlobal = (name) => {
+		return (
+			name === "print" ||
+			name === "warn" ||
+			name === "error" ||
+			name === "game" ||
+			name === "workspace" ||
+			name === "script" ||
+			name === "cout" ||
+			name === "cerr" ||
+			name === "endl" ||
+			isLibraryType(name) ||
+			isInstanceType(name) ||
+			isDatatype(name)
+		);
+	};
+
+	const emitSelfIdent = (name) => {
+		if (name === "this") {
+			return "self";
+		}
+		if (!selfOwner || localNames.has(name) || isBareGlobal(name)) {
+			return name;
+		}
+		if (classFields.has(name)) {
+			return `self.${name}`;
+		}
+		return name;
+	};
+
+	const emitMethodArg = (arg) => {
+		if (arg && arg.type === "ident" && selfOwner && classMethods.has(arg.name) && !localNames.has(arg.name)) {
+			return `function(...) self:${arg.name}(...) end`;
+		}
+		return emitExpr(arg);
+	};
 
 	const flattenShift = (node) => {
 		const parts = [];
@@ -91,7 +149,7 @@ function emit(ast, options = {}) {
 			case "string":
 				return `"${node.value}"`;
 			case "ident":
-				return node.name;
+				return emitSelfIdent(node.name);
 			case "initlist": {
 				const entries = (node.fields || []).map((field) => `${field.name} = ${emitExpr(field.value)}`);
 				if (entries.length === 0) {
@@ -118,10 +176,13 @@ function emit(ast, options = {}) {
 			case "member":
 				return `${emitExpr(node.object)}.${node.name}`;
 			case "call": {
-				const args = node.args.map(emitExpr).join(", ");
+				const args = node.args.map(emitMethodArg).join(", ");
 				if (!node.object) {
 					if (isDatatype(node.name)) {
 						return `${node.name}.new(${args})`;
+					}
+					if (selfOwner && classMethods.has(node.name) && !localNames.has(node.name)) {
+						return `self:${node.name}(${args})`;
 					}
 					return `${node.name}(${args})`;
 				}
@@ -137,7 +198,17 @@ function emit(ast, options = {}) {
 					if (MODULE_COLON.has(node.name)) {
 						return `${obj}:${node.name}(${args})`;
 					}
-					return `${obj}.${node.name}(${args})`;
+					const staticNs =
+						node.object.type === "ident" &&
+						(isLibraryType(node.object.name) ||
+							isDatatype(node.object.name) ||
+							node.object.name === "DataService" ||
+							node.object.name === "FormatNumber" ||
+							node.object.name === "Enum");
+					if (staticNs) {
+						return `${obj}.${node.name}(${args})`;
+					}
+					return `${obj}:${node.name}(${args})`;
 				}
 				if (isDatatype(obj) || (node.object.type === "ident" && isDatatype(node.object.name))) {
 					return `${obj}.${node.name}(${args})`;
@@ -184,9 +255,24 @@ function emit(ast, options = {}) {
 	const emitNewDecl = (node, indent) => {
 		const prefix = indentOf(indent);
 		const typeAnn = inferredType(node);
+		const created = node.value;
+		if (node.owner && indent === 0 && classModule) {
+			const value = node.value ? emitExpr(node.value) : "nil";
+			if (created && created.type === "new" && isInstanceType(created.className) && !isLibraryType(created.className)) {
+				const linesOut = [`${prefix}${node.owner}.${node.name} = Instance.new("${created.className}")`];
+				if (created.args[0]) {
+					linesOut.push(`${prefix}${node.owner}.${node.name}.Parent = ${emitExpr(created.args[0])}`);
+				}
+				return linesOut;
+			}
+			if (created && created.type === "new" && (isDatatype(created.className) || isLibraryType(created.className))) {
+				const args = created.args.map(emitExpr).join(", ");
+				return [`${prefix}${node.owner}.${node.name} = ${created.className}.new(${args})`];
+			}
+			return [`${prefix}${node.owner}.${node.name} = ${value}`];
+		}
 		const kind = node.isConst ? "const" : "local";
 		const typed = typeAnn ? `: ${typeAnn}` : "";
-		const created = node.value;
 		if (created && created.type === "new" && isInstanceType(created.className) && !isLibraryType(created.className)) {
 			const linesOut = [`${prefix}${kind} ${node.name}${typed} = Instance.new("${created.className}")`];
 			if (created.args[0]) {
@@ -206,6 +292,9 @@ function emit(ast, options = {}) {
 		const prefix = indentOf(indent);
 		switch (node.type) {
 			case "decl":
+				if (node.name) {
+					localNames.add(node.name);
+				}
 				return emitNewDecl(node, indent);
 			case "expr": {
 				const expr = node.expr;
@@ -264,6 +353,52 @@ function emit(ast, options = {}) {
 				out.push(`${prefix}end`);
 				return out;
 			}
+			case "break":
+				return [`${prefix}break`];
+			case "switch": {
+				switchId += 1;
+				const id = `__switch${switchId}`;
+				const disc = node.discriminant;
+				const simple =
+					disc &&
+					(disc.type === "ident" || disc.type === "number" || disc.type === "string" || disc.type === "bool");
+				const subject = simple ? emitExpr(disc) : id;
+				const out = [`${prefix}repeat`];
+				const inner = indent + 1;
+				const innerP = indentOf(inner);
+				if (!simple) {
+					out.push(`${innerP}local ${id} = ${emitExpr(disc)}`);
+				}
+				const regular = (node.cases || []).filter((item) => !item.isDefault);
+				const fallback = (node.cases || []).find((item) => item.isDefault);
+				const testOf = (item) =>
+					(item.values || []).map((value) => `${subject} == ${emitExpr(value)}`).join(" or ");
+				for (let index = 0; index < regular.length; index += 1) {
+					const item = regular[index];
+					const keyword = index === 0 ? "if" : "elseif";
+					out.push(`${innerP}${keyword} ${testOf(item)} then`);
+					for (const stmt of item.body || []) {
+						out.push(...emitStmt(stmt, inner + 1));
+					}
+				}
+				if (fallback) {
+					if (regular.length === 0) {
+						for (const stmt of fallback.body || []) {
+							out.push(...emitStmt(stmt, inner));
+						}
+					} else {
+						out.push(`${innerP}else`);
+						for (const stmt of fallback.body || []) {
+							out.push(...emitStmt(stmt, inner + 1));
+						}
+					}
+				}
+				if (regular.length > 0) {
+					out.push(`${innerP}end`);
+				}
+				out.push(`${prefix}until true`);
+				return out;
+			}
 			default:
 				return [];
 		}
@@ -288,25 +423,60 @@ function emit(ast, options = {}) {
 		return `: ${typeAnn}`;
 	};
 
+	if (classModule) {
+		for (const owner of classOwners) {
+			lines.push(`local ${owner} = {}`);
+			lines.push("");
+		}
+	}
+
 	for (const decl of ast.body) {
 		if (decl.type === "decl") {
 			lines.push(...emitNewDecl(decl, 0));
 			lines.push("");
 			continue;
 		}
+		if (decl.type === "expr") {
+			lines.push(emitExpr(decl.expr));
+			lines.push("");
+			continue;
+		}
 		if (decl.type !== "function") {
 			continue;
 		}
-		lines.push(`const function ${decl.name}(${paramList(decl)})${returnAnn(decl)}`);
+		selfOwner = decl.owner || null;
+		localNames.clear();
+		for (const param of decl.params || []) {
+			const paramName = typeof param === "string" ? param : param.name;
+			if (paramName) {
+				localNames.add(paramName);
+			}
+		}
+		if (decl.owner) {
+			lines.push(`function ${decl.owner}:${decl.name}(${paramList(decl)})${returnAnn(decl)}`);
+		} else {
+			lines.push(`const function ${decl.name}(${paramList(decl)})${returnAnn(decl)}`);
+		}
 		for (const stmt of decl.body) {
 			lines.push(...emitStmt(stmt, 1));
 		}
 		lines.push("end");
 		lines.push("");
+		selfOwner = null;
+		localNames.clear();
 	}
 
 	const hasInit = ast.body.some((decl) => decl.type === "function" && decl.name === "init");
-	if (hasInit && !options.skipInit) {
+	if (classModule) {
+		for (const owner of classOwners) {
+			if (hasInit) {
+				lines.push(`${owner}.Start = ${owner}.init`);
+				lines.push(`${owner}.Init = ${owner}.init`);
+			}
+			lines.push(`return ${owner}`);
+			lines.push("");
+		}
+	} else if (hasInit && !options.skipInit) {
 		lines.push("init()");
 		lines.push("");
 	}

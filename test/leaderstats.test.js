@@ -66,6 +66,7 @@ const checks = {
 		"function CacheController.Get(",
 		"function CacheController.Ensure(",
 		"function CacheController.Clear(",
+		"function CacheController.ClearAll(",
 		"return CacheController",
 	],
 	"server/LeaderStats/PlayersManager.luau": [
@@ -85,6 +86,7 @@ const checks = {
 		"CacheController.Ensure(player)",
 		"function Main.Start()",
 		"function Main.Stop()",
+		"CacheController.ClearAll()",
 		"return Main",
 	],
 	"server/LeaderStats/init.luau": ["--!strict", "require(script.Main):Start()"],

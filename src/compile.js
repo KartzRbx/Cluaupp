@@ -3,17 +3,27 @@
 const { parse } = require("./parse");
 const { emit } = require("./emit");
 const { preprocess } = require("./preprocess");
-const { collectLibraries, insertRequires } = require("./libs");
+const { collectLibraries, insertRequires, insertModuleRequires } = require("./libs");
 const { planOutput } = require("./architecture");
 
+function attachRequires(contents, source, ast, options, outName) {
+	let next = contents;
+	if (!next.includes("CluauppLibs")) {
+		next = insertRequires(next, collectLibraries(source, ast));
+	}
+	return insertModuleRequires(next, options.moduleIncludes || [], outName);
+}
+
 function compileSource(source, fileName, options = {}) {
+	options.moduleIncludes = options.moduleIncludes || [];
 	const prepared = options.filePath ? preprocess(source, options.filePath, options) : source;
 	const ast = parse(prepared, fileName || "input.cpp");
 	const luau = emit(ast, options);
-	return insertRequires(luau, collectLibraries(source, ast));
+	return attachRequires(luau, source, ast, options, options.outName || fileName);
 }
 
 function compileService(source, fileName, options = {}) {
+	options.moduleIncludes = options.moduleIncludes || [];
 	const prepared = options.filePath ? preprocess(source, options.filePath, options) : source;
 	const ast = parse(prepared, fileName || "input.cpp");
 	const planned = planOutput(ast, fileName || "input.cpp", {
@@ -22,9 +32,15 @@ function compileService(source, fileName, options = {}) {
 		source: prepared,
 	});
 	if (planned.files) {
-		return planned;
+		return {
+			...planned,
+			files: planned.files.map((file) => ({
+				...file,
+				contents: attachRequires(file.contents, source, ast, options, file.name),
+			})),
+		};
 	}
-	const luau = insertRequires(emit(ast, options), collectLibraries(source, ast));
+	const luau = attachRequires(emit(ast, options), source, ast, options, planned.outName || options.outName || fileName);
 	const name =
 		planned.outName ||
 		options.outName ||

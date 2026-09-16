@@ -2,7 +2,10 @@
 
 ## 0.1.3
 
-- Architecture: the domain controller keeps every user function. CacheController is generated separately and must not delete `SetupPlayerManager` while `init` still calls it. `GetChangedSignal` on `Paths.Currencies` is kept.
+- Architecture: generated services keep a fixed declaration order (requires, types, constants, variables, functions, cleanup, return) without section banners. Domain `Stop` runs `janitor:Cleanup()`.
+- IntelliSense: `cluaupp init` / `cluaupp intellisense` install Microsoft `ms-vscode.cpptools` (VSIX on Cursor, where the marketplace omits it), write `.vscode/c_cpp_properties.json` (LLVM clang++, C++20, `include/` + `src/`, `compile_commands.json`), and disable clangd so the two engines do not fight. `build`/`watch` only refresh `compile_commands.json`.
+- `Class::method` on game types becomes `Class:method()` (`self`). Datatype/library statics stay dotted (`CFrame.lookAt`, `Color3.fromRGB`, `FormatNumber.Abbreviate`).
+- `switch` / `case` / `default` / `break` compile to a one-shot `repeat` with `if` / `elseif` / `else`. The discriminant is evaluated once; stacked `case` labels share a body; `break` leaves the switch even from inside an `if`.
 - Janitor typed border re-exports `_impl` (`export type Janitor = Impl.Janitor; return Impl`). It no longer invents `Has` or requires Promise for a parallel type that did not match howmanysmall.
 - Emit: injected `require` / `GetService` are `const`. C++ functions emit as `const function` instead of `local function`.
 - `.server.cpp` emits `init.luau` + `init.meta.json` with `RunContext.Server`. `init.server.luau` is Legacy and is pruned.

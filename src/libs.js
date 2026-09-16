@@ -1,5 +1,7 @@
 "use strict";
 
+const path = require("path");
+
 const TYPE_EXPORTS = {
 	Janitor: "Janitor",
 	Promise: "Promise",
@@ -301,42 +303,102 @@ function requireCluauppLib(name) {
 	return `require(ReplicatedStorage.CluauppLibs.${name})`;
 }
 
-function emitRequires(libraries) {
+function emitRequireParts(libraries) {
+	const api = [];
+	const types = [];
 	if (!libraries.length) {
-		return "";
+		return { api: "", types: "" };
 	}
-	const lines = ['const ReplicatedStorage = game:GetService("ReplicatedStorage")'];
+	api.push('const ReplicatedStorage = game:GetService("ReplicatedStorage")');
 	for (const spec of libraries) {
-		lines.push(`const ${spec.bind} = ${requireCluauppLib(spec.file)}`);
+		api.push(`const ${spec.bind} = ${requireCluauppLib(spec.file)}`);
 		const exported = TYPE_EXPORTS[spec.bind];
 		if (exported) {
-			lines.push(`type ${spec.bind} = ${spec.bind}.${exported}`);
+			types.push(`type ${spec.bind} = ${spec.bind}.${exported}`);
 		}
 		const extra = EXTRA_TYPE_EXPORTS[spec.bind];
 		if (extra) {
 			for (const [alias, exportedName] of Object.entries(extra)) {
-				lines.push(`type ${alias} = ${spec.bind}.${exportedName}`);
+				types.push(`type ${alias} = ${spec.bind}.${exportedName}`);
 			}
 		}
 	}
-	return `${lines.join("\n")}\n`;
+	return {
+		api: `${api.join("\n")}\n`,
+		types: types.length ? `${types.join("\n")}\n` : "",
+	};
+}
+
+function emitRequires(libraries) {
+	const { api, types } = emitRequireParts(libraries);
+	return [api, types].filter((part) => Boolean(part && part.trim())).join("\n");
 }
 
 function insertRequires(luau, libraries) {
-	const block = emitRequires(libraries);
+	const block = emitRequires(libraries).trimEnd();
 	if (!block) {
 		return luau;
 	}
-	const marker = "-- Compiled by Cluaupp — C++ × Luau";
-	const index = luau.indexOf(marker);
-	if (index === -1) {
+	const match = String(luau).match(/^(?:--[^\n]*\n)+/);
+	if (!match) {
 		return `${block}\n${luau}`;
 	}
-	const insertAt = luau.indexOf("\n", index);
-	if (insertAt === -1) {
-		return `${luau}\n${block}`;
+	const insertAt = match[0].length;
+	const rest = luau.slice(insertAt).replace(/^\n*/, "\n");
+	return `${luau.slice(0, insertAt)}\n${block}\n${rest}`;
+}
+
+function robloxRequireFrom(fromOutRel, toOutRel) {
+	const fromDir = path.posix.dirname(String(fromOutRel || "module.luau").replace(/\\/g, "/"));
+	const toMod = String(toOutRel || "module.luau")
+		.replace(/\\/g, "/")
+		.replace(/\.luau$/i, "");
+	let rel = path.posix.relative(fromDir, toMod);
+	if (!rel || rel === ".") {
+		rel = path.posix.basename(toMod);
 	}
-	return `${luau.slice(0, insertAt + 1)}\n${block}${luau.slice(insertAt + 1)}`;
+	const parts = rel.split("/");
+	let expr = "script.Parent";
+	for (const part of parts) {
+		if (part === "..") {
+			expr += ".Parent";
+		} else if (part && part !== ".") {
+			expr += `.${part}`;
+		}
+	}
+	return `require(${expr})`;
+}
+
+function insertModuleRequires(luau, modules, fromOutRel) {
+	if (!modules || modules.length === 0) {
+		return luau;
+	}
+	const lines = [];
+	const seen = new Set();
+	for (const spec of modules) {
+		if (!spec || !spec.name || seen.has(spec.name)) {
+			continue;
+		}
+		if (fromOutRel && !String(luau).includes(spec.name)) {
+			continue;
+		}
+		seen.add(spec.name);
+		lines.push(`const ${spec.name} = ${robloxRequireFrom(fromOutRel, spec.outRel)}`);
+	}
+	if (lines.length === 0) {
+		return luau;
+	}
+	return insertBlock(luau, lines.join("\n"));
+}
+
+function insertBlock(luau, block) {
+	const match = String(luau).match(/^(?:--[^\n]*\n)+/);
+	if (!match) {
+		return `${block}\n${luau}`;
+	}
+	const insertAt = match[0].length;
+	const rest = luau.slice(insertAt).replace(/^\n*/, "\n");
+	return `${luau.slice(0, insertAt)}\n${block}\n${rest}`;
 }
 
 module.exports = {
@@ -352,4 +414,5 @@ module.exports = {
 	requireCluauppLib,
 	emitRequires,
 	insertRequires,
+	insertModuleRequires,
 };

@@ -61,6 +61,10 @@ void init() {
 	}
 	janitor->Add(Players->PlayerAdded.Connect(SetupPlayerManager));
 }
+
+void OnClose() {
+	janitor->Destroy();
+}
 `;
 
 const result = compileService(source, "server/leaderstats.server.cpp", {
@@ -88,6 +92,8 @@ const required = [
 	"Paths.Currencies",
 	"SetupPlayerManager(player)",
 	"PlayerAdded:Connect(SetupPlayerManager)",
+	"janitor:Cleanup()",
+	"function DataController.Stop()",
 ];
 
 const missing = required.filter((piece) => !data.includes(piece));
@@ -102,6 +108,18 @@ if (missing.length > 0) {
 
 if (/\bSetupPlayerManager\(/.test(data) && !/\bconst function SetupPlayerManager\b/.test(data)) {
 	console.error("DataController calls SetupPlayerManager without defining it");
+	console.error(data);
+	process.exit(1);
+}
+
+if (data.includes("-- API") || data.includes("-- TIPAGENS") || data.includes("-- FUNÇÕES")) {
+	console.error("DataController should not emit section banners");
+	console.error(data);
+	process.exit(1);
+}
+
+if (data.indexOf("function DataController.Start()") > data.indexOf("function DataController.Stop()")) {
+	console.error("Start should come before Stop");
 	console.error(data);
 	process.exit(1);
 }

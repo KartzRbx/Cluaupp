@@ -27,12 +27,39 @@ function isEngineStub(filePath) {
 	);
 }
 
+function includeVariants(name) {
+	const variants = [name];
+	if (/\.h$/i.test(name)) {
+		variants.push(name.replace(/\.h$/i, ".hpp"), name.replace(/\.h$/i, ".hh"));
+	} else if (/\.hpp$/i.test(name)) {
+		variants.push(name.replace(/\.hpp$/i, ".h"), name.replace(/\.hpp$/i, ".hh"));
+	} else if (/\.hh$/i.test(name)) {
+		variants.push(name.replace(/\.hh$/i, ".h"), name.replace(/\.hh$/i, ".hpp"));
+	}
+	return [...new Set(variants)];
+}
+
+function siblingImplementation(headerPath) {
+	if (!headerPath || !isHeaderFile(headerPath)) {
+		return null;
+	}
+	const base = headerPath.replace(/\.(h|hpp|hh)$/i, "");
+	for (const ext of [".cpp", ".cc", ".cxx", ".c"]) {
+		if (fs.existsSync(base + ext)) {
+			return base + ext;
+		}
+	}
+	return null;
+}
+
 function resolveInclude(name, fromFile, includeDirs) {
 	const bases = [path.dirname(fromFile), ...(includeDirs || [])];
 	for (const base of bases) {
-		const candidate = path.resolve(base, name);
-		if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-			return candidate;
+		for (const variant of includeVariants(name)) {
+			const candidate = path.resolve(base, variant);
+			if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+				return candidate;
+			}
 		}
 	}
 	return null;
@@ -56,6 +83,20 @@ function preprocess(source, filePath, options = {}) {
 			if (!resolved || isEngineStub(resolved) || seen.has(resolved)) {
 				continue;
 			}
+			const impl = siblingImplementation(resolved);
+			const including = filePath ? path.resolve(filePath) : null;
+			if (impl && including && path.resolve(impl) !== including) {
+				options.moduleIncludes = options.moduleIncludes || [];
+				const srcDir = options.srcDir || null;
+				const rel = srcDir ? path.relative(srcDir, resolved).replace(/\\/g, "/") : path.basename(resolved);
+				options.moduleIncludes.push({
+					name: path.basename(resolved).replace(/\.(h|hpp|hh)$/i, ""),
+					outRel: rel.replace(/\.(h|hpp|hh)$/i, ".luau"),
+					header: resolved,
+					impl,
+				});
+				continue;
+			}
 			seen.add(resolved);
 			const inner = fs.readFileSync(resolved, "utf8");
 			out.push(preprocess(inner, resolved, { ...options, seen }));
@@ -77,4 +118,6 @@ module.exports = {
 	toLuauPath,
 	preprocess,
 	isEngineStub,
+	siblingImplementation,
+	resolveInclude,
 };

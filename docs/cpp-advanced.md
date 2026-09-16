@@ -9,7 +9,7 @@ The subset is intentional. What exists is enough for game scripts; what is missi
 
 ## Supported
 
-- Functions, prototypes (headers only), `if` / `else` / `while` / range-`for`
+- Functions, prototypes (headers only), `if` / `else` / `while` / range-`for` / `switch` (`case`, `default`, `break`)
 - `new Class(parent)`, `GetService<T>()`, `::` statics (`CFrame::lookAt`, `Enum::Material::Plastic`)
 - `->` methods and properties, `.` members, `Connect`
 - `const`, `auto`, `nullptr`, arithmetic, `&&` `||` `!=`
@@ -18,7 +18,7 @@ The subset is intentional. What exists is enough for game scripts; what is missi
 
 ## Not supported (yet)
 
-Full C++: templates besides `GetService<T>`, `class` bodies as emitted types, `std::`, overloading as two runtimes, `switch`, C-style `for`, macros, pointer arithmetic.
+Full C++: templates besides `GetService<T>`, `class` bodies as emitted types, `std::`, overloading as two runtimes, C-style `for`, macros, pointer arithmetic.
 
 If you need a custom type, it is usually a **ModuleScript in shared** (a `.cpp` of functions) or a Wally package, not a C++ class the compiler would lower to a metatable.
 
