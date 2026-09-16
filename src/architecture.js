@@ -317,12 +317,12 @@ function emitModule(plan, ast, options) {
 	return emitConfig(plan, ast, options);
 }
 
-function emitPluginMeta() {
+function emitScriptMeta(runContext) {
 	return `${JSON.stringify(
 		{
 			className: "Script",
 			properties: {
-				RunContext: "Enum.RunContext.Plugin",
+				RunContext: `Enum.RunContext.${runContext}`,
 			},
 		},
 		null,
@@ -331,18 +331,18 @@ function emitPluginMeta() {
 }
 
 function serviceBootName(plan) {
-	if (plan.tag && plan.tag.key === "plugin") {
-		return "init.luau";
+	if (plan.isClient) {
+		return "init.client.luau";
 	}
-	return plan.isClient ? "init.client.luau" : "init.server.luau";
+	return "init.luau";
 }
 
 function serviceFiles(plan, ast, options, dir) {
 	const folder = `${dir}/${plan.serviceName}`;
 	const boot = serviceBootName(plan);
 	const files = [{ name: `${folder}/${boot}`, contents: emitBootstrap(plan) }];
-	if (plan.tag && plan.tag.key === "plugin") {
-		files.push({ name: `${folder}/init.meta.json`, contents: emitPluginMeta() });
+	if (!plan.isClient && plan.runContext) {
+		files.push({ name: `${folder}/init.meta.json`, contents: emitScriptMeta(plan.runContext) });
 	}
 	files.push({ name: `${folder}/Main.luau`, contents: emitMain(plan) });
 	if (plan.roles.players) {
@@ -376,11 +376,14 @@ function planOutput(ast, fileName, options = {}) {
 	if (plan.kind === "service") {
 		const serviceDir = outDir || (plan.isClient ? "client" : "server");
 		const folder = `${serviceDir}/${plan.serviceName}`;
+		const stale = plan.isClient
+			? [`${folder}/init.luau`, `${folder}/init.server.luau`, `${folder}/init.meta.json`]
+			: [`${folder}/init.server.luau`, `${folder}/init.client.luau`];
 		return {
 			kind: "service",
 			plan,
 			files: serviceFiles(plan, ast, options, serviceDir),
-			stale: [`${folder}/init.luau`, `${folder}/init.meta.json`],
+			stale,
 		};
 	}
 

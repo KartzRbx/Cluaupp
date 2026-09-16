@@ -28,4 +28,4 @@ The template ships `default.project.json` mapping:
 - `out/client` → `StarterPlayer.StarterPlayerScripts.Cluaupp`
 - `out/shared` → `ReplicatedStorage.Cluaupp`
 
-`*.server.luau` and `*.client.luau` files are classified by Rojo as Script and LocalScript. A folder with `init.server.luau` becomes a Script named after the folder (`LeaderStats`) with ModuleScript children (`Main`, `PlayersManager`, `CacheController`, `LeaderStatsTypes`).
+`*.server.cpp` becomes a folder with `init.luau` + `init.meta.json` (`className` Script, `RunContext` Server). `.client` stays LocalScript via `init.client.luau`. A `.legacy.server.cpp` dump is still `*.server.luau` (Legacy).

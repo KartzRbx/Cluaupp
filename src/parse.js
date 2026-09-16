@@ -199,8 +199,18 @@ function parse(source, fileName) {
 		return left;
 	}
 
+	function parseShift() {
+		let left = parseBinary();
+		while (at("op", "<<")) {
+			eat("op", "<<");
+			const right = parseBinary();
+			left = { type: "binary", op: "<<", left, right };
+		}
+		return left;
+	}
+
 	function parseExpr() {
-		const left = parseBinary();
+		const left = parseShift();
 		if (at("op", "=")) {
 			i += 1;
 			return { type: "assign", left, right: parseExpr() };

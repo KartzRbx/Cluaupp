@@ -21,6 +21,25 @@ extern LuaSourceContainer* script;
 void print(string message);
 void warn(string message);
 void error(string message);
+
+struct cout {
+	static void print(string message);
+	static void warn(string message);
+	static void error(string message);
+	static void ping(string message);
+	static void endl();
+	cout& operator<<(string value);
+	cout& operator<<(int value);
+	cout& operator<<(double value);
+	cout& operator<<(bool value);
+} cout;
+
+struct cerr {
+	cerr& operator<<(string value);
+	cerr& operator<<(int value);
+} cerr;
+
+const int endl = 0;
 double tick();
 double time();
 void wait(double seconds = 0);

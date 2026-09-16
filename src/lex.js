@@ -130,7 +130,7 @@ function tokenize(source) {
 		}
 
 		const two = source.slice(i, i + 2);
-		if (["->", "==", "!=", "<=", ">=", "&&", "||", "::"].includes(two)) {
+		if (["->", "==", "!=", "<=", ">=", "&&", "||", "::", "<<", ">>"].includes(two)) {
 			push("op", two, startLine, startCol);
 			i += 2;
 			col += 2;

@@ -24,7 +24,7 @@ Leaderstats was the example. A combat `.server.cpp` is a different system and ge
 
 | Source | Meaning | Output |
 | --- | --- | --- |
-| `combat.server.cpp` | **Script** | `Combat/init.server.luau` |
+| `combat.server.cpp` | **Script** RunContext Server | `Combat/init.luau` + `init.meta.json` |
 | `hud.client.cpp` | **LocalScript** | `Hud/init.client.luau` |
 | `tools.plugin.cpp` | **Script** RunContext Plugin | `Tools/init.luau` + `init.meta.json` |
 | `boot.legacy.cpp` | Legacy Script | `boot.server.luau` |
@@ -76,7 +76,8 @@ src/server/leaderstats.server.cpp
 
 ```
 out/server/LeaderStats/
-  init.server.luau
+  init.luau
+  init.meta.json
   Main.luau
   PlayersManager.luau
   CacheController.luau
@@ -91,7 +92,8 @@ src/server/combat.server.cpp   -- TakeDamage, Humanoid
 
 ```
 out/server/Combat/
-  init.server.luau
+  init.luau
+  init.meta.json
   Main.luau
   CombatController.luau    -- your ApplyDamage / OnHit
   CombatTypes.luau
@@ -112,4 +114,4 @@ No PlayersManager unless you actually listen to players. No CacheController unle
 
 `cluaupp.config.json`: `"architecture": true` (default). `"architecture": false` forces 1:1 dumps (or use `.legacy.server.cpp` / `.legacy.client.cpp` per file).
 
-See [organization](cpp-organization.md) and [comparison](comparison.md).
+How to **write** a service, tags, and module-style OOP: [OOP structure](oop/index.md). Copy-paste systems: [Examples](examples/index.md). Also [organization](cpp-organization.md) and [comparison](comparison.md).

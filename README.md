@@ -71,7 +71,7 @@ src/client/*.client.cpp  →  out/client/*.client.luau  LocalScript (or a servic
 src/shared/config.*      →  out/shared/Config.luau    typed config module
 ```
 
-A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheController`. A combat `.server.cpp` becomes `CombatController` with your `TakeDamage` logic. Filename tags: `.server.cpp`, `.client.cpp`, `.legacy.server.cpp`, `.legacy.client.cpp`, or no tag (ModuleScript). See [Architecture](docs/architecture.md).
+A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheController`. A combat `.server.cpp` becomes `CombatController` with your `TakeDamage` logic. Filename tags: `.server.cpp`, `.client.cpp`, `.legacy.server.cpp`, `.legacy.client.cpp`, or no tag (ModuleScript). See [Architecture](docs/architecture.md) and [OOP structure](docs/oop/index.md).
 
 ## Documentation
 
@@ -82,8 +82,12 @@ A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheContro
 | [Learn](https://kartzrbx.github.io/Cluaupp/learn/) | C++ subset, Luau output, safety, architecture |
 | [CLI](docs/cli.md) | `init`, `build`, `watch`, flags |
 | [Syntax](docs/syntax.md) | C++ subset → Luau (`local`, `const`, types) |
+| [print and cout](docs/print-cout.md) | `cout <<`, `cout::warn`, `endl` |
 | [Roblox API](docs/roblox-api.md) | Vector3, CFrame, UDim2, GetService, Instance.new |
 | [Architecture](docs/architecture.md) | PascalCase services, Types modules, not a 200-line dump |
+| [OOP structure](docs/oop/index.md) | File tags, services, modules, structs |
+| [Libraries](docs/libraries/index.md) | DataService Init, Janitor, Promise, Net |
+| [Examples](docs/examples/index.md) | Leaderstats, combat validation, shop, HUD, sword |
 | [C++ types](docs/cpp-types.md) | Typing, `const`, safety, organization |
 | [Comparison](docs/comparison.md) | vs roblox-ts and WASM toolchains |
 | [Contributing](CONTRIBUTING.md) | Tests, layout, how to ship |

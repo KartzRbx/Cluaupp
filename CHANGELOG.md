@@ -5,6 +5,9 @@
 - Architecture: the domain controller keeps every user function. CacheController is generated separately and must not delete `SetupPlayerManager` while `init` still calls it. `GetChangedSignal` on `Paths.Currencies` is kept.
 - Janitor typed border re-exports `_impl` (`export type Janitor = Impl.Janitor; return Impl`). It no longer invents `Has` or requires Promise for a parallel type that did not match howmanysmall.
 - Emit: injected `require` / `GetService` are `const`. C++ functions emit as `const function` instead of `local function`.
+- `.server.cpp` emits `init.luau` + `init.meta.json` with `RunContext.Server`. `init.server.luau` is Legacy and is pruned.
+- `cout << ... << endl` emits `print(...)`. `cerr <<` emits `warn`. `cout::print` / `cout::warn` / `cout::error` / `cout::ping` map to the Roblox globals.
+- Docs: [print and cout](docs/print-cout.md); [Libraries](docs/libraries/index.md) how-tos (DataService Init, Janitor, Promise, Net); [OOP structure](docs/oop/index.md) (file tags, services, modules); [Examples](docs/examples/index.md) (leaderstats, combat validation, shop, HUD, sword).
 
 ## 0.1.2
 

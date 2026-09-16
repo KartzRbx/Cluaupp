@@ -9,7 +9,7 @@ Safety in Cluaupp is not a sandbox flag. It is a set of habits the compiler and 
 
 ## 1. Never trust the client
 
-[Net](libraries.md) lets a client `FireServer`. The server must validate:
+[Net](libraries/net.md) lets a client `FireServer`. The server must validate:
 
 ```cpp
 void OnBuy(Player* player, int productId) {
@@ -17,19 +17,23 @@ void OnBuy(Player* player, int productId) {
 		return;
 	}
 	int price = PriceOf(productId);
-	int coins = DataService::Get(player, "Currencies.Coins");
+	Data* data = DataService::Server.WaitFor(player);
+	if (data == nullptr) {
+		return;
+	}
+	int coins = data->Get(DataService::Server.Paths.Currencies.Money);
 	if (coins < price) {
 		return;
 	}
-	DataService::Set(player, "Currencies.Coins", coins - price);
+	data->Set(DataService::Server.Paths.Currencies.Money, coins - price);
 }
 ```
 
-Do not store coins only on the client. Do not let the client pass the new coin total — pass the *intent* (`productId`).
+Do not store coins only on the client. Do not let the client pass the new coin total — pass the *intent* (`productId`). Full systems: [Shop](examples/shop.md), [Combat](examples/combat.md).
 
 ## 2. Clean up with Janitor
 
-Every `Connect` that outlives a player, a GUI, or a tool needs a Janitor. Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
+Every `Connect` that outlives a player, a GUI, or a tool needs a [Janitor](libraries/janitor.md). Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
 
 ```cpp
 auto* janitor = new Janitor();
@@ -45,7 +49,7 @@ Leaked connections duplicate effects: double coins, stacked cameras, lingering h
 
 ## 4. One writer for persisted data
 
-[DataServiceV2](https://wally.run/package/kartzrbx/dataservicev2) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what ProfileStore will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths.
+[DataService](libraries/dataservice.md) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what ProfileStore will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths. The save **shape** is your Template — the library does not ship `Currencies`.
 
 ## 5. Buffers, not ad-hoc strings
 
@@ -55,4 +59,4 @@ Leaked connections duplicate effects: double coins, stacked cameras, lingering h
 
 Remote names (`Net::Event("Coins")`) are public protocol. Keep them `const`, short, and unique. Changing a name without a migration breaks old clients.
 
-Next: [organization](cpp-organization.md).
+Next: [organization](cpp-organization.md), [OOP](oop/index.md), [Examples](examples/index.md).

@@ -21,7 +21,8 @@ if (result.kind !== "service") {
 
 const files = Object.fromEntries(result.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
 const requiredNames = [
-	"server/LeaderStats/init.server.luau",
+	"server/LeaderStats/init.luau",
+	"server/LeaderStats/init.meta.json",
 	"server/LeaderStats/Main.luau",
 	"server/LeaderStats/PlayersManager.luau",
 	"server/LeaderStats/CacheController.luau",
@@ -40,7 +41,7 @@ const types = files["server/LeaderStats/LeaderStatsTypes.luau"];
 const cache = files["server/LeaderStats/CacheController.luau"];
 const players = files["server/LeaderStats/PlayersManager.luau"];
 const main = files["server/LeaderStats/Main.luau"];
-const boot = files["server/LeaderStats/init.server.luau"];
+const boot = files["server/LeaderStats/init.luau"];
 
 const checks = {
 	"server/LeaderStats/LeaderStatsTypes.luau": [
@@ -86,7 +87,8 @@ const checks = {
 		"function Main.Stop()",
 		"return Main",
 	],
-	"server/LeaderStats/init.server.luau": ["--!strict", "require(script.Main):Start()"],
+	"server/LeaderStats/init.luau": ["--!strict", "require(script.Main):Start()"],
+	"server/LeaderStats/init.meta.json": ['"className": "Script"', "Enum.RunContext.Server"],
 };
 
 let failed = false;

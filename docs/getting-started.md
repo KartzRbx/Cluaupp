@@ -153,17 +153,21 @@ void init() {
 }
 ```
 
-Wally is optional. Fusion, Cmdr, DataServiceV2, and the rest ship **inside** `libs/` (full GitHub source). See [Libraries](libraries.md).
+Wally is optional. Fusion, Cmdr, DataServiceV2, and the rest ship **inside** `libs/` (full GitHub source). See [Libraries](libraries/index.md) — start with [DataService Init](libraries/dataservice.md) and [Janitor](libraries/janitor.md).
 
-See [Libraries](libraries.md), [types](cpp-types.md), [safety](cpp-safety.md).
+See [Libraries](libraries/index.md), [OOP](oop/index.md), [types](cpp-types.md), [safety](cpp-safety.md).
 
 ## Next
 
 - [C++ → Luau syntax](syntax.md)
+- [print and cout](print-cout.md)
 - [C++ types](cpp-types.md)
 - [const](cpp-const.md)
 - [Safety](cpp-safety.md)
 - [Organization](cpp-organization.md)
 - [Architecture](architecture.md)
+- [OOP structure](oop/index.md)
+- [Libraries](libraries/index.md)
+- [Examples](examples/index.md)
 - [Roblox API](roblox-api.md)
 - [CLI](cli.md)

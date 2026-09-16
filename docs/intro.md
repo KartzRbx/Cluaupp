@@ -34,4 +34,4 @@ void init() {
 }
 ```
 
-Read [Getting started](getting-started.md), then [C++ types](cpp-types.md) and [Libraries](libraries.md).
+Read [Getting started](getting-started.md), then [Examples](examples/index.md), [Libraries](libraries/index.md), and [OOP structure](oop/index.md).

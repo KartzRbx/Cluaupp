@@ -55,7 +55,7 @@ const combat = compileService(combatSrc, "server/combat.server.cpp", {
 });
 expect(combat.kind === "service", `combat kind ${combat.kind}`);
 const combatFiles = Object.fromEntries(combat.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
-expect(!!combatFiles["server/Combat/init.server.luau"], "Combat bootstrap");
+expect(!!combatFiles["server/Combat/init.luau"], "Combat bootstrap");
 expect(!!combatFiles["server/Combat/Main.luau"], "Combat Main");
 expect(!!combatFiles["server/Combat/CombatController.luau"], "CombatController from TakeDamage/Humanoid");
 expect(!!combatFiles["server/Combat/CombatTypes.luau"], "CombatTypes");
@@ -64,9 +64,11 @@ expect(!combatFiles["server/Combat/PlayersManager.luau"], "combat must not inven
 expect(combatFiles["server/Combat/CombatController.luau"].includes("TakeDamage"), "user combat logic kept");
 expect(combatFiles["server/Combat/CombatController.luau"].includes("function CombatController.Start()"), "Start API");
 expect(combatFiles["server/Combat/Main.luau"].includes("CombatController.Start()"), "Main wires domain");
-expect(combatFiles["server/Combat/init.server.luau"].includes("require(script.Main):Start()"), "bootstrap");
-expect(!combatFiles["server/Combat/init.luau"], "server must not emit init.luau (Rojo ModuleScript)");
-expect(!combatFiles["server/Combat/init.meta.json"], "server Script comes from init.server.luau, not meta");
+expect(combatFiles["server/Combat/init.luau"].includes("require(script.Main):Start()"), "bootstrap");
+expect(!combatFiles["server/Combat/init.server.luau"], "server must not emit init.server.luau (Rojo Legacy Script)");
+expect(!!combatFiles["server/Combat/init.meta.json"], "server Script RunContext comes from init.meta.json");
+expect(combatFiles["server/Combat/init.meta.json"].includes("Enum.RunContext.Server"), "RunContext Server");
+expect(server.runContext === "Server", `server runContext ${server.runContext}`);
 expect(combat.plan.reasoning.some((line) => line.includes("tag server")), "reasoning records tag");
 expect(combat.plan.reasoning.some((line) => line.includes("combat")), "reasoning records combat intent");
 

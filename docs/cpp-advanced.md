@@ -45,12 +45,16 @@ CluauppLibs already contains the full Janitor, Fusion, Cmdr, DataServiceV2, … 
 #include <cluaupp/libs/dataservice.hpp>
 
 void Grant(Player* player, int amount) {
-	auto coins = DataService::Get(player, "Currencies.Coins");
-	DataService::Set(player, "Currencies.Coins", coins + amount);
+	Data* data = DataService::Server.WaitFor(player);
+	if (data == nullptr) {
+		return;
+	}
+	int coins = data->Get(DataService::Server.Paths.Currencies.Money);
+	data->Set(DataService::Server.Paths.Currencies.Money, coins + amount);
 }
 ```
 
-Keep path strings in `config.h`. Match the tokens your DataServiceV2 template already uses (`DataService.Paths.Currencies.Coins` in Luau).
+`Paths.Currencies.Money` exists because **your** Template passed to `Init` had that field. Full copies: [Examples](examples/index.md).
 
 ## Performance notes
 
@@ -68,4 +72,4 @@ Keep path strings in `config.h`. Match the tokens your DataServiceV2 template al
 5. **Headers declare, scripts define.** Prototypes in `.h`, bodies in `.cpp`.
 6. **Do not share mutable statics across server and client** — use Net or DataService.
 
-See also: [syntax](syntax.md), [libraries](libraries.md), [comparison](comparison.md).
+See also: [syntax](syntax.md), [print and cout](print-cout.md), [libraries](libraries/index.md), [OOP](oop/index.md), [examples](examples/index.md), [comparison](comparison.md).

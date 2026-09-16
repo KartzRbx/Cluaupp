@@ -214,10 +214,10 @@ function parseFileTag(fileName) {
 		return { key: "plugin", emit: "service", runtime: "plugin", rojo: "Script", runContext: "Plugin" };
 	}
 	if (new RegExp(`\\.server\\.${EXT}$`, "i").test(base)) {
-		return { key: "server", emit: "service", runtime: "server", rojo: "Script", runContext: null };
+		return { key: "server", emit: "service", runtime: "server", rojo: "Script", runContext: "Server" };
 	}
 	if (new RegExp(`\\.client\\.${EXT}$`, "i").test(base)) {
-		return { key: "client", emit: "service", runtime: "client", rojo: "LocalScript", runContext: null };
+		return { key: "client", emit: "service", runtime: "client", rojo: "LocalScript", runContext: "Client" };
 	}
 	return { key: "module", emit: "module", runtime: "shared", rojo: "ModuleScript", runContext: null };
 }

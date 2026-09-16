@@ -143,6 +143,31 @@ local players: Players = game:GetService("Players")
 
 The first argument of `new Class(parent)` becomes `.Parent`. With no argument: `Instance.new("Class")` only.
 
+## print / cout
+
+`print`, `warn`, and `error` work as in Luau. `cout << … << endl` is the C++ spelling — each `<<` is another argument, `endl` ends the line. `cout::warn` / `cout::error` / `cout::ping` pick the Roblox function.
+
+```cpp
+cout << "EnsureStat: " << name << " not found" << endl;
+cout::print << "EnsureStat: " << name << " not found" << endl;
+cerr << "failed";
+cout::print("ok");
+cout::warn("careful");
+cout::error("fail");
+cout::ping("here");
+```
+
+```luau
+print("EnsureStat: ", name, " not found")
+warn("failed")
+print("ok")
+warn("careful")
+error("fail")
+print("here")
+```
+
+Full table and IntelliSense notes: [print and cout](print-cout.md).
+
 ## Not supported yet
 
 Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `switch`, `std::`, overloading, macros (except skipping `#` lines).

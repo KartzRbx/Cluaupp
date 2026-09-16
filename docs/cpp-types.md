@@ -46,7 +46,7 @@ player.Name = "Kartz"
 player:FindFirstChild("leaderstats")
 ```
 
-There is no pointer arithmetic, no `delete`, no `std::unique_ptr`. Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Janitor](libraries.md) cleans them.
+There is no pointer arithmetic, no `delete`, no `std::unique_ptr`. Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Janitor](libraries/janitor.md) cleans them.
 
 ## `nullptr`
 

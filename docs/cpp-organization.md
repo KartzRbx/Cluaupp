@@ -47,7 +47,7 @@ const string REMOTE_COINS = "Coins";
 
 `leaderstats.server.cpp` creates leaderstats. It does not also open the shop UI. Name files after the system: `inventory.server.cpp`, `shop.client.cpp`.
 
-`*.server.cpp` / `*.client.cpp` are **tags** (the same keys roblox-ts uses). Untagged `.cpp` is a ModuleScript. `.legacy.server.cpp` / `.legacy.client.cpp` skip the service split. See [Architecture](architecture.md).
+`*.server.cpp` / `*.client.cpp` are **tags** (the same keys roblox-ts uses). Untagged `.cpp` is a ModuleScript. `.legacy.server.cpp` / `.legacy.client.cpp` skip the service split. See [Architecture](architecture.md) and [OOP structure](oop/index.md).
 
 ## CluauppLibs vs extra Wally
 
@@ -57,5 +57,7 @@ const string REMOTE_COINS = "Coins";
 | Some other community package | `wally.toml` → `Packages` |
 
 Do not install a second Janitor from Wally unless you have a reason — CluauppLibs already has howmanysmall/Janitor. DataServiceV2 still bundles its own janitor/quicknet/signal inside the DataService folder.
+
+How-tos: [Libraries](libraries/index.md). Service layout: [OOP](oop/index.md). Copy-paste: [Examples](examples/index.md).
 
 Next: [advanced Cluaupp](cpp-advanced.md).

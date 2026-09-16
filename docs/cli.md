@@ -23,7 +23,7 @@ cluaupp init my-game
 
 ## `cluaupp build [folder]`
 
-Transpiles `src/**/*.{cpp,h,hpp}` into `out/`. Script files become PascalCase **service folders** (`LeaderStats/Main.luau`, `PlayersManager.luau`, `CacheController.luau`, `LeaderStatsTypes.luau`) plus `init.server.luau` for Rojo. Shared `const` headers become `Config.luau`.
+Transpiles `src/**/*.{cpp,h,hpp}` into `out/`. Script files become PascalCase **service folders** (`LeaderStats/Main.luau`, `PlayersManager.luau`, `CacheController.luau`, `LeaderStatsTypes.luau`) plus `init.luau` and `init.meta.json` (`RunContext.Server`) for Rojo. Shared `const` headers become `Config.luau`.
 
 - `--!strict` on every module
 - `#include "file.h"` inlines that header into the current file

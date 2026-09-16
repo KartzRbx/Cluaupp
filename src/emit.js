@@ -16,6 +16,67 @@ function emit(ast, options = {}) {
 
 	const indentOf = (n) => "\t".repeat(n);
 
+	const flattenShift = (node) => {
+		const parts = [];
+		let current = node;
+		while (current && current.type === "binary" && current.op === "<<") {
+			parts.unshift(current.right);
+			current = current.left;
+		}
+		return { stream: current, args: parts };
+	};
+
+	const isEndl = (node) => node && node.type === "ident" && node.name === "endl";
+
+	const streamPrint = (stream) => {
+		if (!stream) {
+			return null;
+		}
+		if (stream.type === "ident") {
+			if (stream.name === "cout") {
+				return "print";
+			}
+			if (stream.name === "cerr") {
+				return "warn";
+			}
+			return null;
+		}
+		if (stream.type === "member" && stream.object && stream.object.type === "ident" && stream.object.name === "cout") {
+			const mapped = { print: "print", warn: "warn", error: "error", ping: "print", endl: "print" };
+			return mapped[stream.name] || "print";
+		}
+		return null;
+	};
+
+	const emitCout = (node) => {
+		const { stream, args } = flattenShift(node);
+		const fn = streamPrint(stream);
+		if (!fn) {
+			return null;
+		}
+		const linesOut = [];
+		let current = [];
+		const flush = () => {
+			if (current.length === 0) {
+				return;
+			}
+			linesOut.push(`${fn}(${current.map(emitExpr).join(", ")})`);
+			current = [];
+		};
+		for (const arg of args) {
+			if (isEndl(arg)) {
+				flush();
+				continue;
+			}
+			current.push(arg);
+		}
+		flush();
+		if (linesOut.length === 0) {
+			linesOut.push(`${fn}()`);
+		}
+		return linesOut;
+	};
+
 	const emitExpr = (node) => {
 		if (!node) {
 			return "nil";
@@ -65,6 +126,13 @@ function emit(ast, options = {}) {
 					return `${node.name}(${args})`;
 				}
 				const obj = emitExpr(node.object);
+				if (node.access === "::" && node.object.type === "ident" && node.object.name === "cout") {
+					if (node.name === "endl") {
+						return "print()";
+					}
+					const mapped = { print: "print", warn: "warn", error: "error", ping: "print" };
+					return `${mapped[node.name] || "print"}(${args})`;
+				}
 				if (node.access === "::") {
 					if (MODULE_COLON.has(node.name)) {
 						return `${obj}:${node.name}(${args})`;
@@ -80,6 +148,12 @@ function emit(ast, options = {}) {
 			case "assign":
 				return `${emitExpr(node.left)} = ${emitExpr(node.right)}`;
 			case "binary": {
+				if (node.op === "<<") {
+					const printed = emitCout(node);
+					if (printed) {
+						return printed.join("; ");
+					}
+				}
 				const ops = { "!=": "~=", "&&": "and", "||": "or" };
 				const op = ops[node.op] || node.op;
 				return `${emitExpr(node.left)} ${op} ${emitExpr(node.right)}`;
@@ -135,6 +209,12 @@ function emit(ast, options = {}) {
 				return emitNewDecl(node, indent);
 			case "expr": {
 				const expr = node.expr;
+				if (expr && expr.type === "binary" && expr.op === "<<") {
+					const printed = emitCout(expr);
+					if (printed) {
+						return printed.map((line) => `${prefix}${line}`);
+					}
+				}
 				if (
 					expr &&
 					expr.type === "assign" &&
