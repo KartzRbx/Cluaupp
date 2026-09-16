@@ -1,10 +1,18 @@
 # Changelog
 
+## 0.1.3
+
+- Architecture: the domain controller keeps every user function. CacheController is generated separately and must not delete `SetupPlayerManager` while `init` still calls it. `GetChangedSignal` on `Paths.Currencies` is kept.
+- Janitor typed border re-exports `_impl` (`export type Janitor = Impl.Janitor; return Impl`). It no longer invents `Has` or requires Promise for a parallel type that did not match howmanysmall.
+- Emit: injected `require` / `GetService` are `const`. C++ functions emit as `const function` instead of `local function`.
+
 ## 0.1.2
 
 - Watch does not write `out/` while any file fails to compile (Studio keeps the last good scripts).
 - Watch/build skip rewriting Luau whose contents did not change (a space in C++ no longer floods Rojo).
-- `libs/` is fill-only: missing files are restored, existing files are never overwritten or deleted. Fixes Rojo 7 crashing on `libs/ArrayIndexer` when watch/build raced a live serve.
+- Watch never copies `libs/` or headers. Changing a constant no longer makes Rojo 7 crash on `libs/ArrayIndexer`.
+- `libs/` on `cluaupp build` is fill-only: missing files are restored, existing files are never overwritten or deleted.
+- Filename tags: `.server.cpp` → Script (`init.server.luau`), `.client.cpp` → LocalScript (`init.client.luau`), `.plugin.cpp` → Plugin, `.legacy` / `.legacy.client` / `.legacy.server` → Legacy. Bare `init.luau` is not used for `.server` (Rojo would make a ModuleScript).
 - Dropped `$optional` from `default.project.json` (Rojo 7.7 failed to deserialize it).
 
 ## 0.1.1

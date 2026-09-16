@@ -94,7 +94,18 @@ const INTENTS = {
 	data: {
 		role: "controller",
 		module: "DataController",
-		tokens: ["DataStore", "DataStoreService", "DataService", "SetAsync", "GetAsync", "UpdateAsync", "ProfileStore"],
+		tokens: [
+			"DataStore",
+			"DataStoreService",
+			"DataService",
+			"SetAsync",
+			"GetAsync",
+			"UpdateAsync",
+			"ProfileStore",
+			"GetChangedSignal",
+			"WaitFor",
+			"Paths",
+		],
 	},
 	character: {
 		role: "controller",
@@ -187,19 +198,28 @@ function toPascalServiceName(fileName) {
 
 function parseFileTag(fileName) {
 	const base = path.basename(fileName);
+	if (new RegExp(`\\.legacy\\.plugin\\.${EXT}$`, "i").test(base)) {
+		return { key: "legacy.plugin", emit: "legacy", runtime: "plugin", rojo: "Script", runContext: "Plugin" };
+	}
 	if (new RegExp(`\\.legacy\\.server\\.${EXT}$`, "i").test(base)) {
-		return { key: "legacy.server", emit: "legacy", runtime: "server", rojo: "Script" };
+		return { key: "legacy.server", emit: "legacy", runtime: "server", rojo: "Script", runContext: null };
 	}
 	if (new RegExp(`\\.legacy\\.client\\.${EXT}$`, "i").test(base)) {
-		return { key: "legacy.client", emit: "legacy", runtime: "client", rojo: "LocalScript" };
+		return { key: "legacy.client", emit: "legacy", runtime: "client", rojo: "LocalScript", runContext: null };
+	}
+	if (new RegExp(`\\.legacy\\.${EXT}$`, "i").test(base)) {
+		return { key: "legacy", emit: "legacy", runtime: "server", rojo: "Script", runContext: null };
+	}
+	if (new RegExp(`\\.plugin\\.${EXT}$`, "i").test(base)) {
+		return { key: "plugin", emit: "service", runtime: "plugin", rojo: "Script", runContext: "Plugin" };
 	}
 	if (new RegExp(`\\.server\\.${EXT}$`, "i").test(base)) {
-		return { key: "server", emit: "service", runtime: "server", rojo: "Script" };
+		return { key: "server", emit: "service", runtime: "server", rojo: "Script", runContext: null };
 	}
 	if (new RegExp(`\\.client\\.${EXT}$`, "i").test(base)) {
-		return { key: "client", emit: "service", runtime: "client", rojo: "LocalScript" };
+		return { key: "client", emit: "service", runtime: "client", rojo: "LocalScript", runContext: null };
 	}
-	return { key: "module", emit: "module", runtime: "shared", rojo: "ModuleScript" };
+	return { key: "module", emit: "module", runtime: "shared", rojo: "ModuleScript", runContext: null };
 }
 
 function scoreIntents(named) {
@@ -362,7 +382,35 @@ function classifyFunctions(ast, intents) {
 			absorb,
 		});
 	}
+	keepReferencedFunctions(ast, classified);
 	return classified;
+}
+
+function keepReferencedFunctions(ast, classified) {
+	const kept = new Set(["init"]);
+	for (const item of classified) {
+		if (item.absorb !== "cache") {
+			kept.add(item.name);
+		}
+	}
+
+	let changed = true;
+	while (changed) {
+		changed = false;
+		for (const decl of ast.body || []) {
+			if (decl.type !== "function" || !kept.has(decl.name)) {
+				continue;
+			}
+			const named = namesIn(decl);
+			for (const item of classified) {
+				if (item.absorb === "cache" && named.has(item.name)) {
+					item.absorb = "none";
+					kept.add(item.name);
+					changed = true;
+				}
+			}
+		}
+	}
 }
 
 function analyze(ast, fileName) {
@@ -420,6 +468,7 @@ function analyze(ast, fileName) {
 		serviceName,
 		typesName: `${serviceName}Types`,
 		isClient: tag.runtime === "client",
+		runContext: tag.runContext || null,
 		intents,
 		primaryDomain,
 		roles,
@@ -432,10 +481,18 @@ function analyze(ast, fileName) {
 	};
 }
 
+function modernScriptOutName(relativeName) {
+	return String(relativeName)
+		.replace(/\\/g, "/")
+		.replace(/\.(server|client|plugin)\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau");
+}
+
 function legacyOutName(relativeName) {
 	return String(relativeName)
 		.replace(/\\/g, "/")
+		.replace(/\.legacy\.plugin\./i, ".")
 		.replace(/\.legacy\.(server|client)\./i, ".$1.")
+		.replace(/\.legacy\./i, ".server.")
 		.replace(new RegExp(`\\.${EXT}$`, "i"), ".luau");
 }
 
@@ -449,5 +506,6 @@ module.exports = {
 	scoreIntents,
 	analyze,
 	legacyOutName,
+	modernScriptOutName,
 	looksLikeCacheSetup,
 };

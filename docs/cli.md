@@ -41,7 +41,7 @@ cluaupp build ./my-game
 
 ## `cluaupp watch [folder]`
 
-Runs a `build` and rebuilds when anything under `src/` changes, including deletes. Parse errors are printed; the watcher stays alive and **does not write `out/`** until the project compiles cleanly (Studio keeps the last good scripts). Rebuilds are debounced and do **not** recopy `libs/`. Deleted `.cpp` files prune their `out/` artifacts on the next successful compile.
+Runs a compile (without copying `libs/`) and rebuilds when anything under `src/` changes, including deletes. Parse errors are printed; the watcher stays alive and **does not write `out/`** until the project compiles cleanly (Studio keeps the last good scripts). A second watcher in the same game exits. Deleted `.cpp` files prune their `out/` artifacts on the next successful compile.
 
 ## `cluaupp --version` / `cluaupp -v`
 

@@ -2,7 +2,7 @@
 
 Cluaupp is not a full C++ compiler. It is a **subset** aimed at Roblox scripts, in the same spirit as roblox-ts (restricted TypeScript → Luau).
 
-Generated Luau follows the current language: [`--!strict`](https://luau.org/getting-started), `local`, and `const`.
+Generated Luau follows the current language: [`--!strict`](https://luau.org/getting-started), `local`, `const`, and `const function`. Injected `require` / `GetService` lines are `const`.
 
 ## Files
 
@@ -25,11 +25,11 @@ int doubleCoins(int coins) {
 ```
 
 ```luau
-local function CreateLeaderstats(player: Player)
+const function CreateLeaderstats(player: Player)
 	return
 end
 
-local function doubleCoins(coins: number): number
+const function doubleCoins(coins: number): number
 	return coins
 end
 ```

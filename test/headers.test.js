@@ -55,12 +55,12 @@ const cppChecks = [
 	"const STARTING_COINS: number = 25",
 	'Instance.new("IntValue")',
 	"coins.Value = STARTING_COINS",
-	"local function CreateLeaderstats(player: Player)",
+	"const function CreateLeaderstats(player: Player)",
 ];
 
 const missingHeader = headerChecks.filter((piece) => !headerLuau.includes(piece));
 const missingCpp = cppChecks.filter((piece) => !cppLuau.includes(piece));
-if (headerLuau.includes("local function CreateLeaderstats")) {
+if (headerLuau.includes("local function CreateLeaderstats") || headerLuau.includes("const function CreateLeaderstats")) {
 	missingHeader.push("prototype should not emit a function body");
 }
 

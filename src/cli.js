@@ -293,12 +293,8 @@ function ensureVendor(root) {
 function build(root, options = {}) {
 	const exitOnError = options.exitOnError !== false;
 	const holdOnError = options.holdOnError === true;
-	const syncVendor = options.syncVendor === true;
 	const config = loadConfig(root);
-	if (syncVendor) {
-		copyRuntime(root);
-		copyHeaders(root);
-	} else {
+	if (options.syncVendor !== false) {
 		ensureVendor(root);
 	}
 	const srcDir = path.join(root, config.rootDir);
@@ -344,7 +340,47 @@ function init(dest) {
 	console.log("  rojo serve");
 }
 
+function pidAlive(pid) {
+	try {
+		process.kill(pid, 0);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function acquireWatchLock(root) {
+	const file = path.join(root, ".cluaupp-watch.lock");
+	if (fs.existsSync(file)) {
+		const pid = Number(fs.readFileSync(file, "utf8").trim());
+		if (Number.isFinite(pid) && pid !== process.pid && pidAlive(pid)) {
+			console.error(`cluaupp: watch already running (pid ${pid}). Stop it first — two watchers make Rojo crash on libs/.`);
+			process.exit(1);
+		}
+	}
+	fs.writeFileSync(file, String(process.pid), "utf8");
+	const release = () => {
+		try {
+			if (fs.existsSync(file) && fs.readFileSync(file, "utf8").trim() === String(process.pid)) {
+				fs.unlinkSync(file);
+			}
+		} catch {
+			// ignore
+		}
+	};
+	process.on("exit", release);
+	process.on("SIGINT", () => {
+		release();
+		process.exit(0);
+	});
+	process.on("SIGTERM", () => {
+		release();
+		process.exit(0);
+	});
+}
+
 function watch(root) {
+	acquireWatchLock(root);
 	build(root, { exitOnError: false, syncVendor: false, holdOnError: true });
 	const config = loadConfig(root);
 	const dir = path.join(root, config.rootDir);
@@ -371,7 +407,7 @@ function watch(root) {
 		}
 	};
 
-	console.log("watching", dir);
+	console.log("cluaupp", pkg.version, "watching", dir, "(libs untouched)");
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true });
 	}

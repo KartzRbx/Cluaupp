@@ -100,12 +100,12 @@ const LIBRARY_METHODS = new Set([
 	"Remove",
 	"RemoveNoClean",
 	"RemoveList",
+	"RemoveListNoClean",
 	"GetAll",
 	"Cleanup",
 	"Destroy",
 	"LinkToInstance",
 	"LinkToInstances",
-	"Has",
 	"Then",
 	"Catch",
 	"Finally",
@@ -305,9 +305,9 @@ function emitRequires(libraries) {
 	if (!libraries.length) {
 		return "";
 	}
-	const lines = ['local ReplicatedStorage = game:GetService("ReplicatedStorage")'];
+	const lines = ['const ReplicatedStorage = game:GetService("ReplicatedStorage")'];
 	for (const spec of libraries) {
-		lines.push(`local ${spec.bind} = ${requireCluauppLib(spec.file)}`);
+		lines.push(`const ${spec.bind} = ${requireCluauppLib(spec.file)}`);
 		const exported = TYPE_EXPORTS[spec.bind];
 		if (exported) {
 			lines.push(`type ${spec.bind} = ${spec.bind}.${exported}`);

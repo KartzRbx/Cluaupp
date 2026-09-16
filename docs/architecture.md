@@ -24,13 +24,16 @@ Leaderstats was the example. A combat `.server.cpp` is a different system and ge
 
 | Source | Meaning | Output |
 | --- | --- | --- |
-| `combat.server.cpp` | Server **system** | `Combat/` Script: `init.server.luau` + Main / Controllers / Types |
-| `hud.client.cpp` | Client **system** | `Hud/` LocalScript folder |
-| `boot.legacy.server.cpp` | Server script, no split | `boot.server.luau` (Rojo Script, `init()` still runs) |
-| `boot.legacy.client.cpp` | Client script, no split | `boot.client.luau` |
-| `damage.cpp` (no tag) | **Module** | `Damage.luau` ModuleScript `return { ... }` — does not auto-run |
+| `combat.server.cpp` | **Script** | `Combat/init.server.luau` |
+| `hud.client.cpp` | **LocalScript** | `Hud/init.client.luau` |
+| `tools.plugin.cpp` | **Script** RunContext Plugin | `Tools/init.luau` + `init.meta.json` |
+| `boot.legacy.cpp` | Legacy Script | `boot.server.luau` |
+| `boot.legacy.server.cpp` | Legacy Script | `boot.server.luau` |
+| `boot.legacy.client.cpp` | Legacy LocalScript | `boot.client.luau` |
+| `boot.legacy.plugin.cpp` | Plugin | `boot.luau` + Plugin meta |
+| `damage.cpp` (no tag) | **ModuleScript** | `Damage.luau` |
 
-Trivial entry files (`init.client.cpp` that only `print`) stay a single LocalScript. The planner does not invent Managers for a hello-world.
+Trivial entry files (`init.client.cpp` that only `print`) stay a single LocalScript (`init.client.luau`). The planner does not invent Managers for a hello-world.
 
 ## How the planner reasons
 
@@ -62,6 +65,8 @@ Generated files start with that trace:
 | Wiring | `Main.Start` / `Main.Stop` |
 
 If the C++ creates Coins/Level, CacheController is generated (higher quality than copying `CreateLeaderstats`). Combat logic is **not** rewritten into leaderstats — `ApplyDamage` stays in `CombatController.luau`.
+
+The domain controller keeps **every** user function. CacheController is generated beside it; it must not delete `SetupPlayerManager` while `init` still calls that name. `GetChangedSignal(Paths.Currencies)` stays in `DataController`.
 
 ## What leaderstats becomes
 

@@ -21,7 +21,7 @@ Sources: [runtime/SOURCES.md](https://github.com/kartzDev/cluaupp/blob/main/runt
 
 | Library | Header | GitHub | What you get |
 | --- | --- | --- | --- |
-| **Janitor** | `<cluaupp/libs/janitor.hpp>` | [howmanysmall/Janitor](https://github.com/howmanysmall/Janitor) | Add / AddPromise / LinkToInstance / Cleanup |
+| **Janitor** | `<cluaupp/libs/janitor.hpp>` | [howmanysmall/Janitor](https://github.com/howmanysmall/Janitor) | Add / Get / Remove / AddPromise / LinkToInstance / Cleanup (types come from `_impl`) |
 | **Promise** | `<cluaupp/libs/promise.hpp>` | [evaera/roblox-lua-promise](https://github.com/evaera/roblox-lua-promise) | andThen + Cluaupp aliases Then / Catch / Await |
 | **Fusion** | `<cluaupp/libs/fusion.hpp>` | [dphfox/Fusion](https://github.com/dphfox/Fusion) | scoped, New, Value, Computed, Spring, Tween |
 | **Iris** | `<cluaupp/libs/iris.hpp>` | [SirMallard/Iris](https://github.com/SirMallard/Iris) | Immediate-mode debug UI |

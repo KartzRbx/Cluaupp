@@ -17,6 +17,12 @@ expect(server.key === "server" && server.rojo === "Script", `server tag ${JSON.s
 const client = parseFileTag("shop.client.cpp");
 expect(client.key === "client" && client.rojo === "LocalScript", `client tag ${JSON.stringify(client)}`);
 
+const plugin = parseFileTag("tools.plugin.cpp");
+expect(plugin.key === "plugin" && plugin.runContext === "Plugin", `plugin tag ${JSON.stringify(plugin)}`);
+
+const legacyBare = parseFileTag("boot.legacy.cpp");
+expect(legacyBare.key === "legacy" && legacyBare.emit === "legacy", `legacy tag ${JSON.stringify(legacyBare)}`);
+
 const legacyS = parseFileTag("boot.legacy.server.cpp");
 expect(legacyS.key === "legacy.server" && legacyS.emit === "legacy", `legacy server ${JSON.stringify(legacyS)}`);
 
@@ -59,6 +65,8 @@ expect(combatFiles["server/Combat/CombatController.luau"].includes("TakeDamage")
 expect(combatFiles["server/Combat/CombatController.luau"].includes("function CombatController.Start()"), "Start API");
 expect(combatFiles["server/Combat/Main.luau"].includes("CombatController.Start()"), "Main wires domain");
 expect(combatFiles["server/Combat/init.server.luau"].includes("require(script.Main):Start()"), "bootstrap");
+expect(!combatFiles["server/Combat/init.luau"], "server must not emit init.luau (Rojo ModuleScript)");
+expect(!combatFiles["server/Combat/init.meta.json"], "server Script comes from init.server.luau, not meta");
 expect(combat.plan.reasoning.some((line) => line.includes("tag server")), "reasoning records tag");
 expect(combat.plan.reasoning.some((line) => line.includes("combat")), "reasoning records combat intent");
 

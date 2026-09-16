@@ -59,7 +59,7 @@ const checks = {
 	"server/LeaderStats/CacheController.luau": [
 		"--!strict",
 		"player:FindFirstChild(FOLDER_NAME)",
-		'local FOLDER_NAME = "leaderstats"',
+		'const FOLDER_NAME = "leaderstats"',
 		'Instance.new("Folder")',
 		'Instance.new("IntValue")',
 		"function CacheController.Get(",

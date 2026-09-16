@@ -68,7 +68,12 @@ for (const rel of publicInits) {
 }
 
 mustNotContain("DataService/init.luau", "path: any");
-mustContain("Janitor/init.luau", "export type Janitor");
+mustContain("Janitor/init.luau", "export type Janitor = Impl.Janitor");
+mustContain("Janitor/init.luau", "return Impl");
+mustNotContain("Janitor/init.luau", "require(script.Parent.Promise)");
+mustNotContain("Janitor/init.luau", "Has:");
+mustContain("Janitor/_impl/init.luau", "require(script.Parent.Parent.Promise)");
+mustContain("Janitor/_impl/init.luau", "Promise.TypedPromise");
 mustContain("Promise/init.luau", "export type Promise");
 mustContain("Promise/_impl/init.lua", "Promise.prototype.Then = Promise.prototype.andThen");
 mustContain("Net/init.luau", "export type Event");
@@ -153,7 +158,7 @@ void init() {
 
 const luau = compileSource(fixture, "typed-runtime.cpp", { strict: true });
 const emitChecks = [
-	'local ReplicatedStorage = game:GetService("ReplicatedStorage")',
+	'const ReplicatedStorage = game:GetService("ReplicatedStorage")',
 	"require(ReplicatedStorage.CluauppLibs.Janitor)",
 	"type Janitor = Janitor.Janitor",
 	"require(ReplicatedStorage.CluauppLibs.Net)",

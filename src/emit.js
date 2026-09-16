@@ -133,8 +133,25 @@ function emit(ast, options = {}) {
 		switch (node.type) {
 			case "decl":
 				return emitNewDecl(node, indent);
-			case "expr":
-				return [`${prefix}${emitExpr(node.expr)}`];
+			case "expr": {
+				const expr = node.expr;
+				if (
+					expr &&
+					expr.type === "assign" &&
+					expr.right &&
+					expr.right.type === "new" &&
+					isInstanceType(expr.right.className) &&
+					!isLibraryType(expr.right.className)
+				) {
+					const left = emitExpr(expr.left);
+					const linesOut = [`${prefix}${left} = Instance.new("${expr.right.className}")`];
+					if (expr.right.args[0]) {
+						linesOut.push(`${prefix}${left}.Parent = ${emitExpr(expr.right.args[0])}`);
+					}
+					return linesOut;
+				}
+				return [`${prefix}${emitExpr(expr)}`];
+			}
 			case "return":
 				return node.value ? [`${prefix}return ${emitExpr(node.value)}`] : [`${prefix}return`];
 			case "if": {
@@ -200,7 +217,7 @@ function emit(ast, options = {}) {
 		if (decl.type !== "function") {
 			continue;
 		}
-		lines.push(`local function ${decl.name}(${paramList(decl)})${returnAnn(decl)}`);
+		lines.push(`const function ${decl.name}(${paramList(decl)})${returnAnn(decl)}`);
 		for (const stmt of decl.body) {
 			lines.push(...emitStmt(stmt, 1));
 		}

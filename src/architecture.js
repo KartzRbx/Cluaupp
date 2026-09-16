@@ -27,9 +27,9 @@ function cluauppLib(name) {
 
 function emitTypes(plan) {
 	const lines = [header(plan).trimEnd(), ""];
-	lines.push('local ReplicatedStorage = game:GetService("ReplicatedStorage")');
-	lines.push(`local Occlude = ${cluauppLib("Occlude")}`);
-	lines.push(`local ArrayIndexer = ${cluauppLib("ArrayIndexer")}`);
+	lines.push('const ReplicatedStorage = game:GetService("ReplicatedStorage")');
+	lines.push(`const Occlude = ${cluauppLib("Occlude")}`);
+	lines.push(`const ArrayIndexer = ${cluauppLib("ArrayIndexer")}`);
 	lines.push("");
 
 	if (plan.stats.length > 0) {
@@ -101,9 +101,9 @@ function emitTypes(plan) {
 
 function emitPlayersManager(plan) {
 	return `${header(plan)}
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Janitor = ${cluauppLib("Janitor")}
+const Players = game:GetService("Players")
+const ReplicatedStorage = game:GetService("ReplicatedStorage")
+const Janitor = ${cluauppLib("Janitor")}
 type Janitor = Janitor.Janitor
 
 export type PlayerHandler = (player: Player) -> ()
@@ -116,7 +116,7 @@ function PlayersManager.Start(onPlayer: PlayerHandler, onLeave: PlayerHandler?)
 	local janitor = Janitor.new()
 	lifetime = janitor
 
-	local function accept(player: Player)
+	const function accept(player: Player)
 		onPlayer(player)
 	end
 
@@ -146,9 +146,9 @@ function emitCacheController(plan) {
 	const types = plan.typesName;
 	const folder = plan.folderName || "leaderstats";
 	const lines = [header(plan).trimEnd(), ""];
-	lines.push(`local Types = require(script.Parent.${types})`);
+	lines.push(`const Types = require(script.Parent.${types})`);
 	lines.push("");
-	lines.push(`local FOLDER_NAME = "${folder}"`);
+	lines.push(`const FOLDER_NAME = "${folder}"`);
 	lines.push("local cache: { [Player]: Types.PlayerCache } = {}");
 	lines.push("");
 	lines.push("local CacheController = {}");
@@ -209,13 +209,13 @@ function emitCacheController(plan) {
 function emitMain(plan) {
 	const lines = [header(plan).trimEnd(), ""];
 	if (plan.roles.players) {
-		lines.push("local PlayersManager = require(script.Parent.PlayersManager)");
+		lines.push("const PlayersManager = require(script.Parent.PlayersManager)");
 	}
 	if (plan.roles.cache) {
-		lines.push("local CacheController = require(script.Parent.CacheController)");
+		lines.push("const CacheController = require(script.Parent.CacheController)");
 	}
 	if (plan.roles.domain) {
-		lines.push(`local ${plan.roles.domain} = require(script.Parent.${plan.roles.domain})`);
+		lines.push(`const ${plan.roles.domain} = require(script.Parent.${plan.roles.domain})`);
 	}
 	lines.push("");
 	lines.push("local Main = {}");
@@ -289,22 +289,8 @@ function emitConfig(plan, ast, options) {
 }
 
 function emitDomainController(plan, ast, options) {
-	const absorbCache = plan.roles.cache;
 	const keep = (ast.body || []).filter((decl) => {
-		if (decl.type === "decl" || decl.type === "proto") {
-			return true;
-		}
-		if (decl.type !== "function") {
-			return false;
-		}
-		if (decl.name === "init") {
-			return true;
-		}
-		const classified = plan.functions.find((item) => item.name === decl.name);
-		if (absorbCache && classified && classified.absorb === "cache") {
-			return false;
-		}
-		return true;
+		return decl.type === "decl" || decl.type === "proto" || decl.type === "function";
 	});
 	const subset = { type: "program", body: keep };
 	const code = emit(subset, { ...options, skipHeader: true, skipInit: true }).trimEnd();
@@ -331,10 +317,34 @@ function emitModule(plan, ast, options) {
 	return emitConfig(plan, ast, options);
 }
 
+function emitPluginMeta() {
+	return `${JSON.stringify(
+		{
+			className: "Script",
+			properties: {
+				RunContext: "Enum.RunContext.Plugin",
+			},
+		},
+		null,
+		"\t",
+	)}\n`;
+}
+
+function serviceBootName(plan) {
+	if (plan.tag && plan.tag.key === "plugin") {
+		return "init.luau";
+	}
+	return plan.isClient ? "init.client.luau" : "init.server.luau";
+}
+
 function serviceFiles(plan, ast, options, dir) {
 	const folder = `${dir}/${plan.serviceName}`;
-	const boot = plan.isClient ? "init.client.luau" : "init.server.luau";
-	const files = [{ name: `${folder}/${boot}`, contents: emitBootstrap(plan) }, { name: `${folder}/Main.luau`, contents: emitMain(plan) }];
+	const boot = serviceBootName(plan);
+	const files = [{ name: `${folder}/${boot}`, contents: emitBootstrap(plan) }];
+	if (plan.tag && plan.tag.key === "plugin") {
+		files.push({ name: `${folder}/init.meta.json`, contents: emitPluginMeta() });
+	}
+	files.push({ name: `${folder}/Main.luau`, contents: emitMain(plan) });
 	if (plan.roles.players) {
 		files.push({ name: `${folder}/PlayersManager.luau`, contents: emitPlayersManager(plan) });
 	}
@@ -365,11 +375,12 @@ function planOutput(ast, fileName, options = {}) {
 
 	if (plan.kind === "service") {
 		const serviceDir = outDir || (plan.isClient ? "client" : "server");
+		const folder = `${serviceDir}/${plan.serviceName}`;
 		return {
 			kind: "service",
 			plan,
 			files: serviceFiles(plan, ast, options, serviceDir),
-			stale: [rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau")],
+			stale: [`${folder}/init.luau`, `${folder}/init.meta.json`],
 		};
 	}
 
