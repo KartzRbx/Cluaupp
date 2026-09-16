@@ -1091,3 +1091,4 @@ void init() {
 }
 
 generate();
+require("./check-highlight");

@@ -31,10 +31,11 @@
 		"watch": "node bin/cluaupp.js watch",
 		"test": "node test/leaderstats.test.js && node test/understand.test.js && node test/datatypes.test.js && node test/headers.test.js && node test/libs.test.js && node test/runtime-libs.test.js && node test/intellisense.test.js",
 		"generate-api": "node scripts/generate-api.js",
+		"check-highlight": "node scripts/check-highlight.js",
 		"vendor-libs": "node scripts/vendor-libs.js",
 		"docs": "moonwave dev",
 		"docs:build": "moonwave build",
-		"site": "node scripts/generate-api.js",
+		"site": "node scripts/generate-api.js && node scripts/check-highlight.js",
 		"dev": "node scripts/dev.js",
 		"stop": "node scripts/stop.js",
 		"prepublishOnly": "npm test"
