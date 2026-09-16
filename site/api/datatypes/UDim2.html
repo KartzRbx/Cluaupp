@@ -4,25 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UDim2 · Cluaupp</title>
-<link rel="stylesheet" href="../../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>
+(function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
 </head>
 <body>
-<header>
-  <strong><a href="../../../index.html">Cluaupp</a></strong>
-  <nav>
-    <a href="../../../index.html">Home</a>
-    <a href="../../../guide/getting-started.html">Get started</a>
-    <a href="../../../api/datatypes/index.html">Datatypes</a>
-    <a href="../../../api/classes/index.html">Classes</a>
-    <a href="../../../api/enums/index.html">Enums</a>
-    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
-  </nav>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../../index.html"><img src="../../assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
+  <div class="nav-wrap">
+    <nav class="nav-links" aria-label="Primary">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="../../index.html">Home</a>
+      <a href="../../learn/index.html">Learn</a>
+      <a href="../../guide/getting-started.html">Start</a>
+      <a href="../../api/datatypes/index.html" aria-current="page">Datatypes</a>
+      <a href="../../api/classes/index.html">Classes</a>
+      <a href="../../api/enums/index.html">Enums</a>
+    </nav>
+  </div>
+  <div class="header-tools">
+    <label class="sr-only" for="theme-select">Theme</label>
+    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
+      <option value="dark">Dark Modern</option>
+      <option value="tokyo">Tokyo Night</option>
+      <option value="dracula">Dracula</option>
+      <option value="nord">Nord</option>
+      <option value="carbon">Carbon</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
 </header>
-<main><aside><input type="search" id="datatypes-q" placeholder="Filter datatypes..."><ul class="list" id="datatypes-list"><li><a href="Vector3.html">Vector3</a></li><li><a href="Vector2.html">Vector2</a></li><li><a href="Vector3int16.html">Vector3int16</a></li><li><a href="Vector2int16.html">Vector2int16</a></li><li><a href="CFrame.html">CFrame</a></li><li><a href="UDim.html">UDim</a></li><li><a href="UDim2.html">UDim2</a></li><li><a href="Color3.html">Color3</a></li><li><a href="BrickColor.html">BrickColor</a></li><li><a href="Rect.html">Rect</a></li><li><a href="Ray.html">Ray</a></li><li><a href="RaycastParams.html">RaycastParams</a></li><li><a href="RaycastResult.html">RaycastResult</a></li><li><a href="OverlapParams.html">OverlapParams</a></li><li><a href="NumberRange.html">NumberRange</a></li><li><a href="NumberSequenceKeypoint.html">NumberSequenceKeypoint</a></li><li><a href="NumberSequence.html">NumberSequence</a></li><li><a href="ColorSequenceKeypoint.html">ColorSequenceKeypoint</a></li><li><a href="ColorSequence.html">ColorSequence</a></li><li><a href="TweenInfo.html">TweenInfo</a></li><li><a href="Font.html">Font</a></li><li><a href="PhysicalProperties.html">PhysicalProperties</a></li><li><a href="Region3.html">Region3</a></li><li><a href="Region3int16.html">Region3int16</a></li><li><a href="DateTime.html">DateTime</a></li><li><a href="Random.html">Random</a></li><li><a href="PathWaypoint.html">PathWaypoint</a></li><li><a href="Faces.html">Faces</a></li><li><a href="Axes.html">Axes</a></li><li><a href="RBXScriptConnection.html">RBXScriptConnection</a></li><li><a href="RBXScriptSignal.html">RBXScriptSignal</a></li><li><a href="CatalogSearchParams.html">CatalogSearchParams</a></li><li><a href="DockWidgetPluginGuiInfo.html">DockWidgetPluginGuiInfo</a></li><li><a href="FloatCurveKey.html">FloatCurveKey</a></li><li><a href="RotationCurveKey.html">RotationCurveKey</a></li><li><a href="Path2DControlPoint.html">Path2DControlPoint</a></li><li><a href="Content.html">Content</a></li><li><a href="ContentId.html">ContentId</a></li><li><a href="SharedTable.html">SharedTable</a></li><li><a href="Secret.html">Secret</a></li><li><a href="buffer.html">buffer</a></li><li><a href="BinaryString.html">BinaryString</a></li><li><a href="SharedString.html">SharedString</a></li><li><a href="UniqueId.html">UniqueId</a></li><li><a href="ProtectedString.html">ProtectedString</a></li><li><a href="OptionalCoordinateFrame.html">OptionalCoordinateFrame</a></li><li><a href="SecurityCapabilities.html">SecurityCapabilities</a></li></ul>
-<script>
-const q=document.getElementById("datatypes-q");
-const list=document.getElementById("datatypes-list");
-if(q&&list){q.addEventListener("input",()=>{const s=q.value.toLowerCase();for(const li of list.children){li.style.display=li.textContent.toLowerCase().includes(s)?"":"none"}})}
-</script></aside><article><div class="crumb"><a href="../../index.html">Cluaupp</a> / <a href="index.html">Datatypes</a> / UDim2</div><h1>UDim2</h1><p>2D scale + offset (GUI). Luau: UDim2.new / UDim2.fromScale / UDim2.fromOffset. Official docs: <a href="https://create.roblox.com/docs/reference/engine/datatypes/UDim2">https://create.roblox.com/docs/reference/engine/datatypes/UDim2</a></p><h2>C++ → Luau</h2><table><tr><th>C++</th><th>Luau</th></tr><tr><td><code>UDim2(...)</code> or <code>new UDim2(...)</code></td><td><code>UDim2.new(...)</code></td></tr><tr><td><code>UDim2::fromScale(...)</code></td><td><code>UDim2.fromScale(...)</code></td></tr><tr><td><code>UDim2::fromOffset(...)</code></td><td><code>UDim2.fromOffset(...)</code></td></tr><tr><td><code>value.Lerp(...)</code></td><td><code>value:Lerp(...)</code> or <code>value.Lerp(...)</code></td></tr></table><h2>Fields</h2><table><tr><th>C++</th></tr><tr><td><code>UDim X</code></td></tr><tr><td><code>UDim Y</code></td></tr><tr><td><code>UDim Width</code></td></tr><tr><td><code>UDim Height</code></td></tr></table><h2>Header</h2><p>Include <code>#include &lt;cluaupp/roblox.hpp&gt;</code>. The type lives in <code>include/cluaupp/datatypes.hpp</code>.</p></article></main>
+<div class="page" id="content"><main class="docs"><aside><input type="search" data-filter-input="datatypes-list" placeholder="Filter datatypes..."><ul class="list" id="datatypes-list"><li><a href="Vector3.html">Vector3</a></li><li><a href="Vector2.html">Vector2</a></li><li><a href="Vector3int16.html">Vector3int16</a></li><li><a href="Vector2int16.html">Vector2int16</a></li><li><a href="CFrame.html">CFrame</a></li><li><a href="UDim.html">UDim</a></li><li><a href="UDim2.html">UDim2</a></li><li><a href="Color3.html">Color3</a></li><li><a href="BrickColor.html">BrickColor</a></li><li><a href="Rect.html">Rect</a></li><li><a href="Ray.html">Ray</a></li><li><a href="RaycastParams.html">RaycastParams</a></li><li><a href="RaycastResult.html">RaycastResult</a></li><li><a href="OverlapParams.html">OverlapParams</a></li><li><a href="NumberRange.html">NumberRange</a></li><li><a href="NumberSequenceKeypoint.html">NumberSequenceKeypoint</a></li><li><a href="NumberSequence.html">NumberSequence</a></li><li><a href="ColorSequenceKeypoint.html">ColorSequenceKeypoint</a></li><li><a href="ColorSequence.html">ColorSequence</a></li><li><a href="TweenInfo.html">TweenInfo</a></li><li><a href="Font.html">Font</a></li><li><a href="PhysicalProperties.html">PhysicalProperties</a></li><li><a href="Region3.html">Region3</a></li><li><a href="Region3int16.html">Region3int16</a></li><li><a href="DateTime.html">DateTime</a></li><li><a href="Random.html">Random</a></li><li><a href="PathWaypoint.html">PathWaypoint</a></li><li><a href="Faces.html">Faces</a></li><li><a href="Axes.html">Axes</a></li><li><a href="RBXScriptConnection.html">RBXScriptConnection</a></li><li><a href="RBXScriptSignal.html">RBXScriptSignal</a></li><li><a href="CatalogSearchParams.html">CatalogSearchParams</a></li><li><a href="DockWidgetPluginGuiInfo.html">DockWidgetPluginGuiInfo</a></li><li><a href="FloatCurveKey.html">FloatCurveKey</a></li><li><a href="RotationCurveKey.html">RotationCurveKey</a></li><li><a href="Path2DControlPoint.html">Path2DControlPoint</a></li><li><a href="Content.html">Content</a></li><li><a href="ContentId.html">ContentId</a></li><li><a href="SharedTable.html">SharedTable</a></li><li><a href="Secret.html">Secret</a></li><li><a href="buffer.html">buffer</a></li><li><a href="BinaryString.html">BinaryString</a></li><li><a href="SharedString.html">SharedString</a></li><li><a href="UniqueId.html">UniqueId</a></li><li><a href="ProtectedString.html">ProtectedString</a></li><li><a href="OptionalCoordinateFrame.html">OptionalCoordinateFrame</a></li><li><a href="SecurityCapabilities.html">SecurityCapabilities</a></li></ul></aside><article class="docs-article"><div class="crumb"><a href="../../index.html">Cluaupp</a> / <a href="index.html">Datatypes</a> / UDim2</div><h1>UDim2</h1><p>2D scale + offset (GUI). Luau: UDim2.new / UDim2.fromScale / UDim2.fromOffset. Official docs: <a href="https://create.roblox.com/docs/reference/engine/datatypes/UDim2">https://create.roblox.com/docs/reference/engine/datatypes/UDim2</a></p><h2>C++ → Luau</h2><table><tr><th>C++</th><th>Luau</th></tr><tr><td><code>UDim2(...)</code> or <code>new UDim2(...)</code></td><td><code>UDim2.new(...)</code></td></tr><tr><td><code>UDim2::fromScale(...)</code></td><td><code>UDim2.fromScale(...)</code></td></tr><tr><td><code>UDim2::fromOffset(...)</code></td><td><code>UDim2.fromOffset(...)</code></td></tr><tr><td><code>value.Lerp(...)</code></td><td><code>value:Lerp(...)</code> or <code>value.Lerp(...)</code></td></tr></table><h2>Fields</h2><table><tr><th>C++</th></tr><tr><td><code>UDim X</code></td></tr><tr><td><code>UDim Y</code></td></tr><tr><td><code>UDim Width</code></td></tr><tr><td><code>UDim Height</code></td></tr></table><h2>Header</h2><p>Include <code>#include &lt;cluaupp/roblox.hpp&gt;</code>. The type lives in <code>include/cluaupp/datatypes.hpp</code>.</p></article></main></div>
+<footer class="site-footer">
+  <span>Cluaupp — C++ × Luau</span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+</footer>
+<script src="../../assets/app.js"></script>
+<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
+<div class="ask-panel" data-ask-panel hidden>
+  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
+  <form class="ask-form" data-ask-form>
+    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
+    <button type="submit">Send</button>
+  </form>
+</div>
 </body>
 </html>

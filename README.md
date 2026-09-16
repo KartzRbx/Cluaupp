@@ -1,6 +1,19 @@
 # Cluaupp
 
+<p align="center">
+  <img src="site/assets/logo.png" alt="Cluaupp" width="160">
+</p>
+
 **The definitive merge of C++ and modern Luau.**
+
+[Docs](https://kartzrbx.github.io/Cluaupp/) · [Learn](https://kartzrbx.github.io/Cluaupp/learn/) · [API](https://kartzrbx.github.io/Cluaupp/api/classes/)
+
+The cinematic docs site deploys to [Vercel](https://vercel.com) from `site/` (`vercel.json`). Code blocks use **Dark Modern**, **Tokyo Night**, and **Dracula**. Ask Cluaupp (AI Gateway) is the floating chat on the Vercel deploy.
+
+```bash
+cp .env.example .env.local   # set AI_GATEWAY_API_KEY
+npx vercel
+```
 
 [![npm version](https://img.shields.io/npm/v/cluaupp.svg)](https://www.npmjs.com/package/cluaupp)
 [![Node.js](https://img.shields.io/node/v/cluaupp.svg)](https://nodejs.org)
@@ -72,7 +85,8 @@ A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheContro
 | Guide | What it covers |
 | --- | --- |
 | [Getting started](docs/getting-started.md) | Install, first project, Rojo, IntelliSense |
-| [**API reference (GitHub Pages)**](https://kartzdev.github.io/cluaupp/) | Every class, datatype, enum — C++ and Luau |
+| [**Docs + API (GitHub Pages)**](https://kartzrbx.github.io/Cluaupp/) | Site, Learn tab, every class / datatype / enum |
+| [Learn](https://kartzrbx.github.io/Cluaupp/learn/) | C++ subset, Luau output, safety, architecture |
 | [CLI](docs/cli.md) | `init`, `build`, `watch`, flags |
 | [Syntax](docs/syntax.md) | C++ subset → Luau (`local`, `const`, types) |
 | [Roblox API](docs/roblox-api.md) | Vector3, CFrame, UDim2, GetService, Instance.new |

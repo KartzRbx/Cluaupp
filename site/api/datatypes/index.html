@@ -4,21 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Datatypes · Cluaupp</title>
-<link rel="stylesheet" href="../../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>
+(function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
 </head>
 <body>
-<header>
-  <strong><a href="../../../index.html">Cluaupp</a></strong>
-  <nav>
-    <a href="../../../index.html">Home</a>
-    <a href="../../../guide/getting-started.html">Get started</a>
-    <a href="../../../api/datatypes/index.html">Datatypes</a>
-    <a href="../../../api/classes/index.html">Classes</a>
-    <a href="../../../api/enums/index.html">Enums</a>
-    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
-  </nav>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../../index.html"><img src="../../assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
+  <div class="nav-wrap">
+    <nav class="nav-links" aria-label="Primary">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="../../index.html">Home</a>
+      <a href="../../learn/index.html">Learn</a>
+      <a href="../../guide/getting-started.html">Start</a>
+      <a href="../../api/datatypes/index.html" aria-current="page">Datatypes</a>
+      <a href="../../api/classes/index.html">Classes</a>
+      <a href="../../api/enums/index.html">Enums</a>
+    </nav>
+  </div>
+  <div class="header-tools">
+    <label class="sr-only" for="theme-select">Theme</label>
+    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
+      <option value="dark">Dark Modern</option>
+      <option value="tokyo">Tokyo Night</option>
+      <option value="dracula">Dracula</option>
+      <option value="nord">Nord</option>
+      <option value="carbon">Carbon</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
 </header>
-<div class="hero"><h1>Datatypes</h1><p class="muted">Engine value types. In C++ you construct with <code>Vector3(x,y,z)</code>; Cluaupp emits <code>Vector3.new</code>.</p><div class="grid"><a class="card" href="Vector3.html"><strong>Vector3</strong><br><span class="muted">3D point or direction. Luau: Vector3.new(x, y, z).</span></a>
+<div class="page" id="content"><article class="docs-article"><h1>Datatypes</h1><p class="muted">Engine value types. In C++ you construct with <code>Vector3(x,y,z)</code>; Cluaupp emits <code>Vector3.new</code>.</p><input type="search" data-filter-input="dt-grid" placeholder="Filter datatypes..."><div class="grid" id="dt-grid"><a class="card" href="Vector3.html"><strong>Vector3</strong><br><span class="muted">3D point or direction. Luau: Vector3.new(x, y, z).</span></a>
 <a class="card" href="Vector2.html"><strong>Vector2</strong><br><span class="muted">2D point or direction. Luau: Vector2.new(x, y).</span></a>
 <a class="card" href="Vector3int16.html"><strong>Vector3int16</strong><br><span class="muted">Vector3 with 16-bit integers.</span></a>
 <a class="card" href="Vector2int16.html"><strong>Vector2int16</strong><br><span class="muted">Vector2 with 16-bit integers.</span></a>
@@ -64,6 +83,19 @@
 <a class="card" href="UniqueId.html"><strong>UniqueId</strong><br><span class="muted">datatype</span></a>
 <a class="card" href="ProtectedString.html"><strong>ProtectedString</strong><br><span class="muted">datatype</span></a>
 <a class="card" href="OptionalCoordinateFrame.html"><strong>OptionalCoordinateFrame</strong><br><span class="muted">datatype</span></a>
-<a class="card" href="SecurityCapabilities.html"><strong>SecurityCapabilities</strong><br><span class="muted">datatype</span></a></div></div>
+<a class="card" href="SecurityCapabilities.html"><strong>SecurityCapabilities</strong><br><span class="muted">datatype</span></a></div></article></div>
+<footer class="site-footer">
+  <span>Cluaupp — C++ × Luau</span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+</footer>
+<script src="../../assets/app.js"></script>
+<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
+<div class="ask-panel" data-ask-panel hidden>
+  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
+  <form class="ask-form" data-ask-form>
+    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
+    <button type="submit">Send</button>
+  </form>
+</div>
 </body>
 </html>

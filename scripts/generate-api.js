@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { localLayout, homeBody, learnBody } = require("./site-html");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
@@ -577,66 +578,6 @@ function write(file, contents) {
 	fs.writeFileSync(file, contents, "utf8");
 }
 
-function css() {
-	return `html{color-scheme:dark}:root{--bg:#0b1220;--panel:#121a2b;--line:#243049;--text:#e7eefc;--muted:#93a0bb;--accent:#3d8bfd;--ok:#5bd6a0}*{box-sizing:border-box}body{margin:0;font:16px/1.55 ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}header{padding:20px 28px;border-bottom:1px solid var(--line);background:#0e1626;position:sticky;top:0}header strong{font-size:18px}nav a{margin-right:16px;color:var(--muted)}main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}aside{border-right:1px solid var(--line);padding:20px;background:#0e1626;overflow:auto}article{padding:28px 36px;max-width:1100px}.hero{padding:48px 36px;max-width:980px}h1,h2,h3{line-height:1.2}p.muted, .muted{color:var(--muted)}code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{background:var(--panel);border:1px solid var(--line);padding:14px 16px;overflow:auto;border-radius:10px}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border-bottom:1px solid var(--line);text-align:left;padding:8px 10px;vertical-align:top}th{color:var(--muted);font-weight:600}input[type=search]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);margin:0 0 14px}.tag{display:inline-block;border:1px solid var(--line);padding:1px 8px;border-radius:999px;color:var(--muted);font-size:12px;margin-right:6px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.card{display:block;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text)}.card:hover{border-color:var(--accent);text-decoration:none}.crumb{color:var(--muted);margin-bottom:12px}ul.list{list-style:none;padding:0;margin:0}ul.list li{padding:4px 0}`;
-}
-
-function layout(title, body, sidebar = "") {
-	return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(title)} · Cluaupp</title>
-<link rel="stylesheet" href="/cluaupp/assets/style.css">
-</head>
-<body>
-<header>
-  <strong><a href="/cluaupp/">Cluaupp</a></strong>
-  <nav>
-    <a href="/cluaupp/">Home</a>
-    <a href="/cluaupp/guide/getting-started.html">Get started</a>
-    <a href="/cluaupp/api/datatypes/">Datatypes</a>
-    <a href="/cluaupp/api/classes/">Classes</a>
-    <a href="/cluaupp/api/enums/">Enums</a>
-    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
-  </nav>
-</header>
-${sidebar ? `<main><aside>${sidebar}</aside><article>${body}</article></main>` : `<div class="hero">${body}</div>`}
-</body>
-</html>
-`;
-}
-
-function localLayout(title, body, sidebar, depth) {
-	const rel = depth === 0 ? "." : "../".repeat(depth).slice(0, -1) || ".";
-	const prefix = depth === 0 ? "./" : "../".repeat(depth);
-	return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(title)} · Cluaupp</title>
-<link rel="stylesheet" href="${prefix}assets/style.css">
-</head>
-<body>
-<header>
-  <strong><a href="${prefix}index.html">Cluaupp</a></strong>
-  <nav>
-    <a href="${prefix}index.html">Home</a>
-    <a href="${prefix}guide/getting-started.html">Get started</a>
-    <a href="${prefix}api/datatypes/index.html">Datatypes</a>
-    <a href="${prefix}api/classes/index.html">Classes</a>
-    <a href="${prefix}api/enums/index.html">Enums</a>
-    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
-  </nav>
-</header>
-${sidebar ? `<main><aside>${sidebar}</aside><article>${body}</article></main>` : `<div class="hero">${body}</div>`}
-</body>
-</html>
-`;
-}
-
 function generate() {
 	if (!fs.existsSync(DUMP)) {
 		throw new Error("API dump not found at " + DUMP);
@@ -900,21 +841,19 @@ void delay(double seconds, void (*callback)());
 	);
 }
 
-function sidebarFor(kind, items, current, prefix) {
-	const qid = kind + "-q";
-	let html = `<input type="search" id="${qid}" placeholder="Filter ${kind}...">`;
-	html += `<ul class="list" id="${kind}-list">`;
+function sidebarFor(kind, items, prefix) {
+	const listId = kind + "-list";
+	let html = `<input type="search" data-filter-input="${listId}" placeholder="Filter ${kind}...">`;
+	html += `<ul class="list" id="${listId}">`;
 	for (const name of items) {
-		const href = `${prefix}${name}.html`;
-		html += `<li><a href="${href}">${escapeHtml(name)}</a></li>`;
+		html += `<li><a href="${prefix}${name}.html">${escapeHtml(name)}</a></li>`;
 	}
-	html += `</ul>
-<script>
-const q=document.getElementById(${JSON.stringify(qid)});
-const list=document.getElementById(${JSON.stringify(kind + "-list")});
-if(q&&list){q.addEventListener("input",()=>{const s=q.value.toLowerCase();for(const li of list.children){li.style.display=li.textContent.toLowerCase().includes(s)?"":"none"}})}
-</script>`;
+	html += `</ul>`;
 	return html;
+}
+
+function article(html) {
+	return `<article class="docs-article">${html}</article>`;
 }
 
 function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
@@ -923,42 +862,14 @@ function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
 	mkdirp(path.join(SITE, "api", "datatypes"));
 	mkdirp(path.join(SITE, "api", "enums"));
 	mkdirp(path.join(SITE, "guide"));
-	write(path.join(SITE, "assets", "style.css"), css());
+	mkdirp(path.join(SITE, "learn"));
+	write(path.join(SITE, ".nojekyll"), "");
 
-	const indexBody = `
-<h1>Cluaupp</h1>
-<p>The definitive merge of C++ and modern Luau. Docs generated from the official Roblox API dump (${escapeHtml(String(dump.Version || ""))}) — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
-<pre>npm install -g cluaupp
-cluaupp init my-game
-cluaupp build
-rojo serve</pre>
-<div class="grid">
-  <a class="card" href="guide/getting-started.html"><strong>Get started</strong><br><span class="muted">install, init, Rojo, IntelliSense</span></a>
-  <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><br><span class="muted">Vector3, CFrame, UDim, UDim2, Color3…</span></a>
-  <a class="card" href="api/classes/index.html"><strong>Classes</strong><br><span class="muted">${classes.length} instances and services</span></a>
-  <a class="card" href="api/enums/index.html"><strong>Enums</strong><br><span class="muted">${enums.length} enumerations</span></a>
-</div>
-<h2>Libraries</h2>
-<p class="muted">First-party: Janitor, Promise, Net (buffer remotes), Module3D, Twinkle, MathUtils, FormatNumber. Wally: DataServiceV2, Fusion, Cmdr, EzVisualz, TopbarPlus. C++ headers under <code>#include &lt;cluaupp/libs/…&gt;</code>.</p>
-<h2>C++ → Luau</h2>
-<table>
-<tr><th>C++</th><th>Luau</th></tr>
-<tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
-<tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
-<tr><td><code>Color3::fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
-<tr><td><code>Enum::Material::Plastic</code></td><td><code>Enum.Material.Plastic</code></td></tr>
-<tr><td><code>new Part(workspace)</code></td><td><code>Instance.new("Part")</code> + <code>.Parent</code></td></tr>
-<tr><td><code>part-&gt;Position</code></td><td><code>part.Position</code></td></tr>
-<tr><td><code>part-&gt;CFrame</code></td><td><code>part.CFrame</code></td></tr>
-<tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code></td></tr>
-<tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
-<tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
-<tr><td><code>Net::Event("Coins")</code></td><td><code>Net.Event("Coins")</code></td></tr>
-<tr><td><code>janitor-&gt;Add(conn)</code></td><td><code>janitor:Add(conn)</code></td></tr>
-</table>
-`;
-	write(path.join(SITE, "index.html"), localLayout("Docs", indexBody, "", 0));
+	write(
+		path.join(SITE, "index.html"),
+		localLayout("Docs", homeBody({ dump, classCount: classes.length, enumCount: enums.length }), "", 0, "home"),
+	);
+	write(path.join(SITE, "learn", "index.html"), localLayout("Learn", learnBody(), "", 1, "learn"));
 
 	const getting = `
 <div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>
@@ -970,6 +881,7 @@ cluaupp init my-game
 cd my-game
 cluaupp build
 rojo serve</pre>
+<p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, or the <a href="../api/classes/index.html">class API</a>.</p>
 <h2>Datatypes in C++</h2>
 <pre>#include &lt;cluaupp/roblox.hpp&gt;
 
@@ -992,14 +904,22 @@ void init() {
 <p>This becomes <code>Vector3.new</code>, <code>CFrame.lookAt</code>, <code>UDim2.fromScale</code>, <code>Color3.fromRGB</code>, and <code>Instance.new("Part")</code>.</p>
 <p>Official reference: <a href="https://create.roblox.com/docs/reference/engine/datatypes">datatypes</a> and <a href="https://create.roblox.com/docs/reference/engine/classes">classes</a>.</p>
 `;
-	write(path.join(SITE, "guide", "getting-started.html"), localLayout("Get started", getting, "", 2));
+	write(path.join(SITE, "guide", "getting-started.html"), localLayout("Get started", article(getting), "", 1, "start"));
 
 	const dtIndex = DATATYPE_SPEC.map(
 		(d) => `<a class="card" href="${d.name}.html"><strong>${d.name}</strong><br><span class="muted">${escapeHtml(d.summary || "datatype")}</span></a>`,
 	).join("\n");
 	write(
 		path.join(SITE, "api", "datatypes", "index.html"),
-		localLayout("Datatypes", `<h1>Datatypes</h1><p class="muted">Engine value types. In C++ you construct with <code>Vector3(x,y,z)</code>; Cluaupp emits <code>Vector3.new</code>.</p><div class="grid">${dtIndex}</div>`, "", 3),
+		localLayout(
+			"Datatypes",
+			article(
+				`<h1>Datatypes</h1><p class="muted">Engine value types. In C++ you construct with <code>Vector3(x,y,z)</code>; Cluaupp emits <code>Vector3.new</code>.</p><input type="search" data-filter-input="dt-grid" placeholder="Filter datatypes..."><div class="grid" id="dt-grid">${dtIndex}</div>`,
+			),
+			"",
+			2,
+			"datatypes",
+		),
 	);
 
 	const dtNames = DATATYPE_SPEC.map((d) => d.name);
@@ -1030,7 +950,7 @@ void init() {
 		body += `<h2>Header</h2><p>Include <code>#include &lt;cluaupp/roblox.hpp&gt;</code>. The type lives in <code>include/cluaupp/datatypes.hpp</code>.</p>`;
 		write(
 			path.join(SITE, "api", "datatypes", spec.name + ".html"),
-			localLayout(spec.name, body, sidebarFor("datatypes", dtNames, spec.name, ""), 3),
+			localLayout(spec.name, body, sidebarFor("datatypes", dtNames, ""), 2, "datatypes"),
 		);
 	}
 
@@ -1046,9 +966,12 @@ void init() {
 		path.join(SITE, "api", "classes", "index.html"),
 		localLayout(
 			"Classes",
-			`<h1>Classes</h1><p class="muted">${classes.length} classes from the official dump. Each page lists properties, methods, and events, with the C++ / Luau mapping and a Creator Hub link.</p><p>${services.length} services · ${instanceTypes.length} creatable with <code>new Class(parent)</code>.</p><div class="grid">${classCards}</div>`,
+			article(
+				`<h1>Classes</h1><p class="muted">${classes.length} classes from the official dump. Each page lists properties, methods, and events, with the C++ / Luau mapping and a Creator Hub link.</p><p>${services.length} services · ${instanceTypes.length} creatable with <code>new Class(parent)</code>.</p><input type="search" data-filter-input="class-grid" placeholder="Filter classes..."><div class="grid" id="class-grid">${classCards}</div>`,
+			),
 			"",
-			3,
+			2,
+			"classes",
 		),
 	);
 
@@ -1112,7 +1035,7 @@ void init() {
 		}
 		write(
 			path.join(SITE, "api", "classes", cls.Name + ".html"),
-			localLayout(cls.Name, body, sidebarFor("classes", classNames, cls.Name, ""), 3),
+			localLayout(cls.Name, body, sidebarFor("classes", classNames, ""), 2, "classes"),
 		);
 	}
 
@@ -1122,7 +1045,15 @@ void init() {
 		.join("\n");
 	write(
 		path.join(SITE, "api", "enums", "index.html"),
-		localLayout("Enums", `<h1>Enums</h1><p class="muted">C++: <code>Enum::Material::Plastic</code>. Luau: <code>Enum.Material.Plastic</code>.</p><div class="grid">${enumCards}</div>`, "", 3),
+		localLayout(
+			"Enums",
+			article(
+				`<h1>Enums</h1><p class="muted">C++: <code>Enum::Material::Plastic</code>. Luau: <code>Enum.Material.Plastic</code>.</p><input type="search" data-filter-input="enum-grid" placeholder="Filter enums..."><div class="grid" id="enum-grid">${enumCards}</div>`,
+			),
+			"",
+			2,
+			"enums",
+		),
 	);
 	for (const en of enums) {
 		const official = `https://create.roblox.com/docs/reference/engine/enums/${en.Name}`;
@@ -1136,7 +1067,7 @@ void init() {
 		body += `</table>`;
 		write(
 			path.join(SITE, "api", "enums", en.Name + ".html"),
-			localLayout(en.Name, body, sidebarFor("enums", enumNames, en.Name, ""), 3),
+			localLayout(en.Name, body, sidebarFor("enums", enumNames, ""), 2, "enums"),
 		);
 	}
 }

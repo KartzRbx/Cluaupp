@@ -1,0 +1,10 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"framework": null,
+	"outputDirectory": "site",
+	"installCommand": "echo skip",
+	"buildCommand": "echo skip",
+	"rewrites": [
+		{ "source": "/api/chat", "destination": "/api/chat" }
+	]
+}

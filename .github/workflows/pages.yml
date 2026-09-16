@@ -25,17 +25,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Engine API dump
+      - name: Generate API site
         run: node scripts/generate-api.js
-      - name: Moonwave
-        run: npx --yes moonwave build
-      - name: Merge engine dump into Moonwave
-        run: |
-          mkdir -p build/engine
-          if [ -d site ]; then cp -R site/. build/engine/; fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: site
       - uses: actions/deploy-pages@v4
         id: deployment

@@ -34,6 +34,7 @@
 		"vendor-libs": "node scripts/vendor-libs.js",
 		"docs": "moonwave dev",
 		"docs:build": "moonwave build",
+		"site": "node scripts/generate-api.js",
 		"dev": "node scripts/dev.js",
 		"stop": "node scripts/stop.js",
 		"prepublishOnly": "npm test"

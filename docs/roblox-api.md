@@ -4,11 +4,11 @@ Cluaupp covers the engine API listed on [create.roblox.com](https://create.roblo
 
 The **page-by-page** reference (every property, method, and event, with C++ and Luau) lives on the generated site:
 
-**[Cluaupp docs (GitHub Pages)](https://kartzdev.github.io/cluaupp/)**
+**[Cluaupp docs (GitHub Pages)](https://kartzrbx.github.io/Cluaupp/)**
 
-- [Datatypes](https://kartzdev.github.io/cluaupp/api/datatypes/)
-- [Classes](https://kartzdev.github.io/cluaupp/api/classes/)
-- [Enums](https://kartzdev.github.io/cluaupp/api/enums/)
+- [Datatypes](https://kartzrbx.github.io/Cluaupp/api/datatypes/)
+- [Classes](https://kartzrbx.github.io/Cluaupp/api/classes/)
+- [Enums](https://kartzrbx.github.io/Cluaupp/api/enums/)
 
 In C++, `#include <cluaupp/roblox.hpp>`. The compiler ignores the header and emits real Luau.
 

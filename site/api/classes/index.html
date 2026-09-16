@@ -4,21 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Classes · Cluaupp</title>
-<link rel="stylesheet" href="../../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>
+(function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
 </head>
 <body>
-<header>
-  <strong><a href="../../../index.html">Cluaupp</a></strong>
-  <nav>
-    <a href="../../../index.html">Home</a>
-    <a href="../../../guide/getting-started.html">Get started</a>
-    <a href="../../../api/datatypes/index.html">Datatypes</a>
-    <a href="../../../api/classes/index.html">Classes</a>
-    <a href="../../../api/enums/index.html">Enums</a>
-    <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a>
-  </nav>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../../index.html"><img src="../../assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
+  <div class="nav-wrap">
+    <nav class="nav-links" aria-label="Primary">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="../../index.html">Home</a>
+      <a href="../../learn/index.html">Learn</a>
+      <a href="../../guide/getting-started.html">Start</a>
+      <a href="../../api/datatypes/index.html">Datatypes</a>
+      <a href="../../api/classes/index.html" aria-current="page">Classes</a>
+      <a href="../../api/enums/index.html">Enums</a>
+    </nav>
+  </div>
+  <div class="header-tools">
+    <label class="sr-only" for="theme-select">Theme</label>
+    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
+      <option value="dark">Dark Modern</option>
+      <option value="tokyo">Tokyo Night</option>
+      <option value="dracula">Dracula</option>
+      <option value="nord">Nord</option>
+      <option value="carbon">Carbon</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
 </header>
-<div class="hero"><h1>Classes</h1><p class="muted">925 classes from the official dump. Each page lists properties, methods, and events, with the C++ / Luau mapping and a Creator Hub link.</p><p>337 services · 322 creatable with <code>new Class(parent)</code>.</p><div class="grid"><a class="card" href="Object.html"><strong>Object</strong><br><span class="muted">abstract · <<<ROOT>>></span></a>
+<div class="page" id="content"><article class="docs-article"><h1>Classes</h1><p class="muted">925 classes from the official dump. Each page lists properties, methods, and events, with the C++ / Luau mapping and a Creator Hub link.</p><p>337 services · 322 creatable with <code>new Class(parent)</code>.</p><input type="search" data-filter-input="class-grid" placeholder="Filter classes..."><div class="grid" id="class-grid"><a class="card" href="Object.html"><strong>Object</strong><br><span class="muted">abstract · <<<ROOT>>></span></a>
 <a class="card" href="AnimatedImageTrack.html"><strong>AnimatedImageTrack</strong><br><span class="muted">abstract · Object</span></a>
 <a class="card" href="AnimationNode.html"><strong>AnimationNode</strong><br><span class="muted">abstract · Object</span></a>
 <a class="card" href="Capture.html"><strong>Capture</strong><br><span class="muted">abstract · Object</span></a>
@@ -942,6 +961,19 @@
 <a class="card" href="VideoSampler.html"><strong>VideoSampler</strong><br><span class="muted">abstract · Object</span></a>
 <a class="card" href="VirtualInput.html"><strong>VirtualInput</strong><br><span class="muted">abstract · Object</span></a>
 <a class="card" href="VoxelBuffer.html"><strong>VoxelBuffer</strong><br><span class="muted">abstract · Object</span></a>
-<a class="card" href="WebStreamClient.html"><strong>WebStreamClient</strong><br><span class="muted">abstract · Object</span></a></div></div>
+<a class="card" href="WebStreamClient.html"><strong>WebStreamClient</strong><br><span class="muted">abstract · Object</span></a></div></article></div>
+<footer class="site-footer">
+  <span>Cluaupp — C++ × Luau</span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+</footer>
+<script src="../../assets/app.js"></script>
+<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
+<div class="ask-panel" data-ask-panel hidden>
+  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
+  <form class="ask-form" data-ask-form>
+    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
+    <button type="submit">Send</button>
+  </form>
+</div>
 </body>
 </html>

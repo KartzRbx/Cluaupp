@@ -8,3 +8,7 @@ game/Packages/_Index
 .rojo.pid
 build/
 .DS_Store
+.env
+.env.local
+.env*.local
+.vercel

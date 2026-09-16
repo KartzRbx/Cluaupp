@@ -15,6 +15,6 @@
 13. [Config](config.md) — `cluaupp.config.json`
 14. [Comparison](comparison.md) — roblox-ts and WASM
 
-Moonwave site (TutorialKit-style): `cd cluau && npx moonwave dev`
+Moonwave site (local): `npx moonwave dev`
 
-Full engine dump: **[GitHub Pages](https://kartzdev.github.io/cluaupp/)**
+Full site + engine API: **[GitHub Pages](https://kartzrbx.github.io/Cluaupp/)**

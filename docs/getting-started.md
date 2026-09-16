@@ -91,7 +91,7 @@ void init() {
 
 This becomes `Vector3.new`, `CFrame.lookAt`, `Color3.fromRGB`, `UDim2.fromScale`, `Enum.Material.Plastic`.
 
-Full reference (every class from [create.roblox.com](https://create.roblox.com/docs/reference/engine)): [Cluaupp GitHub Pages](https://kartzdev.github.io/cluaupp/).
+Full reference (every class from [create.roblox.com](https://create.roblox.com/docs/reference/engine)): [Cluaupp GitHub Pages](https://kartzrbx.github.io/Cluaupp/).
 
 ## How to write
 

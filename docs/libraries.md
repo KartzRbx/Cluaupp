@@ -74,4 +74,4 @@ void init() {
 
 Wally is **optional**. The game template no longer depends on Wally for these packages. Add Wally only for extra community packages you want beside CluauppLibs.
 
-Typed Luau borders live in `runtime/<Lib>/init.luau` (Janitor, Promise, Net, MathUtils, FormatNumber, Module3D, Twinkle). Engine classes: [Engine API](/engine/).
+Typed Luau borders live in `runtime/<Lib>/init.luau` (Janitor, Promise, Net, MathUtils, FormatNumber, Module3D, Twinkle). Engine classes: [API](https://kartzrbx.github.io/Cluaupp/api/classes/).
