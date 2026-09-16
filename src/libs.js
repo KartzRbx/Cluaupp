@@ -369,6 +369,14 @@ function robloxRequireFrom(fromOutRel, toOutRel) {
 	return `require(${expr})`;
 }
 
+function moduleIsUsed(luau, spec) {
+	if (String(luau).includes(spec.name)) {
+		return true;
+	}
+	const exported = [...((spec.exports && spec.exports.consts) || []), ...((spec.exports && spec.exports.structs) || [])];
+	return exported.some((name) => String(luau).includes(name));
+}
+
 function insertModuleRequires(luau, modules, fromOutRel) {
 	if (!modules || modules.length === 0) {
 		return luau;
@@ -379,11 +387,19 @@ function insertModuleRequires(luau, modules, fromOutRel) {
 		if (!spec || !spec.name || seen.has(spec.name)) {
 			continue;
 		}
-		if (fromOutRel && !String(luau).includes(spec.name)) {
+		if (fromOutRel && !moduleIsUsed(luau, spec)) {
 			continue;
 		}
 		seen.add(spec.name);
 		lines.push(`const ${spec.name} = ${robloxRequireFrom(fromOutRel, spec.outRel)}`);
+		for (const name of (spec.exports && spec.exports.consts) || []) {
+			if (name !== spec.name) {
+				lines.push(`const ${name} = ${spec.name}.${name}`);
+			}
+		}
+		if ((spec.exports && spec.exports.structs || []).includes(spec.name) && !spec.impl) {
+			lines.push(`type ${spec.name} = typeof(${spec.name}())`);
+		}
 	}
 	if (lines.length === 0) {
 		return luau;

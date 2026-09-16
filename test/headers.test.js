@@ -52,10 +52,11 @@ const cppLuau = compileSource(fs.readFileSync(sourceFile, "utf8"), "game.cpp", {
 
 const headerChecks = ["const STARTING_COINS: number = 25"];
 const cppChecks = [
-	"const STARTING_COINS: number = 25",
+	"const STARTING_COINS = stats.STARTING_COINS",
 	'Instance.new("IntValue")',
 	"coins.Value = STARTING_COINS",
 	"const function CreateLeaderstats(player: Player)",
+	"const stats = require(",
 ];
 
 const missingHeader = headerChecks.filter((piece) => !headerLuau.includes(piece));

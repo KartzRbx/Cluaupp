@@ -33,6 +33,14 @@ function emit(ast, options = {}) {
 	}
 	const ownedFns = (ast.body || []).filter((decl) => decl.type === "function");
 	const classModule = ownedFns.length > 0 && ownedFns.every((decl) => Boolean(decl.owner));
+	const nestedTypes = new Set();
+	for (const decl of ast.body || []) {
+		if (decl.type === "decl" && decl.owner && decl.valueType && classOwners.has(decl.valueType) && decl.valueType !== decl.owner) {
+			nestedTypes.add(decl.valueType);
+		}
+	}
+	const structRoots = [...classOwners].filter((name) => !nestedTypes.has(name));
+	const structModule = !classModule && ownedFns.length === 0 && structRoots.length > 0;
 
 	const localNames = new Set();
 	let selfOwner = null;
@@ -423,11 +431,48 @@ function emit(ast, options = {}) {
 		return `: ${typeAnn}`;
 	};
 
+	const emitFieldLiteral = (decl) => {
+		if (decl.value && decl.value.type === "initlist") {
+			const inner = (decl.value.fields || [])
+				.map((field) => `${field.name} = ${emitExpr(field.value)}`)
+				.join(", ");
+			return `{ ${inner} }`;
+		}
+		if (decl.valueType && nestedTypes.has(decl.valueType)) {
+			const nested = (ast.body || []).filter((item) => item.type === "decl" && item.owner === decl.valueType);
+			const inner = nested.map((item) => `${item.name} = ${emitFieldLiteral(item)}`).join(", ");
+			return `{ ${inner} }`;
+		}
+		return decl.value ? emitExpr(decl.value) : "nil";
+	};
+
+	const emitStructConstructor = (root) => {
+		const fields = (ast.body || []).filter((decl) => decl.type === "decl" && decl.owner === root);
+		const inner = fields.map((field) => `\t\t${field.name} = ${emitFieldLiteral(field)},`).join("\n");
+		lines.push(`const function ${root}()`);
+		lines.push("	return {");
+		if (inner) {
+			lines.push(inner);
+		}
+		lines.push("	}");
+		lines.push("end");
+		lines.push("");
+		lines.push(`return ${root}`);
+		lines.push("");
+	};
+
 	if (classModule) {
 		for (const owner of classOwners) {
 			lines.push(`local ${owner} = {}`);
 			lines.push("");
 		}
+	}
+
+	if (structModule) {
+		for (const root of structRoots) {
+			emitStructConstructor(root);
+		}
+		return lines.join("\n");
 	}
 
 	for (const decl of ast.body) {

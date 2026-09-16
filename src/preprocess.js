@@ -65,6 +65,37 @@ function resolveInclude(name, fromFile, includeDirs) {
 	return null;
 }
 
+function scanHeaderExports(source) {
+	const consts = [];
+	const structs = [];
+	for (const match of String(source).matchAll(/\bconst\s+(?:int|bool|float|double|auto|string)\s+(\w+)/g)) {
+		if (!consts.includes(match[1])) {
+			consts.push(match[1]);
+		}
+	}
+	for (const match of String(source).matchAll(/\bstruct\s+(\w+)/g)) {
+		if (!structs.includes(match[1])) {
+			structs.push(match[1]);
+		}
+	}
+	return { consts, structs };
+}
+
+function pushModuleInclude(options, resolved, impl) {
+	options.moduleIncludes = options.moduleIncludes || [];
+	const srcDir = options.srcDir || null;
+	const moduleFile = impl || resolved;
+	const rel = srcDir ? path.relative(srcDir, moduleFile).replace(/\\/g, "/") : path.basename(moduleFile);
+	const headerText = fs.readFileSync(resolved, "utf8");
+	options.moduleIncludes.push({
+		name: path.basename(resolved).replace(/\.(h|hpp|hh)$/i, ""),
+		outRel: rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau"),
+		header: resolved,
+		impl: impl || null,
+		exports: scanHeaderExports(headerText),
+	});
+}
+
 function preprocess(source, filePath, options = {}) {
 	const seen = options.seen || new Set();
 	const includeDirs = options.includeDirs || [];
@@ -85,16 +116,9 @@ function preprocess(source, filePath, options = {}) {
 			}
 			const impl = siblingImplementation(resolved);
 			const including = filePath ? path.resolve(filePath) : null;
-			if (impl && including && path.resolve(impl) !== including) {
-				options.moduleIncludes = options.moduleIncludes || [];
-				const srcDir = options.srcDir || null;
-				const rel = srcDir ? path.relative(srcDir, resolved).replace(/\\/g, "/") : path.basename(resolved);
-				options.moduleIncludes.push({
-					name: path.basename(resolved).replace(/\.(h|hpp|hh)$/i, ""),
-					outRel: rel.replace(/\.(h|hpp|hh)$/i, ".luau"),
-					header: resolved,
-					impl,
-				});
+			const ownHeader = Boolean(impl && including && path.resolve(impl) === including);
+			if (!ownHeader) {
+				pushModuleInclude(options, resolved, impl);
 				continue;
 			}
 			seen.add(resolved);
@@ -117,6 +141,7 @@ module.exports = {
 	isHeaderFile,
 	toLuauPath,
 	preprocess,
+	scanHeaderExports,
 	isEngineStub,
 	siblingImplementation,
 	resolveInclude,

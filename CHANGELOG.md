@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- Quoted `#include "Header.h"` of project files becomes `const Header = require(...)`. Header-only structs emit a constructor (`TemplateData()`); const headers bind `PLAYER_DATA_VERSION` from the module. Boot scripts require services (`LeaderstatsServer:init()`).
+- Keep `const` for injected `require` / `GetService` and `const function` for C++ functions (not `local`).
+
 ## 0.1.3
 
 - Architecture: generated services keep a fixed declaration order (requires, types, constants, variables, functions, cleanup, return) without section banners. Domain `Stop` runs `janitor:Cleanup()`.
