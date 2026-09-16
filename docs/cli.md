@@ -31,6 +31,8 @@ Transpiles `src/**/*.{cpp,h,hpp}` into `out/`. Script files become PascalCase **
 - `.h` / `.hpp` with a sibling `.cpp` are not emitted twice
 - `new Folder(parent)` in a stats system becomes `CacheController.Ensure`
 - A parse error exits with code 1 and `file:line:column`
+- After emit, **orphans in `out/` are removed** (source deleted → matching Luau deleted). `out/` itself is never wiped, so a running Rojo serve keeps the live tree.
+- `libs/` and `include/cluaupp` are synced by writing missing/changed files only. They are **never** deleted as a folder — Rojo 7 unwrap-crashes if `libs/ArrayIndexer` vanishes while serving.
 
 ```bash
 cluaupp build
@@ -39,7 +41,7 @@ cluaupp build ./my-game
 
 ## `cluaupp watch [folder]`
 
-Runs a `build` and rebuilds when a `.cpp`, `.h`, or `.hpp` under `src/` changes. Parse errors are printed; the watcher stays alive.
+Runs a `build` and rebuilds when anything under `src/` changes, including deletes. Parse errors are printed; the watcher stays alive and **does not write `out/`** until the project compiles cleanly (Studio keeps the last good scripts). Rebuilds are debounced and do **not** recopy `libs/`. Deleted `.cpp` files prune their `out/` artifacts on the next successful compile.
 
 ## `cluaupp --version` / `cluaupp -v`
 

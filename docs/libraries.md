@@ -67,7 +67,10 @@ void init() {
 	auto* coins = Net::Event("Coins");
 	coins->On(OnCoins);
 	print(FormatNumber::Abbreviate(1500));
-	DataService::Set(GetService<Players>()->GetPlayers()[0], "Currencies.Coins", 10);
+	DataService::Server.Init(DataServiceOptions {
+		.Template = { .Coins = 0 },
+		.StoreName = "PlayerData",
+	});
 	janitor->Add(coins);
 }
 ```

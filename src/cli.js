@@ -34,27 +34,72 @@ function copyDir(from, to) {
 	}
 }
 
+function tryRm(target) {
+	try {
+		fs.rmSync(target, { recursive: true, force: true });
+		return true;
+	} catch (err) {
+		if (err.code === "EPERM" || err.code === "EBUSY" || err.code === "ENOTEMPTY") {
+			console.error("cluaupp: skip remove", target, `(${err.code})`);
+			return false;
+		}
+		throw err;
+	}
+}
+
+function copyFileIfChanged(src, dest, mode = "fill") {
+	if (mode === "fill" && fs.existsSync(dest)) {
+		return;
+	}
+	if (mode === "update" && fs.existsSync(dest)) {
+		const from = fs.statSync(src);
+		const to = fs.statSync(dest);
+		if (from.size === to.size && from.mtimeMs <= to.mtimeMs) {
+			return;
+		}
+	}
+	fs.mkdirSync(path.dirname(dest), { recursive: true });
+	try {
+		fs.copyFileSync(src, dest);
+	} catch (err) {
+		if (err.code === "EPERM" || err.code === "EBUSY") {
+			console.error("cluaupp: skip copy", dest, `(${err.code})`);
+			return;
+		}
+		throw err;
+	}
+}
+
+function syncDir(from, to, mode = "fill") {
+	if (!fs.existsSync(from)) {
+		return;
+	}
+	fs.mkdirSync(to, { recursive: true });
+	for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
+		const src = path.join(from, entry.name);
+		const dest = path.join(to, entry.name);
+		if (entry.isDirectory()) {
+			syncDir(src, dest, mode);
+		} else {
+			copyFileIfChanged(src, dest, mode);
+		}
+	}
+}
+
 function copyRuntime(dest) {
 	const runtime = path.join(__dirname, "..", "runtime");
-	const libs = path.join(dest, "libs");
-	if (fs.existsSync(libs)) {
-		fs.rmSync(libs, { recursive: true, force: true });
+	if (!fs.existsSync(runtime)) {
+		return;
 	}
-	if (fs.existsSync(runtime)) {
-		copyDir(runtime, libs);
-	}
+	syncDir(runtime, path.join(dest, "libs"));
 }
 
 function copyHeaders(dest) {
 	const from = path.join(__dirname, "..", "include", "cluaupp");
-	const to = path.join(dest, "include", "cluaupp");
 	if (!fs.existsSync(from)) {
 		return;
 	}
-	if (fs.existsSync(to)) {
-		fs.rmSync(to, { recursive: true, force: true });
-	}
-	copyDir(from, to);
+	syncDir(from, path.join(dest, "include", "cluaupp"));
 }
 
 function loadConfig(root) {
@@ -83,6 +128,21 @@ function collectCpp(dir, files = []) {
 	return files;
 }
 
+function collectFiles(dir, files = []) {
+	if (!fs.existsSync(dir)) {
+		return files;
+	}
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		const full = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			collectFiles(full, files);
+		} else {
+			files.push(full);
+		}
+	}
+	return files;
+}
+
 function siblingCpp(file) {
 	return file.replace(/\.(h|hpp|hh)$/i, ".cpp");
 }
@@ -92,29 +152,84 @@ function resolveKey(file) {
 	return process.platform === "win32" ? resolved.toLowerCase() : resolved;
 }
 
-function build(root, options = {}) {
-	const exitOnError = options.exitOnError !== false;
-	const config = loadConfig(root);
-	copyRuntime(root);
-	copyHeaders(root);
-	const files = collectCpp(path.join(root, config.rootDir));
-	if (files.length === 0) {
-		console.error("no .cpp/.h/.hpp files in", config.rootDir);
-		if (exitOnError) {
-			process.exit(1);
-		}
+function posixRel(from, file) {
+	return path.relative(from, file).replace(/\\/g, "/");
+}
+
+function sourcePrefixes(rel) {
+	const noExt = rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, "");
+	const noTag = noExt.replace(/\.(server|client)$/i, "");
+	return [...new Set([noExt, noTag, toLuauPath(rel).replace(/\\/g, "/")])];
+}
+
+function matchesPrefix(relOut, prefixes) {
+	const n = relOut.replace(/\\/g, "/").toLowerCase();
+	return prefixes.some((prefix) => {
+		const k = prefix.replace(/\\/g, "/").toLowerCase();
+		return n === k || n === `${k}.luau` || n.startsWith(`${k}/`) || n.startsWith(`${k}.`);
+	});
+}
+
+function removeEmptyOutDirs(outDir, projectRoot) {
+	if (!fs.existsSync(outDir)) {
 		return;
 	}
+	const walk = (dir) => {
+		if (resolveKey(dir) === resolveKey(outDir)) {
+			for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+				if (entry.isDirectory()) {
+					walk(path.join(dir, entry.name));
+				}
+			}
+			return;
+		}
+		for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+			if (entry.isDirectory()) {
+				walk(path.join(dir, entry.name));
+			}
+		}
+		if (fs.existsSync(dir) && fs.readdirSync(dir).length === 0) {
+			if (tryRm(dir)) {
+				console.log("cluaupp: removed", path.relative(projectRoot, dir));
+			}
+		}
+	};
+	walk(outDir);
+}
 
+function pruneOut(root, config, written, failedPrefixes) {
+	const outDir = path.join(root, config.outDir);
+	if (!fs.existsSync(outDir)) {
+		return;
+	}
+	for (const file of collectFiles(outDir)) {
+		if (written.has(resolveKey(file))) {
+			continue;
+		}
+		const rel = posixRel(outDir, file);
+		if (matchesPrefix(rel, failedPrefixes)) {
+			continue;
+		}
+		if (tryRm(file)) {
+			console.log("cluaupp: removed", path.relative(root, file));
+		}
+	}
+	removeEmptyOutDirs(outDir, root);
+}
+
+function compileProject(root, config) {
+	const srcDir = path.join(root, config.rootDir);
+	const files = collectCpp(srcDir);
 	const fileSet = new Set(files.map((file) => path.resolve(file)));
-	let failed = 0;
-	const written = new Set();
+	const jobs = [];
+	const errors = [];
+
 	for (const file of files) {
 		if (isHeaderFile(file) && fileSet.has(path.resolve(siblingCpp(file)))) {
 			continue;
 		}
 		const source = fs.readFileSync(file, "utf8");
-		const rel = path.relative(path.join(root, config.rootDir), file).replace(/\\/g, "/");
+		const rel = posixRel(srcDir, file);
 		try {
 			const result = compileService(source, rel, {
 				...config,
@@ -122,30 +237,100 @@ function build(root, options = {}) {
 				relativeName: rel,
 				outName: toLuauPath(rel),
 				architecture: config.architecture !== false,
-				includeDirs: [path.dirname(file), path.join(root, config.rootDir), path.join(root, "include")],
+				includeDirs: [path.dirname(file), srcDir, path.join(root, "include")],
 			});
-			for (const artifact of result.files) {
-				const dest = path.join(root, config.outDir, artifact.name);
-				fs.mkdirSync(path.dirname(dest), { recursive: true });
-				fs.writeFileSync(dest, artifact.contents, "utf8");
-				written.add(resolveKey(dest));
-				console.log("cluaupp:", rel, "→", path.relative(root, dest));
+			jobs.push({ rel, files: result.files, stale: result.stale || [] });
+		} catch (err) {
+			errors.push({ rel, prefixes: sourcePrefixes(rel), message: err.message });
+		}
+	}
+
+	return { files, jobs, errors };
+}
+
+function writeTextIfChanged(dest, contents) {
+	if (fs.existsSync(dest) && fs.readFileSync(dest, "utf8") === contents) {
+		return false;
+	}
+	fs.mkdirSync(path.dirname(dest), { recursive: true });
+	fs.writeFileSync(dest, contents, "utf8");
+	return true;
+}
+
+function writeJobs(root, config, jobs) {
+	const written = new Set();
+	for (const job of jobs) {
+		for (const artifact of job.files) {
+			const dest = path.join(root, config.outDir, artifact.name);
+			const changed = writeTextIfChanged(dest, artifact.contents);
+			written.add(resolveKey(dest));
+			if (changed) {
+				console.log("cluaupp:", job.rel, "→", path.relative(root, dest));
 			}
-			for (const stale of result.stale || []) {
-				const dest = path.join(root, config.outDir, stale);
-				if (fs.existsSync(dest) && !written.has(resolveKey(dest))) {
-					fs.unlinkSync(dest);
+		}
+		for (const stale of job.stale) {
+			const dest = path.join(root, config.outDir, stale);
+			if (fs.existsSync(dest) && !written.has(resolveKey(dest))) {
+				if (tryRm(dest)) {
 					console.log("cluaupp: removed", path.relative(root, dest));
 				}
 			}
-		} catch (err) {
-			failed += 1;
-			console.error(err.message);
 		}
 	}
-	if (failed > 0 && exitOnError) {
+	return written;
+}
+
+function libsPresent(root) {
+	const libs = path.join(root, "libs");
+	return fs.existsSync(libs) && fs.readdirSync(libs).length > 0;
+}
+
+function ensureVendor(root) {
+	copyRuntime(root);
+	copyHeaders(root);
+}
+
+function build(root, options = {}) {
+	const exitOnError = options.exitOnError !== false;
+	const holdOnError = options.holdOnError === true;
+	const syncVendor = options.syncVendor === true;
+	const config = loadConfig(root);
+	if (syncVendor) {
+		copyRuntime(root);
+		copyHeaders(root);
+	} else {
+		ensureVendor(root);
+	}
+	const srcDir = path.join(root, config.rootDir);
+	if (!fs.existsSync(srcDir) || collectCpp(srcDir).length === 0) {
+		console.error("no .cpp/.h/.hpp files in", config.rootDir);
+		if (!holdOnError) {
+			pruneOut(root, config, new Set(), []);
+		}
+		if (exitOnError) {
+			process.exit(1);
+		}
+		return { failed: 0, written: new Set() };
+	}
+
+	const compiled = compileProject(root, config);
+	if (compiled.errors.length > 0) {
+		for (const err of compiled.errors) {
+			console.error(err.message);
+		}
+		if (holdOnError) {
+			console.error(`cluaupp: out not updated (${compiled.errors.length} compile error${compiled.errors.length === 1 ? "" : "s"})`);
+			return { failed: compiled.errors.length, written: new Set() };
+		}
+	}
+
+	const written = writeJobs(root, config, compiled.jobs);
+	const failedPrefixes = compiled.errors.flatMap((err) => err.prefixes);
+	pruneOut(root, config, written, failedPrefixes);
+	if (compiled.errors.length > 0 && exitOnError) {
 		process.exit(1);
 	}
+	return { failed: compiled.errors.length, written };
 }
 
 function init(dest) {
@@ -160,33 +345,62 @@ function init(dest) {
 }
 
 function watch(root) {
-	build(root, { exitOnError: false });
+	build(root, { exitOnError: false, syncVendor: false, holdOnError: true });
 	const config = loadConfig(root);
 	const dir = path.join(root, config.rootDir);
-	console.log("watching", dir);
-	fs.watch(dir, { recursive: true }, (_event, filename) => {
-		if (filename && isSourceFile(filename)) {
-			try {
-				build(root, { exitOnError: false });
-			} catch (err) {
-				console.error(err.message);
+	let timer = null;
+	let running = false;
+	let queued = false;
+
+	const run = () => {
+		if (running) {
+			queued = true;
+			return;
+		}
+		running = true;
+		try {
+			build(root, { exitOnError: false, syncVendor: false, holdOnError: true });
+		} catch (err) {
+			console.error(err.message);
+		} finally {
+			running = false;
+			if (queued) {
+				queued = false;
+				run();
 			}
 		}
+	};
+
+	console.log("watching", dir);
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+	}
+	fs.watch(dir, { recursive: true }, () => {
+		clearTimeout(timer);
+		timer = setTimeout(run, 400);
 	});
 }
 
-const args = process.argv.slice(2);
-const cmd = args[0] || "help";
-const cwd = process.cwd();
-
-if (cmd === "init") {
-	init(path.resolve(cwd, args[1] || "."));
-} else if (cmd === "build") {
-	build(path.resolve(cwd, args[1] || "."));
-} else if (cmd === "watch") {
-	watch(path.resolve(cwd, args[1] || "."));
-} else if (cmd === "--version" || cmd === "-v" || cmd === "version") {
-	console.log(pkg.version);
-} else {
-	printHelp();
+function dispatch(args) {
+	const cmd = args[0] || "help";
+	const cwd = process.cwd();
+	if (cmd === "init") {
+		init(path.resolve(cwd, args[1] || "."));
+	} else if (cmd === "build") {
+		build(path.resolve(cwd, args[1] || "."));
+	} else if (cmd === "watch") {
+		watch(path.resolve(cwd, args[1] || "."));
+	} else if (cmd === "--version" || cmd === "-v" || cmd === "version") {
+		console.log(pkg.version);
+	} else {
+		printHelp();
+	}
 }
+
+const launchedAsCli =
+	require.main && ["cli.js", "cluaupp.js", "cluau.js"].includes(path.basename(require.main.filename));
+if (launchedAsCli) {
+	dispatch(process.argv.slice(2));
+}
+
+module.exports = { build, watch, dispatch };

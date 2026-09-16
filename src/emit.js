@@ -31,6 +31,13 @@ function emit(ast, options = {}) {
 				return `"${node.value}"`;
 			case "ident":
 				return node.name;
+			case "initlist": {
+				const entries = (node.fields || []).map((field) => `${field.name} = ${emitExpr(field.value)}`);
+				if (entries.length === 0) {
+					return "{}";
+				}
+				return `{ ${entries.join(", ")} }`;
+			}
 			case "unary": {
 				const inner = emitExpr(node.argument);
 				if (node.op === "!") {

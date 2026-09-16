@@ -34,10 +34,13 @@ struct DataServiceEnum {
 	DataOrderList OrderList;
 };
 
+template <typename T>
 struct DataServiceOptions {
+	T Template;
 	string StoreName;
 	bool UseMock;
 	string KeyPrefix;
+	LuaArray<DataPath> Exclude;
 	bool StrictPaths;
 	bool AutoCreateMissingTables;
 };
@@ -112,7 +115,8 @@ public:
 class DataServiceServer {
 public:
 	DataPath Paths;
-	DataServiceServer* Init(DataServiceOptions options);
+	template <typename T>
+	DataServiceServer* Init(DataServiceOptions<T> options);
 	Data* WaitFor(Player* player);
 	Data* Get(Player* player);
 	bool HasData(Player* player);

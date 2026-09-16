@@ -73,6 +73,9 @@ if (instances.includes("Instance** GetPlayers()")) {
 if (/auto Paths;/.test(dataService)) {
 	fail("DataService.Paths cannot be an untyped auto member");
 }
+if (!/template <typename T>[\s\S]*T Template;/.test(dataService)) {
+	fail("DataServiceOptions must be generic over Template");
+}
 
 const vscode = JSON.parse(read(path.join(WORKSPACE, ".vscode", "c_cpp_properties.json")));
 const includePath = vscode.configurations[0].includePath.join("\n");
@@ -110,6 +113,10 @@ if (!templateFlags.includes("-Iinclude")) {
 
 const probe = `#include <cluaupp/roblox.hpp>
 
+struct PlayerSave {
+	int Coins = 0;
+};
+
 void CreateLeaderstats(Player* player) {
 	if (player->FindFirstChild("leaderstats") != nullptr) {
 		return;
@@ -132,6 +139,12 @@ void init() {
 	auto unit = size.Unit();
 	auto* janitor = new Janitor();
 	janitor->Add(players);
+	PlayerSave save {};
+	DataService::Server.Init(DataServiceOptions {
+		.Template = save,
+		.StoreName = "PlayerData",
+		.UseMock = true,
+	});
 	print("ok");
 }
 `;

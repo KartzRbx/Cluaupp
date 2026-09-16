@@ -84,6 +84,28 @@ function parse(source, fileName) {
 		return args;
 	}
 
+	function parseInitList() {
+		eat("op", "{");
+		const fields = [];
+		while (!at("op", "}") && !at("eof")) {
+			if (at("op", ".")) {
+				i += 1;
+				const name = eat("ident").value;
+				eat("op", "=");
+				fields.push({ name, value: parseExpr() });
+			} else {
+				throw error("expected designated initializer .Field = value");
+			}
+			if (at("op", ",")) {
+				i += 1;
+			} else {
+				break;
+			}
+		}
+		eat("op", "}");
+		return { type: "initlist", fields };
+	}
+
 	function parsePrimary() {
 		if (at("kw", "true") || at("kw", "false")) {
 			return { type: "bool", value: eat("kw").value === "true" };
@@ -120,6 +142,9 @@ function parse(source, fileName) {
 			eat("op", ")");
 			return expr;
 		}
+		if (at("op", "{")) {
+			return parseInitList();
+		}
 		throw error("invalid expression");
 	}
 
@@ -153,6 +178,10 @@ function parse(source, fileName) {
 			}
 			if (at("op", "(") && node.type === "ident") {
 				node = { type: "call", object: null, name: node.name, args: parseArgs(), access: "." };
+				continue;
+			}
+			if (at("op", "{") && (node.type === "ident" || node.type === "member")) {
+				node = parseInitList();
 				continue;
 			}
 			break;

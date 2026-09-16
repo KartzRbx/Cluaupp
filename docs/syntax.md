@@ -108,6 +108,25 @@ The only `for` accepted today is **range-for**: `for (auto* x : list)`. C-style 
 | `obj->Method(a)` | `obj:Method(a)` if the method is a Roblox API |
 | `fn(a)` | `fn(a)` |
 | `signal.Connect(fn)` | `signal:Connect(fn)` |
+| `Type { .Field = value }` | `{ Field = value }` |
+
+Designated initializers become Luau tables. Nested braces work the same way:
+
+```cpp
+DataService::Server.Init(DataServiceOptions {
+	.Template = playerData,
+	.StoreName = "PlayerData",
+	.UseMock = true,
+});
+```
+
+```luau
+DataService.Server:Init({
+	Template = playerData,
+	StoreName = "PlayerData",
+	UseMock = true,
+})
+```
 
 ## `new` and services
 

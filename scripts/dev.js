@@ -33,8 +33,8 @@ console.log("[dev] rojo serve (plugin no Studio)");
 const rojo = spawn("rojo", ["serve"], {
 	cwd: gameDir,
 	stdio: "inherit",
-	shell: true,
 	detached: false,
+	shell: process.platform === "win32",
 });
 fs.writeFileSync(pidFile, String(rojo.pid), "utf8");
 
