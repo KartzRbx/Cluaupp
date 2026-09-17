@@ -60,7 +60,7 @@ Stdio JSON-RPC for **Cluaupp subset diagnostics** only. Completion, hover, and d
 
 ## `cluaupp intellisense [folder]`
 
-Writes `compile_commands.json`, `.clangd`, and `.vscode` for clangd, and installs LLVM clangd when needed.
+Alias: `intelisense`. Writes `compile_commands.json`, `.clangd`, and `.vscode` for clangd, and installs LLVM clangd when needed.
 
 ## `cluaupp --version` / `cluaupp -v`
 

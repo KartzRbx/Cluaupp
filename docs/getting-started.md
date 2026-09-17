@@ -93,7 +93,7 @@ void init() {
 
 This becomes `Vector3.new`, `CFrame.lookAt`, `Color3.fromRGB`, `UDim2.fromScale`, `Enum.Material.Plastic`.
 
-Full reference (every class from [create.roblox.com](https://create.roblox.com/docs/reference/engine)): [Cluaupp GitHub Pages](https://kartzrbx.github.io/Cluaupp/).
+How to spell engine calls: [Roblox in Cluaupp](https://kartzrbx.github.io/Cluaupp/docs/engine.html). Official members: [create.roblox.com](https://create.roblox.com/docs/reference/engine). The complete subset: [Language reference](https://kartzrbx.github.io/Cluaupp/docs/reference.html).
 
 ## How to write
 
@@ -130,7 +130,7 @@ If a file defines `void init()`, Cluaupp calls `init()` at the end of the `.luau
 cluaupp intellisense
 ```
 
-`#include <cluaupp/roblox.hpp>` at the top of each source file. The header is **not** compiled to Luau. clangd learns that path from `-Iinclude` in `.clangd`, `compile_flags.txt`, and `compile_commands.json` — it does not read `c_cpp_properties.json`.
+`#include <cluaupp/roblox.hpp>` at the top of each source file. The header is **not** compiled to Luau. clangd learns that path from `-Iinclude` in `.clangd`, `compile_flags.txt`, and `compile_commands.json`.
 
 See [IntelliSense](intellisense.md).
 
@@ -162,6 +162,8 @@ Wally is optional. Fusion, Cmdr, DataServiceV2, and the rest ship **inside** `li
 See [Libraries](libraries/index.md), [OOP](oop/index.md), [types](cpp-types.md), [safety](cpp-safety.md).
 
 ## Next
+
+Language handbook (GitHub Pages): **[Docs](https://kartzrbx.github.io/Cluaupp/docs/)** — [every construct](https://kartzrbx.github.io/Cluaupp/docs/reference.html).
 
 - [C++ → Luau syntax](syntax.md)
 - [print and cout](print-cout.md)

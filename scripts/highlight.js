@@ -27,10 +27,14 @@ const TYPE_NAMES = new Set([
 	"StringValue", "TemplateData", "TextBox", "TextButton", "TextLabel", "Tool", "TweenInfo", "TweenService",
 	"Twinkle", "UDim", "UDim2", "UICorner", "UIListLayout", "UIPadding", "UIStroke", "UserInputService",
 	"Vector2", "Vector2int16", "Vector3", "Vector3int16", "ViewportFrame", "Workspace",
+	"LuaArray", "LeaderstatsServer", "PlayerData", "PlayerDataCurrencies", "PlayerDataInventory",
+	"FusionScope", "FusionState", "FusionKey", "React", "ReactElement", "ReactRef", "Vide", "VideState",
+	"CoinsLabel", "Icon", "EzVisualz", "StickyBillboard", "Twinkle", "Iris",
 ]);
 
 const BUILTIN_FNS = new Set([
 	"GetService", "print", "warn", "error", "assert", "typeof", "tonumber", "tostring", "require", "wait", "task",
+	"string_concat", "createElement", "createRef", "mount",
 ]);
 
 function escapeHtml(text) {

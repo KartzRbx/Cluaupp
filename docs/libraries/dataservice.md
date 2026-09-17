@@ -91,9 +91,12 @@ void OnCurrenciesChanged() {
 }
 
 data->GetChangedSignal(DataService::Server.Paths.Currencies).Connect(OnCurrenciesChanged);
+data->GetChangedSignal(DataService::Server.Paths.Currencies.Coins).Connect([](int coins) {
+	print(coins);
+});
 ```
 
-`GetChangedSignal` fires when that path (or a child) changes. Cluaupp has no lambdas — use a named function.
+`GetChangedSignal` fires when that path (or a child) changes. Use a named function or a lambda (`[](int newValue) { ... }`).
 
 ## Rules
 

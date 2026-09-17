@@ -66,32 +66,6 @@ function compileCommandEntry(root: string, file: string) {
 	};
 }
 
-function mergeJson(file: string, patch: Record<string, unknown>): boolean {
-	let current: Record<string, unknown> = {};
-	if (fs.existsSync(file)) {
-		try {
-			current = JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, unknown>;
-		} catch {
-			current = {};
-		}
-	}
-	const next: Record<string, unknown> = { ...current, ...patch };
-	for (const key of Object.keys(patch)) {
-		const value = patch[key];
-		const existing = current[key];
-		if (value && typeof value === "object" && !Array.isArray(value) && existing && typeof existing === "object" && !Array.isArray(existing)) {
-			next[key] = { ...(existing as Record<string, unknown>), ...(value as Record<string, unknown>) };
-		}
-	}
-	const json = `${JSON.stringify(next, null, "\t")}\n`;
-	if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === json) {
-		return false;
-	}
-	fs.mkdirSync(path.dirname(file), { recursive: true });
-	fs.writeFileSync(file, json, "utf8");
-	return true;
-}
-
 function copyDir(from: string, to: string): void {
 	fs.mkdirSync(to, { recursive: true });
 	for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
@@ -105,23 +79,64 @@ function copyDir(from: string, to: string): void {
 	}
 }
 
+function uniqueStrings(...lists: unknown[]): string[] {
+	const seen = new Set<string>();
+	const out: string[] = [];
+	for (const list of lists) {
+		if (!Array.isArray(list)) {
+			continue;
+		}
+		for (const item of list) {
+			if (typeof item === "string" && item && !seen.has(item)) {
+				seen.add(item);
+				out.push(item);
+			}
+		}
+	}
+	return out;
+}
+
+function stripCppToolsSettings(current: Record<string, unknown>): Record<string, unknown> {
+	const next: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(current)) {
+		if (key === "C_Cpp" || key.startsWith("C_Cpp.")) {
+			continue;
+		}
+		next[key] = value;
+	}
+	return next;
+}
+
+function readJsonObject(file: string): Record<string, unknown> {
+	if (!fs.existsSync(file)) {
+		return {};
+	}
+	try {
+		const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+		if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+			return parsed as Record<string, unknown>;
+		}
+	} catch {
+		// ignore corrupt editor json
+	}
+	return {};
+}
+
+function writeJson(file: string, value: Record<string, unknown>): void {
+	const json = `${JSON.stringify(value, null, "\t")}\n`;
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === json) {
+		return;
+	}
+	fs.writeFileSync(file, json, "utf8");
+}
+
 function clangdEditorArgs(): string[] {
 	return [
 		"--compile-commands-dir=${workspaceFolder}",
 		"--header-insertion=never",
 		"--query-driver=**/clang++*,**/clang++.exe,**/g++*,**/g++.exe",
 	];
-}
-
-export function intelliSenseMode(): string {
-	const arch = process.arch === "arm64" ? "arm64" : "x64";
-	if (process.platform === "win32") {
-		return `windows-clang-${arch}`;
-	}
-	if (process.platform === "darwin") {
-		return `macos-clang-${arch}`;
-	}
-	return `linux-clang-${arch}`;
 }
 
 export function clangPath(): string {
@@ -173,54 +188,39 @@ Index:
 }
 
 function writeVscode(root: string): void {
-	const settings = path.join(root, ".vscode", "settings.json");
-	mergeJson(settings, {
-		"C_Cpp.intelliSenseEngine": "Disabled",
-		"C_Cpp.default.cppStandard": "c++20",
-		"C_Cpp.default.cStandard": "c17",
-		"C_Cpp.default.compilerPath": clangPath(),
-		"C_Cpp.default.intelliSenseMode": intelliSenseMode(),
-		"C_Cpp.default.includePath": ["${workspaceFolder}/include", "${workspaceFolder}/src"],
+	const settingsPath = path.join(root, ".vscode", "settings.json");
+	const current = readJsonObject(settingsPath);
+	const associations = {
+		...((current["files.associations"] && typeof current["files.associations"] === "object" && !Array.isArray(current["files.associations"]))
+			? (current["files.associations"] as Record<string, unknown>)
+			: {}),
+		"*.hpp": "cpp",
+		"*.h": "cpp",
+		"*.server.cpp": "cpp",
+		"*.client.cpp": "cpp",
+		"*.plugin.cpp": "cpp",
+		"*.legacy.cpp": "cpp",
+		"*.legacy.server.cpp": "cpp",
+		"*.legacy.client.cpp": "cpp",
+	};
+	writeJson(settingsPath, {
+		...stripCppToolsSettings(current),
 		"clangd.enable": true,
 		"clangd.arguments": clangdEditorArgs(),
-		"files.associations": {
-			"*.hpp": "cpp",
-			"*.h": "cpp",
-			"*.server.cpp": "cpp",
-			"*.client.cpp": "cpp",
-			"*.plugin.cpp": "cpp",
-			"*.legacy.cpp": "cpp",
-			"*.legacy.server.cpp": "cpp",
-			"*.legacy.client.cpp": "cpp",
-		},
+		"files.associations": associations,
 	});
-	mergeJson(path.join(root, ".vscode", "extensions.json"), {
-		recommendations: ["llvm-vs-code-extensions.vscode-clangd"],
+
+	const extensionsPath = path.join(root, ".vscode", "extensions.json");
+	const extensions = readJsonObject(extensionsPath);
+	writeJson(extensionsPath, {
+		...extensions,
+		recommendations: uniqueStrings(extensions.recommendations, ["llvm-vs-code-extensions.vscode-clangd"]),
+		unwantedRecommendations: uniqueStrings(extensions.unwantedRecommendations, ["ms-vscode.cpptools"]),
 	});
+
 	const props = path.join(root, ".vscode", "c_cpp_properties.json");
-	const nextProps = {
-		configurations: [
-			{
-				name: "Cluaupp",
-				compilerPath: clangPath(),
-				cStandard: "c17",
-				cppStandard: "c++20",
-				intelliSenseMode: intelliSenseMode(),
-				includePath: ["${workspaceFolder}/include", "${workspaceFolder}/src"],
-				forcedInclude: ["${workspaceFolder}/include/cluaupp/roblox.hpp"],
-				compileCommands: "${workspaceFolder}/compile_commands.json",
-				browse: {
-					path: ["${workspaceFolder}/include", "${workspaceFolder}/src"],
-					limitSymbolsToIncludedHeaders: true,
-				},
-			},
-		],
-		version: 4,
-	};
-	const json = `${JSON.stringify(nextProps, null, "\t")}\n`;
-	fs.mkdirSync(path.dirname(props), { recursive: true });
-	if (!fs.existsSync(props) || fs.readFileSync(props, "utf8") !== json) {
-		fs.writeFileSync(props, json, "utf8");
+	if (fs.existsSync(props)) {
+		fs.unlinkSync(props);
 	}
 }
 

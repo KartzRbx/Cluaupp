@@ -2,8 +2,9 @@
 
 const { preCode } = require("./highlight");
 const { createGuides } = require("./site-guides");
+const { createDocsPages, docsNav } = require("./site-docs");
 
-const ASSET_V = "4";
+const ASSET_V = "7";
 
 let pairSeq = 0;
 
@@ -193,6 +194,42 @@ function guideArticle(title, inner) {
 	return `<article class="docs-article"><div class="crumb"><a href="../index.html">Cluaupp</a> / ${escapeHtml(title)}</div><h1>${escapeHtml(title)}</h1>${inner}</article>`;
 }
 
+function slugify(text) {
+	return String(text)
+		.replace(/<[^>]+>/g, "")
+		.replace(/&[a-z]+;/gi, "")
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+		.slice(0, 80);
+}
+
+function withHeadingIds(html) {
+	const used = new Set();
+	const headings = [];
+	const next = String(html || "").replace(/<h([23])>([\s\S]*?)<\/h\1>/g, (_, level, inner) => {
+		const text = inner.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+		let id = slugify(text) || `section-${headings.length + 1}`;
+		if (used.has(id)) {
+			id = `${id}-${headings.length + 1}`;
+		}
+		used.add(id);
+		headings.push({ level: Number(level), id, text });
+		return `<h${level} id="${id}">${inner}</h${level}>`;
+	});
+	return { html: next, headings };
+}
+
+function pageToc(headings) {
+	if (!headings || headings.length === 0) {
+		return "";
+	}
+	const items = headings
+		.map((item) => `<li class="toc-h${item.level}"><a href="#${item.id}">${escapeHtml(item.text)}</a></li>`)
+		.join("");
+	return `<nav class="page-toc" aria-label="On this page"><h2>On this page</h2><ul>${items}</ul></nav>`;
+}
+
 function navItem(href, label, page, id) {
 	const current = page === id ? ' aria-current="page"' : "";
 	return `<a href="${href}"${current}>${label}</a>`;
@@ -201,7 +238,7 @@ function navItem(href, label, page, id) {
 function localLayout(title, body, sidebar, depth, page = "") {
 	const prefix = depth === 0 ? "./" : "../".repeat(depth);
 	const inner = sidebar
-		? `<main class="docs"><aside>${sidebar}</aside><article class="docs-article">${body}</article></main>`
+		? `<main class="docs"><article class="docs-article">${body}</article><aside class="docs-rail">${sidebar}</aside></main>`
 		: body;
 	return `<!doctype html>
 <html lang="en">
@@ -223,12 +260,9 @@ function localLayout(title, body, sidebar, depth, page = "") {
     <nav class="nav-links" aria-label="Primary">
       <span class="nav-pill" aria-hidden="true"></span>
       ${navItem(`${prefix}index.html`, "Home", page, "home")}
-      ${navItem(`${prefix}learn/index.html`, "Learn", page, "learn")}
-      ${navItem(`${prefix}guide/getting-started.html`, "Start", page, "start")}
-      ${navItem(`${prefix}guide/examples.html`, "Examples", page, "examples")}
-      ${navItem(`${prefix}api/datatypes/index.html`, "Datatypes", page, "datatypes")}
-      ${navItem(`${prefix}api/classes/index.html`, "Classes", page, "classes")}
-      ${navItem(`${prefix}api/enums/index.html`, "Enums", page, "enums")}
+      ${navItem(`${prefix}docs/index.html`, "Docs", page, "docs")}
+      ${navItem(`${prefix}docs/setup.html`, "Get started", page, "start")}
+      <a href="https://github.com/KartzRbx/Cluaupp">GitHub</a>
     </nav>
   </div>
   <div class="header-tools">
@@ -246,75 +280,69 @@ function localLayout(title, body, sidebar, depth, page = "") {
 <div class="page" id="content">${inner}</div>
 <footer class="site-footer">
   <span>Cluaupp — C++ × Luau</span>
-  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
+  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox engine</a></span>
 </footer>
 <script src="${prefix}assets/app.js?v=${ASSET_V}"></script>
-<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
-<div class="ask-panel" data-ask-panel hidden>
-  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
-  <form class="ask-form" data-ask-form>
-    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
-    <button type="submit">Send</button>
-  </form>
-</div>
 </body>
 </html>
 `;
 }
 
-function homeBody({ dump, classCount, enumCount }) {
-	const version = escapeHtml(String(dump.Version || ""));
+function homeBody() {
 	return `
 <section class="hero">
   <div class="hero-copy reveal">
     <p class="eyebrow">C++ × Luau</p>
-    <h1>Write C++.<br>Ship Studio Luau.</h1>
-    <p class="lede">Cluaupp 0.2.0: a C++ subset → readable Luau. Tree-sitter compiles. clangd completes. Filename tags pick Script / LocalScript / ModuleScript. No WASM. No lua_call.</p>
+    <h1>A TypeScript-to-Luau compiler<br>for people who write C++.</h1>
+    <p class="lede">Cluaupp is a C++ subset that compiles to readable Roblox Luau. clangd completes. Filename tags pick Script / LocalScript / ModuleScript. You write structs, methods, and <code>init()</code> — not an API dump. The docs are the language: every construct the CLI accepts.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="learn/index.html">Learn the language</a>
-      <a class="btn btn-ghost" href="api/classes/index.html">Open the API</a>
+      <a class="btn btn-primary" href="docs/setup.html">Get started</a>
+      <a class="btn btn-ghost" href="docs/index.html">Docs</a>
     </div>
-    ${preCode(`npm install -g cluaupp
-cluaupp init my-game
-cluaupp build
-rojo serve`, "plain")}
   </div>
   <img class="hero-logo" src="./assets/logo.png" alt="Cluaupp mark">
 </section>
 <section class="section" data-reveal>
-  <h2>Engine, not a dump</h2>
-  <p class="muted">Docs generated from the official Roblox API dump${version ? ` (${version})` : ""} — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
-  <div class="grid">
-    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, OOP, Luau output, safety</span></a>
-    <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, clangd</span></a>
-    <a class="card" href="guide/oop.html"><strong>OOP structure</strong><span class="muted">structs, services, typed Combat</span></a>
-    <a class="card" href="guide/examples.html"><strong>Examples</strong><span class="muted">leaderstats, combat, shop, HUD, sword</span></a>
-    <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><span class="muted">Vector3, CFrame, UDim2, Color3</span></a>
-    <a class="card" href="api/classes/index.html"><strong>Classes</strong><span class="muted">${classCount} instances and services</span></a>
-    <a class="card" href="api/enums/index.html"><strong>Enums</strong><span class="muted">${enumCount} enumerations</span></a>
-  </div>
-</section>
-<section class="section" data-reveal>
-  <h2>C++ becomes Luau</h2>
-  <p class="muted">Hover the cards. Flip the tabs. The mapping is the product.</p>
   ${codePair(
-		`auto* players = GetService<Players>();
-for (auto* player : players->GetPlayers()) {
-	CreateLeaderstats(player);
-}
-players->PlayerAdded.Connect(CreateLeaderstats);`,
-		`--!strict
-local players: Players = game:GetService("Players")
-for _, player in players:GetPlayers() do
-	CreateLeaderstats(player)
+		`#include <cluaupp/roblox.hpp>
+#include <cluaupp/libs/janitor.hpp>
+#include "LeaderstatsServer.h"
+
+void init() {
+	Players* players = GetService<Players>();
+	LeaderstatsServer leaderstatsServer;
+	leaderstatsServer.janitor = new Janitor();
+	for (Player* player : players->GetPlayers()) {
+		leaderstatsServer.PlayerEntered(player);
+	}
+	players->PlayerAdded.Connect([&](Player* playerEntered) {
+		leaderstatsServer.PlayerEntered(playerEntered);
+	});
+}`,
+		`local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
+local LeaderstatsServer = {}
+
+const function init()
+	local players: Players = game:GetService("Players")
+	local leaderstatsServer: LeaderstatsServer = LeaderstatsServer
+	leaderstatsServer.janitor = Janitor.new()
+	for _, player in players:GetPlayers() do
+		leaderstatsServer:PlayerEntered(player)
+	end
+	players.PlayerAdded:Connect(function(playerEntered: Player)
+		leaderstatsServer:PlayerEntered(playerEntered)
+	end)
 end
-players.PlayerAdded:Connect(CreateLeaderstats)`,
+
+init()`,
 	)}
-  ${mappingTable()}
 </section>
 <section class="section" data-reveal>
-  <h2>Libraries that compile with you</h2>
-  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>. How-to: <a href="guide/libraries.html">Libraries</a>.</p>
+  <div class="grid">
+    <a class="card" href="docs/reference.html"><strong>Every construct</strong><span class="muted">Strings, string_concat, functions, scopes, structs, callbacks, singletons, includes, the CLI — the handbook is the language, not a class dump.</span></a>
+    <a class="card" href="docs/structs.html"><strong>Types you own</strong><span class="muted">A struct in the header, Class:: methods in the .cpp, void init() to boot. Same pattern for Template data and services.</span></a>
+    <a class="card" href="docs/cli.html"><strong>clangd + Rojo</strong><span class="muted">init, build, watch, lsp, intellisense. Filename tags pick Script / LocalScript / ModuleScript. First-party libs require themselves.</span></a>
+  </div>
 </section>
 `;
 }
@@ -327,8 +355,8 @@ function introBody(p) {
 <p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>local</code> and <code>const</code> (and <code>--!strict</code> when you opt in), and calls the Roblox API the way Studio does.</p>
 <p>This page is the old Moonwave <code>/intro</code> route. The public site is this cinematic dump — not ISO C++, not WASM.</p>
 <div class="hero-actions">
-  <a class="btn btn-primary" href="${p}learn/index.html">Learn the language</a>
-  <a class="btn btn-ghost" href="${p}guide/getting-started.html">Get started</a>
+  <a class="btn btn-primary" href="${p}docs/index.html">Read the docs</a>
+  <a class="btn btn-ghost" href="${p}docs/setup.html">Get started</a>
 </div>
 <h2>What you get</h2>
 <ol>
@@ -369,7 +397,7 @@ end
 
 init()`,
 )}
-<p>Next: <a href="${p}guide/getting-started.html">Getting started</a>, then <a href="${p}learn/index.html">Learn</a> for OOP, libraries, and examples.</p>
+<p>Next: <a href="${p}docs/setup.html">Setup</a>, then the <a href="${p}docs/index.html">language handbook</a>.</p>
 </article>`;
 }
 
@@ -652,7 +680,7 @@ init()`,
 </table>
 <h2>Not in the subset</h2>
 <p>C++ <code>&amp;</code> references, <code>*p</code> dereference, pointer arithmetic, <code>delete</code>, <code>switch</code>, C-style <code>for (int i = 0; ...)</code>, custom <code>class</code> bodies, <code>std::</code>, templates besides <code>GetService&lt;T&gt;</code>, macros, overloading.</p>
-<p>Next: the C++ subset tab for functions and control flow, or the <a href="../api/classes/index.html">class API</a> for every Instance.</p>`,
+<p>Next: the C++ subset tab, or the <a href="../docs/engine.html">engine spelling</a> for services, datatypes, and enums. Instance members: <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>`,
 		)}
 		${learnPanel(
 			"learn-cpp",
@@ -927,7 +955,7 @@ opt-in architecture: true → Main / Managers / Controllers / Types`, "plain")}
 <li>Shared modules must be safe on both server and client.</li>
 <li>Default <code>.server.cpp</code> emits <code>*.server.luau</code> (one file in, one file out). PascalCase folders are opt-in.</li>
 </ul>
-<p>Next: <a href="../guide/oop.html">OOP structure</a>, <a href="../guide/examples.html">examples</a>, or the <a href="../api/classes/index.html">class API</a>.</p>`,
+<p>Next: <a href="../docs/structs.html">structs and methods</a>, <a href="../docs/leaderstats.html">leaderstats</a>, or <a href="../docs/engine.html">engine spelling</a>.</p>`,
 		)}
 	</div>
 </div>`;
@@ -943,6 +971,10 @@ module.exports = {
 	movedBody,
 	learnBody,
 	guideArticle,
+	createDocsPages: () => createDocsPages({ codePair, preCode, escapeHtml, mappingTable }),
+	docsNav,
+	withHeadingIds,
+	pageToc,
 	oopGuide: () => guideArticle("OOP structure", guides().oopInner()),
 	examplesGuide: () => guideArticle("Examples", guides().examplesInner()),
 	librariesGuide: () => guideArticle("Libraries", guides().librariesInner()),

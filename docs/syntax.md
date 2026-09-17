@@ -2,16 +2,39 @@
 
 Cluaupp is not a full C++ compiler. It is a **subset** aimed at Roblox scripts, in the same spirit as roblox-ts (restricted TypeScript → Luau).
 
-Generated Luau follows the current language: [`local`](https://luau.org/getting-started), `const`, and `const function`. Injected `require` / `GetService` lines are `const`. `--!strict` is emitted only when the file has `#pragma strict` (or `"strict": true` in config).
+Live grid of every construct: **[Language reference](https://kartzrbx.github.io/Cluaupp/docs/reference.html)**.
 
-## Files
+Generated Luau follows the current language: [`local`](https://luau.org/getting-started), `const`, and `const function`. Injected `require` / `GetService` lines are `const`. `--!strict` is emitted only when the file has `#pragma strict` (or `"strict": true` in config). `#pragma nstrict` never emits it.
 
-- Extensions: `.cpp`, `.h`, `.hpp` (also `.cc`, `.hh`)
-- Quoted `#include "file.h"` becomes a Rojo `require` (or is inlined for a header that belongs to the same `.cpp`)
-- `#include <cluaupp/roblox.hpp>` and `<cluaupp/libs/*.hpp>` are IntelliSense only; library headers also inject `require(CluauppLibs.*)`
-- `#pragma once` is ignored
-- `#pragma strict` / `#pragma nstrict` control `--!strict` for that compilation unit
-- Function prototypes in a `.h` / `.hpp` become `export type` fields (`init: (self: Name) -> ()`). Only `.cpp` files emit function bodies.
+## Files and includes
+
+- Extensions: `.cpp`, `.cc`, `.cxx`, `.c`, `.h`, `.hpp`, `.hh`
+- Tags: `*.server.cpp` → Script, `*.client.cpp` → LocalScript, `*.plugin.cpp` → Plugin, `*.legacy*` → Legacy, untagged → ModuleScript
+- Quoted `#include "Own.h"` (same stem as the `.cpp`) is **inlined**. Other quoted includes become `require` (Rojo path)
+- `#include <cluaupp/roblox.hpp>` is IntelliSense only. `#include <cluaupp/libs/janitor.hpp>` also injects `require(CluauppLibs.Janitor)`
+- `#pragma once` is ignored. Other macros are not expanded. `//` and `/* */` comments are stripped
+- `using …;` is skipped. `namespace { }` is flattened. `enum` / `template` / `typedef` / `extern` declarations are skipped
+
+## Types
+
+| C++ | Luau |
+| --- | --- |
+| `int` / `float` / `double` | `number` |
+| `bool` | `boolean` |
+| `string` | `string` (not `std::string`) |
+| `void` | no return annotation |
+| `auto` / `auto*` | inferred from `new` / `GetService` / datatype ctor |
+| `Player*` / `Folder*` | `Player` / `Folder` (Instance handle, not a heap address) |
+| `LuaArray<T>` / `vector<T>` / `array<T>` / `span<T>` | `{T}` |
+| `optional<T>` | `T?` |
+| `const` / `static constexpr` | Luau `const` |
+| `nullptr` | `nil` |
+| `Vector3` `CFrame` `UDim2` `Color3` | same names (copied values) |
+| `Enum::Material::Plastic` | `Enum.Material.Plastic` |
+
+Always initialize: `int coins = 0;` not `int coins;` (uninitialized emits `nil`). There is no `delete`, no `*part`, no `&part`, no `int&`. Numbers copy; Instances mutate through `->`.
+
+`auto` infers when the value is `new Class(...)`, `GetService<T>()`, or a datatype constructor. Prefer explicit types on parameters and struct fields.
 
 ## Functions
 
@@ -35,28 +58,18 @@ const function doubleCoins(coins: number): number
 end
 ```
 
-`void` omits a return annotation. `int` / `float` / `double` → `number`. `bool` → `boolean`. Roblox types (`Player`, `Folder`) keep their name.
+- Only functions with a body are emitted from a `.cpp`. Prototypes in a `.h` become `export type` fields
+- No overloading — one name, one emit. No default arguments
+- If `void init()` exists, emit appends `init()` at the end of Scripts / LocalScripts. There is no `int main()`
+- Shared ModuleScripts should not define `init()` unless you want them to run on `require`
 
-If `void init()` exists, emit appends `init()` at the end of the file.
+## Scopes
 
-## Locals and const
-
-Luau uses `local` for variables and `const` for constants. `const int` in C++ becomes `const` in Luau.
-
-```cpp
-int coins = 10;
-const int STARTING_COINS = 0;
-auto* folder = new Folder(player);
-```
-
-```luau
-local coins: number = 10
-const STARTING_COINS: number = 0
-local folder: Folder = Instance.new("Folder")
-folder.Parent = player
-```
-
-`auto` infers the type when the value is `new Class(...)` or `GetService<Service>()`.
+- File-level decls become file `local` / `const`
+- Function decls become `local` from that line to the end of the block. Nested `{ }` can shadow
+- In `Class::Method`, `this` is `self`. Bare field names become `self.field`. Bare calls to other methods become `self:Method(...)`. Parameters and locals shadow fields
+- Globals stay bare: `print`, `game`, `workspace`, library types, Instance types, datatypes
+- Instances are not RAII. Leaving a block does not Destroy a Part — use Janitor
 
 ## Control flow
 
@@ -121,9 +134,9 @@ repeat
 until true
 ```
 
-`switch` evaluates the discriminant **once**, then becomes `if` / `elseif` / `else` inside `repeat … until true` so `break` still exits the switch (even from inside an `if`). Stacked `case` labels share a body (`case "buy": case "purchase":`). There is no C-style fall-through into the next case’s statements. C-style `for (int i = 0; i < n; i++)` is not supported yet.
+`switch` evaluates the discriminant **once**, then becomes `if` / `elseif` / `else` inside `repeat … until true` so `break` still exits the switch (even from inside an `if`). Stacked `case` labels share a body. There is no C-style fall-through. C-style `for (int i = 0; i < n; i++)` is not supported. No `continue`, no `do/while`, no ternary. `else if (x)` emits a nested `if` inside `else` (not Luau `elseif`).
 
-## Expressions
+## Expressions and operators
 
 | C++ | Luau |
 | --- | --- |
@@ -132,15 +145,20 @@ until true
 | `!=` | `~=` |
 | `&&` | `and` |
 | `\|\|` | `or` |
-| `==` `+` `-` `*` `/` `<` `>` `<=` `>=` | same |
+| `!` | `not` |
+| `==` `+` `-` `*` `/` `<` `>` `<=` `>=` | same (`*` is multiply) |
 | `"text"` | `"text"` |
+| `=` | assignment |
 | `obj->Prop` | `obj.Prop` |
-| `obj->Method(a)` | `obj:Method(a)` if the method is a Roblox API |
+| `obj->Method(a)` | `obj:Method(a)` if the method is a Roblox / library API |
 | `fn(a)` | `fn(a)` |
 | `signal.Connect(fn)` | `signal:Connect(fn)` |
 | `Type { .Field = value }` | `{ Field = value }` |
+| unary `-` | `-` |
 
-Designated initializers become Luau tables. Nested braces work the same way:
+No `++` `--` `+=`. Write `n = n + 1`. Binary operators in this subset are left-associative — use parentheses when mixing.
+
+Designated initializers become Luau tables:
 
 ```cpp
 DataService::Server.Init(DataServiceOptions {
@@ -158,48 +176,87 @@ DataService.Server:Init({
 })
 ```
 
+## Strings and string_concat
+
+Luau concatenates with `..`. Do not write `..` in a `.cpp`.
+
+- If either side of `+` is a string literal, another concat, or `.Name` / `.Text` / `.DisplayName`, `+` becomes `..`
+- `string_concat(a, b, c)` is variadic: zero args → `""`, one arg → that value, several → `(a .. b .. c)`
+- Declared in `datatypes.hpp` (via `roblox.hpp`)
+
+```cpp
+return player->Name + "_LeaderstatsJanitor";
+return string_concat(player->Name, "_", "LeaderstatsJanitor");
+```
+
+```luau
+return player.Name .. "_LeaderstatsJanitor"
+return (player.Name .. "_" .. "LeaderstatsJanitor")
+```
+
+## print / cout
+
+`print`, `warn`, and `error` work as in Luau. `cout << … << endl` is the C++ spelling — each `<<` is another argument, `endl` ends the line. `cout::warn` / `cout::error` / `cout::ping` pick the Roblox function. `cerr` is `warn`. Full table: [print and cout](print-cout.md).
+
 ## `new` and services
 
 ```cpp
 auto* coins = new IntValue(leaderstats);
 auto* players = GetService<Players>();
+auto* janitor = new Janitor();
+part->Size = Vector3(8, 1, 8);
+part->CFrame = CFrame::lookAt(from, look);
+part->Material = Enum::Material::Plastic;
 ```
 
 ```luau
 local coins: IntValue = Instance.new("IntValue")
 coins.Parent = leaderstats
 local players: Players = game:GetService("Players")
+local janitor = Janitor.new()
+part.Size = Vector3.new(8, 1, 8)
+part.CFrame = CFrame.lookAt(from, look)
+part.Material = Enum.Material.Plastic
 ```
 
-The first argument of `new Class(parent)` becomes `.Parent`. With no argument: `Instance.new("Class")` only.
+The first argument of `new Class(parent)` becomes `.Parent` for Instance classes. Libraries use `Janitor.new()`. Datatypes use `Vector3(...)`, not `new`.
 
-## print / cout
+## Casts
 
-`print`, `warn`, and `error` work as in Luau. `cout << … << endl` is the C++ spelling — each `<<` is another argument, `endl` ends the line. `cout::warn` / `cout::error` / `cout::ping` pick the Roblox function.
+`static_cast<T>(x)`, `const_cast`, `reinterpret_cast`, `dynamic_cast` emit the argument. `(void)x;` is omitted (silences unused for clangd). Luau has no casts — they do not check ClassName.
+
+## Callbacks (events and lambdas)
+
+Signals use `.Connect`. Callbacks may be **named functions** or **lambdas** (`[](Player* player) { ... }`, including `[&]` / `[=]` / `[coinsValue]`). Capture lists are accepted; Luau closures do not copy C++ captures — keep Instances alive with Janitor.
+
+Passing a method by name from inside `Class::` binds `self`: `function(...) self:OnPlayer(...) end`.
 
 ```cpp
-cout << "EnsureStat: " << name << " not found" << endl;
-cout::print << "EnsureStat: " << name << " not found" << endl;
-cerr << "failed";
-cout::print("ok");
-cout::warn("careful");
-cout::error("fail");
-cout::ping("here");
+players->PlayerAdded.Connect([&](Player* playerEntered) {
+	leaderstatsServer.PlayerEntered(playerEntered);
+});
+game->BindToClose([&]() {
+	leaderstatsServer.janitor->Cleanup();
+});
 ```
 
-```luau
-print("EnsureStat: ", name, " not found")
-warn("failed")
-print("ok")
-warn("careful")
-error("fail")
-print("here")
-```
+## OOP: structs, methods, singletons
 
-Full table and IntelliSense notes: [print and cout](print-cout.md).
+How you write a type: a `struct` (or `class`) in the sibling `.h`, `Class::Method` in the `.cpp`, `void init()` to boot.
 
-## Not supported yet
+- `static constexpr` fields are `const`
+- Fields are `self.field`. `public:` / `private:` are ignored
+- Nested structs with defaults become nested tables (DataService Templates). `LuaArray<T>` fields stay on the table
+- `Class::` methods emit `function Class:Method(...)`
+- Construct **one** service table in `init()` (`LeaderstatsServer leaderstatsServer;`) and capture it in lambdas. That is the game singleton
+- Library singletons already exist: `DataService::Server` / `Client` — `Init` once from a boot script
+- Header-only field structs emit `const function Name()` returning defaults
+- Untagged files of only `Class::` methods `return` the table (ModuleScript)
 
-Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `std::`, overloading, macros (except `#pragma strict` / `#pragma nstrict` / `#pragma once`).
+Stem must match: `LeaderstatsServer.h` next to `LeaderstatsServer.server.cpp`. A differently named include is a `require`, not the class body.
 
-If you need one of those patterns, open an issue with the C++ and the expected Luau.
+## Not supported
+
+Custom C++ classes as metatables, generic templates besides `GetService<T>` / `static_cast<T>` / `LuaArray<T>` / `string_concat`, pointer arithmetic, `std::` (except mapped aliases), overloading, macros (except `#pragma strict` / `#pragma nstrict` / `#pragma once`), JSX / XML UI tags, C-style `for`, `++` `--` `+=`, `continue`, ternary, `do/while`, `try/catch`, `goto`, `int&` references.
+
+CLI forms: [CLI](cli.md). How to write a type: [OOP](oop/index.md). Full handbook: **[Docs](https://kartzrbx.github.io/Cluaupp/docs/)**.

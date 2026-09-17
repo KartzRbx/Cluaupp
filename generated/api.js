@@ -43,9 +43,23 @@ function luauType(name) {
     if (!name) {
         return null;
     }
-    const cleaned = String(name).replace(/\*+$/, "").replace(/^const\s+/, "").replace(/^Enum::/, "Enum.");
+    const cleaned = String(name)
+        .replace(/\*+$/, "")
+        .replace(/^const\s+/, "")
+        .replace(/^Enum::/, "Enum.")
+        .replace(/\s+/g, " ")
+        .trim();
     if (cleaned in LUAU_TYPES) {
         return LUAU_TYPES[cleaned];
+    }
+    const generic = cleaned.match(/^(?:std::)?(?:vector|array|span|LuaArray)\s*<\s*([^>]+)\s*>$/);
+    if (generic) {
+        const inner = luauType(generic[1]) || generic[1];
+        return `{${inner}}`;
+    }
+    const optional = cleaned.match(/^(?:std::)?optional\s*<\s*([^>]+)\s*>$/);
+    if (optional) {
+        return `${luauType(optional[1]) || optional[1]}?`;
     }
     return cleaned;
 }

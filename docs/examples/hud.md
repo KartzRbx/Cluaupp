@@ -9,7 +9,7 @@ Client-only: wait for the replicated profile, write labels, listen for currency 
 
 Put a ScreenGui named `Hud` in StarterGui with `MoneyLabel` and `LevelLabel` (`TextLabel`).
 
-Define callbacks **above** `init()` so clangd and the subset both see them (no lambdas).
+Define callbacks **above** `init()` or use lambdas in `Connect`.
 
 ## `HudClient.client.cpp`
 

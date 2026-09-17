@@ -3,132 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Docs · Cluaupp</title>
-<link rel="icon" href="./assets/logo.png">
-<link rel="stylesheet" href="./assets/style.css?v=4">
+<title>Cluaupp</title>
+<link rel="icon" href="/assets/logo.png">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
+  <script type="module" crossorigin src="/assets/index-MPPs1aT0.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-D6-RpvcB.css">
 </head>
 <body>
-<a class="skip" href="#content">Skip to content</a>
-<header class="site-header">
-  <a class="brand" href="./index.html"><img src="./assets/logo.png" alt="" width="36" height="36">Cluaupp</a>
-  <div class="nav-wrap">
-    <nav class="nav-links" aria-label="Primary">
-      <span class="nav-pill" aria-hidden="true"></span>
-      <a href="./index.html" aria-current="page">Home</a>
-      <a href="./learn/index.html">Learn</a>
-      <a href="./guide/getting-started.html">Start</a>
-      <a href="./guide/examples.html">Examples</a>
-      <a href="./api/datatypes/index.html">Datatypes</a>
-      <a href="./api/classes/index.html">Classes</a>
-      <a href="./api/enums/index.html">Enums</a>
-    </nav>
-  </div>
-  <div class="header-tools">
-    <label class="sr-only" for="theme-select">Theme</label>
-    <select id="theme-select" class="theme-switch" data-theme-select aria-label="Theme">
-      <option value="dark">Dark Modern</option>
-      <option value="tokyo">Tokyo Night</option>
-      <option value="dracula">Dracula</option>
-      <option value="nord">Nord</option>
-      <option value="carbon">Carbon</option>
-      <option value="light">Light</option>
-    </select>
-  </div>
-</header>
-<div class="page" id="content">
-<section class="hero">
-  <div class="hero-copy reveal">
-    <p class="eyebrow">C++ × Luau</p>
-    <h1>Write C++.<br>Ship Studio Luau.</h1>
-    <p class="lede">Cluaupp 0.2.0: a C++ subset → readable Luau. Tree-sitter compiles. clangd completes. Filename tags pick Script / LocalScript / ModuleScript. No WASM. No lua_call.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="learn/index.html">Learn the language</a>
-      <a class="btn btn-ghost" href="api/classes/index.html">Open the API</a>
-    </div>
-    <pre data-lang="plain" data-highlighted="1">npm install -g cluaupp
-cluaupp init my-game
-cluaupp build
-rojo serve</pre>
-  </div>
-  <img class="hero-logo" src="./assets/logo.png" alt="Cluaupp mark">
-</section>
-<section class="section" data-reveal>
-  <h2>Engine, not a dump</h2>
-  <p class="muted">Docs generated from the official Roblox API dump (1) — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
-  <div class="grid">
-    <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, OOP, Luau output, safety</span></a>
-    <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, clangd</span></a>
-    <a class="card" href="guide/oop.html"><strong>OOP structure</strong><span class="muted">structs, services, typed Combat</span></a>
-    <a class="card" href="guide/examples.html"><strong>Examples</strong><span class="muted">leaderstats, combat, shop, HUD, sword</span></a>
-    <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><span class="muted">Vector3, CFrame, UDim2, Color3</span></a>
-    <a class="card" href="api/classes/index.html"><strong>Classes</strong><span class="muted">925 instances and services</span></a>
-    <a class="card" href="api/enums/index.html"><strong>Enums</strong><span class="muted">636 enumerations</span></a>
-  </div>
-</section>
-<section class="section" data-reveal>
-  <h2>C++ becomes Luau</h2>
-  <p class="muted">Hover the cards. Flip the tabs. The mapping is the product.</p>
-  <div class="pair" data-tabs>
-	<div class="pair-tabs">
-		<span class="tab-ink" aria-hidden="true"></span>
-		<button type="button" role="tab" aria-selected="true" aria-controls="pair-1-cpp" id="pair-1-tab-cpp">C++</button>
-		<button type="button" role="tab" aria-selected="false" aria-controls="pair-1-luau" id="pair-1-tab-luau" tabindex="-1">Luau</button>
-	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-1-cpp" aria-labelledby="pair-1-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="keyword">auto</span>* players = <span data-tok="fn">GetService</span>&lt;<span data-tok="type">Players</span>&gt;();
-<span data-tok="keyword">for</span> (<span data-tok="keyword">auto</span>* player : players-&gt;<span data-tok="fn">GetPlayers</span>()) {
-	<span data-tok="fn">CreateLeaderstats</span>(player);
-}
-players-&gt;PlayerAdded.<span data-tok="fn">Connect</span>(CreateLeaderstats);</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-1-luau" aria-labelledby="pair-1-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
-<span data-tok="keyword">local</span> players: <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
-<span data-tok="keyword">for</span> _, player <span data-tok="keyword">in</span> players:<span data-tok="fn">GetPlayers</span>() <span data-tok="keyword">do</span>
-	<span data-tok="fn">CreateLeaderstats</span>(player)
-<span data-tok="keyword">end</span>
-players.PlayerAdded:<span data-tok="fn">Connect</span>(CreateLeaderstats)</pre></div>
-</div>
-  <table>
-<tr><th>C++</th><th>Luau</th></tr>
-<tr><td><code>int</code> / <code>float</code> / <code>double</code></td><td><code>number</code></td></tr>
-<tr><td><code>bool</code></td><td><code>boolean</code></td></tr>
-<tr><td><code>string</code></td><td><code>string</code></td></tr>
-<tr><td><code>const int N = 1</code></td><td><code>const N: number = 1</code></td></tr>
-<tr><td><code>Part*</code> / <code>auto*</code></td><td><code>Part</code> (Instance handle)</td></tr>
-<tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
-<tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
-<tr><td><code>Color3::fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
-<tr><td><code>Enum::Material::Plastic</code></td><td><code>Enum.Material.Plastic</code></td></tr>
-<tr><td><code>new Part(workspace)</code></td><td><code>Instance.new("Part")</code> + <code>.Parent</code></td></tr>
-<tr><td><code>part-&gt;Position</code></td><td><code>part.Position</code></td></tr>
-<tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code></td></tr>
-<tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
-<tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
-<tr><td><code>Net::Event("Coins")</code></td><td><code>Net.Event("Coins")</code></td></tr>
-<tr><td><code>janitor-&gt;Add(conn)</code></td><td><code>janitor:Add(conn)</code></td></tr>
-<tr><td><code>nullptr</code></td><td><code>nil</code></td></tr>
-<tr><td><code>!=</code> <code>&amp;&amp;</code> <code>||</code></td><td><code>~=</code> <code>and</code> <code>or</code></td></tr>
-</table>
-</section>
-<section class="section" data-reveal>
-  <h2>Libraries that compile with you</h2>
-  <p class="muted">Janitor, Promise, Fusion, Cmdr, DataService, Net, Twinkle and the rest ship in CluauppLibs. Include a header; the compiler injects <code>require</code>. How-to: <a href="guide/libraries.html">Libraries</a>.</p>
-</section>
-</div>
-<footer class="site-footer">
-  <span>Cluaupp — C++ × Luau</span>
-  <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
-</footer>
-<script src="./assets/app.js?v=4"></script>
-<button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
-<div class="ask-panel" data-ask-panel hidden>
-  <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>
-  <form class="ask-form" data-ask-form>
-    <input name="q" type="text" autocomplete="off" placeholder="How does init() work?">
-    <button type="submit">Send</button>
-  </form>
-</div>
+<div id="root"></div>
 </body>
 </html>

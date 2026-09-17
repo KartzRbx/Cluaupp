@@ -3,15 +3,28 @@ title: OOP structure
 sidebar_position: 1
 ---
 
-# OOP structure
+# Structs and methods
 
-The **live site** (not just these markdown files) is GitHub Pages:
+Live handbook: [Structs and methods](https://kartzrbx.github.io/Cluaupp/docs/structs.html). Singletons: [one table in `init()`](https://kartzrbx.github.io/Cluaupp/docs/singletons.html).
 
-- [Learn → OOP structure](https://kartzrbx.github.io/Cluaupp/learn/index.html)
-- [Guide → OOP](https://kartzrbx.github.io/Cluaupp/guide/oop.html)
-- [Examples](https://kartzrbx.github.io/Cluaupp/guide/examples.html)
+Cluaupp does **not** emit C++ `class` metatables. You write a **type** as a `struct` in a sibling header and implement `Class::Method` in the `.cpp`. Filename tags still decide Script / LocalScript / ModuleScript.
 
-Cluaupp does **not** compile custom C++ `class` types yet. “OOP” here is how you **lay out systems** so Studio gets Script / LocalScript / ModuleScript from the filename tag — the same idea as roblox-ts. Flamework-style Start/Stop folders are opt-in (`"architecture": true`).
+Construct **one** `LeaderstatsServer` in `void init()`, assign `janitor = new Janitor()`, and capture it in `[&]` lambdas. Library singletons already exist (`DataService::Server`) — `Init` once from a boot script. Join strings with `string_concat` or string `+`, not Luau `..`.
+
+```cpp
+#pragma once
+#include <cluaupp/roblox.hpp>
+#include <cluaupp/libs/janitor.hpp>
+
+struct LeaderstatsServer {
+	static constexpr int STARTING_COINS = 0;
+	Janitor* janitor;
+	string GetPlayerJanitorKey(Player* player);
+	void PlayerEntered(Player* player);
+};
+```
+
+The stem must match: `LeaderstatsServer.h` next to `LeaderstatsServer.server.cpp`. `#include "leaderstats.h"` from a differently named cpp is a `require`, not the class body.
 
 | Page | What you learn |
 | --- | --- |
@@ -19,4 +32,4 @@ Cluaupp does **not** compile custom C++ `class` types yet. “OOP” here is how
 | [Services](services.md) | One `.server.cpp` → one `.server.luau` |
 | [Modules](modules.md) | Untagged files, structs, named functions as methods |
 
-Planner details: [Architecture](../architecture.md). Folder layout: [Organization](../cpp-organization.md). Full services: [Examples](../examples/index.md).
+Planner: [Architecture](../architecture.md). Folder layout: [Organization](../cpp-organization.md). Full copy: [Leaderstats](../examples/leaderstats.md).

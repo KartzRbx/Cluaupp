@@ -1,20 +1,5 @@
 {
 	"files.eol": "\n",
-	"C_Cpp.intelliSenseEngine": "Disabled",
-	"C_Cpp.default.cppStandard": "c++20",
-	"C_Cpp.default.cStandard": "c17",
-	"C_Cpp.default.compilerPath": "clang++",
-	"C_Cpp.default.intelliSenseMode": "windows-clang-x64",
-	"C_Cpp.default.includePath": [
-		"${workspaceFolder}/include",
-		"${workspaceFolder}/templates/game/src",
-		"${workspaceFolder}/examples/game/src"
-	],
-	"C_Cpp.default.browse.path": [
-		"${workspaceFolder}/include",
-		"${workspaceFolder}/templates/game/src",
-		"${workspaceFolder}/examples/game/src"
-	],
 	"clangd.enable": true,
 	"clangd.arguments": [
 		"--compile-commands-dir=${workspaceFolder}",

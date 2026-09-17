@@ -17,6 +17,8 @@ Cluaupp is statically typed in the C++ you write and in the Luau it emits. A typ
 | `void` | (no return) | procedures |
 | `auto` | inferred | when `new` or `GetService` makes the type obvious |
 | `Player*`, `Folder*`, … | `Player`, `Folder` | Instances |
+| `LuaArray<int>` / `vector<T>` | `{number}` | arrays (Template inventory, `GetPlayers`) |
+| `optional<T>` | `T?` | missing values (prefer `nullptr` on Instances) |
 | `Vector3`, `CFrame`, `UDim2` | same | datatypes |
 
 ```cpp

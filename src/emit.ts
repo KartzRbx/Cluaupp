@@ -31,6 +31,7 @@ function emit(ast, options = {}) {
 		}
 	}
 	const ownedFns = (ast.body || []).filter((decl) => decl.type === "function");
+	const hasOwnedMethods = ownedFns.some((decl) => Boolean(decl.owner));
 	const classModule = ownedFns.length > 0 && ownedFns.every((decl) => Boolean(decl.owner));
 	const nestedTypes = new Set();
 	for (const decl of ast.body || []) {
@@ -142,6 +143,38 @@ function emit(ast, options = {}) {
 		return linesOut;
 	};
 
+	const isStringConcatCall = (node) => node && node.type === "call" && !node.object && node.name === "string_concat";
+
+	const emitStringConcat = (args) => {
+		const parts = (args || []).map(emitExpr);
+		if (parts.length === 0) {
+			return `""`;
+		}
+		if (parts.length === 1) {
+			return parts[0];
+		}
+		return `(${parts.join(" .. ")})`;
+	};
+
+	const isStringExpr = (node) => {
+		if (!node) {
+			return false;
+		}
+		if (node.type === "string") {
+			return true;
+		}
+		if (isStringConcatCall(node)) {
+			return true;
+		}
+		if (node.type === "binary" && node.op === "+" && (isStringExpr(node.left) || isStringExpr(node.right))) {
+			return true;
+		}
+		if (node.type === "member" && (node.name === "Name" || node.name === "Text" || node.name === "DisplayName")) {
+			return true;
+		}
+		return false;
+	};
+
 	const emitExpr = (node) => {
 		if (!node) {
 			return "nil";
@@ -164,6 +197,28 @@ function emit(ast, options = {}) {
 				}
 				return `{ ${entries.join(", ")} }`;
 			}
+			case "cast":
+				if (node.valueType === "void") {
+					return emitExpr(node.argument);
+				}
+				return emitExpr(node.argument);
+			case "lambda": {
+				const params = (node.params || [])
+					.map((param) => {
+						if (typeof param === "string") {
+							return param;
+						}
+						const typeAnn = luauType(param.valueType);
+						return typeAnn ? `${param.name}: ${typeAnn}` : param.name;
+					})
+					.join(", ");
+				const inner = [];
+				for (const stmt of node.body || []) {
+					inner.push(...emitStmt(stmt, 1));
+				}
+				const body = inner.length > 0 ? `\n${inner.join("\n")}\n` : "\n";
+				return `function(${params})${body}end`;
+			}
 			case "unary": {
 				const inner = emitExpr(node.argument);
 				if (node.op === "!") {
@@ -183,6 +238,9 @@ function emit(ast, options = {}) {
 			case "member":
 				return `${emitExpr(node.object)}.${node.name}`;
 			case "call": {
+				if (isStringConcatCall(node)) {
+					return emitStringConcat(node.args);
+				}
 				const args = node.args.map(emitMethodArg).join(", ");
 				if (!node.object) {
 					if (isDatatype(node.name)) {
@@ -194,6 +252,9 @@ function emit(ast, options = {}) {
 					return `${node.name}(${args})`;
 				}
 				const obj = emitExpr(node.object);
+				if (classMethods.has(node.name) && !localNames.has(node.name)) {
+					return `${obj}:${node.name}(${args})`;
+				}
 				if (node.access === "::" && node.object.type === "ident" && node.object.name === "cout") {
 					if (node.name === "endl") {
 						return "print()";
@@ -231,6 +292,9 @@ function emit(ast, options = {}) {
 					if (printed) {
 						return printed.join("; ");
 					}
+				}
+				if (node.op === "+" && (isStringExpr(node.left) || isStringExpr(node.right))) {
+					return `${emitExpr(node.left)} .. ${emitExpr(node.right)}`;
 				}
 				const ops = { "!=": "~=", "&&": "and", "||": "or" };
 				const op = ops[node.op] || node.op;
@@ -292,6 +356,9 @@ function emit(ast, options = {}) {
 			return [`${prefix}${kind} ${node.name}${typed} = ${created.className}.new(${args})`];
 		}
 		const value = node.value ? emitExpr(node.value) : "nil";
+		if (!node.value && node.valueType && classOwners.has(node.valueType)) {
+			return [`${prefix}${kind} ${node.name}${typed} = ${node.valueType}`];
+		}
 		return [`${prefix}${kind} ${node.name}${typed} = ${value}`];
 	};
 
@@ -305,6 +372,9 @@ function emit(ast, options = {}) {
 				return emitNewDecl(node, indent);
 			case "expr": {
 				const expr = node.expr;
+				if (expr && expr.type === "cast" && expr.valueType === "void") {
+					return [];
+				}
 				if (expr && expr.type === "binary" && expr.op === "<<") {
 					const printed = emitCout(expr);
 					if (printed) {
@@ -456,11 +526,9 @@ function emit(ast, options = {}) {
 		lines.push("	}");
 		lines.push("end");
 		lines.push("");
-		lines.push(`return ${root}`);
-		lines.push("");
 	};
 
-	if (classModule) {
+	if (hasOwnedMethods) {
 		for (const owner of classOwners) {
 			lines.push(`local ${owner} = {}`);
 			lines.push("");
@@ -471,6 +539,16 @@ function emit(ast, options = {}) {
 		for (const root of structRoots) {
 			emitStructConstructor(root);
 		}
+		if (structRoots.length === 1) {
+			lines.push(`return ${structRoots[0]}`);
+		} else {
+			lines.push("return {");
+			for (const root of structRoots) {
+				lines.push(`	${root} = ${root},`);
+			}
+			lines.push("}");
+		}
+		lines.push("");
 		return lines.join("\n");
 	}
 

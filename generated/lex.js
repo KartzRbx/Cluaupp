@@ -33,6 +33,9 @@ const KEYWORDS = new Set([
     "case",
     "default",
     "break",
+    "static",
+    "constexpr",
+    "inline",
 ]);
 function tokenize(source) {
     const tokens = [];

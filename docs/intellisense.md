@@ -6,12 +6,12 @@ C++ completion, hover, and go-to-definition are **clangd**. Cluaupp does not shi
 
 1. [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) (`llvm-vs-code-extensions.vscode-clangd`)
 2. LLVM `clang++` when missing (Windows: `winget install --id LLVM.LLVM -e`)
-3. `.clangd`, `compile_flags.txt`, and `compile_commands.json` so clangd finds `include/` (clangd does **not** read `.vscode/c_cpp_properties.json`)
+3. `.clangd`, `compile_flags.txt`, and `compile_commands.json` so clangd finds `include/`
 4. Forced include of `include/cluaupp/roblox.hpp` so `GetService`, `Player`, `Janitor` complete from the real C++ stubs
 
 Tree-sitter is the **compiler** frontend (collect → emit Luau). It is not an editor language server. A homemade tokenizer in the CLI would fight clangd — that path is gone.
 
-Microsoft `ms-vscode.cpptools` is **not** used. Two C++ engines in the same window fight; Cluaupp disables the Microsoft engine (`C_Cpp.intelliSenseEngine: Disabled`).
+Microsoft `ms-vscode.cpptools` is **not** used and is **not licensed for Cursor**. Two C++ engines in the same window fight; Cluaupp recommends only clangd and marks cpptools as unwanted.
 
 `cluaupp lsp` only publishes **subset parse errors** (code that clangd may accept as C++ but Cluaupp will not transpile).
 
@@ -39,9 +39,8 @@ Reload: Command Palette → **Developer: Reload Window**. clangd should attach t
 
 | File | Role |
 | --- | --- |
-| `.vscode/c_cpp_properties.json` | compiler path (unused by clangd; kept if someone re-enables cpptools) |
-| `.vscode/settings.json` | `C_Cpp.intelliSenseEngine: Disabled`, `clangd.enable: true`, `--compile-commands-dir` |
-| `.vscode/extensions.json` | recommends `llvm-vs-code-extensions.vscode-clangd` |
+| `.vscode/settings.json` | `clangd.enable: true`, `--compile-commands-dir` |
+| `.vscode/extensions.json` | recommends `llvm-vs-code-extensions.vscode-clangd`; marks `ms-vscode.cpptools` unwanted |
 | `.clangd` | C++20, `-Iinclude`, skip `out/` and `libs/` |
 | `compile_flags.txt` | fallback flags if a file is not yet in `compile_commands.json` |
 | `compile_commands.json` | one entry per `src/` file |

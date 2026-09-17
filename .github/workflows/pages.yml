@@ -25,10 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Generate API site
+      - name: Generate API headers
         run: node scripts/generate-api.js
-      - name: Check code samples
-        run: node scripts/check-highlight.js
+      - name: Build site
+        run: npm run site
+        env:
+          GITHUB_ACTIONS: "true"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

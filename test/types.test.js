@@ -174,4 +174,107 @@ contains(sw, [
 	"break",
 ], "switch typing/control");
 
+const casts = compileSource(
+	`Folder* AsFolder(Instance* inst) {
+	(void)inst;
+	return static_cast<Folder*>(inst);
+}
+
+void OnPlayer(Player* player) {
+	print(player->Name);
+}
+
+void init() {
+	auto* players = GetService<Players>();
+	players->PlayerAdded.Connect([](Player* player) {
+		OnPlayer(player);
+	});
+	players->PlayerAdded.Connect([&](Player* player) {
+		OnPlayer(player);
+	});
+}
+`,
+	"casts.cpp",
+	{ strict: true },
+);
+contains(casts, [
+	"return inst",
+	"PlayerAdded:Connect(function(player: Player)",
+	"OnPlayer(player)",
+], "void cast, static_cast, and Connect lambdas");
+refuses(casts, ["(void)", "static_cast"], "casts must not leak into Luau");
+
+const concat = compileSource(
+	`string LeaderstatsServer::GetPlayerJanitorKey(Player* player) {
+	return (player->Name + "_LeaderstatsJanitor");
+}
+`,
+	"concat.cpp",
+	{ strict: true },
+);
+contains(concat, ['player.Name .. "_LeaderstatsJanitor"'], "string + concatenates with ..");
+refuses(concat, ["Name + \""], "string + must not stay arithmetic");
+
+const concatFn = compileSource(
+	`string LeaderstatsServer::GetPlayerJanitorKey(Player* player) {
+	return string_concat(player->Name, "_", "LeaderstatsJanitor");
+}
+
+string emptyJoin() {
+	return string_concat();
+}
+
+string onePart(string name) {
+	return string_concat(name);
+}
+`,
+	"concat-fn.cpp",
+	{ strict: true },
+);
+contains(
+	concatFn,
+	['(player.Name .. "_" .. "LeaderstatsJanitor")', 'return ""', "return name"],
+	"string_concat joins with ..",
+);
+refuses(concatFn, ["string_concat("], "string_concat must not leak into Luau");
+
+const constexprField = compileSource(
+	`struct Wallet {
+	static constexpr int STARTING_COINS = 0;
+	DataPath Coins;
+};
+`,
+	"wallet.h",
+	{ strict: true, relativeName: "wallet.h" },
+);
+contains(constexprField, ["STARTING_COINS", "Coins"], "static constexpr and DataPath fields");
+
+const playerData = compileSource(
+	`#pragma once
+
+struct PlayerDataCurrencies {
+	int Coins = 0;
+	int Rebirths = 0;
+};
+
+struct PlayerDataInventory {
+	LuaArray<int> HotBar;
+	LuaArray<string> Storage;
+	int MaxStorage = 90;
+};
+
+struct PlayerData {
+	PlayerDataCurrencies Currencies;
+	PlayerDataInventory Inventory;
+};
+`,
+	"PlayerData.h",
+	{ strict: true, relativeName: "shared/PlayerData.h" },
+);
+contains(
+	playerData,
+	["HotBar", "Storage", "MaxStorage", "Coins", "Currencies", "Inventory"],
+	"LuaArray fields stay on Template structs",
+);
+
 console.log("Cluaupp types ok");

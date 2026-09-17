@@ -5,136 +5,65 @@ sidebar_position: 3
 
 # Leaderstats
 
-Roblox shows the player list from a Folder named exactly `leaderstats` under the Player, with `IntValue` / `StringValue` children. This service **creates** those values, then mirrors DataService currencies into them.
+Canonical copy (three files): [Docs → Example: Leaderstats](https://kartzrbx.github.io/Cluaupp/docs/leaderstats.html).
 
-It does **not** call `DataService.Init`. Boot that in [Data boot](data-boot.md).
+Roblox shows the player list from a Folder named exactly `leaderstats` under the Player. This service **creates** those values, then mirrors DataService coins into them.
 
-## Why this shape
+It does **not** call `DataService.Init`. Boot that in [Data boot](data-boot.md) with your `PlayerData` Template.
+
+## Files
+
+| File | Role |
+| --- | --- |
+| `shared/PlayerData.h` | Template structs (`Currencies.Coins`, inventory `LuaArray`) |
+| `server/LeaderstatsServer.h` | `struct LeaderstatsServer` — fields + method decls (same stem) |
+| `server/LeaderstatsServer.server.cpp` | `Class::` bodies + `void init()` |
+
+## Rules
 
 | Rule | Why |
 | --- | --- |
-| Create the Folder if missing | `FindFirstChild` is not a constructor |
-| Create the stat if missing | Returning early when it is absent never shows Money |
-| `StringValue` + `FormatNumber::Abbreviate` | Player list wants a string like `1.5K` |
-| Janitor per player, keyed by `player->Name` | Leaving the game must `Destroy` the section janitor |
-| `GetChangedSignal(Paths.Currencies)` | HUD / list update without polling |
-| Named function, not a lambda | Cluaupp has no lambdas. The shared callback refreshes **all** players (currency writes are rare) |
+| Same-stem header | `LeaderstatsServer.h` + `LeaderstatsServer.server.cpp`. A differently named `leaderstats.h` is a `require`. |
+| `.server.cpp` | Untagged cpp is a ModuleScript; `init()` will not run by itself. |
+| `Paths.Currencies.Coins` | After `Init`. A local `int Coins` is not a Data path. |
+| `string_concat` or string `+` | Luau `..`. Do not write `..` in the `.cpp`. |
+| Janitor keyed by player name | Leaving the game must `Destroy` the folder. |
+| Lambda or named function | `GetChangedSignal(...).Connect([coinsValue](int n) { ... })` is valid. |
 
-## `LeaderstatsServer.server.cpp`
+## Header
 
 ```cpp
+#pragma once
 #include <cluaupp/roblox.hpp>
 #include <cluaupp/libs/janitor.hpp>
 #include <cluaupp/libs/dataservice.hpp>
-#include <cluaupp/libs/formatnumber.hpp>
 
-Players* Players = GetService<Players>();
-Janitor* janitor = new Janitor();
+struct LeaderstatsServer {
+	static constexpr int STARTING_COINS = 0;
+	Janitor* janitor;
+	string GetPlayerJanitorKey(Player* player);
+	void UpdateLeaderstatsWithValues(IntValue* currentValue, int newValue);
+	Folder* EnsurePlayerLeaderstatsFolder(Player* player);
+	void PlayerEntered(Player* player);
+};
+```
 
-void EnsureStat(Folder* leaderstats, string name) {
-	Instance* existing = leaderstats->FindFirstChild(name);
-	if (existing != nullptr) {
-		return;
+## `PlayerEntered`
+
+```cpp
+void LeaderstatsServer::PlayerEntered(Player* player) {
+	Folder* leaderstatsFolder = EnsurePlayerLeaderstatsFolder(player);
+	Data* playerData = DataService::Server.WaitFor(player);
+	IntValue* coinsValue = static_cast<IntValue*>(leaderstatsFolder->FindFirstChild("Coins"));
+	if (coinsValue) {
+		playerData->GetChangedSignal(DataService::Server.Paths.Currencies.Coins).Connect(
+			[coinsValue](int newValue) {
+				UpdateLeaderstatsWithValues(coinsValue, newValue);
+			}
+		);
 	}
-	StringValue* stat = new StringValue(leaderstats);
-	stat->Name = name;
-	stat->Value = "0";
-}
-
-void SetStat(Folder* leaderstats, string name, int value) {
-	StringValue* stat = leaderstats->FindFirstChild(name);
-	if (stat == nullptr) {
-		cout::warn << "leaderstats missing " << name << endl;
-		return;
-	}
-	stat->Value = FormatNumber::Abbreviate(value);
-}
-
-Folder* EnsureLeaderstats(Player* player) {
-	Folder* leaderstats = player->FindFirstChild("leaderstats");
-	if (leaderstats != nullptr) {
-		return leaderstats;
-	}
-	leaderstats = new Folder(player);
-	leaderstats->Name = "leaderstats";
-	return leaderstats;
-}
-
-void ApplyCurrencies(Player* player) {
-	Data* data = DataService::Server.Get(player);
-	if (data == nullptr) {
-		return;
-	}
-	Folder* leaderstats = player->FindFirstChild("leaderstats");
-	if (leaderstats == nullptr) {
-		return;
-	}
-	int money = data->Get(DataService::Server.Paths.Currencies.Money);
-	int level = data->Get(DataService::Server.Paths.Currencies.Level);
-	SetStat(leaderstats, "Money", money);
-	SetStat(leaderstats, "Level", level);
-}
-
-void OnCurrenciesChanged() {
-	for (Player* player : Players->GetPlayers()) {
-		ApplyCurrencies(player);
-	}
-}
-
-void SetupPlayer(Player* player) {
-	Data* data = DataService::Server.WaitFor(player);
-	if (data == nullptr) {
-		cout::warn << "no profile for " << player->Name << endl;
-		return;
-	}
-
-	Folder* leaderstats = EnsureLeaderstats(player);
-	EnsureStat(leaderstats, "Money");
-	EnsureStat(leaderstats, "Level");
-	ApplyCurrencies(player);
-
-	Janitor* section = new Janitor();
-	section->Add(data->GetChangedSignal(DataService::Server.Paths.Currencies).Connect(OnCurrenciesChanged));
-	section->Add(leaderstats, "Destroy");
-	janitor->Add(section, "Destroy", player->Name);
-}
-
-void OnPlayerRemoving(Player* player) {
-	if (janitor->Get(player->Name)) {
-		janitor->Remove(player->Name);
-	}
-}
-
-void OnClose() {
-	janitor->Destroy();
-}
-
-void init() {
-	for (Player* player : Players->GetPlayers()) {
-		SetupPlayer(player);
-	}
-	janitor->Add(Players->PlayerAdded.Connect(SetupPlayer));
-	janitor->Add(Players->PlayerRemoving.Connect(OnPlayerRemoving));
-	game->BindToClose(OnClose);
+	janitor->Add(leaderstatsFolder, "Destroy", GetPlayerJanitorKey(player));
 }
 ```
 
-## Output
-
-`LeaderstatsServer.server.cpp` becomes a service folder: `init.luau` (Script, RunContext **Server**), `Main`, `PlayersManager`, `DataController` / `CacheController`, Types. Your functions stay in the domain controller. See [services](../oop/services.md).
-
-## Bugs this example avoids
-
-| Broken | Correct |
-| --- | --- |
-| `if (!existing) { return; }` then never create the value | `EnsureStat` **creates** when missing |
-| `if (!money) { money->Value = ... }` | That writes only when the child is **nil** (crash / no-op). Set when the child **exists** |
-| `DataService.Get` before `WaitFor` on join | `WaitFor` in `SetupPlayer`, `Get` in the refresh path |
-| `int main()` | `void init()` |
-| One global connection, never removed | Section janitor destroyed on `PlayerRemoving` |
-
-`Paths.Currencies` is valid **after** your Template was passed to `Init`. The library header does not define those fields.
-
-## IntValue vs StringValue
-
-Use `IntValue` if you want the default numeric sort and no abbreviation. Use `StringValue` + `FormatNumber::Abbreviate` for `1.5K`. Do not mix both names (`Money` twice).
+`init()` constructs `LeaderstatsServer`, assigns `janitor = new Janitor()`, runs `PlayerEntered` for everyone already in the game, then `PlayerAdded` + `BindToClose`. Full listing is on the [handbook page](https://kartzrbx.github.io/Cluaupp/docs/leaderstats.html).

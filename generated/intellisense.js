@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.intelliSenseMode = intelliSenseMode;
 exports.clangPath = clangPath;
 exports.writeCompileCommands = writeCompileCommands;
 exports.writeClangd = writeClangd;
@@ -65,32 +64,6 @@ function compileCommandEntry(root, file) {
         arguments: [clangPath(), ...clangCompileArgs(root), "-c", absFile],
     };
 }
-function mergeJson(file, patch) {
-    let current = {};
-    if (node_fs_1.default.existsSync(file)) {
-        try {
-            current = JSON.parse(node_fs_1.default.readFileSync(file, "utf8"));
-        }
-        catch {
-            current = {};
-        }
-    }
-    const next = { ...current, ...patch };
-    for (const key of Object.keys(patch)) {
-        const value = patch[key];
-        const existing = current[key];
-        if (value && typeof value === "object" && !Array.isArray(value) && existing && typeof existing === "object" && !Array.isArray(existing)) {
-            next[key] = { ...existing, ...value };
-        }
-    }
-    const json = `${JSON.stringify(next, null, "\t")}\n`;
-    if (node_fs_1.default.existsSync(file) && node_fs_1.default.readFileSync(file, "utf8") === json) {
-        return false;
-    }
-    node_fs_1.default.mkdirSync(node_path_1.default.dirname(file), { recursive: true });
-    node_fs_1.default.writeFileSync(file, json, "utf8");
-    return true;
-}
 function copyDir(from, to) {
     node_fs_1.default.mkdirSync(to, { recursive: true });
     for (const entry of node_fs_1.default.readdirSync(from, { withFileTypes: true })) {
@@ -104,22 +77,61 @@ function copyDir(from, to) {
         }
     }
 }
+function uniqueStrings(...lists) {
+    const seen = new Set();
+    const out = [];
+    for (const list of lists) {
+        if (!Array.isArray(list)) {
+            continue;
+        }
+        for (const item of list) {
+            if (typeof item === "string" && item && !seen.has(item)) {
+                seen.add(item);
+                out.push(item);
+            }
+        }
+    }
+    return out;
+}
+function stripCppToolsSettings(current) {
+    const next = {};
+    for (const [key, value] of Object.entries(current)) {
+        if (key === "C_Cpp" || key.startsWith("C_Cpp.")) {
+            continue;
+        }
+        next[key] = value;
+    }
+    return next;
+}
+function readJsonObject(file) {
+    if (!node_fs_1.default.existsSync(file)) {
+        return {};
+    }
+    try {
+        const parsed = JSON.parse(node_fs_1.default.readFileSync(file, "utf8"));
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+            return parsed;
+        }
+    }
+    catch {
+        // ignore corrupt editor json
+    }
+    return {};
+}
+function writeJson(file, value) {
+    const json = `${JSON.stringify(value, null, "\t")}\n`;
+    node_fs_1.default.mkdirSync(node_path_1.default.dirname(file), { recursive: true });
+    if (node_fs_1.default.existsSync(file) && node_fs_1.default.readFileSync(file, "utf8") === json) {
+        return;
+    }
+    node_fs_1.default.writeFileSync(file, json, "utf8");
+}
 function clangdEditorArgs() {
     return [
         "--compile-commands-dir=${workspaceFolder}",
         "--header-insertion=never",
         "--query-driver=**/clang++*,**/clang++.exe,**/g++*,**/g++.exe",
     ];
-}
-function intelliSenseMode() {
-    const arch = process.arch === "arm64" ? "arm64" : "x64";
-    if (process.platform === "win32") {
-        return `windows-clang-${arch}`;
-    }
-    if (process.platform === "darwin") {
-        return `macos-clang-${arch}`;
-    }
-    return `linux-clang-${arch}`;
 }
 function clangPath() {
     return (0, editor_install_js_1.findClangPlusPlus)() || "clang++";
@@ -167,54 +179,37 @@ Index:
     return true;
 }
 function writeVscode(root) {
-    const settings = node_path_1.default.join(root, ".vscode", "settings.json");
-    mergeJson(settings, {
-        "C_Cpp.intelliSenseEngine": "Disabled",
-        "C_Cpp.default.cppStandard": "c++20",
-        "C_Cpp.default.cStandard": "c17",
-        "C_Cpp.default.compilerPath": clangPath(),
-        "C_Cpp.default.intelliSenseMode": intelliSenseMode(),
-        "C_Cpp.default.includePath": ["${workspaceFolder}/include", "${workspaceFolder}/src"],
+    const settingsPath = node_path_1.default.join(root, ".vscode", "settings.json");
+    const current = readJsonObject(settingsPath);
+    const associations = {
+        ...((current["files.associations"] && typeof current["files.associations"] === "object" && !Array.isArray(current["files.associations"]))
+            ? current["files.associations"]
+            : {}),
+        "*.hpp": "cpp",
+        "*.h": "cpp",
+        "*.server.cpp": "cpp",
+        "*.client.cpp": "cpp",
+        "*.plugin.cpp": "cpp",
+        "*.legacy.cpp": "cpp",
+        "*.legacy.server.cpp": "cpp",
+        "*.legacy.client.cpp": "cpp",
+    };
+    writeJson(settingsPath, {
+        ...stripCppToolsSettings(current),
         "clangd.enable": true,
         "clangd.arguments": clangdEditorArgs(),
-        "files.associations": {
-            "*.hpp": "cpp",
-            "*.h": "cpp",
-            "*.server.cpp": "cpp",
-            "*.client.cpp": "cpp",
-            "*.plugin.cpp": "cpp",
-            "*.legacy.cpp": "cpp",
-            "*.legacy.server.cpp": "cpp",
-            "*.legacy.client.cpp": "cpp",
-        },
+        "files.associations": associations,
     });
-    mergeJson(node_path_1.default.join(root, ".vscode", "extensions.json"), {
-        recommendations: ["llvm-vs-code-extensions.vscode-clangd"],
+    const extensionsPath = node_path_1.default.join(root, ".vscode", "extensions.json");
+    const extensions = readJsonObject(extensionsPath);
+    writeJson(extensionsPath, {
+        ...extensions,
+        recommendations: uniqueStrings(extensions.recommendations, ["llvm-vs-code-extensions.vscode-clangd"]),
+        unwantedRecommendations: uniqueStrings(extensions.unwantedRecommendations, ["ms-vscode.cpptools"]),
     });
     const props = node_path_1.default.join(root, ".vscode", "c_cpp_properties.json");
-    const nextProps = {
-        configurations: [
-            {
-                name: "Cluaupp",
-                compilerPath: clangPath(),
-                cStandard: "c17",
-                cppStandard: "c++20",
-                intelliSenseMode: intelliSenseMode(),
-                includePath: ["${workspaceFolder}/include", "${workspaceFolder}/src"],
-                forcedInclude: ["${workspaceFolder}/include/cluaupp/roblox.hpp"],
-                compileCommands: "${workspaceFolder}/compile_commands.json",
-                browse: {
-                    path: ["${workspaceFolder}/include", "${workspaceFolder}/src"],
-                    limitSymbolsToIncludedHeaders: true,
-                },
-            },
-        ],
-        version: 4,
-    };
-    const json = `${JSON.stringify(nextProps, null, "\t")}\n`;
-    node_fs_1.default.mkdirSync(node_path_1.default.dirname(props), { recursive: true });
-    if (!node_fs_1.default.existsSync(props) || node_fs_1.default.readFileSync(props, "utf8") !== json) {
-        node_fs_1.default.writeFileSync(props, json, "utf8");
+    if (node_fs_1.default.existsSync(props)) {
+        node_fs_1.default.unlinkSync(props);
     }
 }
 function diagnosticsFor(source, fileName, options = {}) {

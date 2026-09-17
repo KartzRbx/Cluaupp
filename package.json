@@ -36,11 +36,12 @@
 		"prepare": "tsc",
 		"test": "node test/out.test.js && node test/types.test.js && node test/modules.test.js && node test/security.test.js && node test/understander.test.js",
 		"generate-api": "node scripts/generate-api.js",
-		"check-highlight": "node scripts/check-highlight.js",
+		"check-highlight": "tsx web/src/check-content.ts",
 		"vendor-libs": "node scripts/vendor-libs.js",
 		"docs": "moonwave dev",
 		"docs:build": "moonwave build",
-		"site": "node scripts/generate-api.js && node scripts/check-highlight.js",
+		"site": "vite build --config web/vite.config.mts && npm run check-highlight",
+		"site:dev": "vite --config web/vite.config.mts",
 		"dev": "node scripts/dev.js",
 		"stop": "node scripts/stop.js",
 		"prepublishOnly": "tsc && npm test"
@@ -68,6 +69,7 @@
 	},
 	"homepage": "https://github.com/KartzRbx/Cluaupp#readme",
 	"dependencies": {
+		"cluaupp": "^0.2.2",
 		"commander": "^15.0.0",
 		"comment-json": "^5.0.0",
 		"tree-sitter": "0.21.1",
@@ -81,7 +83,16 @@
 	},
 	"devDependencies": {
 		"@types/node": "^22.20.3",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@vitejs/plugin-react": "^6.0.1",
+		"@vitejs/plugin-vue": "^6.0.1",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1",
+		"react-router-dom": "^7.8.2",
 		"tsx": "^4.23.13",
-		"typescript": "^7.0.2"
+		"typescript": "^7.0.2",
+		"vite": "^8.0.0",
+		"vue": "^3.5.21"
 	}
 }

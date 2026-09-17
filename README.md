@@ -6,7 +6,7 @@
 
 **The definitive merge of C++ and modern Luau.**
 
-[Docs](https://kartzrbx.github.io/Cluaupp/) · [Learn](https://kartzrbx.github.io/Cluaupp/learn/) · [API](https://kartzrbx.github.io/Cluaupp/api/classes/)
+[Docs](https://kartzrbx.github.io/Cluaupp/) · [Handbook](https://kartzrbx.github.io/Cluaupp/docs/)
 
 [![npm version](https://img.shields.io/npm/v/cluaupp.svg)](https://www.npmjs.com/package/cluaupp)
 [![Node.js](https://img.shields.io/node/v/cluaupp.svg)](https://nodejs.org)

@@ -10,15 +10,18 @@ The subset is intentional. What exists is enough for game scripts; what is missi
 ## Supported
 
 - Functions, prototypes (headers only), `if` / `else` / `while` / range-`for` / `switch` (`case`, `default`, `break`)
+- `struct` types + `Class::` methods in a sibling `.h` / `.cpp`
 - `new Class(parent)`, `GetService<T>()`, `::` statics (`CFrame::lookAt`, `Enum::Material::Plastic`)
+- `static_cast<T>(x)`, `(void)x`, lambdas in `Connect` / `Add`
+- `static` / `constexpr` / `inline` specifiers, `LuaArray<T>`, `string_concat`
 - `->` methods and properties, `.` members, `Connect`
-- `const`, `auto`, `nullptr`, arithmetic, `&&` `||` `!=`
+- `const`, `auto`, `nullptr`, arithmetic, `&&` `||` `!=`, string `+`
 - Quoted includes, `.h` / `.hpp` as sources
 - Libraries via `#include <cluaupp/libs/...>` → `require(CluauppLibs.*)`
 
 ## Not supported (yet)
 
-Full C++: templates besides `GetService<T>`, `class` bodies as emitted types, `std::`, overloading as two runtimes, C-style `for`, macros, pointer arithmetic.
+Full C++: templates besides `GetService<T>` / `static_cast` / `LuaArray`, `class` bodies as emitted metatables, `std::`, overloading as two runtimes, C-style `for`, macros, pointer arithmetic, JSX.
 
 If you need a custom type, it is usually a **ModuleScript in shared** (a `.cpp` of functions) or a Wally package, not a C++ class the compiler would lower to a metatable.
 
@@ -72,4 +75,4 @@ void Grant(Player* player, int amount) {
 5. **Headers declare, scripts define.** Prototypes in `.h`, bodies in `.cpp`.
 6. **Do not share mutable statics across server and client** — use Net or DataService.
 
-See also: [syntax](syntax.md), [print and cout](print-cout.md), [libraries](libraries/index.md), [OOP](oop/index.md), [examples](examples/index.md), [comparison](comparison.md).
+See also: [syntax](syntax.md) (complete subset), [print and cout](print-cout.md), [libraries](libraries/index.md), [OOP](oop/index.md), [examples](examples/index.md), [comparison](comparison.md). Optimization notes on the site: [Optimization](https://kartzrbx.github.io/Cluaupp/docs/optimization.html).

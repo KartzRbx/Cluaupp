@@ -2,12 +2,10 @@
 
 const fs = require("fs");
 const path = require("path");
-const { localLayout, homeBody, introBody, movedBody, learnBody, preCode, oopGuide, examplesGuide, librariesGuide, printCoutGuide } = require("./site-html");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
 const INCLUDE = path.join(ROOT, "include", "cluaupp");
-const SITE = path.join(ROOT, "site");
 
 const CPP_RESERVED = new Set([
 	"alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break",
@@ -675,6 +673,10 @@ using Enum::Axis;
 
 using string = const char*;
 
+// Variadic join. Cluaupp emits Luau a .. b .. c.
+template <typename... Args>
+string string_concat(Args... args);
+
 struct Instance;
 struct Player;
 
@@ -841,12 +843,6 @@ void delay(double seconds, void (*callback)());
 		fs.cpSync(INCLUDE, gameInclude, { recursive: true });
 	}
 
-	try {
-		buildSite({ classes, enums, byName, dump, instanceTypes, services });
-	} catch (err) {
-		console.warn("Site generate skipped:", err.message);
-	}
-
 	console.log(
 		"Generated Cluaupp API:",
 		classes.length,
@@ -860,261 +856,5 @@ void delay(double seconds, void (*callback)());
 	);
 }
 
-function sidebarFor(kind, items, prefix) {
-	const listId = kind + "-list";
-	let html = `<input type="search" data-filter-input="${listId}" placeholder="Filter ${kind}...">`;
-	html += `<ul class="list" id="${listId}">`;
-	for (const name of items) {
-		html += `<li><a href="${prefix}${name}.html">${escapeHtml(name)}</a></li>`;
-	}
-	html += `</ul>`;
-	return html;
-}
-
-function article(html) {
-	return `<article class="docs-article">${html}</article>`;
-}
-
-function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
-	mkdirp(path.join(SITE, "assets"));
-	mkdirp(path.join(SITE, "api", "classes"));
-	mkdirp(path.join(SITE, "api", "datatypes"));
-	mkdirp(path.join(SITE, "api", "enums"));
-	mkdirp(path.join(SITE, "guide"));
-	mkdirp(path.join(SITE, "learn"));
-	write(path.join(SITE, ".nojekyll"), "");
-
-	write(
-		path.join(SITE, "index.html"),
-		localLayout("Docs", homeBody({ dump, classCount: classes.length, enumCount: enums.length }), "", 0, "home"),
-	);
-	write(path.join(SITE, "learn", "index.html"), localLayout("Learn", learnBody(), "", 1, "learn"));
-	write(path.join(SITE, "intro.html"), localLayout("Intro", introBody("./"), "", 0, "home"));
-	mkdirp(path.join(SITE, "intro"));
-	write(path.join(SITE, "intro", "index.html"), localLayout("Intro", introBody("../"), "", 1, "home"));
-	write(
-		path.join(SITE, "getting-started.html"),
-		localLayout("Get started", movedBody("./", "guide/getting-started.html", "Getting started"), "", 0, "start"),
-	);
-	write(
-		path.join(SITE, "404.html"),
-		localLayout(
-			"Not found",
-			`<article class="docs-article"><h1>Not found</h1><p class="muted">That Moonwave path is gone. Try the home page, Learn, or Getting started.</p><p><a class="btn btn-primary" href="./index.html">Home</a> <a class="btn btn-ghost" href="./intro.html">Intro</a> <a class="btn btn-ghost" href="./learn/index.html">Learn</a></p></article>`,
-			"",
-			0,
-			"home",
-		),
-	);
-	mkdirp(path.join(SITE, "docs"));
-	write(path.join(SITE, "docs", "intro.html"), localLayout("Intro", introBody("../"), "", 1, "home"));
-
-	const getting = `
-<div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>
-<h1>Getting started</h1>
-<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>local</code>, <code>const</code>, optional <code>--!strict</code>) with first-class Roblox APIs.</p>
-<h2>Install</h2>
-${preCode(`npm install -g cluaupp
-cluaupp init my-game
-cd my-game
-cluaupp build
-rojo serve`, "plain")}
-<p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, <a href="oop.html">OOP</a> for typed services, or <a href="examples.html">Examples</a> for copy-paste systems.</p>
-<h2>IntelliSense is clangd</h2>
-<p>C++ completion is LLVM <strong>clangd</strong>, not a Cluaupp tokenizer. <code>cluaupp init</code> / <code>cluaupp intellisense</code> write <code>compile_commands.json</code>, <code>.clangd</code>, and <code>compile_flags.txt</code> with <code>-Iinclude</code> so <code>#include &lt;cluaupp/roblox.hpp&gt;</code> resolves. Microsoft cpptools stays disabled.</p>
-<p>Tree-sitter is the compiler frontend. SystemUnderstander scores Roblox intents from that tree and stamps a role; the filename tag still decides Script vs LocalScript.</p>
-<h2>Datatypes in C++</h2>
-${preCode(`#include <cluaupp/roblox.hpp>
-
-void init() {
-  auto* part = new Part(workspace);
-  part->Name = "Platform";
-  part->Size = Vector3(8, 1, 8);
-  part->Position = Vector3(0, 10, 0);
-  part->CFrame = CFrame::lookAt(Vector3(0, 10, 0), Vector3(0, 10, -10));
-  part->Anchored = true;
-  part->BrickColor = BrickColor("Bright red");
-  part->Color = Color3::fromRGB(255, 0, 0);
-
-  auto* gui = new ScreenGui(GetService<Players>()->LocalPlayer->FindFirstChild("PlayerGui"));
-  auto* frame = new Frame(gui);
-  frame->Size = UDim2::fromScale(1, 1);
-  frame->Position = UDim2(0, 0, 0, 0);
-}`, "cpp")}
-<p>This becomes <code>Vector3.new</code>, <code>CFrame.lookAt</code>, <code>UDim2.fromScale</code>, <code>Color3.fromRGB</code>, and <code>Instance.new("Part")</code>.</p>
-<p>Official reference: <a href="https://create.roblox.com/docs/reference/engine/datatypes">datatypes</a> and <a href="https://create.roblox.com/docs/reference/engine/classes">classes</a>.</p>
-`;
-	write(path.join(SITE, "guide", "getting-started.html"), localLayout("Get started", article(getting), "", 1, "start"));
-	write(path.join(SITE, "guide", "oop.html"), localLayout("OOP structure", oopGuide(), "", 1, "learn"));
-	write(path.join(SITE, "guide", "examples.html"), localLayout("Examples", examplesGuide(), "", 1, "examples"));
-	write(path.join(SITE, "guide", "libraries.html"), localLayout("Libraries", librariesGuide(), "", 1, "learn"));
-	write(path.join(SITE, "guide", "print-cout.html"), localLayout("print and cout", printCoutGuide(), "", 1, "learn"));
-
-	const dtIndex = DATATYPE_SPEC.map(
-		(d) => `<a class="card" href="${d.name}.html"><strong>${d.name}</strong><br><span class="muted">${escapeHtml(d.summary || "datatype")}</span></a>`,
-	).join("\n");
-	write(
-		path.join(SITE, "api", "datatypes", "index.html"),
-		localLayout(
-			"Datatypes",
-			article(
-				`<h1>Datatypes</h1><p class="muted">Engine value types. In C++ you construct with <code>Vector3(x,y,z)</code>; Cluaupp emits <code>Vector3.new</code>.</p><input type="search" data-filter-input="dt-grid" placeholder="Filter datatypes..."><div class="grid" id="dt-grid">${dtIndex}</div>`,
-			),
-			"",
-			2,
-			"datatypes",
-		),
-	);
-
-	const dtNames = DATATYPE_SPEC.map((d) => d.name);
-	for (const spec of DATATYPE_SPEC) {
-		const official = `https://create.roblox.com/docs/reference/engine/datatypes/${spec.name}`;
-		let body = `<div class="crumb"><a href="../../index.html">Cluaupp</a> / <a href="index.html">Datatypes</a> / ${spec.name}</div>`;
-		body += `<h1>${spec.name}</h1>`;
-		body += `<p>${escapeHtml(spec.summary || "")} Official docs: <a href="${official}">${official}</a></p>`;
-		body += `<h2>C++ → Luau</h2><table><tr><th>C++</th><th>Luau</th></tr>`;
-		body += `<tr><td><code>${spec.name}(...)</code> or <code>new ${spec.name}(...)</code></td><td><code>${spec.name}.new(...)</code></td></tr>`;
-		for (const [name] of spec.staticMethods || []) {
-			body += `<tr><td><code>${spec.name}::${name}(...)</code></td><td><code>${spec.name}.${name}(...)</code></td></tr>`;
-		}
-		for (const st of spec.statics || []) {
-			body += `<tr><td><code>${spec.name}::${st}</code></td><td><code>${spec.name}.${st}</code></td></tr>`;
-		}
-		for (const [name] of spec.methods || []) {
-			body += `<tr><td><code>value.${name}(...)</code></td><td><code>value:${name}(...)</code> or <code>value.${name}(...)</code></td></tr>`;
-		}
-		body += `</table>`;
-		if (spec.fields && spec.fields.length) {
-			body += `<h2>Fields</h2><table><tr><th>C++</th></tr>`;
-			for (const field of spec.fields) {
-				body += `<tr><td><code>${escapeHtml(field)}</code></td></tr>`;
-			}
-			body += `</table>`;
-		}
-		body += `<h2>Header</h2><p>Include <code>#include &lt;cluaupp/roblox.hpp&gt;</code>. The type lives in <code>include/cluaupp/datatypes.hpp</code>.</p>`;
-		write(
-			path.join(SITE, "api", "datatypes", spec.name + ".html"),
-			localLayout(spec.name, body, sidebarFor("datatypes", dtNames, ""), 2, "datatypes"),
-		);
-	}
-
-	const classNames = classes.map((c) => c.Name);
-	const classCards = classes
-		.map((c) => {
-			const tags = tagsOf(c);
-			const kind = tags.includes("Service") ? "Service" : tags.includes("NotCreatable") ? "abstract" : "creatable";
-			return `<a class="card" href="${c.Name}.html"><strong>${escapeHtml(c.Name)}</strong><br><span class="muted">${kind}${c.Superclass ? " · " + c.Superclass : ""}</span></a>`;
-		})
-		.join("\n");
-	write(
-		path.join(SITE, "api", "classes", "index.html"),
-		localLayout(
-			"Classes",
-			article(
-				`<h1>Classes</h1><p class="muted">${classes.length} classes from the official dump. Each page lists properties, methods, and events, with the C++ / Luau mapping and a Creator Hub link.</p><p>${services.length} services · ${instanceTypes.length} creatable with <code>new Class(parent)</code>.</p><input type="search" data-filter-input="class-grid" placeholder="Filter classes..."><div class="grid" id="class-grid">${classCards}</div>`,
-			),
-			"",
-			2,
-			"classes",
-		),
-	);
-
-	for (const cls of classes) {
-		const official = `https://create.roblox.com/docs/reference/engine/classes/${cls.Name}`;
-		const tags = tagsOf(cls);
-		let body = `<div class="crumb"><a href="../../index.html">Cluaupp</a> / <a href="index.html">Classes</a> / ${escapeHtml(cls.Name)}</div>`;
-		body += `<h1>${escapeHtml(cls.Name)}</h1>`;
-		body += `<p>`;
-		if (cls.Superclass && byName.has(cls.Superclass)) {
-			body += `Super: <a href="${cls.Superclass}.html">${escapeHtml(cls.Superclass)}</a>. `;
-		}
-			body += `Official: <a href="${official}">create.roblox.com — ${escapeHtml(cls.Name)}</a></p>`;
-		body += tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("") || "";
-		if (isCreatable(cls)) {
-			body += `<h2>Construct</h2>${preCode(`auto* obj = new ${cls.Name}(parent);
-// Instance.new("${cls.Name}")
-// obj.Parent = parent`, "cpp")}`;
-		}
-		if (isService(cls)) {
-			body += `<h2>Service</h2>${preCode(`auto* svc = GetService<${cls.Name}>();
-// game:GetService("${cls.Name}")`, "cpp")}`;
-		}
-
-		const props = cls.Members.filter((m) => m.MemberType === "Property");
-		const fns = cls.Members.filter((m) => m.MemberType === "Function");
-		const evs = cls.Members.filter((m) => m.MemberType === "Event");
-		const cbs = cls.Members.filter((m) => m.MemberType === "Callback");
-
-		if (props.length) {
-			body += `<h2>Properties (${props.length})</h2><table><tr><th>C++</th><th>Luau</th><th>Type</th><th>Tags</th></tr>`;
-			for (const p of props) {
-				body += `<tr><td><code>${escapeHtml(cls.Name)}::${escapeHtml(p.Name)}</code></td><td><code>obj.${escapeHtml(p.Name)}</code></td><td><code>${escapeHtml(luauTypeName(p.ValueType))}</code></td><td>${escapeHtml((p.Tags || []).join(", "))}</td></tr>`;
-			}
-			body += `</table>`;
-		}
-		if (fns.length) {
-			body += `<h2>Methods (${fns.length})</h2><table><tr><th>C++</th><th>Luau</th><th>Returns</th></tr>`;
-			for (const fn of fns) {
-				const params = (fn.Parameters || []).map((p) => p.Name).join(", ");
-				body += `<tr><td><code>obj-&gt;${escapeHtml(fn.Name)}(${escapeHtml(params)})</code></td><td><code>obj:${escapeHtml(fn.Name)}(${escapeHtml(params)})</code></td><td><code>${escapeHtml(luauTypeName(fn.ReturnType))}</code></td></tr>`;
-			}
-			body += `</table>`;
-		}
-		if (evs.length) {
-			body += `<h2>Events (${evs.length})</h2><table><tr><th>C++</th><th>Luau</th></tr>`;
-			for (const ev of evs) {
-				body += `<tr><td><code>obj-&gt;${escapeHtml(ev.Name)}.Connect(fn)</code></td><td><code>obj.${escapeHtml(ev.Name)}:Connect(fn)</code></td></tr>`;
-			}
-			body += `</table>`;
-		}
-		if (cbs.length) {
-			body += `<h2>Callbacks</h2><ul>`;
-			for (const cb of cbs) {
-				body += `<li><code>${escapeHtml(cb.Name)}</code></li>`;
-			}
-			body += `</ul>`;
-		}
-		if (!props.length && !fns.length && !evs.length) {
-			body += `<p class="muted">No members of its own. See the superclass — the dump lists only what this class adds.</p>`;
-		}
-		write(
-			path.join(SITE, "api", "classes", cls.Name + ".html"),
-			localLayout(cls.Name, body, sidebarFor("classes", classNames, ""), 2, "classes"),
-		);
-	}
-
-	const enumNames = enums.map((e) => e.Name);
-	const enumCards = enums
-		.map((e) => `<a class="card" href="${e.Name}.html"><strong>${escapeHtml(e.Name)}</strong><br><span class="muted">${e.Items.length} items</span></a>`)
-		.join("\n");
-	write(
-		path.join(SITE, "api", "enums", "index.html"),
-		localLayout(
-			"Enums",
-			article(
-				`<h1>Enums</h1><p class="muted">C++: <code>Enum::Material::Plastic</code>. Luau: <code>Enum.Material.Plastic</code>.</p><input type="search" data-filter-input="enum-grid" placeholder="Filter enums..."><div class="grid" id="enum-grid">${enumCards}</div>`,
-			),
-			"",
-			2,
-			"enums",
-		),
-	);
-	for (const en of enums) {
-		const official = `https://create.roblox.com/docs/reference/engine/enums/${en.Name}`;
-		let body = `<div class="crumb"><a href="../../index.html">Cluaupp</a> / <a href="index.html">Enums</a> / ${escapeHtml(en.Name)}</div>`;
-		body += `<h1>Enum.${escapeHtml(en.Name)}</h1>`;
-		body += `<p>C++: <code>Enum::${escapeHtml(en.Name)}::Item</code> → Luau: <code>Enum.${escapeHtml(en.Name)}.Item</code>. Official: <a href="${official}">create.roblox.com</a></p>`;
-		body += `<table><tr><th>Item</th><th>Value</th><th>C++</th><th>Luau</th></tr>`;
-		for (const item of en.Items) {
-			body += `<tr><td>${escapeHtml(item.Name)}</td><td>${item.Value}</td><td><code>Enum::${escapeHtml(en.Name)}::${escapeHtml(item.Name)}</code></td><td><code>Enum.${escapeHtml(en.Name)}.${escapeHtml(item.Name)}</code></td></tr>`;
-		}
-		body += `</table>`;
-		write(
-			path.join(SITE, "api", "enums", en.Name + ".html"),
-			localLayout(en.Name, body, sidebarFor("enums", enumNames, ""), 2, "enums"),
-		);
-	}
-}
 
 generate();
-require("./check-highlight");

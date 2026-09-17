@@ -60,7 +60,9 @@ billboard->SetText("Hello");
 
 ## Fusion / Iris / Cmdr / TopbarPlus / Chrono / EzVisualz / StateMachine / Spring / Display
 
-These are the GitHub systems behind typed `init.luau` borders. Include the matching `<cluaupp/libs/*.hpp>` and call the same names as the upstream README. Cluaupp does not re-document every Fusion `Value` / Cmdr command — use:
+Cluaupp has **no JSX**. Declarative UI is function calls. First-party: Fusion (reactive) and Iris (immediate-mode debug). Vide and Roact/React use the same C++ spelling (`createElement` / `source`), not `<frame />`. Handbook: [Declarative UI](https://kartzrbx.github.io/Cluaupp/docs/ui.html).
+
+Include the matching `<cluaupp/libs/*.hpp>` and call the same names as the upstream README:
 
 | Lib | Header | Upstream |
 | --- | --- | --- |

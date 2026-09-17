@@ -13,7 +13,8 @@ sidebar_position: 1
 | [Janitor](janitor.md) | Connections, instances, cleanup on leave |
 | [Promise](promise.md) | Delay, Then / Catch / Await |
 | [Net](net.md) | RemoteEvent / RemoteFunction without making remotes |
-| [More libraries](more.md) | FormatNumber, Fusion, Cmdr, Twinkle, MathUtils, … |
+| [Declarative UI](ui.md) | Fusion, Iris, Vide, React/Roact — no JSX |
+| [More libraries](more.md) | FormatNumber, Twinkle, TopbarPlus, EzVisualz, … |
 
 Sources: [runtime/SOURCES.md](https://github.com/KartzRbx/Cluaupp/blob/main/runtime/SOURCES.md). Re-vendor: `node scripts/vendor-libs.js`.
 

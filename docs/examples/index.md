@@ -9,7 +9,7 @@ High-quality Cluaupp systems you can copy. Each page is a full service: C++ that
 
 In this repo the live sample is [`examples/game`](../../examples/game) (`src/server`, `src/client`, `src/shared`). Compiler TypeScript is never mixed with game C++. `cluaupp init` still copies [`templates/game`](../../templates/game).
 
-These are **not** dumps of `int main()`. Entry is `void init()`. There are no lambdas and no custom C++ classes — named functions + structs.
+These are **not** dumps of `int main()`. Entry is `void init()`. Types are `struct` + `Class::` methods. Callbacks may be named functions or lambdas. Canonical Leaderstats: [handbook](https://kartzrbx.github.io/Cluaupp/docs/leaderstats.html).
 
 ## Suggested layout
 

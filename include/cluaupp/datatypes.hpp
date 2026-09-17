@@ -17,6 +17,10 @@ using Enum::Axis;
 
 using string = const char*;
 
+// Variadic join. Cluaupp emits Luau a .. b .. c.
+template <typename... Args>
+string string_concat(Args... args);
+
 struct Instance;
 struct Player;
 

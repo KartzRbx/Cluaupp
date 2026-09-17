@@ -48,21 +48,128 @@ function parse(source, fileName) {
 		return name;
 	};
 
+	const CAST_NAMES = new Set(["static_cast", "const_cast", "reinterpret_cast", "dynamic_cast"]);
+
+	function skipSpecifiers() {
+		let isConst = false;
+		while (at("kw", "static") || at("kw", "inline") || at("kw", "constexpr") || at("kw", "const")) {
+			if (at("kw", "constexpr") || at("kw", "const")) {
+				isConst = true;
+			}
+			i += 1;
+		}
+		return isConst;
+	}
+
+	function looksLikePrimaryStart() {
+		if (at("ident") || at("number") || at("string")) {
+			return true;
+		}
+		if (at("kw", "true") || at("kw", "false") || at("kw", "nullptr") || at("kw", "new")) {
+			return true;
+		}
+		return at("op", "(") || at("op", "{") || at("op", "[") || at("op", "-") || at("op", "!");
+	}
+
+	function parseLambda() {
+		eat("op", "[");
+		while (!at("eof") && !at("op", "]")) {
+			i += 1;
+		}
+		eat("op", "]");
+		const params = [];
+		if (at("op", "(")) {
+			i += 1;
+			if (!at("op", ")")) {
+				params.push(parseParam());
+				while (at("op", ",")) {
+					i += 1;
+					params.push(parseParam());
+				}
+			}
+			eat("op", ")");
+		}
+		const body = parseBlock();
+		return { type: "lambda", params, body };
+	}
+
+	function parseNamedCast() {
+		i += 1;
+		eat("op", "<");
+		const valueType = parseType() || "any";
+		eat("op", ">");
+		const args = parseArgs();
+		return { type: "cast", valueType, argument: args[0] || { type: "null" } };
+	}
+
+	function parseParenPrimary() {
+		eat("op", "(");
+		const saved = i;
+		skipSpecifiers();
+		const valueType = parseType();
+		if (valueType && at("op", ")")) {
+			i += 1;
+			if (looksLikePrimaryStart()) {
+				return { type: "cast", valueType, argument: parseUnary() };
+			}
+		}
+		i = saved;
+		const expr = parseExpr();
+		eat("op", ")");
+		return expr;
+	}
+
+	function eatGeneric() {
+		let text = "";
+		let depth = 0;
+		while (!at("eof")) {
+			const token = peek();
+			if (at("op", "<")) {
+				depth += 1;
+				text += "<";
+				i += 1;
+				continue;
+			}
+			if (at("op", ">")) {
+				depth -= 1;
+				text += ">";
+				i += 1;
+				if (depth === 0) {
+					return text;
+				}
+				continue;
+			}
+			if (token.type === "string") {
+				text += `"${token.value}"`;
+			} else {
+				text += token.value;
+			}
+			i += 1;
+		}
+		return text;
+	}
+
 	function parseType() {
 		if (at("kw", "const")) {
 			i += 1;
 		}
+		let name = null;
 		if (at("kw", "auto") || at("kw", "void") || at("kw", "int") || at("kw", "bool") || at("kw", "float") || at("kw", "double")) {
-			const name = eat("kw").value;
-			while (at("op", "*")) {
+			name = eat("kw").value;
+		} else if (at("ident")) {
+			name = eat("ident").value;
+			while (at("op", "::")) {
 				i += 1;
+				if (at("ident")) {
+					name += `::${eat("ident").value}`;
+				}
 			}
-			return name;
-		}
-		if (!at("ident")) {
+		} else {
 			return null;
 		}
-		const name = eat("ident").value;
+		if (at("op", "<")) {
+			name += eatGeneric();
+		}
 		while (at("op", "*")) {
 			i += 1;
 		}
@@ -132,14 +239,17 @@ function parse(source, fileName) {
 			eat("op", ")");
 			return { type: "getService", service };
 		}
+		if (at("ident") && CAST_NAMES.has(peek().value) && peek(1).value === "<") {
+			return parseNamedCast();
+		}
 		if (at("ident")) {
 			return { type: "ident", name: eat("ident").value };
 		}
+		if (at("op", "[")) {
+			return parseLambda();
+		}
 		if (at("op", "(")) {
-			i += 1;
-			const expr = parseExpr();
-			eat("op", ")");
-			return expr;
+			return parseParenPrimary();
 		}
 		if (at("op", "{")) {
 			return parseInitList();
@@ -320,11 +430,8 @@ function parse(source, fileName) {
 	}
 
 	function parseDeclOrExpr() {
-		const isConst = at("kw", "const");
-		if (isConst) {
-			i += 1;
-		}
 		const saved = i;
+		const isConst = skipSpecifiers();
 		const maybeType = parseType();
 		if (maybeType && at("ident") && (peek(1).value === "=" || peek(1).value === ";")) {
 			const name = eat("ident").value;
@@ -336,9 +443,6 @@ function parse(source, fileName) {
 			return { type: "decl", name, valueType: maybeType, value, isConst: isConst || maybeType === "const" };
 		}
 		i = saved;
-		if (isConst) {
-			i = saved - 1;
-		}
 		return { type: "expr", expr: parseExpr() };
 	}
 
@@ -395,6 +499,7 @@ function parse(source, fileName) {
 	}
 
 	function parseFunction() {
+		skipSpecifiers();
 		const returnType = parseType();
 		if (!returnType || !at("ident")) {
 			throw error("invalid function declaration");
@@ -465,10 +570,7 @@ function parse(source, fileName) {
 				continue;
 			}
 			const saved = i;
-			const isConst = at("kw", "const");
-			if (isConst) {
-				i += 1;
-			}
+			const isConst = skipSpecifiers();
 			const valueType = parseType();
 			if (valueType && at("ident")) {
 				if (peek(1).value === "(") {
@@ -593,10 +695,7 @@ function parse(source, fileName) {
 				continue;
 			}
 			const saved = i;
-			const isConst = at("kw", "const");
-			if (isConst) {
-				i += 1;
-			}
+			const isConst = skipSpecifiers();
 			const maybeType = parseType();
 			if (maybeType && at("ident")) {
 				const next = peek(1);
