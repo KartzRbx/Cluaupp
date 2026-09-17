@@ -2,10 +2,13 @@
 
 ## Unreleased
 
-- Cursor is not a licensed host for Microsoft `ms-vscode.cpptools`. Cluaupp no longer writes `C_Cpp.*` settings or `c_cpp_properties.json`; `watch` strips leftover keys and marks cpptools as unwanted. C++ completion stays clangd.
+## 0.2.3
+
 - Parser accepts `(void)x`, `static_cast<T>(x)`, `static constexpr` fields, and lambdas (`[](Player* p) { ... }`, `[&]`, `[=]`) so `Connect` / `BindToClose` compile without named-function wrappers.
 - Parser keeps `LuaArray<T>` / `vector<T>` field types on structs (`HotBar` / `Storage` on a Template).
-- Docs site is a language handbook covering every CLI construct (strings, `string_concat`, functions, scopes, structs, callbacks, singletons, includes). Per-class and per-enum dump pages are gone; engine members stay on create.roblox.com.
+- `string_concat(...)` joins to Luau `..` (alongside string `+`).
+- Cursor is not a licensed host for Microsoft `ms-vscode.cpptools`. Cluaupp no longer writes `C_Cpp.*` settings or `c_cpp_properties.json`; `watch` strips leftover keys and marks cpptools as unwanted. C++ completion stays clangd.
+- Docs site is a C++-class handbook (syntax through lambdas and Luau `--!strict`). Per-class and per-enum dump pages are gone; engine members stay on create.roblox.com.
 
 ## 0.2.2
 
