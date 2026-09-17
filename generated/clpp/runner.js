@@ -67,6 +67,7 @@ function compileViaClpp(request) {
     const result = (0, node_child_process_1.spawnSync)(bin, ["api", "compile"], {
         input: payload,
         encoding: "utf8",
+        cwd: request.cwd,
         maxBuffer: 16 * 1024 * 1024,
         windowsHide: true,
     });

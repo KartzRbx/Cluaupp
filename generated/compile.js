@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.compileSource = compileSource;
 exports.compileService = compileService;
+const node_path_1 = __importDefault(require("node:path"));
 const runner_js_1 = require("./clpp/runner.js");
 const postprocess_js_1 = require("./clpp/postprocess.js");
 const paths_js_1 = require("./clpp/paths.js");
@@ -13,10 +17,12 @@ function compileService(source, fileName, options = {}) {
     const outName = options.outName || (0, paths_js_1.toLuauPath)(relative);
     const header = options.filePath ? (0, paths_js_1.siblingHeader)(options.filePath) : null;
     const skipInit = options.skipInit === true || (0, postprocess_js_1.shouldSkipInit)(relative, Boolean(header));
+    const diskPath = options.filePath ? node_path_1.default.resolve(options.filePath) : null;
     const artifact = (0, runner_js_1.compileViaClpp)({
         source,
-        fileName: relative,
+        fileName: diskPath ? diskPath.replace(/\\/g, "/") : relative,
         strict: options.strict,
+        cwd: diskPath ? node_path_1.default.dirname(diskPath) : options.srcDir,
     });
     const luau = (0, postprocess_js_1.clppLuauToGame)(artifact, {
         relativeName: relative,
