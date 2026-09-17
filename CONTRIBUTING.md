@@ -3,48 +3,49 @@
 Requires Node.js 18+.
 
 ```bash
-cd cluau
 npm test
+npm run build:cli
 npm run generate-api    # headers + site/ from the API dump
-npm run vendor-libs     # refresh runtime/ from cluau/vendor GitHub clones
-node bin/cluaupp.js build ../game
+npm run vendor-libs     # refresh runtime/ from vendor/ GitHub clones
 ```
 
 ## Layout
 
 ```
-cluau/
-  bin/cluaupp.js       CLI (shebang)
-  src/lex.js         tokenizer
-  src/parse.js       C++ subset
-  src/emit.js        Luau
-  src/api.js         Instance.new, methods, services
-  src/understand.js    filename tags + AST intent scoring
-  src/architecture.js  opt-in ForeverHD folders (Main, Manager, Controller, Types)
-  src/compile.js     public `compileSource` / `compileService` API
-  include/cluaupp/     IntelliSense stubs
-  runtime/           CluauppLibs (vendored GitHub libs + Net/Twinkle)
-  scripts/vendor-libs.js  copy vendor/* clones into runtime/
-  templates/game/    `cluaupp init`
-  docs/              Moonwave markdown
-  moonwave.toml      `npx moonwave dev`
-  test/              transpile tests
+bin/cluaupp.js       CLI entry
+src/                 TypeScript compiler (never C++ game scripts)
+generated/           tsc output
+include/cluaupp/     IntelliSense stubs
+runtime/             CluauppLibs copied into games on init/build
+templates/game/      `cluaupp init` scaffold
+examples/game/       sample C++ (`src/server`, `src/client`, `src/shared`)
+editors/vscode/      optional subset-diagnostics extension (completion is clangd)
+test/                out/ tree, types, modules, security, understander
+scripts/             generate-api, vendor-libs
+docs/                guides
 ```
 
-## Minimum test
+C++ examples are **not** under the compiler `src/` — that folder is TypeScript, like [roblox-ts](https://github.com/roblox-ts/roblox-ts) and [roblox-cs](https://github.com/roblox-csharp/roblox-cs). The old `src/client` / `src/server` / `src/shared` tree is `examples/game/src/`.
 
-`test/leaderstats.test.js` checks 1:1 emit by default and the opt-in service split. `test/understand.test.js` checks tags (`.server` / `.client` / `.legacy.*` / module), `#pragma strict`, and that combat stays one `.server.luau`.
+`game/` is a local playground (`npm run dev`). It is gitignored and is not part of the CLI.
 
-New syntax: add a `.cpp` under `templates/game` or a case in the tests, then run `npm test`.
+## Tests
+
+`npm test` runs:
+
+- `test/out.test.js` — `cluaupp build` → `out/` tree (template 1:1, filename tags, architecture folders, prune / hold-on-error, SystemUnderstander comments)
+- `test/types.test.js` — Luau types (`GetService`, `export type`, `--!strict`, DataService, cout, switch)
+- `test/modules.test.js` — `#include` → `require`, header / `*Impl.luau`, CluauppLibs
+- `test/security.test.js` — path confinement, config allowlist, no `.env` in the npm pack
+- `test/understander.test.js` — filename tags, token density, Controller vs utility
+
+New emit: add a case there, then run `npm test`.
 
 ## Publishing
 
-The npm package is the `cluau/` folder (not the monorepo root).
-
 ```bash
-cd cluau
 npm test
 npm publish
 ```
 
-`prepublishOnly` runs the tests. The npm account must be logged in (`npm login`).
+`prepublishOnly` compiles the CLI and runs the tests. The npm account must be logged in (`npm login`).

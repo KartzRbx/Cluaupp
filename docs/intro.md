@@ -12,7 +12,7 @@ This site is built with [Moonwave](https://eryn.io/moonwave/) for local markdown
 ## What you get
 
 1. A compiler (`cluaupp init` / `build` / `watch`)
-2. Headers for IntelliSense (`#include <cluaupp/roblox.hpp>`)
+2. Headers for **clangd** (`#include <cluaupp/roblox.hpp>`)
 3. First-party libraries in `ReplicatedStorage.CluauppLibs`
 4. Wally wrappers for DataServiceV2, Fusion, Cmdr, EzVisualz, TopbarPlus, and the rest of your stack
 

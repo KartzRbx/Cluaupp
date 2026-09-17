@@ -1,0 +1,162 @@
+[
+	{
+		"directory": ".",
+		"file": "templates/game/src/server/leaderstats.server.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Itemplates/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"templates/game/src/server/leaderstats.server.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "templates/game/src/client/init.client.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Itemplates/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"templates/game/src/client/init.client.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "templates/game/src/shared/config.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Itemplates/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"templates/game/src/shared/config.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "templates/game/src/shared/config.h",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Itemplates/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"templates/game/src/shared/config.h"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/server/leaderstats.server.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/server/leaderstats.server.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/server/combat.server.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/server/combat.server.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/client/init.client.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/client/init.client.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/client/hud.client.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/client/hud.client.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/shared/config.cpp",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/shared/config.cpp"
+		]
+	},
+	{
+		"directory": ".",
+		"file": "examples/game/src/shared/config.h",
+		"arguments": [
+			"clang++",
+			"-xc++",
+			"-std=c++20",
+			"-ferror-limit=0",
+			"-Iinclude",
+			"-Iexamples/game/src",
+			"-include",
+			"include/cluaupp/roblox.hpp",
+			"-c",
+			"examples/game/src/shared/config.h"
+		]
+	}
+]

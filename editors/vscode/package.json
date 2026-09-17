@@ -1,14 +1,14 @@
 {
-	"name": "cluaupp-intellisense",
-	"displayName": "Cluaupp IntelliSense",
-	"description": "Completions, hover, and go-to-definition for Cluaupp C++ (Roblox APIs, DataService paths, project structs).",
-	"version": "0.1.4",
+	"name": "cluaupp-diagnostics",
+	"displayName": "Cluaupp",
+	"description": "Cluaupp subset parse errors. C++ completion, hover, and go-to-definition come from clangd + include/cluaupp/roblox.hpp.",
+	"version": "0.2.0",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"
 	},
 	"categories": [
-		"Programming Languages"
+		"Linters"
 	],
 	"activationEvents": [
 		"onLanguage:cpp"
@@ -18,7 +18,7 @@
 		"commands": [
 			{
 				"command": "cluaupp.restartIntelliSense",
-				"title": "Cluaupp: Restart IntelliSense"
+				"title": "Cluaupp: Reload subset diagnostics"
 			}
 		]
 	}

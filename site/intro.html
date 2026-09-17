@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Intro · Cluaupp</title>
 <link rel="icon" href="./assets/logo.png">
-<link rel="stylesheet" href="./assets/style.css?v=3">
+<link rel="stylesheet" href="./assets/style.css?v=4">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -42,7 +42,7 @@
 <div class="crumb"><a href="./index.html">Cluaupp</a> / Intro</div>
 <p class="eyebrow">C++ × Luau</p>
 <h1>Cluaupp</h1>
-<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>--!strict</code>, <code>local</code>, and <code>const</code>, and calls the Roblox API the way Studio does.</p>
+<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>local</code> and <code>const</code> (and <code>--!strict</code> when you opt in), and calls the Roblox API the way Studio does.</p>
 <p>This page is the old Moonwave <code>/intro</code> route. The public site is this cinematic dump — not ISO C++, not WASM.</p>
 <div class="hero-actions">
   <a class="btn btn-primary" href="./learn/index.html">Learn the language</a>
@@ -51,7 +51,7 @@
 <h2>What you get</h2>
 <ol>
 <li>A compiler (<code>cluaupp init</code> / <code>build</code> / <code>watch</code>)</li>
-<li>Headers for IntelliSense (<code>#include &lt;cluaupp/roblox.hpp&gt;</code>)</li>
+<li>clangd IntelliSense via <code>#include &lt;cluaupp/roblox.hpp&gt;</code> (not a second completion engine)</li>
 <li>First-party libraries in <code>ReplicatedStorage.CluauppLibs</code></li>
 <li>Optional Wally only for extra community packages</li>
 </ol>
@@ -98,7 +98,7 @@
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="./assets/app.js?v=3"></script>
+<script src="./assets/app.js?v=4"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

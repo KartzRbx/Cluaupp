@@ -1,6 +1,30 @@
 CompileFlags:
+  CompilationDatabase: .
   Add:
+    - -xc++
     - -std=c++20
+    - -ferror-limit=0
     - -Iinclude
-    - -Igame/include
-    - -Igame/src
+    - -Itemplates/game/src
+    - -Iexamples/game/src
+    - -include
+    - include/cluaupp/roblox.hpp
+
+Diagnostics:
+  Suppress: '*'
+
+---
+If:
+  PathMatch: (templates|examples)/game/.*\.(cpp|cc|cxx|c|h|hpp|hh)$
+CompileFlags:
+  Add:
+    - -xc++
+    - -Iinclude
+    - -Itemplates/game/src
+    - -Iexamples/game/src
+
+---
+If:
+  PathMatch: (generated|node_modules|out|libs)/.*
+Index:
+  Background: Skip

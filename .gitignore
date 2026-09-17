@@ -2,25 +2,24 @@ node_modules/
 vendor/
 *.tgz
 *.log
-game/out/
-game/libs/
-game/Packages/_Index
-.rojo.pid
 build/
 .DS_Store
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
 .vercel
+.rojo.pid
+.cluaupp-watch.lock
 
-# Accidental game tree if someone runs cluaupp in the compiler repo
+# Local playground from `npm run dev` — never part of the CLI
+/game/
 /Packages/
 /libs/
 /out/
-/src/client/
-/src/server/
-/src/shared/
 /wally.toml
 /default.project.json
 /cluaupp.config.json
-/.cluaupp-watch.lock

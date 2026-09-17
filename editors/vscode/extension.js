@@ -18,28 +18,17 @@ function loadEngine(context) {
 	}
 	roots.push(path.join(context.extensionPath, "..", ".."));
 	for (const root of roots) {
-		const engine = path.join(root, "src", "intellisense.js");
-		if (fs.existsSync(engine)) {
-			return { engine: require(engine), root, workspaceFolder };
+		const candidates = [
+			path.join(root, "generated", "intellisense.js"),
+			path.join(root, "src", "intellisense.js"),
+		];
+		for (const engine of candidates) {
+			if (fs.existsSync(engine)) {
+				return { engine: require(engine), root, workspaceFolder, enginePath: engine };
+			}
 		}
 	}
-	throw new Error("Cluaupp IntelliSense engine not found. Run `cluaupp intellisense` in the game folder.");
-}
-
-function kindOf(kind) {
-	const map = {
-		method: vscode.CompletionItemKind.Method,
-		function: vscode.CompletionItemKind.Function,
-		constructor: vscode.CompletionItemKind.Constructor,
-		property: vscode.CompletionItemKind.Property,
-		variable: vscode.CompletionItemKind.Variable,
-		class: vscode.CompletionItemKind.Class,
-		enum: vscode.CompletionItemKind.Enum,
-		keyword: vscode.CompletionItemKind.Keyword,
-		event: vscode.CompletionItemKind.Event,
-		file: vscode.CompletionItemKind.File,
-	};
-	return map[kind] || vscode.CompletionItemKind.Text;
+	throw new Error("Cluaupp diagnostics engine not found. Run `cluaupp intellisense` in the game folder.");
 }
 
 function activate(context) {
@@ -51,7 +40,6 @@ function activate(context) {
 		return;
 	}
 
-	const selector = { language: "cpp", scheme: "file" };
 	const diagnostics = vscode.languages.createDiagnosticCollection("cluaupp");
 	context.subscriptions.push(diagnostics);
 
@@ -70,6 +58,9 @@ function activate(context) {
 		if (!document || document.languageId !== "cpp") {
 			return;
 		}
+		if (typeof loaded.engine.diagnosticsFor !== "function") {
+			return;
+		}
 		const items = loaded.engine.diagnosticsFor(document.getText(), document.uri.fsPath, optionsFor(document));
 		diagnostics.set(
 			document.uri,
@@ -83,53 +74,13 @@ function activate(context) {
 	};
 
 	context.subscriptions.push(
-		vscode.languages.registerCompletionItemProvider(
-			selector,
-			{
-				provideCompletionItems(document, position) {
-					const offset = document.offsetAt(position);
-					const items = loaded.engine.completeAt(document.getText(), offset, optionsFor(document));
-					return items.map((item) => {
-						const completion = new vscode.CompletionItem(item.name, kindOf(item.kind));
-						completion.detail = item.detail || item.type || "";
-						completion.sortText = `${item.kind === "keyword" ? "2" : "0"}_${item.name}`;
-						completion.insertText = item.name;
-						return completion;
-					});
-				},
-			},
-			".",
-			":",
-			">",
-			"<",
-			'"',
-			"/",
-		),
-		vscode.languages.registerHoverProvider(selector, {
-			provideHover(document, position) {
-				const hover = loaded.engine.hoverAt(document.getText(), document.offsetAt(position), optionsFor(document));
-				if (!hover) {
-					return null;
-				}
-				return new vscode.Hover(new vscode.MarkdownString(`**${hover.name}**\n\n\`${hover.detail || hover.type || ""}\``));
-			},
-		}),
-		vscode.languages.registerDefinitionProvider(selector, {
-			provideDefinition(document, position) {
-				const def = loaded.engine.definitionAt(document.getText(), document.offsetAt(position), optionsFor(document));
-				if (!def || !def.file) {
-					return null;
-				}
-				return new vscode.Location(vscode.Uri.file(def.file), new vscode.Position(Math.max(0, (def.line || 1) - 1), 0));
-			},
-		}),
 		vscode.workspace.onDidChangeTextDocument((event) => refreshDiagnostics(event.document)),
 		vscode.workspace.onDidOpenTextDocument(refreshDiagnostics),
 		vscode.commands.registerCommand("cluaupp.restartIntelliSense", () => {
 			try {
-				delete require.cache[require.resolve(path.join(loaded.root, "src", "intellisense.js"))];
+				delete require.cache[require.resolve(loaded.enginePath)];
 				loaded = loadEngine(context);
-				vscode.window.showInformationMessage("Cluaupp IntelliSense reloaded.");
+				vscode.window.showInformationMessage("Cluaupp diagnostics reloaded. C++ completion is clangd.");
 			} catch (err) {
 				vscode.window.showErrorMessage(String(err.message || err));
 			}

@@ -920,6 +920,9 @@ cd my-game
 cluaupp build
 rojo serve`, "plain")}
 <p>Connect the Rojo plugin in Roblox Studio. Then open <a href="../learn/index.html">Learn</a> for the language, <a href="oop.html">OOP</a> for typed services, or <a href="examples.html">Examples</a> for copy-paste systems.</p>
+<h2>IntelliSense is clangd</h2>
+<p>C++ completion is LLVM <strong>clangd</strong>, not a Cluaupp tokenizer. <code>cluaupp init</code> / <code>cluaupp intellisense</code> write <code>compile_commands.json</code>, <code>.clangd</code>, and <code>compile_flags.txt</code> with <code>-Iinclude</code> so <code>#include &lt;cluaupp/roblox.hpp&gt;</code> resolves. Microsoft cpptools stays disabled.</p>
+<p>Tree-sitter is the compiler frontend. SystemUnderstander scores Roblox intents from that tree and stamps a role; the filename tag still decides Script vs LocalScript.</p>
 <h2>Datatypes in C++</h2>
 ${preCode(`#include <cluaupp/roblox.hpp>
 

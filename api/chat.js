@@ -63,8 +63,8 @@ module.exports = async function handler(req, res) {
 
 		const data = await upstream.json();
 		if (!upstream.ok) {
-			res.status(upstream.status).json({
-				error: (data && (data.error && data.error.message)) || "AI Gateway error",
+			res.status(upstream.status >= 400 && upstream.status < 600 ? upstream.status : 502).json({
+				error: "AI Gateway error",
 			});
 			return;
 		}

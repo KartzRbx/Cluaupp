@@ -1,4 +1,8 @@
+-xc++
 -std=c++20
+-ferror-limit=0
 -Iinclude
--Igame/include
--Igame/src
+-Itemplates/game/src
+-Iexamples/game/src
+-include
+include/cluaupp/roblox.hpp

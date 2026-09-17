@@ -42,7 +42,7 @@ players.PlayerAdded:Connect(CreateLeaderstats)
 
 ## Install
 
-Node.js 18+ and [Rojo](https://rojo.space/) for Studio sync.
+Node.js 18+ and [Rojo](https://rojo.space/) **7.7.0** for Studio sync (`rokit.toml` in the game template).
 
 ```bash
 npm install -g cluaupp
@@ -59,11 +59,14 @@ npx cluaupp init my-game
 ```bash
 cluaupp init my-game
 cd my-game
+rokit install
 cluaupp build
 rojo serve
 ```
 
 Connect the Rojo plugin in Roblox Studio. Edit `src/**/*.{cpp,h,hpp}`, run `cluaupp watch` to rebuild on save.
+
+C++ autocomplete is **clangd**, not a Cluaupp tokenizer and not Microsoft cpptools. Put `#include <cluaupp/roblox.hpp>` at the top of each script; `cluaupp init` writes `.clangd` / `compile_flags.txt` / `compile_commands.json` with `-Iinclude` so clangd finds that header. Tree-sitter is only used to compile. See [IntelliSense](docs/intellisense.md).
 
 ```
 src/server/*.server.cpp  →  out/server/*.server.luau  Script
@@ -72,6 +75,8 @@ src/shared/*.cpp         →  out/shared/*.luau         ModuleScript
 ```
 
 Filename tags: `.server.cpp`, `.client.cpp`, `.legacy.server.cpp`, `.legacy.client.cpp`, or no tag (ModuleScript). One source file becomes one instance. Set `"architecture": true` only for the old PascalCase folder split. See [Architecture](docs/architecture.md) and [OOP structure](docs/oop/index.md).
+
+Compiler TypeScript lives in `src/`. Sample game C++ is [`examples/game`](examples/game) (`src/server`, `src/client`, `src/shared`). `cluaupp init` still copies [`templates/game`](templates/game).
 
 ## Documentation
 

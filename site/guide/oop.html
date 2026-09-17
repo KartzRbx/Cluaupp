@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OOP structure · Cluaupp</title>
 <link rel="icon" href="../assets/logo.png">
-<link rel="stylesheet" href="../assets/style.css?v=3">
+<link rel="stylesheet" href="../assets/style.css?v=4">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -38,23 +38,23 @@
     </select>
   </div>
 </header>
-<div class="page" id="content"><article class="docs-article"><div class="crumb"><a href="../index.html">Cluaupp</a> / OOP structure</div><h1>OOP structure</h1><p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>services</em> so Studio gets Main / Controller / Types — the same idea as roblox-ts filename keys + Flamework <code>@Service</code>, without decorators.</p>
+<div class="page" id="content"><article class="docs-article"><div class="crumb"><a href="../index.html">Cluaupp</a> / OOP structure</div><h1>OOP structure</h1><p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>file tags</em> so Studio gets Script / LocalScript / ModuleScript — the same idea as roblox-ts. Flamework-style Main / Controller folders are opt-in (<code>"architecture": true</code>). SystemUnderstander infers Controller / Manager / utility from tokens without annotations.</p>
 <h2>The three layers</h2>
 <table>
 <tr><th>Layer</th><th>You write</th><th>Runtime</th></tr>
 <tr><td>Data object</td><td><code>struct TemplateData</code>, <code>struct CombatConfig</code></td><td>Luau table + <code>export type</code> in <code>*Types.luau</code></td></tr>
 <tr><td>Methods</td><td>named functions with typed args (<code>Player*</code>, <code>Humanoid*</code>, <code>int</code>)</td><td><code>const function</code> on the Controller</td></tr>
-<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>generated <code>Main.Start</code> / <code>Main.Stop</code></td></tr>
+<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>auto-called <code>init()</code>; folders only if <code>"architecture": true</code></td></tr>
 </table>
 <h2>File tags decide the instance</h2>
 <table>
-<tr><th>Source</th><th>Instance</th><th>RunContext</th></tr>
-<tr><td><code>CombatServer.server.cpp</code></td><td><strong>Script</strong></td><td><strong>Server</strong> (<code>init.luau</code> + <code>init.meta.json</code>)</td></tr>
-<tr><td><code>CombatClient.client.cpp</code></td><td>LocalScript</td><td>Client</td></tr>
-<tr><td><code>Sword.legacy.server.cpp</code></td><td>Script</td><td>Legacy (1:1 dump, lives under a Tool)</td></tr>
-<tr><td><code>Damage.cpp</code> (no tag)</td><td>ModuleScript</td><td>—</td></tr>
+<tr><th>Source</th><th>Instance</th><th>Output</th></tr>
+<tr><td><code>combat.server.cpp</code></td><td><strong>Script</strong></td><td><code>combat.server.luau</code></td></tr>
+<tr><td><code>hud.client.cpp</code></td><td>LocalScript</td><td><code>hud.client.luau</code></td></tr>
+<tr><td><code>boot.legacy.server.cpp</code></td><td>Legacy Script</td><td><code>boot.server.luau</code></td></tr>
+<tr><td><code>damage.cpp</code> (no tag)</td><td>ModuleScript</td><td><code>Damage.luau</code></td></tr>
 </table>
-<p class="note"><code>.server.cpp</code> is not <code>init.server.luau</code>. Rojo maps <code>*.server.luau</code> to RunContext <strong>Legacy</strong>. Cluaupp emits <code>init.luau</code> + meta <code>Enum.RunContext.Server</code>.</p>
+<p class="note">Default emit is one tagged file → one Luau instance. <code>"architecture": true</code> restores PascalCase folders (<code>init.server.luau</code> + <code>Main</code> / Controllers).</p>
 <h2>Structs are the typed class fields</h2>
 <p>Put shapes in shared headers. Designated initializers become tables. Methods are functions that take the instance in — composition, not <code>this-&gt;</code>.</p>
 <div class="pair" data-tabs>
@@ -255,9 +255,7 @@
 	Attack-&gt;<span data-tok="fn">On</span>(OnAttack);
 	janitor-&gt;<span data-tok="fn">Add</span>(Attack);
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-38-luau" aria-labelledby="pair-38-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
-<span data-tok="comment">-- CombatServer (Script, RunContext Server)</span>
-<span data-tok="comment">-- roles Main, CombatController, NetController, DataController, CombatServerTypes</span>
+	<div class="pair-panel" role="tabpanel" id="pair-38-luau" aria-labelledby="pair-38-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- Compiled by Cluaupp — C++ × Luau</span>
 
 <span data-tok="keyword">const</span> <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
 <span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
@@ -283,16 +281,10 @@
 	<span data-tok="comment">-- ResolveTarget, IsAlive, InRange, StampCooldown, TakeDamage(Config.Damage)</span>
 <span data-tok="keyword">end</span></pre></div>
 </div>
-<p>Cluaupp turns that file into a PascalCase folder:</p>
-<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer/
-  init.luau              Script · RunContext Server
-  init.meta.json
-  Main.luau              Start / Stop  → constructor / destructor
-  CombatController.luau  your typed functions
-  NetController.luau
-  DataController.luau
-  CombatServerTypes.luau export type … return {}</pre>
-<p><code>Main</code> is the class. Controllers are the methods. <code>*Types</code> is the typed public surface. Janitor is the destructor.</p>
+<p>Cluaupp turns that file into one Script:</p>
+<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer.server.luau
+  -- your typed functions + init() at the end</pre>
+<p>Keep DataService boot in <code>DataBoot.server.cpp</code>. Combat stays in this file. Set <code>"architecture": true</code> only if you want a PascalCase folder with Main / Controller / Types.</p>
 <h2>Client half (intent only)</h2>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
@@ -342,7 +334,7 @@
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="../assets/app.js?v=3"></script>
+<script src="../assets/app.js?v=4"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

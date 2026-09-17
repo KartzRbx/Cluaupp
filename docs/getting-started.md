@@ -5,8 +5,8 @@ Cluaupp installs from **npm**, the same channel as roblox-ts and most Roblox too
 ## Requirements
 
 - [Node.js](https://nodejs.org/) 18 or newer
-- [Rojo](https://rojo.space/) to sync `out/` into Studio
-- An editor with C++ IntelliSense (Cursor / VS Code + the C/C++ extension)
+- [Rojo](https://rojo.space/) **7.7.0** to sync `out/` into Studio (`cluaupp init` writes `rokit.toml`; run `rokit install`)
+- LLVM clangd for C++ IntelliSense (Cursor / VS Code — installed by `cluaupp init`)
 
 ## Install the compiler
 
@@ -43,6 +43,7 @@ npm install --save-dev cluaupp
 ```bash
 cluaupp init my-game
 cd my-game
+rokit install
 cluaupp build
 rojo serve
 ```
@@ -123,13 +124,13 @@ If a file defines `void init()`, Cluaupp calls `init()` at the end of the `.luau
 
 ## IntelliSense
 
-`cluaupp init` writes the C++ IntelliSense config and installs Microsoft `ms-vscode.cpptools` (via VSIX on Cursor). Then reload the window.
+`cluaupp init` writes clangd config and installs LLVM `clang++` plus the clangd editor extension when missing. Then reload the window. Completion is clangd; Cluaupp does not index C++ itself.
 
 ```bash
 cluaupp intellisense
 ```
 
-`#include <cluaupp/roblox.hpp>` at the top of each source file. The header is **not** compiled to Luau.
+`#include <cluaupp/roblox.hpp>` at the top of each source file. The header is **not** compiled to Luau. clangd learns that path from `-Iinclude` in `.clangd`, `compile_flags.txt`, and `compile_commands.json` — it does not read `c_cpp_properties.json`.
 
 See [IntelliSense](intellisense.md).
 

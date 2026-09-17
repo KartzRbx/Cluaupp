@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learn · Cluaupp</title>
 <link rel="icon" href="../assets/logo.png">
-<link rel="stylesheet" href="../assets/style.css?v=3">
+<link rel="stylesheet" href="../assets/style.css?v=4">
 <script>
 (function(){try{var t=localStorage.getItem("cluaupp-theme");if(!t)t=matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
 </script>
@@ -49,7 +49,7 @@
 		<button type="button" role="tab" id="learn-mapping-tab" aria-controls="learn-mapping" aria-selected="false" tabindex="-1">Mapping</button>
 		<button type="button" role="tab" id="learn-types-tab" aria-controls="learn-types" aria-selected="false" tabindex="-1">Types and safety</button>
 		<button type="button" role="tab" id="learn-org-tab" aria-controls="learn-org" aria-selected="false" tabindex="-1">Organization</button>
-		<button type="button" role="tab" id="learn-arch-tab" aria-controls="learn-arch" aria-selected="false" tabindex="-1">Architecture</button>
+		<button type="button" role="tab" id="learn-arch-tab" aria-controls="learn-arch" aria-selected="false" tabindex="-1">One file out</button>
 		<button type="button" role="tab" id="learn-oop-tab" aria-controls="learn-oop" aria-selected="false" tabindex="-1">OOP structure</button>
 		<button type="button" role="tab" id="learn-libs-tab" aria-controls="learn-libs" aria-selected="false" tabindex="-1">Libraries</button>
 		<button type="button" role="tab" id="learn-cout-tab" aria-controls="learn-cout" aria-selected="false" tabindex="-1">print / cout</button>
@@ -60,7 +60,7 @@
 		<section class="learn-panel" role="tabpanel" id="learn-overview" aria-labelledby="learn-overview-tab">
 	<h1>What Cluaupp is</h1>
 	<p class="muted">Cluaupp is not a full C++ compiler. It is a subset aimed at Roblox scripts, in the same spirit as roblox-ts: a familiar syntax, a restricted language, readable output.</p>
-<p>You write <code>.cpp</code> / <code>.h</code>. Cluaupp emits modern Luau: <code>--!strict</code>, <code>local</code>, and <code>const</code>. There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
+<p>You write <code>.cpp</code> / <code>.h</code>. Tree-sitter walks the CST and Cluaupp emits modern Luau: <code>local</code>, <code>const</code>, and <code>--!strict</code> only with <code>#pragma strict</code> (or <code>"strict": true</code>). Editor completion is <strong>clangd</strong> reading <code>include/cluaupp/roblox.hpp</code>. There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
 <p>Start on <strong>Basics</strong> for <code>int</code>, <code>string</code>, <code>const</code>, <code>*</code> (the original Instance), and why <code>&amp;</code> is not how you mutate numbers here.</p>
 <p>If <code>void init()</code> exists, the compiler calls it at the end of the script. That is how Scripts and LocalScripts boot.</p>
 <div class="pair" data-tabs>
@@ -69,13 +69,15 @@
 		<button type="button" role="tab" aria-selected="true" aria-controls="pair-2-cpp" id="pair-2-tab-cpp">C++</button>
 		<button type="button" role="tab" aria-selected="false" aria-controls="pair-2-luau" id="pair-2-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-2-cpp" aria-labelledby="pair-2-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+	<div class="pair-panel" role="tabpanel" id="pair-2-cpp" aria-labelledby="pair-2-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> strict
+#<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
 
 <span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
 	<span data-tok="fn">print</span>(<span data-tok="string">"Cluaupp client ok"</span>);
 }</pre></div>
 	<div class="pair-panel" role="tabpanel" id="pair-2-luau" aria-labelledby="pair-2-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
-<span data-tok="keyword">local</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+<span data-tok="comment">-- Compiled by Cluaupp — C++ × Luau</span>
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
 	<span data-tok="fn">print</span>(<span data-tok="string">"Cluaupp client ok"</span>)
 <span data-tok="keyword">end</span>
 
@@ -332,7 +334,7 @@
 	<h1>The C++ subset</h1>
 	<p class="muted">Extensions: <code>.cpp</code>, <code>.h</code>, <code>.hpp</code> (also <code>.cc</code>, <code>.hh</code>). Quoted <code>#include "file.h"</code> is inlined. <code>#include &lt;cluaupp/...&gt;</code> is IntelliSense only — library headers also inject <code>require</code>.</p>
 <p>Read <strong>Basics</strong> first for <code>int</code>, <code>string</code>, <code>const</code>, and <code>*</code>. This tab is functions, locals, and control flow.</p>
-<p>Function prototypes are skipped. Only functions with a body are emitted. <code>#pragma once</code> and other <code>#</code> lines are ignored.</p>
+<p>Function prototypes are skipped. Only functions with a body are emitted. <code>#pragma once</code> is ignored. <code>#pragma strict</code> / <code>#pragma nstrict</code> control <code>--!strict</code> for that compilation unit.</p>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
@@ -372,7 +374,7 @@ folder.Parent = player</pre></div>
 </div>
 <p><code>auto</code> infers the type when the value is <code>new Class(...)</code> or <code>GetService&lt;T&gt;()</code>.</p>
 <h2>Control flow</h2>
-<p>The only <code>for</code> accepted today is range-for: <code>for (auto* x : list)</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> is not supported yet. <code>switch</code> is not supported.</p>
+<p>The only <code>for</code> accepted today is range-for: <code>for (auto* x : list)</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> is not supported yet. <code>switch</code> becomes <code>if</code> / <code>elseif</code> / <code>else</code> inside <code>repeat … until true</code> so <code>break</code> still exits the switch. Stacked <code>case</code> labels share a body; there is no fall-through into the next case’s statements.</p>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
@@ -387,6 +389,22 @@ folder.Parent = player</pre></div>
 
 <span data-tok="keyword">for</span> (<span data-tok="keyword">auto</span>* player : players-&gt;<span data-tok="fn">GetPlayers</span>()) {
 	<span data-tok="fn">CreateLeaderstats</span>(player);
+}
+
+<span data-tok="keyword">switch</span> (action) {
+<span data-tok="keyword">case</span> <span data-tok="string">"buy"</span>:
+<span data-tok="keyword">case</span> <span data-tok="string">"purchase"</span>:
+	<span data-tok="fn">Grant</span>(player);
+	<span data-tok="keyword">break</span>;
+<span data-tok="keyword">case</span> <span data-tok="string">"sell"</span>:
+	<span data-tok="keyword">if</span> (amount &lt;= <span data-tok="number">0</span>) {
+		<span data-tok="keyword">break</span>;
+	}
+	<span data-tok="fn">Take</span>(player);
+	<span data-tok="keyword">break</span>;
+<span data-tok="keyword">default</span>:
+	<span data-tok="fn">warn</span>(<span data-tok="string">"unknown"</span>);
+	<span data-tok="keyword">break</span>;
 }</pre></div>
 	<div class="pair-panel" role="tabpanel" id="pair-11-luau" aria-labelledby="pair-11-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="keyword">if</span> player:<span data-tok="fn">FindFirstChild</span>(<span data-tok="string">"leaderstats"</span>) ~= <span data-tok="keyword">nil</span> <span data-tok="keyword">then</span>
 	<span data-tok="keyword">return</span>
@@ -396,7 +414,20 @@ folder.Parent = player</pre></div>
 
 <span data-tok="keyword">for</span> _, player <span data-tok="keyword">in</span> players:<span data-tok="fn">GetPlayers</span>() <span data-tok="keyword">do</span>
 	<span data-tok="fn">CreateLeaderstats</span>(player)
-<span data-tok="keyword">end</span></pre></div>
+<span data-tok="keyword">end</span>
+
+<span data-tok="keyword">repeat</span>
+	<span data-tok="keyword">if</span> action == <span data-tok="string">"buy"</span> <span data-tok="keyword">or</span> action == <span data-tok="string">"purchase"</span> <span data-tok="keyword">then</span>
+		<span data-tok="fn">Grant</span>(player)
+	<span data-tok="keyword">elseif</span> action == <span data-tok="string">"sell"</span> <span data-tok="keyword">then</span>
+		<span data-tok="keyword">if</span> amount &lt;= <span data-tok="number">0</span> <span data-tok="keyword">then</span>
+			<span data-tok="keyword">break</span>
+		<span data-tok="keyword">end</span>
+		<span data-tok="fn">Take</span>(player)
+	<span data-tok="keyword">else</span>
+		<span data-tok="fn">warn</span>(<span data-tok="string">"unknown"</span>)
+	<span data-tok="keyword">end</span>
+<span data-tok="keyword">until</span> <span data-tok="keyword">true</span></pre></div>
 </div>
 <h2>new and services</h2>
 <p>The first argument of <code>new Class(parent)</code> becomes <code>.Parent</code>.</p>
@@ -417,7 +448,7 @@ coins.Parent = leaderstats
 </section>
 		<section class="learn-panel" role="tabpanel" id="learn-luau" aria-labelledby="learn-luau-tab" hidden>
 	<h1>The Luau that comes out</h1>
-	<p class="muted">Generated Luau follows the current language. Every module starts with <code>--!strict</code>. Variables are <code>local</code>. Constants are Luau <code>const</code>, not <code>local x &lt;const&gt;</code>.</p>
+	<p class="muted">Generated Luau follows the current language. Variables are <code>local</code>. Constants are Luau <code>const</code>, not <code>local x &lt;const&gt;</code>. <code>--!strict</code> is emitted only with <code>#pragma strict</code> or <code>"strict": true</code> in config.</p>
 <p><code>-&gt;</code> becomes <code>.</code> for properties and <code>:</code> for engine and library methods. <code>signal.Connect</code> becomes <code>signal:Connect</code>.</p>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
@@ -558,7 +589,7 @@ janitor:<span data-tok="fn">Add</span>(players.PlayerAdded:<span data-tok="fn">C
 </section>
 		<section class="learn-panel" role="tabpanel" id="learn-org" aria-labelledby="learn-org-tab" hidden>
 	<h1>Server, client, shared</h1>
-	<p class="muted">A Cluaupp game is laid out like a roblox-ts project on disk. The output is not a 1:1 dump: <code>cluaupp build</code> turns each system into a PascalCase service. Rojo places those folders under Studio services.</p>
+	<p class="muted">A Cluaupp game is laid out like a roblox-ts project on disk. One tagged <code>.cpp</code> becomes one Script / LocalScript / ModuleScript. Rojo places those files under Studio services.</p>
 <div class="explorer-stage">
 	<div class="explorer">
 	<div class="explorer-title">Disk · src/</div>
@@ -567,7 +598,7 @@ janitor:<span data-tok="fn">Add</span>(players.PlayerAdded:<span data-tok="fn">C
 	<p class="explorer-flow" aria-hidden="true"><span>cluaupp build</span><span>rojo serve</span><span class="explorer-arrow">→</span></p>
 	<div class="explorer">
 	<div class="explorer-title">Studio · Explorer</div>
-	<ul class="ex-root"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#9a9a9a" d="M8 1.2 14.8 8 8 14.8 1.2 8z"/><path fill="#6e6e6e" d="M8 4.2 11.8 8 8 11.8 4.2 8z"/></svg></span><span class="ex-name">game</span><span class="ex-kind">DataModel</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#4a90d9" d="M2 3h5l1 1.4H14v8.6H2z"/><path fill="#00a2ff" d="M2 5.4h12V13H2z"/></svg></span><span class="ex-name">ServerScriptService</span><span class="ex-kind">ServerScriptService</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">LeaderStats</span><span class="ex-kind">Script</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Main</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">PlayersManager</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">CacheController</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">LeaderStatsTypes</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li></ul></details></li></ul></details></li><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#6c9a3a" d="M2 3h5l1 1.4H14v8.6H2z"/><path fill="#8fbf4a" d="M2 5.4h12V13H2z"/></svg></span><span class="ex-name">ReplicatedStorage</span><span class="ex-kind">ReplicatedStorage</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Config</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li><li class="ex-branch"><details><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">CluauppLibs</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Janitor</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Net</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Promise</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">DataService</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li></ul></details></li><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="5" r="2.4" fill="#f5cd2f"/><path fill="#f5cd2f" d="M3.5 13.2c.4-3 2.2-4.4 4.5-4.4s4.1 1.4 4.5 4.4z"/></svg></span><span class="ex-name">StarterPlayer</span><span class="ex-kind">StarterPlayer</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">StarterPlayerScripts</span><span class="ex-kind">StarterPlayerScripts</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M6.2 7.1 11 9.6 6.2 12.1z"/></svg></span><span class="ex-name">Hud</span><span class="ex-kind">LocalScript</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Main</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li></ul></details></li></ul></details></li></ul></details></li></ul></details></li></ul>
+	<ul class="ex-root"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#9a9a9a" d="M8 1.2 14.8 8 8 14.8 1.2 8z"/><path fill="#6e6e6e" d="M8 4.2 11.8 8 8 11.8 4.2 8z"/></svg></span><span class="ex-name">game</span><span class="ex-kind">DataModel</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#4a90d9" d="M2 3h5l1 1.4H14v8.6H2z"/><path fill="#00a2ff" d="M2 5.4h12V13H2z"/></svg></span><span class="ex-name">ServerScriptService</span><span class="ex-kind">ServerScriptService</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">leaderstats.server</span><span class="ex-kind">Script</span></div></li></ul></details></li></ul></details></li><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#6c9a3a" d="M2 3h5l1 1.4H14v8.6H2z"/><path fill="#8fbf4a" d="M2 5.4h12V13H2z"/></svg></span><span class="ex-name">ReplicatedStorage</span><span class="ex-kind">ReplicatedStorage</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Config</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li><li class="ex-branch"><details><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">CluauppLibs</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Janitor</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Net</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Promise</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">DataService</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li></ul></details></li><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="5" r="2.4" fill="#f5cd2f"/><path fill="#f5cd2f" d="M3.5 13.2c.4-3 2.2-4.4 4.5-4.4s4.1 1.4 4.5 4.4z"/></svg></span><span class="ex-name">StarterPlayer</span><span class="ex-kind">StarterPlayer</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">StarterPlayerScripts</span><span class="ex-kind">StarterPlayerScripts</span></summary><ul class="ex-children"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#e8b923" d="M1.5 3.5h5l1.2 1.5H14.5v8.5h-13z"/><path fill="#f5cd2f" d="M1.5 6h13v7.5h-13z"/></svg></span><span class="ex-name">Cluaupp</span><span class="ex-kind">Folder</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M6.2 7.1 11 9.6 6.2 12.1z"/></svg></span><span class="ex-name">hud.client</span><span class="ex-kind">LocalScript</span></div></li></ul></details></li></ul></details></li></ul></details></li></ul></details></li></ul>
 </div>
 </div>
 <p class="note">Icons match Studio Explorer: yellow folder, blue Script / LocalScript, brown ModuleScript. Expand a row the way you would in Roblox Studio.</p>
@@ -578,35 +609,44 @@ janitor:<span data-tok="fn">Add</span>(players.PlayerAdded:<span data-tok="fn">C
 <tr><td><code>src/shared</code></td><td>Both</td><td>types, <code>const</code> config, FormatNumber</td></tr>
 </table>
 <p>If a file needs DataStoreService, it is server. If it needs UserInputService, it is client. Shared code must compile in both.</p>
-<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI.</p>
-	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-arch">Next lesson · Architecture</button></div>
+<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI. One source file becomes one instance.</p>
+<p>In the Cluaupp repo, compiler TypeScript lives in <code>src/</code>. Sample game C++ is <code>examples/game/src/{server,client,shared}</code>. <code>cluaupp init</code> copies <code>templates/game</code>.</p>
+<p>C++ autocomplete is clangd. Put <code>#include &lt;cluaupp/roblox.hpp&gt;</code> at the top of each script. <code>cluaupp intellisense</code> writes <code>compile_commands.json</code> / <code>.clangd</code>.</p>
+	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-arch">Next lesson · One file out</button></div>
 </section>
 		<section class="learn-panel" role="tabpanel" id="learn-arch" aria-labelledby="learn-arch-tab" hidden>
-	<h1>Service architecture</h1>
-	<p class="muted">The planner reads two keys. The filename tag decides Script / LocalScript / ModuleScript. AST intents decide the roles: Main, Managers, Controllers, Types.</p>
-<p>Rojo’s <code>init.server.luau</code> rule is how a service lands in Studio: the <strong>folder becomes the Script</strong>. Sibling <code>.luau</code> files become ModuleScript children. The boot file is one line:</p>
+	<h1>One file in, one file out</h1>
+	<p class="muted">The filename tag decides Script / LocalScript / ModuleScript — the same keys as roblox-ts. Cluaupp stops there by default. It does not invent Main / Controller / Types folders.</p>
+<p><strong>SystemUnderstander</strong> then scans Tree-sitter identifiers (no generative AI). Token density scores intents (combat, ui, net, data, players). Score under 2 → utility Module. Otherwise it stamps a Knit-style role (<code>CombatController</code>, <code>ViewController</code>) and may inject <code>GetService</code>. The Rojo class never changes because of that role.</p>
+<p><code>DataBoot.client.cpp</code> becomes <code>out/client/boot/DataBoot.client.luau</code>. Shared <code>#include</code> modules use <code>require(ReplicatedStorage.Cluaupp...)</code>.</p>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
 		<span class="tab-ink" aria-hidden="true"></span>
 		<button type="button" role="tab" aria-selected="true" aria-controls="pair-18-cpp" id="pair-18-tab-cpp">C++</button>
 		<button type="button" role="tab" aria-selected="false" aria-controls="pair-18-luau" id="pair-18-tab-luau" tabindex="-1">Luau</button>
 	</div>
-	<div class="pair-panel" role="tabpanel" id="pair-18-cpp" aria-labelledby="pair-18-tab-cpp"><pre data-lang="cpp" data-highlighted="1"><span data-tok="comment">// src/server/leaderstats.server.cpp</span>
+	<div class="pair-panel" role="tabpanel" id="pair-18-cpp" aria-labelledby="pair-18-tab-cpp"><pre data-lang="cpp" data-highlighted="1">#<span data-tok="keyword">pragma</span> strict
 #<span data-tok="keyword">include</span> &lt;cluaupp/roblox.hpp&gt;
+#<span data-tok="keyword">include</span> &lt;cluaupp/libs/dataservice.hpp&gt;
 
-<span data-tok="keyword">void</span> <span data-tok="fn">CreateLeaderstats</span>(<span data-tok="type">Player</span>* player) {
-	<span data-tok="keyword">auto</span>* folder = <span data-tok="keyword">new</span> <span data-tok="type">Folder</span>(player);
-	folder-&gt;Name = <span data-tok="string">"leaderstats"</span>;
-	<span data-tok="keyword">auto</span>* coins = <span data-tok="keyword">new</span> <span data-tok="type">IntValue</span>(folder);
-	coins-&gt;Name = <span data-tok="string">"Coins"</span>;
+<span data-tok="keyword">void</span> <span data-tok="fn">init</span>() {
+	<span data-tok="type">DataService</span>::Client.<span data-tok="fn">Init</span>();
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-18-luau" aria-labelledby="pair-18-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- out/server/LeaderStats/init.luau</span>
-<span data-tok="comment">--!strict</span>
-<span data-tok="fn">require</span>(script.Main):<span data-tok="fn">Start</span>()
+	<div class="pair-panel" role="tabpanel" id="pair-18-luau" aria-labelledby="pair-18-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
+<span data-tok="comment">-- Compiled by Cluaupp — C++ × Luau</span>
 
-<span data-tok="comment">-- LeaderStats (Script, RunContext Server via init.meta.json)</span>
-<span data-tok="comment">--   Main, PlayersManager, CacheController, LeaderStatsTypes</span></pre></div>
+<span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
+<span data-tok="keyword">const</span> <span data-tok="type">DataService</span> = <span data-tok="fn">require</span>(<span data-tok="type">ReplicatedStorage</span>.CluauppLibs.<span data-tok="type">DataService</span>)
+<span data-tok="keyword">type</span> <span data-tok="type">DataService</span> = <span data-tok="type">DataService</span>.<span data-tok="type">DataService</span>
+
+<span data-tok="keyword">const</span> <span data-tok="keyword">function</span> <span data-tok="fn">init</span>()
+	<span data-tok="type">DataService</span>.Client:<span data-tok="fn">Init</span>()
+<span data-tok="keyword">end</span>
+
+<span data-tok="fn">init</span>()</pre></div>
 </div>
+<p>Rojo maps <code>out/server</code> to <code>ServerScriptService.Cluaupp</code>, <code>out/client</code> to <code>StarterPlayerScripts.Cluaupp</code>, <code>out/shared</code> to <code>ReplicatedStorage.Cluaupp</code>.</p>
+<p>Set <code>"architecture": true</code> only if you want the old ForeverHD planner: PascalCase folders, <code>Main.Start</code> / <code>Stop</code>, Managers, Controllers, Types.</p>
 <div class="explorer-stage">
 	<div class="explorer">
 	<div class="explorer-title">Disk · out/server/LeaderStats/</div>
@@ -618,36 +658,32 @@ janitor:<span data-tok="fn">Add</span>(players.PlayerAdded:<span data-tok="fn">C
 	<ul class="ex-root"><li class="ex-branch"><details open><summary class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#fff" d="M4 1.5h6.2L13 4.3V14.5H4z"/><path fill="#d9d9d9" d="M10.2 1.5V4.3H13"/><path fill="#00a2ff" d="M5.5 7h5v1.2h-5zm0 2.2h5V10.4h-5zm0 2.2h3.4v1.2H5.5z"/></svg></span><span class="ex-name">LeaderStats</span><span class="ex-kind">Script</span></summary><ul class="ex-children"><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">Main</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">PlayersManager</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">CacheController</span><span class="ex-kind">ModuleScript</span></div></li><li class="ex-leaf"><div class="ex-row"><span class="ex-icon"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#8c5a32" d="M8 2 14 5.2v5.6L8 14 2 10.8V5.2z"/><path fill="#c48a4a" d="M8 2v12L2 10.8V5.2z"/><path fill="#a86b38" d="M8 2 14 5.2 8 8.2 2 5.2z"/></svg></span><span class="ex-name">LeaderStatsTypes</span><span class="ex-kind">ModuleScript</span></div></li></ul></details></li></ul>
 </div>
 </div>
-<pre data-lang="plain" data-highlighted="1">filename key  →  server | client | module | legacy
-AST features  →  GetService, Instance.new, methods, identifiers
-intent scores →  combat:2, character:1, …
-roles         →  Main + Managers + Controllers + Types</pre>
-<p>A tiny <code>leaderstats.server.cpp</code> becomes <code>LeaderStats/</code> with Main, PlayersManager, CacheController, LeaderStatsTypes. A combat file with TakeDamage becomes CombatController — not a fake CacheController.</p>
-<p>The OOP tab is how you <em>write</em> that service with typed structs. The Examples tab is copy-paste systems.</p>
-<p>Trivial files that only <code>print</code> stay a single LocalScript. The planner does not invent Managers for hello-world.</p>
-<p>ForeverHD-style rules in the output: PascalCase folders, <code>--!strict</code>, public <code>Start</code> / <code>Stop</code>, Janitor in the Manager, Types modules <code>return {}</code>.</p>
-<p>Set <code>"architecture": false</code> in <code>cluaupp.config.json</code> (or use <code>.legacy.*.cpp</code>) for a 1:1 dump.</p>
+<pre data-lang="plain" data-highlighted="1">filename key     →  Script | LocalScript | ModuleScript
+SystemUnderstander →  role + GetService inject (comments)
+opt-in architecture: true → Main / Managers / Controllers / Types</pre>
+<p>The OOP tab is how you <em>write</em> a system with typed structs. The Examples tab is copy-paste systems.</p>
+<p><code>--!strict</code> is opt-in: <code>#pragma strict</code> in the <code>.cpp</code>, or <code>"strict": true</code> in config. <code>#pragma nstrict</code> never emits it.</p>
 	<div class="learn-next"><button type="button" class="btn btn-primary" data-learn-next="learn-oop">Next lesson · OOP structure</button></div>
 </section>
 		<section class="learn-panel" role="tabpanel" id="learn-oop" aria-labelledby="learn-oop-tab" hidden>
 	<h1>OOP structure</h1>
-	<p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>services</em> so Studio gets Main / Controller / Types — the same idea as roblox-ts filename keys + Flamework <code>@Service</code>, without decorators.</p>
+	<p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>file tags</em> so Studio gets Script / LocalScript / ModuleScript — the same idea as roblox-ts. Flamework-style Main / Controller folders are opt-in (<code>"architecture": true</code>). SystemUnderstander infers Controller / Manager / utility from tokens without annotations.</p>
 <h2>The three layers</h2>
 <table>
 <tr><th>Layer</th><th>You write</th><th>Runtime</th></tr>
 <tr><td>Data object</td><td><code>struct TemplateData</code>, <code>struct CombatConfig</code></td><td>Luau table + <code>export type</code> in <code>*Types.luau</code></td></tr>
 <tr><td>Methods</td><td>named functions with typed args (<code>Player*</code>, <code>Humanoid*</code>, <code>int</code>)</td><td><code>const function</code> on the Controller</td></tr>
-<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>generated <code>Main.Start</code> / <code>Main.Stop</code></td></tr>
+<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>auto-called <code>init()</code>; folders only if <code>"architecture": true</code></td></tr>
 </table>
 <h2>File tags decide the instance</h2>
 <table>
-<tr><th>Source</th><th>Instance</th><th>RunContext</th></tr>
-<tr><td><code>CombatServer.server.cpp</code></td><td><strong>Script</strong></td><td><strong>Server</strong> (<code>init.luau</code> + <code>init.meta.json</code>)</td></tr>
-<tr><td><code>CombatClient.client.cpp</code></td><td>LocalScript</td><td>Client</td></tr>
-<tr><td><code>Sword.legacy.server.cpp</code></td><td>Script</td><td>Legacy (1:1 dump, lives under a Tool)</td></tr>
-<tr><td><code>Damage.cpp</code> (no tag)</td><td>ModuleScript</td><td>—</td></tr>
+<tr><th>Source</th><th>Instance</th><th>Output</th></tr>
+<tr><td><code>combat.server.cpp</code></td><td><strong>Script</strong></td><td><code>combat.server.luau</code></td></tr>
+<tr><td><code>hud.client.cpp</code></td><td>LocalScript</td><td><code>hud.client.luau</code></td></tr>
+<tr><td><code>boot.legacy.server.cpp</code></td><td>Legacy Script</td><td><code>boot.server.luau</code></td></tr>
+<tr><td><code>damage.cpp</code> (no tag)</td><td>ModuleScript</td><td><code>Damage.luau</code></td></tr>
 </table>
-<p class="note"><code>.server.cpp</code> is not <code>init.server.luau</code>. Rojo maps <code>*.server.luau</code> to RunContext <strong>Legacy</strong>. Cluaupp emits <code>init.luau</code> + meta <code>Enum.RunContext.Server</code>.</p>
+<p class="note">Default emit is one tagged file → one Luau instance. <code>"architecture": true</code> restores PascalCase folders (<code>init.server.luau</code> + <code>Main</code> / Controllers).</p>
 <h2>Structs are the typed class fields</h2>
 <p>Put shapes in shared headers. Designated initializers become tables. Methods are functions that take the instance in — composition, not <code>this-&gt;</code>.</p>
 <div class="pair" data-tabs>
@@ -848,9 +884,7 @@ roles         →  Main + Managers + Controllers + Types</pre>
 	Attack-&gt;<span data-tok="fn">On</span>(OnAttack);
 	janitor-&gt;<span data-tok="fn">Add</span>(Attack);
 }</pre></div>
-	<div class="pair-panel" role="tabpanel" id="pair-20-luau" aria-labelledby="pair-20-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">--!strict</span>
-<span data-tok="comment">-- CombatServer (Script, RunContext Server)</span>
-<span data-tok="comment">-- roles Main, CombatController, NetController, DataController, CombatServerTypes</span>
+	<div class="pair-panel" role="tabpanel" id="pair-20-luau" aria-labelledby="pair-20-tab-luau" hidden><pre data-lang="luau" data-highlighted="1"><span data-tok="comment">-- Compiled by Cluaupp — C++ × Luau</span>
 
 <span data-tok="keyword">const</span> <span data-tok="type">Players</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"Players"</span>)
 <span data-tok="keyword">const</span> <span data-tok="type">ReplicatedStorage</span> = game:<span data-tok="fn">GetService</span>(<span data-tok="string">"ReplicatedStorage"</span>)
@@ -876,16 +910,10 @@ roles         →  Main + Managers + Controllers + Types</pre>
 	<span data-tok="comment">-- ResolveTarget, IsAlive, InRange, StampCooldown, TakeDamage(Config.Damage)</span>
 <span data-tok="keyword">end</span></pre></div>
 </div>
-<p>Cluaupp turns that file into a PascalCase folder:</p>
-<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer/
-  init.luau              Script · RunContext Server
-  init.meta.json
-  Main.luau              Start / Stop  → constructor / destructor
-  CombatController.luau  your typed functions
-  NetController.luau
-  DataController.luau
-  CombatServerTypes.luau export type … return {}</pre>
-<p><code>Main</code> is the class. Controllers are the methods. <code>*Types</code> is the typed public surface. Janitor is the destructor.</p>
+<p>Cluaupp turns that file into one Script:</p>
+<pre data-lang="plain" data-highlighted="1">out/server/services/combat/CombatServer.server.luau
+  -- your typed functions + init() at the end</pre>
+<p>Keep DataService boot in <code>DataBoot.server.cpp</code>. Combat stays in this file. Set <code>"architecture": true</code> only if you want a PascalCase folder with Main / Controller / Types.</p>
 <h2>Client half (intent only)</h2>
 <div class="pair" data-tabs>
 	<div class="pair-tabs">
@@ -1359,7 +1387,8 @@ cout::<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>);
 <li>One system per file. Name it after the job: <code>inventory.server.cpp</code>, <code>shop.client.cpp</code>.</li>
 <li>Typed data lives in shared <code>struct</code> headers. Methods are named functions. Lifetime is <code>init</code> + Janitor.</li>
 <li>Keep config in <code>src/shared/config.h</code> as <code>const</code> values.</li>
-<li>Do not edit <code>out/</code>. It is generated. Source of truth is <code>src/</code>.</li>
+<li>Do not edit <code>out/</code>. It is generated. Source of truth is the game <code>src/</code>.</li>
+<li>C++ IntelliSense is clangd + <code>roblox.hpp</code>. Do not install a second C++ completion engine.</li>
 <li>Never trust FireServer payloads. Validate on the server. Persist only from the server.</li>
 <li>Janitor every connection that can outlive the object that created it.</li>
 <li>Prefer <code>FindFirstChild</code> plus an early return over <code>WaitForChild</code> on hot paths.</li>
@@ -1367,7 +1396,7 @@ cout::<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>);
 <li>Net packs buffers — do not JSONEncode a whole inventory every heartbeat. Send deltas.</li>
 <li>Do not install a second Janitor from Wally. CluauppLibs already has it.</li>
 <li>Shared modules must be safe on both server and client.</li>
-<li><code>.server.cpp</code> emits <code>init.luau</code> + RunContext Server — not Legacy.</li>
+<li>Default <code>.server.cpp</code> emits <code>*.server.luau</code> (one file in, one file out). PascalCase folders are opt-in.</li>
 </ul>
 <p>Next: <a href="../guide/oop.html">OOP structure</a>, <a href="../guide/examples.html">examples</a>, or the <a href="../api/classes/index.html">class API</a>.</p>
 	<div class="learn-next"><a class="btn btn-primary" href="../guide/getting-started.html">Next · Get started</a></div>
@@ -1378,7 +1407,7 @@ cout::<span data-tok="fn">warn</span>(<span data-tok="string">"careful"</span>);
   <span>Cluaupp — C++ × Luau</span>
   <span><a href="https://github.com/KartzRbx/Cluaupp">GitHub</a> · <a href="https://create.roblox.com/docs/reference/engine">Roblox API</a></span>
 </footer>
-<script src="../assets/app.js?v=3"></script>
+<script src="../assets/app.js?v=4"></script>
 <button class="ask-toggle" type="button" data-ask-toggle>Ask Cluaupp</button>
 <div class="ask-panel" data-ask-panel hidden>
   <div class="ask-log" data-ask-log><p class="muted">Ask about the C++ subset, Luau output, or Roblox APIs. Powered by Vercel AI Gateway.</p></div>

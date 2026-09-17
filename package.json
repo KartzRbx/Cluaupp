@@ -1,6 +1,6 @@
 {
 	"name": "cluaupp",
-	"version": "0.1.5",
+	"version": "0.2.0",
 	"description": "Cluaupp — the definitive merge of C++ and modern Luau. Source-to-source transpiler with first-class Roblox APIs.",
 	"author": "KartzDev",
 	"license": "MIT",
@@ -8,16 +8,18 @@
 		"cluaupp": "bin/cluaupp.js",
 		"cluau": "bin/cluaupp.js"
 	},
-	"main": "src/compile.js",
+	"main": "./generated/compile.js",
 	"exports": {
-		".": "./src/compile.js",
+		".": "./generated/compile.js",
 		"./package.json": "./package.json"
 	},
 	"files": [
 		"bin",
 		"src",
+		"generated",
 		"include",
 		"templates",
+		"examples",
 		"editors",
 		"runtime",
 		"README.md",
@@ -28,9 +30,11 @@
 	"scripts": {
 		"cluaupp": "node bin/cluaupp.js",
 		"cluau": "node bin/cluaupp.js",
-		"build": "node bin/cluaupp.js build",
-		"watch": "node bin/cluaupp.js watch",
-		"test": "node test/leaderstats.test.js && node test/understand.test.js && node test/datatypes.test.js && node test/headers.test.js && node test/libs.test.js && node test/runtime-libs.test.js && node test/intellisense.test.js && node test/intellisense-complete.test.js && node test/dataservice.test.js && node test/datacontroller-signal.test.js && node test/cout.test.js && node test/prune.test.js && node test/hold.test.js && node test/vendor-stable.test.js && node test/switch.test.js && node test/qualified.test.js && node test/module-require.test.js",
+		"build": "tsc",
+		"build:cli": "tsc",
+		"dev:cli": "tsx src/cli.ts",
+		"prepare": "tsc",
+		"test": "node test/out.test.js && node test/types.test.js && node test/modules.test.js && node test/security.test.js && node test/understander.test.js",
 		"generate-api": "node scripts/generate-api.js",
 		"check-highlight": "node scripts/check-highlight.js",
 		"vendor-libs": "node scripts/vendor-libs.js",
@@ -39,7 +43,7 @@
 		"site": "node scripts/generate-api.js && node scripts/check-highlight.js",
 		"dev": "node scripts/dev.js",
 		"stop": "node scripts/stop.js",
-		"prepublishOnly": "npm test"
+		"prepublishOnly": "tsc && npm test"
 	},
 	"engines": {
 		"node": ">=18"
@@ -62,5 +66,18 @@
 	"bugs": {
 		"url": "https://github.com/KartzRbx/Cluaupp/issues"
 	},
-	"homepage": "https://github.com/KartzRbx/Cluaupp#readme"
+	"homepage": "https://github.com/KartzRbx/Cluaupp#readme",
+	"dependencies": {
+		"commander": "^15.0.0",
+		"comment-json": "^5.0.0",
+		"tree-sitter": "^0.21.1",
+		"tree-sitter-cpp": "^0.23.4",
+		"vscode-languageserver": "^10.1.1",
+		"vscode-languageserver-textdocument": "^1.0.14"
+	},
+	"devDependencies": {
+		"@types/node": "^22.20.3",
+		"tsx": "^4.23.13",
+		"typescript": "^7.0.2"
+	}
 }

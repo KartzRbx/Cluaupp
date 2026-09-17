@@ -155,23 +155,23 @@ buy:FireServer(PRODUCT_HEALTH_PACK)`,
 	}
 
 	function oopInner() {
-		return `<p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>services</em> so Studio gets Main / Controller / Types — the same idea as roblox-ts filename keys + Flamework <code>@Service</code>, without decorators.</p>
+		return `<p class="muted">Cluaupp does <strong>not</strong> compile custom C++ <code>class</code> types yet. OOP here is how you lay out <em>typed data</em>, <em>named methods</em>, and <em>file tags</em> so Studio gets Script / LocalScript / ModuleScript — the same idea as roblox-ts. Flamework-style Main / Controller folders are opt-in (<code>"architecture": true</code>). SystemUnderstander infers Controller / Manager / utility from tokens without annotations.</p>
 <h2>The three layers</h2>
 <table>
 <tr><th>Layer</th><th>You write</th><th>Runtime</th></tr>
 <tr><td>Data object</td><td><code>struct TemplateData</code>, <code>struct CombatConfig</code></td><td>Luau table + <code>export type</code> in <code>*Types.luau</code></td></tr>
 <tr><td>Methods</td><td>named functions with typed args (<code>Player*</code>, <code>Humanoid*</code>, <code>int</code>)</td><td><code>const function</code> on the Controller</td></tr>
-<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>generated <code>Main.Start</code> / <code>Main.Stop</code></td></tr>
+<tr><td>Lifetime</td><td><code>void init()</code> + Janitor</td><td>auto-called <code>init()</code>; folders only if <code>"architecture": true</code></td></tr>
 </table>
 <h2>File tags decide the instance</h2>
 <table>
-<tr><th>Source</th><th>Instance</th><th>RunContext</th></tr>
-<tr><td><code>CombatServer.server.cpp</code></td><td><strong>Script</strong></td><td><strong>Server</strong> (<code>init.luau</code> + <code>init.meta.json</code>)</td></tr>
-<tr><td><code>CombatClient.client.cpp</code></td><td>LocalScript</td><td>Client</td></tr>
-<tr><td><code>Sword.legacy.server.cpp</code></td><td>Script</td><td>Legacy (1:1 dump, lives under a Tool)</td></tr>
-<tr><td><code>Damage.cpp</code> (no tag)</td><td>ModuleScript</td><td>—</td></tr>
+<tr><th>Source</th><th>Instance</th><th>Output</th></tr>
+<tr><td><code>combat.server.cpp</code></td><td><strong>Script</strong></td><td><code>combat.server.luau</code></td></tr>
+<tr><td><code>hud.client.cpp</code></td><td>LocalScript</td><td><code>hud.client.luau</code></td></tr>
+<tr><td><code>boot.legacy.server.cpp</code></td><td>Legacy Script</td><td><code>boot.server.luau</code></td></tr>
+<tr><td><code>damage.cpp</code> (no tag)</td><td>ModuleScript</td><td><code>Damage.luau</code></td></tr>
 </table>
-<p class="note"><code>.server.cpp</code> is not <code>init.server.luau</code>. Rojo maps <code>*.server.luau</code> to RunContext <strong>Legacy</strong>. Cluaupp emits <code>init.luau</code> + meta <code>Enum.RunContext.Server</code>.</p>
+<p class="note">Default emit is one tagged file → one Luau instance. <code>"architecture": true</code> restores PascalCase folders (<code>init.server.luau</code> + <code>Main</code> / Controllers).</p>
 <h2>Structs are the typed class fields</h2>
 <p>Put shapes in shared headers. Designated initializers become tables. Methods are functions that take the instance in — composition, not <code>this-&gt;</code>.</p>
 ${codePair(

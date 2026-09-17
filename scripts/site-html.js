@@ -3,7 +3,7 @@
 const { preCode } = require("./highlight");
 const { createGuides } = require("./site-guides");
 
-const ASSET_V = "3";
+const ASSET_V = "4";
 
 let pairSeq = 0;
 
@@ -269,7 +269,7 @@ function homeBody({ dump, classCount, enumCount }) {
   <div class="hero-copy reveal">
     <p class="eyebrow">C++ × Luau</p>
     <h1>Write C++.<br>Ship Studio Luau.</h1>
-    <p class="lede">Cluaupp is the definitive merge of a C++ subset and modern Luau. No WASM. No lua_call. Roblox APIs leave the compiler the same way they look in Studio.</p>
+    <p class="lede">Cluaupp 0.2.0: a C++ subset → readable Luau. Tree-sitter compiles. clangd completes. Filename tags pick Script / LocalScript / ModuleScript. No WASM. No lua_call.</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="learn/index.html">Learn the language</a>
       <a class="btn btn-ghost" href="api/classes/index.html">Open the API</a>
@@ -286,7 +286,7 @@ rojo serve`, "plain")}
   <p class="muted">Docs generated from the official Roblox API dump${version ? ` (${version})` : ""} — the same classes, properties, methods, and enums as <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>.</p>
   <div class="grid">
     <a class="card" href="learn/index.html"><strong>Learn</strong><span class="muted">C++ subset, OOP, Luau output, safety</span></a>
-    <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, IntelliSense</span></a>
+    <a class="card" href="guide/getting-started.html"><strong>Get started</strong><span class="muted">install, init, Rojo, clangd</span></a>
     <a class="card" href="guide/oop.html"><strong>OOP structure</strong><span class="muted">structs, services, typed Combat</span></a>
     <a class="card" href="guide/examples.html"><strong>Examples</strong><span class="muted">leaderstats, combat, shop, HUD, sword</span></a>
     <a class="card" href="api/datatypes/index.html"><strong>Datatypes</strong><span class="muted">Vector3, CFrame, UDim2, Color3</span></a>
@@ -333,7 +333,7 @@ function introBody(p) {
 <h2>What you get</h2>
 <ol>
 <li>A compiler (<code>cluaupp init</code> / <code>build</code> / <code>watch</code>)</li>
-<li>Headers for IntelliSense (<code>#include &lt;cluaupp/roblox.hpp&gt;</code>)</li>
+<li>clangd IntelliSense via <code>#include &lt;cluaupp/roblox.hpp&gt;</code> (not a second completion engine)</li>
 <li>First-party libraries in <code>ReplicatedStorage.CluauppLibs</code></li>
 <li>Optional Wally only for extra community packages</li>
 </ol>
@@ -419,7 +419,7 @@ function learnBody() {
 			true,
 			"What Cluaupp is",
 			`<p class="muted">Cluaupp is not a full C++ compiler. It is a subset aimed at Roblox scripts, in the same spirit as roblox-ts: a familiar syntax, a restricted language, readable output.</p>
-<p>You write <code>.cpp</code> / <code>.h</code>. Cluaupp emits modern Luau: <code>local</code>, <code>const</code>, and <code>--!strict</code> only when you put <code>#pragma strict</code> in the file (or set <code>"strict": true</code>). There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
+<p>You write <code>.cpp</code> / <code>.h</code>. Tree-sitter walks the CST and Cluaupp emits modern Luau: <code>local</code>, <code>const</code>, and <code>--!strict</code> only with <code>#pragma strict</code> (or <code>"strict": true</code>). Editor completion is <strong>clangd</strong> reading <code>include/cluaupp/roblox.hpp</code>. There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
 <p>Start on <strong>Basics</strong> for <code>int</code>, <code>string</code>, <code>const</code>, <code>*</code> (the original Instance), and why <code>&amp;</code> is not how you mutate numbers here.</p>
 <p>If <code>void init()</code> exists, the compiler calls it at the end of the script. That is how Scripts and LocalScripts boot.</p>
 ${codePair(
@@ -863,13 +863,16 @@ ${studioStage()}
 <tr><td><code>src/shared</code></td><td>Both</td><td>types, <code>const</code> config, FormatNumber</td></tr>
 </table>
 <p>If a file needs DataStoreService, it is server. If it needs UserInputService, it is client. Shared code must compile in both.</p>
-<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI. One source file becomes one instance.</p>`,
+<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI. One source file becomes one instance.</p>
+<p>In the Cluaupp repo, compiler TypeScript lives in <code>src/</code>. Sample game C++ is <code>examples/game/src/{server,client,shared}</code>. <code>cluaupp init</code> copies <code>templates/game</code>.</p>
+<p>C++ autocomplete is clangd. Put <code>#include &lt;cluaupp/roblox.hpp&gt;</code> at the top of each script. <code>cluaupp intellisense</code> writes <code>compile_commands.json</code> / <code>.clangd</code>.</p>`,
 		)}
 		${learnPanel(
 			"learn-arch",
 			false,
 			"One file in, one file out",
 			`<p class="muted">The filename tag decides Script / LocalScript / ModuleScript — the same keys as roblox-ts. Cluaupp stops there by default. It does not invent Main / Controller / Types folders.</p>
+<p><strong>SystemUnderstander</strong> then scans Tree-sitter identifiers (no generative AI). Token density scores intents (combat, ui, net, data, players). Score under 2 → utility Module. Otherwise it stamps a Knit-style role (<code>CombatController</code>, <code>ViewController</code>) and may inject <code>GetService</code>. The Rojo class never changes because of that role.</p>
 <p><code>DataBoot.client.cpp</code> becomes <code>out/client/boot/DataBoot.client.luau</code>. Shared <code>#include</code> modules use <code>require(ReplicatedStorage.Cluaupp...)</code>.</p>
 ${codePair(
 	`#pragma strict
@@ -895,9 +898,9 @@ init()`,
 <p>Rojo maps <code>out/server</code> to <code>ServerScriptService.Cluaupp</code>, <code>out/client</code> to <code>StarterPlayerScripts.Cluaupp</code>, <code>out/shared</code> to <code>ReplicatedStorage.Cluaupp</code>.</p>
 <p>Set <code>"architecture": true</code> only if you want the old ForeverHD planner: PascalCase folders, <code>Main.Start</code> / <code>Stop</code>, Managers, Controllers, Types.</p>
 ${serviceExplorers()}
-${preCode(`filename key  →  server | client | module | legacy
-opt-in architecture: true
-roles         →  Main + Managers + Controllers + Types`, "plain")}
+${preCode(`filename key     →  Script | LocalScript | ModuleScript
+SystemUnderstander →  role + GetService inject (comments)
+opt-in architecture: true → Main / Managers / Controllers / Types`, "plain")}
 <p>The OOP tab is how you <em>write</em> a system with typed structs. The Examples tab is copy-paste systems.</p>
 <p><code>--!strict</code> is opt-in: <code>#pragma strict</code> in the <code>.cpp</code>, or <code>"strict": true</code> in config. <code>#pragma nstrict</code> never emits it.</p>`,
 		)}
@@ -913,7 +916,8 @@ roles         →  Main + Managers + Controllers + Types`, "plain")}
 <li>One system per file. Name it after the job: <code>inventory.server.cpp</code>, <code>shop.client.cpp</code>.</li>
 <li>Typed data lives in shared <code>struct</code> headers. Methods are named functions. Lifetime is <code>init</code> + Janitor.</li>
 <li>Keep config in <code>src/shared/config.h</code> as <code>const</code> values.</li>
-<li>Do not edit <code>out/</code>. It is generated. Source of truth is <code>src/</code>.</li>
+<li>Do not edit <code>out/</code>. It is generated. Source of truth is the game <code>src/</code>.</li>
+<li>C++ IntelliSense is clangd + <code>roblox.hpp</code>. Do not install a second C++ completion engine.</li>
 <li>Never trust FireServer payloads. Validate on the server. Persist only from the server.</li>
 <li>Janitor every connection that can outlive the object that created it.</li>
 <li>Prefer <code>FindFirstChild</code> plus an early return over <code>WaitForChild</code> on hot paths.</li>
@@ -921,7 +925,7 @@ roles         →  Main + Managers + Controllers + Types`, "plain")}
 <li>Net packs buffers — do not JSONEncode a whole inventory every heartbeat. Send deltas.</li>
 <li>Do not install a second Janitor from Wally. CluauppLibs already has it.</li>
 <li>Shared modules must be safe on both server and client.</li>
-<li><code>.server.cpp</code> emits <code>init.luau</code> + RunContext Server — not Legacy.</li>
+<li>Default <code>.server.cpp</code> emits <code>*.server.luau</code> (one file in, one file out). PascalCase folders are opt-in.</li>
 </ul>
 <p>Next: <a href="../guide/oop.html">OOP structure</a>, <a href="../guide/examples.html">examples</a>, or the <a href="../api/classes/index.html">class API</a>.</p>`,
 		)}

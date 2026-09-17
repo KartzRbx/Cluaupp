@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+## 0.2.0
+
+- CLI rewritten as a TypeScript collector-emitter pipeline: Tree-sitter collection, Rojo-mapped `require`s, ordered Luau blocks (Services → Requires → Types → Constants → Code), then optional StyLua / `luau-analyze`. Commands `init`, `build`, `watch`, `lsp`, and `intellisense` stay. `cluaupp build -i file.cpp -o out.luau --rojo default.project.json` is the single-file path.
+- C++ IntelliSense is **clangd** only. The old tokenizer/`completeAt` engine is gone. Tree-sitter is the compiler frontend. `cluaupp lsp` publishes subset parse errors only.
+- `SystemUnderstander` scans identifiers, scores Roblox intents, and stamps Controller / Manager / utility plus `GetService` injections. Filename tags still decide Script vs LocalScript vs ModuleScript.
+- Sample game C++ lives in `examples/game/` (`src/server`, `src/client`, `src/shared`). Compiler `src/` is TypeScript only.
+- CLI security: StyLua / luau-analyze via `spawn` without a shell; emitted paths cannot leave the project; `.env*` stays out of git and the npm pack.
+- Docs / GitHub Pages: clangd, SystemUnderstander, one-file-out emit, `examples/game`. Rojo **7.7.0**.
+- Tests cover `out/` tree, types, modules, path safety, and understander roles.
+
 ## 0.1.5
 
 - Default emit is one tagged `.cpp` → one `.server.luau` / `.client.luau`. `"architecture": true` keeps the old ForeverHD service folders.

@@ -8,8 +8,14 @@ const cluaupp = path.join(root, "bin", "cluaupp.js");
 const pidFile = path.join(root, ".rojo.pid");
 
 if (!fs.existsSync(gameDir)) {
-	console.error("[dev] pasta game/ não existe. Rode: node bin/cluaupp.js init game");
-	process.exit(1);
+	console.log("[dev] criando playground local em game/ (gitignored)");
+	const inited = spawnSync(process.execPath, [cluaupp, "init", gameDir], {
+		cwd: root,
+		stdio: "inherit",
+	});
+	if (inited.status !== 0) {
+		process.exit(inited.status ?? 1);
+	}
 }
 
 console.log("[dev] Cluaupp build");
