@@ -1,8 +1,7 @@
 #pragma once
 
 // TheNexusAvenger/Module3D — ViewportFrame adorn, vendored into CluauppLibs.Module3D
-class Model3D {
-public:
+struct Model3D {
 	Model* Object3D;
 	GuiObject* AdornFrame;
 	Camera* Camera;
@@ -18,8 +17,7 @@ public:
 	void End();
 };
 
-class Module3D {
-public:
+struct Module3D {
 	static Model3D* new_(Instance* model);
 	static Model3D* Attach3D(GuiObject* frame, Instance* model);
 };

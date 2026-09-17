@@ -1,5 +1,5 @@
 #pragma once
-#include <cluaupp/generated/enums.hpp>
+#include <clpp/generated/enums.clh>
 using Enum::EasingStyle;
 using Enum::EasingDirection;
 using Enum::Material;

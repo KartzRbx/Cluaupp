@@ -5,7 +5,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const DUMP = path.join(ROOT, "data", "Mini-API-Dump.json");
-const INCLUDE = path.join(ROOT, "include", "cluaupp");
+const INCLUDE = path.join(ROOT, "include", "clpp");
 
 const CPP_RESERVED = new Set([
 	"alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break",
@@ -651,11 +651,11 @@ namespace Enum {
 		enumsHpp += `\t};\n`;
 	}
 	enumsHpp += `}\n`;
-	write(path.join(INCLUDE, "generated", "enums.hpp"), enumsHpp);
+	write(path.join(INCLUDE, "generated", "enums.clh"), enumsHpp);
 
 	const specNames = new Set(DATATYPE_SPEC.map((d) => d.name));
 	let dtHpp = `#pragma once
-#include <cluaupp/generated/enums.hpp>
+#include <clpp/generated/enums.clh>
 using Enum::EasingStyle;
 using Enum::EasingDirection;
 using Enum::Material;
@@ -751,10 +751,10 @@ struct RBXScriptSignal {
 		}
 		dtHpp += `\nstruct ${ident(name)} {};\n`;
 	}
-	write(path.join(INCLUDE, "datatypes.hpp"), dtHpp);
+	write(path.join(INCLUDE, "datatypes.clh"), dtHpp);
 
 	let instHpp = `#pragma once
-#include <cluaupp/datatypes.hpp>
+#include <clpp/datatypes.clh>
 
 `;
 	for (const cls of classes) {
@@ -786,17 +786,17 @@ struct RBXScriptSignal {
 		}
 		instHpp += `};\n\n`;
 	}
-	write(path.join(INCLUDE, "generated", "instances.hpp"), instHpp);
+	write(path.join(INCLUDE, "generated", "instances.clh"), instHpp);
 
 	const umbrella = `#pragma once
-// Cluaupp — full Roblox API for IntelliSense.
+// Cluaupp — Roblox API stubs for CL++ IntelliSense.
 // Source: official client dump + datatypes from create.roblox.com
-// The compiler ignores #include and emits real Luau (Vector3.new, Instance.new, :GetPlayers, ...).
+// clpp emits Luau (Vector3.new, Instance.new, :GetPlayers, ...).
 
-#include <cluaupp/generated/enums.hpp>
-#include <cluaupp/datatypes.hpp>
-#include <cluaupp/generated/instances.hpp>
-#include <cluaupp/libs.hpp>
+#include <clpp/generated/enums.clh>
+#include <clpp/datatypes.clh>
+#include <clpp/generated/instances.clh>
+#include <clpp/libs.clh>
 
 template <typename T>
 T* GetService();
@@ -808,37 +808,21 @@ extern DataModel* game;
 extern Workspace* workspace;
 extern LuaSourceContainer* script;
 
-void print(string message);
+void post(string message);
 void warn(string message);
+void report(string message);
+void print(string message);
 void error(string message);
 
-struct cout {
-	static void print(string message);
-	static void warn(string message);
-	static void error(string message);
-	static void ping(string message);
-	static void endl();
-	cout& operator<<(string value);
-	cout& operator<<(int value);
-	cout& operator<<(double value);
-	cout& operator<<(bool value);
-} cout;
-
-struct cerr {
-	cerr& operator<<(string value);
-	cerr& operator<<(int value);
-} cerr;
-
-const int endl = 0;
 double tick();
 double time();
 void wait(double seconds = 0);
 void spawn(void (*callback)());
 void delay(double seconds, void (*callback)());
 `;
-	write(path.join(INCLUDE, "roblox.hpp"), umbrella);
+	write(path.join(INCLUDE, "roblox.clh"), umbrella);
 
-	const gameInclude = path.join(ROOT, "..", "game", "include", "cluaupp");
+	const gameInclude = path.join(ROOT, "..", "game", "include", "clpp");
 	if (fs.existsSync(path.join(ROOT, "..", "game"))) {
 		fs.cpSync(INCLUDE, gameInclude, { recursive: true });
 	}

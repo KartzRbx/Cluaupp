@@ -906,7 +906,7 @@ void LeaderstatsServer::UpdateLeaderstatsWithValues(IntValue* currentValue, int 
 <h2>Data Template (nested structs)</h2>
 <p>Save shape is yours. Nested structs with defaults become nested Luau tables. Pass that value to <code>DataService::Server.Init</code> once. Gameplay uses <code>DataService::Server.Paths....</code> — not a local <code>int Coins</code>.</p>
 ${preCode(`#pragma once
-#include <cluaupp/datatypes.hpp>
+#include <clpp/datatypes.clh>
 
 struct PlayerDataCurrencies {
 	int Coins = 0;
@@ -1221,12 +1221,12 @@ janitor:Destroy()`,
 <h2>Net / Promise / numbers / 3D</h2>
 <table>
 <tr><th>Include</th><th>Call</th></tr>
-<tr><td><code>net.hpp</code></td><td><code>Net::Event("Coins")</code>, <code>Fire</code> / <code>FireServer</code> / <code>OnServer</code></td></tr>
-<tr><td><code>promise.hpp</code></td><td><code>Promise</code> Then / Catch / Await / Delay</td></tr>
-<tr><td><code>formatnumber.hpp</code></td><td><code>FormatNumber::Abbreviate(1500)</code></td></tr>
+<tr><td><code>net.clh</code></td><td><code>Net::Event("Coins")</code>, <code>Fire</code> / <code>FireServer</code> / <code>OnServer</code></td></tr>
+<tr><td><code>promise.clh</code></td><td><code>Promise</code> Then / Catch / Await / Delay</td></tr>
+<tr><td><code>formatnumber.clh</code></td><td><code>FormatNumber::Abbreviate(1500)</code></td></tr>
 <tr><td><code>math.hpp</code></td><td><code>MathUtils::Lerp(a, b, t)</code></td></tr>
-<tr><td><code>module3d.hpp</code></td><td><code>Module3D::Attach3D(frame, model)</code> (colon)</td></tr>
-<tr><td><code>twinkle.hpp</code></td><td><code>Twinkle::Fade(frame, true)</code></td></tr>
+<tr><td><code>module3d.clh</code></td><td><code>Module3D::Attach3D(frame, model)</code> (colon)</td></tr>
+<tr><td><code>twinkle.clh</code></td><td><code>Twinkle::Fade(frame, true)</code></td></tr>
 </table>
 <p>Also shipped: Fusion, Iris, Cmdr, Chrono, TopbarPlus, Spring, Display, EzVisualz, StateMachine, VfxUtil, StickyBillboard, ArrayIndexer, Occlude. Declarative UI: <a href="ui.html">Fusion, Iris, Vide, React</a>.</p>
 <p>Wally is optional and only for packages <em>not</em> in CluauppLibs.</p>`,
@@ -1364,7 +1364,7 @@ opt-in architecture: true → Main / Managers / Controllers / Types`, "plain")}
 		`<p class="muted">Three files. Header stem matches the <code>.server.clpp</code>. Coins come from DataService Paths after a separate boot <code>Init</code>.</p>
 <h2>shared/PlayerData.h</h2>
 ${preCode(`#pragma once
-#include <cluaupp/datatypes.hpp>
+#include <clpp/datatypes.clh>
 
 struct PlayerDataCurrencies {
 	int Coins = 0;

@@ -143,11 +143,11 @@ function copyRuntime(dest) {
     syncDir(runtime, node_path_1.default.join(dest, "libs"));
 }
 function copyHeaders(dest) {
-    const from = node_path_1.default.join(__dirname, "..", "..", "include", "cluaupp");
+    const from = node_path_1.default.join(__dirname, "..", "..", "include", "clpp");
     if (!node_fs_1.default.existsSync(from)) {
         return;
     }
-    syncDir(from, node_path_1.default.join(dest, "include", "cluaupp"));
+    syncDir(from, node_path_1.default.join(dest, "include", "clpp"));
 }
 function collectCpp(dir, files = []) {
     return (0, paths_js_1.collectSources)(dir, files);

@@ -3,14 +3,11 @@
 // KartzRbx/DataServiceV2 — https://github.com/KartzRbx/DataServiceV2
 // Runtime: CluauppLibs.DataService
 //
-// Real surface (not Get(player, path)):
-//   DataService.Server / DataService.Client / DataService.Paths / DataService.Enum
-//   local data = Server:WaitFor(player)
-//   data:Get(Paths.Currencies.Coins)
-//   data:GetChangedSignal(path):Connect(function(newValue, oldValue) end)
+// Real surface:
+//   DataService:Server / DataService:Client / DataService:Paths / DataService:Enum
 
-class DataPath {};
-class DataProfile {};
+struct DataPath {};
+struct DataProfile {};
 
 struct DataBufferStats {
 	double Bytes;
@@ -45,8 +42,7 @@ struct DataServiceOptions {
 	bool AutoCreateMissingTables;
 };
 
-class Data {
-public:
+struct Data {
 	RBXScriptSignal Changed;
 	bool Destroyed;
 
@@ -112,8 +108,7 @@ public:
 	void Destroy();
 };
 
-class DataServiceServer {
-public:
+struct DataServiceServer {
 	DataPath Paths;
 	template <typename T>
 	DataServiceServer* Init(DataServiceOptions<T> options);
@@ -126,8 +121,7 @@ public:
 	void Destroy();
 };
 
-class DataServiceClient {
-public:
+struct DataServiceClient {
 	DataPath Paths;
 	Data* Init();
 	Data* WaitForData();
@@ -136,8 +130,7 @@ public:
 	void Destroy();
 };
 
-class DataService {
-public:
+struct DataService {
 	static DataServiceServer Server;
 	static DataServiceClient Client;
 	static DataPath Paths;

@@ -1,8 +1,7 @@
 #pragma once
 
 // nightcycle/spring — Fraktality-style damped spring, vendored into CluauppLibs.Spring
-class Spring {
-public:
+struct Spring {
 	double Damping;
 	double Frequency;
 	double Goal;

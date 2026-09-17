@@ -24,9 +24,9 @@ function isSourceFile(fileName) {
 function isEngineStub(filePath) {
     const normalized = filePath.replace(/\\/g, "/").toLowerCase();
     return (normalized.includes("/include/cluaupp/") ||
+        normalized.includes("/include/clpp/") ||
         normalized.includes("/include/cluau/") ||
         normalized.includes("/stdlib/") ||
-        normalized.includes("/clpp/") ||
         normalized.endsWith("/roblox.hpp") ||
         normalized.endsWith("/roblox.h") ||
         normalized.endsWith("/roblox.clh"));

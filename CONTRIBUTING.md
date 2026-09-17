@@ -14,7 +14,7 @@ bin/cluaupp.js       CLI entry
 src/                 TypeScript toolchain (clpp runner, Rojo, libs)
 src/clpp/            CL++ contract, spawn, postprocess
 generated/           tsc output
-include/cluaupp/     legacy stubs (editor leftovers)
+include/clpp/            CL++ stubs (`roblox.clh`, libs)
 runtime/             CluauppLibs copied into games on init/build
 templates/game/      `cluaupp init` scaffold (CL++)
 examples/game/       sample CL++ (`src/server`, `src/client`, `src/shared`)

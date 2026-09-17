@@ -1,9 +1,8 @@
 #pragma once
 
 // Blockzez/RobloxFormatNumber — vendored into CluauppLibs.FormatNumber
-// Abbreviate / Comma / Compact are Cluaupp helpers over Simple.FormatCompact.
-class FormatNumberMain {};
-class FormatNumberSimple {};
+struct FormatNumberMain {};
+struct FormatNumberSimple {};
 
 namespace FormatNumber {
 	string Abbreviate(double value);

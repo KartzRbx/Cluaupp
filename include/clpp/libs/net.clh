@@ -1,8 +1,7 @@
 #pragma once
 
 // Buffer-packed RemoteEvent / RemoteFunction. Names are unique per game.
-class NetEvent {
-public:
+struct NetEvent {
 	void Fire(Player* player);
 	template <typename A>
 	void Fire(Player* player, A a);
@@ -23,8 +22,7 @@ public:
 	void On(void (*callback)());
 };
 
-class NetFunction {
-public:
+struct NetFunction {
 	void On(void (*callback)());
 	template <typename R>
 	R Invoke(Player* player);

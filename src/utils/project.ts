@@ -137,11 +137,11 @@ function copyRuntime(dest: string): void {
 }
 
 function copyHeaders(dest: string): void {
-	const from = path.join(__dirname, "..", "..", "include", "cluaupp");
+	const from = path.join(__dirname, "..", "..", "include", "clpp");
 	if (!fs.existsSync(from)) {
 		return;
 	}
-	syncDir(from, path.join(dest, "include", "cluaupp"));
+	syncDir(from, path.join(dest, "include", "clpp"));
 }
 
 export function collectCpp(dir: string, files: string[] = []): string[] {

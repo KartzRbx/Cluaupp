@@ -1,10 +1,9 @@
 #pragma once
 
 // Prooheckcp/RobloxStateMachine — vendored into CluauppLibs.StateMachine
-class StateData {};
+struct StateData {};
 
-class StateMachine {
-public:
+struct StateMachine {
 	static StateMachine* new_(string initial);
 	static StateData* LoadDirectory(Instance* directory);
 	void ChangeState(string name);

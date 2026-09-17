@@ -248,7 +248,7 @@ function walk(node, visit) {
 function modulesFromIncludes(source) {
 	const found = new Set();
 	for (const line of String(source).split(/\r?\n/)) {
-		const match = line.match(/^\s*#\s*include\s+<cluaupp\/(?:libs\/)?([A-Za-z0-9]+)\.hpp>/);
+		const match = line.match(/^\s*#\s*include\s+<(?:clpp|cluaupp)\/(?:libs\/)?([A-Za-z0-9]+)\.(?:clh|hpp)>/);
 		if (!match) {
 			continue;
 		}

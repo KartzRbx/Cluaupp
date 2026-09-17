@@ -8,7 +8,7 @@ export function uiPageInner({ codePair, preCode }: Pick<PageHelpers, "codePair" 
 <table>
 <tr><th>When you want…</th><th>Use</th><th>In Cluaupp</th></tr>
 <tr><td>A few labels you set by hand</td><td>Imperative Instances</td><td><code>new TextLabel(gui); label-&gt;Text = ...</code> — always valid</td></tr>
-<tr><td>UI that follows state (coins, shop, inventory)</td><td><a href="https://github.com/dphfox/Fusion">Fusion</a></td><td>Shipped. <code>#include &lt;cluaupp/libs/fusion.hpp&gt;</code></td></tr>
+<tr><td>UI that follows state (coins, shop, inventory)</td><td><a href="https://github.com/dphfox/Fusion">Fusion</a></td><td>Shipped. <code>#include &lt;clpp/libs/fusion.clh&gt;</code></td></tr>
 <tr><td>The same idea, finer-grained sources</td><td><a href="https://github.com/centau/vide">Vide</a></td><td>Not shipped. Calling convention below — add the Luau package yourself</td></tr>
 <tr><td>A virtual tree (components, keys, reconcilers)</td><td>Roact / <a href="https://github.com/jsdotlua/react">jsdotlua React</a></td><td>Not shipped. <code>createElement</code>, never JSX</td></tr>
 <tr><td>Studio / admin debug panels</td><td><a href="https://github.com/SirMallard/Iris">Iris</a></td><td>Shipped. Immediate-mode, not a player HUD</td></tr>
@@ -35,8 +35,8 @@ export function uiPageInner({ codePair, preCode }: Pick<PageHelpers, "codePair" 
 <p>Start here if the screen is three labels. State still comes from DataService; you assign properties.</p>
 ${codePair(
 	`#include <clpp/roblox.clh>
-#include <cluaupp/libs/dataservice.hpp>
-#include <cluaupp/libs/janitor.hpp>
+#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/janitor.clh>
 
 TextLabel* coinsLabel;
 
@@ -73,12 +73,12 @@ end`,
 <p>When the tree grows (lists, hover, computed text), switch to Fusion or Vide so you stop writing every assignment by hand.</p>
 
 <h2>2. Fusion — reactive, shipped</h2>
-<p>Include <code>&lt;cluaupp/libs/fusion.hpp&gt;</code>. A <code>Fusion::Value</code> is state. <code>Fusion::New("ClassName")</code> builds an Instance. Props are a designated-initializer table. There is no <code>&lt;textlabel /&gt;</code>.</p>
+<p>Include <code>&lt;clpp/libs/fusion.clh&gt;</code>. A <code>Fusion::Value</code> is state. <code>Fusion::New("ClassName")</code> builds an Instance. Props are a designated-initializer table. There is no <code>&lt;textlabel /&gt;</code>.</p>
 
 <h3>Value + a label</h3>
 ${codePair(
 	`#include <clpp/roblox.clh>
-#include <cluaupp/libs/fusion.hpp>
+#include <clpp/libs/fusion.clh>
 
 void init() {
 	PlayerGui* playerGui = GetService<Players>()->LocalPlayer->WaitForChild("PlayerGui");
@@ -150,8 +150,8 @@ end)`,
 <h3>Button that writes (still client-safe)</h3>
 <p>The click lives on the client. The <code>Set</code> that persists belongs on the server via Net. Here the button only fires a remote.</p>
 ${codePair(
-	`#include <cluaupp/libs/fusion.hpp>
-#include <cluaupp/libs/net.hpp>
+	`#include <clpp/libs/fusion.clh>
+#include <clpp/libs/net.clh>
 
 void init() {
 	NetEvent* buy = Net::Event("Buy");
@@ -396,8 +396,8 @@ ${codePair(
 <p>Iris is <em>not</em> a retained HUD. Every frame it draws widgets inside <code>Connect</code>. Use it for cheats, economy inspectors, Studio-only panels. Players should not see it in production.</p>
 ${codePair(
 	`#include <clpp/roblox.clh>
-#include <cluaupp/libs/iris.hpp>
-#include <cluaupp/libs/dataservice.hpp>
+#include <clpp/libs/iris.clh>
+#include <clpp/libs/dataservice.clh>
 
 void DrawEconomy() {
 	if (Iris::Window("Economy")) {
@@ -447,7 +447,7 @@ end`,
 
 <h3>Twinkle — show / hide</h3>
 ${codePair(
-	`#include <cluaupp/libs/twinkle.hpp>
+	`#include <clpp/libs/twinkle.clh>
 
 Twinkle::Fade(shopFrame, true);
 Twinkle::FrameSlide(shopFrame, true, 0.25);
@@ -459,7 +459,7 @@ Twinkle.SetButtonStyle(buyButton)`,
 
 <h3>TopbarPlus — Icon on the topbar</h3>
 ${codePair(
-	`#include <cluaupp/libs/topbarplus.hpp>
+	`#include <clpp/libs/topbarplus.clh>
 
 Icon* shop = Icon::new_();
 shop->setName("Shop");
@@ -481,7 +481,7 @@ end)`,
 
 <h3>EzVisualz — stroke / rainbow on a GuiObject</h3>
 ${codePair(
-	`#include <cluaupp/libs/ezvisual.hpp>
+	`#include <clpp/libs/ezvisual.clh>
 
 EzVisualz* glow = EzVisualz::new_(title, "Rainbow", 1, 1);
 glow->Play();`,
@@ -491,7 +491,7 @@ glow:Play()`,
 
 <h3>StickyBillboard — world-space label</h3>
 ${codePair(
-	`#include <cluaupp/libs/stickybillboard.hpp>
+	`#include <clpp/libs/stickybillboard.clh>
 
 StickyBillboard* tag = StickyBillboard::new_(part, title);
 tag->SetText(player->Name);

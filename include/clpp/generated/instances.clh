@@ -1,5 +1,5 @@
 #pragma once
-#include <cluaupp/datatypes.hpp>
+#include <clpp/datatypes.clh>
 
 struct Object;
 struct AnimatedImageTrack;

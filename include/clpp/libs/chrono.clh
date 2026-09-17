@@ -1,15 +1,15 @@
 #pragma once
 
 // Parihsz/Chrono — custom character replication, vendored into CluauppLibs.Chrono
-class ChronoHolder {};
-class ChronoEntity {};
-class ChronoStats {};
-class ChronoConfig {};
-class ChronoReplicationRules {};
-class ChronoEvents {};
-class ChronoSnapshots {};
-class ChronoServerClock {};
-class ChronoPlayer {};
+struct ChronoHolder {};
+struct ChronoEntity {};
+struct ChronoStats {};
+struct ChronoConfig {};
+struct ChronoReplicationRules {};
+struct ChronoEvents {};
+struct ChronoSnapshots {};
+struct ChronoServerClock {};
+struct ChronoPlayer {};
 
 namespace Chrono {
 	void Start();

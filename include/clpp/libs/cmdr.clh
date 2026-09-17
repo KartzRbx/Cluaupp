@@ -1,10 +1,10 @@
 #pragma once
 
 // evaera/Cmdr — vendored into CluauppLibs.Cmdr (server). Client: Cmdr.CmdrClient
-class CmdrType {};
-class CmdrCommand {};
-class CmdrRegistry {};
-class CmdrDispatcher {};
+struct CmdrType {};
+struct CmdrCommand {};
+struct CmdrRegistry {};
+struct CmdrDispatcher {};
 
 namespace Cmdr {
 	void RegisterDefaultCommands();

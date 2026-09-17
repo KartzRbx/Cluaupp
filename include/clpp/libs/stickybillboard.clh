@@ -1,8 +1,7 @@
 #pragma once
 
 // Cluaupp StickyBillboard — BillboardGui that stays on an adornee.
-class StickyBillboard {
-public:
+struct StickyBillboard {
 	static StickyBillboard* new_(Instance* adornee, GuiObject* gui);
 	void SetText(string text);
 	void SetEnabled(bool enabled);

@@ -1,10 +1,9 @@
 #pragma once
 
-// 1ForeverHD/TopbarPlus — vendored into CluauppLibs.TopbarPlus (class Icon)
-class IconTheme {};
+// 1ForeverHD/TopbarPlus — vendored into CluauppLibs.TopbarPlus (struct Icon)
+struct IconTheme {};
 
-class Icon {
-public:
+struct Icon {
 	static Icon* new_();
 	Icon* setName(string name);
 	Icon* setLabel(string text);

@@ -1,11 +1,11 @@
 #pragma once
 
 // dphfox/Fusion 0.4 — vendored into CluauppLibs.Fusion
-class FusionScope {};
-class FusionState {};
-class FusionKey {};
-class FusionObserver {};
-class FusionContextual {};
+struct FusionScope {};
+struct FusionState {};
+struct FusionKey {};
+struct FusionObserver {};
+struct FusionContextual {};
 
 namespace Fusion {
 	FusionScope scoped();

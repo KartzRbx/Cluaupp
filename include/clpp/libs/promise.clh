@@ -1,9 +1,7 @@
 #pragma once
 
 // evaera/roblox-lua-promise — vendored into CluauppLibs.Promise
-// C++ Then/Catch/Await/Cancel map onto andThen/catch/await/cancel.
-class Promise {
-public:
+struct Promise {
 	Promise(void (*executor)());
 	template <typename T>
 	static Promise* resolve(T value);

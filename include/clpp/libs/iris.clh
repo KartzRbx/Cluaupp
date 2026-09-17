@@ -1,8 +1,8 @@
 #pragma once
 
 // SirMallard/Iris — vendored into CluauppLibs.Iris
-class IrisWidget {};
-class IrisState {};
+struct IrisWidget {};
+struct IrisState {};
 
 namespace Iris {
 	void Init();

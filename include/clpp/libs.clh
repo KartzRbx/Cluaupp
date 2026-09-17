@@ -1,0 +1,24 @@
+#pragma once
+// Cluaupp libraries — CL++ IntelliSense. clpp emits
+// require(ReplicatedStorage.CluauppLibs.*). Runtime lives in runtime/.
+
+#include <clpp/generated/instances.clh>
+#include <clpp/libs/janitor.clh>
+#include <clpp/libs/promise.clh>
+#include <clpp/libs/net.clh>
+#include <clpp/libs/math.clh>
+#include <clpp/libs/formatnumber.clh>
+#include <clpp/libs/module3d.clh>
+#include <clpp/libs/twinkle.clh>
+#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/ezvisual.clh>
+#include <clpp/libs/spring.clh>
+#include <clpp/libs/display.clh>
+#include <clpp/libs/stickybillboard.clh>
+#include <clpp/libs/topbarplus.clh>
+#include <clpp/libs/cmdr.clh>
+#include <clpp/libs/chrono.clh>
+#include <clpp/libs/iris.clh>
+#include <clpp/libs/fusion.clh>
+#include <clpp/libs/statemachine.clh>
+#include <clpp/libs/vfx.clh>

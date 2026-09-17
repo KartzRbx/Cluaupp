@@ -1,8 +1,7 @@
 #pragma once
 
 // howmanysmall/Janitor — vendored into CluauppLibs.Janitor
-class Janitor {
-public:
+struct Janitor {
 	bool CurrentlyCleaning;
 	bool SuppressInstanceReDestroy;
 	bool UnsafeThreadCleanup;
