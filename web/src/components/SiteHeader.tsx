@@ -35,6 +35,7 @@ export function SiteHeader({ page, theme, onTheme }: Props) {
 					<Link to="/docs/setup" aria-current={page === "start" ? "page" : undefined}>
 						Get started
 					</Link>
+					<a href="https://kartzrbx.github.io/CLPP/">CL++</a>
 					<a href="https://github.com/KartzRbx/Cluaupp">GitHub</a>
 				</nav>
 			</div>

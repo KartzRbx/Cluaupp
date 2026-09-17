@@ -24,7 +24,7 @@ try {
 	expect(/filesystem root/.test(err.message), `unexpected init root error: ${err.message}`);
 }
 
-writeFile(root, "src/shared/Keep.cpp", "const int KEEP = 1;\n");
+writeFile(root, "src/shared/Keep.clp", "const int KEEP = 1;\n");
 writeFile(root, "cluaupp.config.json", JSON.stringify({ rootDir: "src", outDir: "../stolen", strict: true }));
 try {
 	loadConfig(root);

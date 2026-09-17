@@ -55,7 +55,7 @@ function activate(context) {
 	});
 
 	const refreshDiagnostics = (document) => {
-		if (!document || document.languageId !== "cpp") {
+		if (!document || (document.languageId !== "clpp" && document.languageId !== "cpp")) {
 			return;
 		}
 		if (typeof loaded.engine.diagnosticsFor !== "function") {

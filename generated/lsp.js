@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = start;
-const node_path_1 = __importDefault(require("node:path"));
 const node_1 = require("vscode-languageserver/node");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 const intellisense_js_1 = require("./intellisense.js");
@@ -28,10 +24,7 @@ function start(options = {}) {
     }));
     const publish = (document) => {
         const file = uriPath(document.uri);
-        const items = (0, intellisense_js_1.diagnosticsFor)(document.getText(), file, {
-            filePath: file,
-            includeDirs: [node_path_1.default.dirname(file), node_path_1.default.join(projectRoot, "src"), node_path_1.default.join(projectRoot, "include")],
-        });
+        const items = (0, intellisense_js_1.diagnosticsFor)(document.getText(), file);
         connection.sendDiagnostics({
             uri: document.uri,
             diagnostics: items.map((item) => ({

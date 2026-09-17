@@ -5,33 +5,34 @@ sidebar_position: 1
 
 # Cluaupp
 
-**The definitive merge of C++ and modern Luau.** You write a C++ subset. Cluaupp emits [Luau](https://luau.org/getting-started) with `local` and `const` (and `--!strict` when you opt in), and calls the Roblox API the way Studio does.
+**CL++ on Roblox.** You write [CL++](https://kartzrbx.github.io/CLPP/). Cluaupp runs `clpp`, maps libraries into `ReplicatedStorage.CluauppLibs`, and syncs with Rojo.
 
-This site is built with [Moonwave](https://eryn.io/moonwave/) for local markdown (`npm run docs`). The **public** site is generated into `site/` and deployed to [GitHub Pages](https://kartzrbx.github.io/Cluaupp/) (Learn tabs, OOP, Examples, API). The language is in the same spirit as [roblox-ts](https://roblox-ts.com): a familiar syntax, a restricted subset, readable output.
+This site covers the **toolchain** (`init`, `build`, `watch`, libs). The language course is on the [CL++ site](https://kartzrbx.github.io/CLPP/).
 
 ## What you get
 
-1. A compiler (`cluaupp init` / `build` / `watch`)
-2. Headers for **clangd** (`#include <cluaupp/roblox.hpp>`)
-3. First-party libraries in `ReplicatedStorage.CluauppLibs`
-4. Wally wrappers for DataServiceV2, Fusion, Cmdr, EzVisualz, TopbarPlus, and the rest of your stack
+1. CLI: `cluaupp init` / `build` / `watch`
+2. First-party libraries in `ReplicatedStorage.CluauppLibs`
+3. Rojo project mapping (`out/server`, `out/client`, `out/shared`)
 
 ## First program
 
-```cpp
-#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/janitor.hpp>
+```clpp
+#include <clpp/roblox.clh>
+#include <clpp/libs/janitor.clh>
 
 void OnPlayer(Player* player) {
-	auto* janitor = new Janitor();
-	janitor->LinkToInstance(player);
-	janitor->Add(player->AncestryChanged.Connect(OnPlayer));
+	guard (player != null) else {
+		return;
+	}
+	Janitor* janitor = new Janitor();
+	janitor::LinkToInstance(player);
 }
 
 void init() {
-	auto* players = GetService<Players>();
-	players->PlayerAdded.Connect(OnPlayer);
+	Players* players = GetService<Players>();
+	players::PlayerAdded~>Connect(OnPlayer);
 }
 ```
 
-Read [Getting started](getting-started.md), then [Examples](examples/index.md), [Libraries](libraries/index.md), and [OOP structure](oop/index.md).
+Read [Getting started](getting-started.md), [syntax](syntax.md), and [migration](migration.md).

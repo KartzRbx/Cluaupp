@@ -3,11 +3,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pkg } from "./package-info.js";
 import { start as startLsp } from "./lsp.js";
-import { toLuauPath } from "./preprocess.js";
+import { collectSources, toLuauPath } from "./clpp/paths.js";
+import { CLPP_INSTALL_HINT } from "./clpp/contract.js";
+import { clppManifest, clppVersion, hasClpp, resolveClppBinary } from "./clpp/runner.js";
 import { installEditorSupport, syncEditorSupport } from "./intellisense.js";
 import { RojoMapper } from "./utils/rojo-mapper.js";
 import { ProcessOrchestrator } from "./utils/process-orchestrator.js";
-import { build as buildProject, init, loadConfig, watch, collectCpp } from "./utils/project.js";
+import { build as buildProject, init, loadConfig, watch } from "./utils/project.js";
 import { transpileSource } from "./transpile.js";
 import type { BuildOptions, BuildResult } from "./types.js";
 
@@ -15,7 +17,7 @@ const program = new Command();
 
 program
 	.name("cluaupp")
-	.description("Definitive transpiler from C++ subset to structured Luau")
+	.description("Cluaupp toolchain — compile CL++ to Luau, Rojo, and CluauppLibs")
 	.version(pkg.version, "-v, --version", "print version")
 	.showHelpAfterError()
 	.action(() => {
@@ -37,14 +39,14 @@ program
 
 program
 	.command("build")
-	.description("Transpila um arquivo, diretório ou projeto C++ para Luau")
+	.description("Compile a CL++ file, directory, or project to Luau")
 	.argument("[folder]", "project folder", ".")
-	.option("-i, --input <path>", "Arquivo ou diretório C++ de entrada")
-	.option("-o, --output <path>", "Arquivo ou diretório Luau de saída")
-	.option("-r, --rojo <path>", "Caminho para o default.project.json do Rojo", "./default.project.json")
-	.option("--strict", "Emitir --!strict")
-	.option("--format", "Rodar StyLua no output")
-	.option("--analyze", "Rodar luau-analyze no output")
+	.option("-i, --input <path>", "CL++ file or directory")
+	.option("-o, --output <path>", "Luau file or directory")
+	.option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
+	.option("--strict", "Emit --!strict")
+	.option("--format", "Run StyLua on output")
+	.option("--analyze", "Run luau-analyze on output")
 	.action(async (folder: string, options: {
 		input?: string;
 		output?: string;
@@ -73,8 +75,8 @@ program
 	.command("watch")
 	.description("rebuild on save")
 	.argument("[folder]", "project folder", ".")
-	.option("-r, --rojo <path>", "Caminho para o default.project.json do Rojo", "./default.project.json")
-	.option("--format", "Rodar StyLua no output")
+	.option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
+	.option("--format", "Run StyLua on output")
 	.action((folder: string, options: { rojo?: string; format?: boolean }) => {
 		try {
 			watch(path.resolve(process.cwd(), folder), {
@@ -89,7 +91,7 @@ program
 
 program
 	.command("lsp")
-	.description("Cluaupp subset diagnostics over stdio (JSON-RPC). C++ completion is clangd.")
+	.description("Language server stdio (JSON-RPC). Use `clpp install` for CL++ IntelliSense.")
 	.argument("[folder]", "project folder", ".")
 	.action((folder: string) => {
 		startLsp({ projectRoot: path.resolve(process.cwd(), folder) });
@@ -98,18 +100,32 @@ program
 program
 	.command("intellisense")
 	.alias("intelisense")
-	.description("install LLVM clangd and write compile_commands.json")
+	.description("Point the editor at CL++ (`clpp install`)")
 	.argument("[folder]", "project folder", ".")
 	.action(async (folder: string) => {
 		try {
 			const root = path.resolve(process.cwd(), folder);
 			syncEditorSupport(root, loadConfig(root));
-			const installed = await installEditorSupport();
-			console.log("cluaupp: compile_commands.json, .clangd, and .vscode updated in", root);
-			console.log("cluaupp: C++ completion is clangd (include/cluaupp/roblox.hpp)");
-			if (installed.clangd || installed.llvm) {
-				console.log("cluaupp: reload Cursor (Ctrl+Shift+P → Developer: Reload Window)");
+			await installEditorSupport();
+			console.log("cluaupp: editor associations written in", root);
+			console.log("cluaupp:", CLPP_INSTALL_HINT);
+		} catch (err) {
+			console.error(err instanceof Error ? err.message : err);
+			process.exit(1);
+		}
+	});
+
+program
+	.command("language")
+	.description("CL++ manifest (`clpp api manifest`)")
+	.action(() => {
+		try {
+			resolveClppBinary();
+			const version = clppVersion();
+			if (version) {
+				console.log("clpp", version);
 			}
+			console.log(JSON.stringify(clppManifest(), null, "\t"));
 		} catch (err) {
 			console.error(err instanceof Error ? err.message : err);
 			process.exit(1);
@@ -139,17 +155,15 @@ async function buildInput(options: {
 		process.exit(1);
 	}
 
-	console.log("🏁 Inicializando Pipeline do Compilador Cluaupp V2...");
-
 	const mapper = new RojoMapper(path.resolve(options.rojo), path.dirname(inputPath));
 	await mapper.load();
 
 	const inputs = (await fs.stat(inputPath)).isDirectory()
-		? collectCpp(inputPath)
+		? collectSources(inputPath)
 		: [inputPath];
 
 	if (inputs.length === 0) {
-		console.error("no .cpp/.h/.hpp files in", inputPath);
+		console.error("no .clpp/.clp/.clh files in", inputPath);
 		process.exit(1);
 	}
 
@@ -184,7 +198,7 @@ async function buildInput(options: {
 				console.log("\nRelatório de Análise Estática do Luau:\n", analysisReport);
 			}
 		}
-		console.log(`Transpilação concluída! ${file} → ${dest}`);
+		console.log(`Compiled ${file} → ${dest}`);
 	}
 }
 
@@ -192,7 +206,7 @@ export function build(root: string, options: BuildOptions = {}): BuildResult {
 	return buildProject(root, options);
 }
 
-export { watch, init, program };
+export { watch, init, program, hasClpp };
 
 export function dispatch(args: string[]): Promise<Command> {
 	return program.parseAsync(["node", "cluaupp", ...args]);

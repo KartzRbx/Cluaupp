@@ -1,10 +1,11 @@
 const CPP_KEYWORDS = new Set([
-	"auto", "bool", "break", "case", "catch", "char", "const", "continue", "default",
+	"async", "auto", "await", "bool", "break", "case", "catch", "char", "const", "continue", "default",
 	"delete", "do", "double", "else", "enum", "explicit", "export", "extern", "false", "float",
-	"for", "friend", "goto", "if", "include", "inline", "int", "long", "namespace", "new",
-	"nullptr", "once", "pragma", "private", "protected", "public", "return", "short", "signed",
-	"sizeof", "static", "string", "struct", "switch", "template", "this", "true", "try",
+	"for", "friend", "func", "goto", "guard", "if", "include", "inline", "int", "long", "match", "namespace", "new",
+	"null", "nullptr", "observable", "once", "parallel", "pragma", "private", "protected", "public", "return", "short", "signed",
+	"signal", "sizeof", "spawn", "static", "string", "struct", "switch", "template", "this", "true", "try",
 	"typedef", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "while",
+	"array", "dictionary", "post", "report", "warn",
 ]);
 
 const LUAU_KEYWORDS = new Set([
@@ -32,7 +33,7 @@ const TYPE_NAMES = new Set([
 
 const BUILTIN_FNS = new Set([
 	"GetService", "print", "warn", "error", "assert", "typeof", "tonumber", "tostring", "require", "wait", "task",
-	"string_concat", "createElement", "createRef", "mount",
+	"post", "report", "string_concat", "createElement", "createRef", "mount",
 ]);
 
 export function escapeHtml(text: string) {

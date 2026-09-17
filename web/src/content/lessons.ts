@@ -2,7 +2,7 @@ import type { PageHelpers } from "../lib/types";
 
 type PageFn = (id: string, file: string, title: string, group: string, inner: string) => void;
 
-const GROUP = "C++ class";
+const GROUP = "CL++ class";
 
 export function registerCppLessons(page: PageFn, { codePair, preCode }: PageHelpers) {
 	page(
@@ -10,13 +10,13 @@ export function registerCppLessons(page: PageFn, { codePair, preCode }: PageHelp
 		"syntax.html",
 		"1. Syntax",
 		GROUP,
-		`<p class="muted">Read this like a first C++ class. Same idea as the <a href="https://www.w3schools.com/CPP/cpp_syntax.asp">W3Schools C++ Syntax</a> chapter — statements, braces, semicolons — but the program shape is Cluaupp, not <code>int main()</code>.</p>
+		`<p class="muted">Read this like a first CL++ class. Statements, braces, semicolons — the program shape is Cluaupp, not <code>int main()</code>. Language spec: <a href="https://kartzrbx.github.io/CLPP/">CL++</a>.</p>
 <p>Let’s break up this file:</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#include <clpp/roblox.clh>
 
 void init() {
-	print("Hello World!");
+	post("Hello World!");
 }`,
 	`const function init()
 	print("Hello World!")
@@ -26,23 +26,22 @@ init()`,
 )}
 <h2>Example explained</h2>
 <ol>
-<li><code>#include &lt;cluaupp/roblox.hpp&gt;</code> is the header clangd reads. It is <em>not</em> <code>#include &lt;iostream&gt;</code>. There is no <code>using namespace std;</code> — Cluaupp skips <code>using</code> and does not emit the C++ standard library.</li>
+<li><code>#include &lt;clpp/roblox.clh&gt;</code> is the engine header. It is <em>not</em> <code>#include &lt;iostream&gt;</code>. There is no <code>using namespace std;</code>.</li>
 <li>Blank lines are ignored. Use them so a human can read the file.</li>
-<li><code>void init()</code> is the function that runs. In a textbook, that role is <code>int main()</code>. Scripts and LocalScripts call <code>init()</code> at the end of the emitted Luau. There is no <code>return 0;</code>.</li>
-<li>Curly braces <code>{ }</code> open and close a block. Luau uses <code>then</code> / <code>do</code> / <code>end</code> instead — Cluaupp writes those for you.</li>
-<li><code>print("Hello World!");</code> is a statement. Every statement ends with a semicolon <code>;</code>. C++ is case-sensitive: <code>print</code> and <code>Print</code> are different names.</li>
+<li><code>void init()</code> is the function that runs. Scripts and LocalScripts call <code>init()</code> at the end of the emitted Luau. There is no <code>return 0;</code>.</li>
+<li>Curly braces <code>{ }</code> open and close a block. Luau uses <code>then</code> / <code>do</code> / <code>end</code> instead — CL++ writes those for you.</li>
+<li><code>post("Hello World!");</code> is a statement. Every statement ends with a semicolon <code>;</code>. Names are case-sensitive: <code>post</code> and <code>Post</code> are different.</li>
 </ol>
-<p class="note">W3Schools starts with <code>cout &lt;&lt; "Hello World!";</code>. That works here too (next lesson), but <code>print</code> is the Roblox spelling and maps 1:1 to Luau.</p>
 <h2>Put it in a real file</h2>
-<p>Save as <code>src/server/Hello.server.cpp</code> (a Script) or <code>src/client/Hello.client.cpp</code> (a LocalScript). Filename tags: <a href="files.html">File tags</a>.</p>
-${preCode(`src/server/Hello.server.cpp   →  out/server/Hello.server.luau
-src/client/Hello.client.cpp   →  out/client/Hello.client.luau`, "plain")}
+<p>Save as <code>src/server/Hello.server.clpp</code> (a Script) or <code>src/client/Hello.client.clpp</code> (a LocalScript). Filename tags: <a href="files.html">File tags</a>.</p>
+${preCode(`src/server/Hello.server.clpp   →  out/server/Hello.server.luau
+src/client/Hello.client.clpp   →  out/client/Hello.client.luau`, "plain")}
 <h2>What this chapter is not</h2>
 <ul>
-<li>Not ISO C++. No <code>std::</code>, no <code>int main()</code> as the boot, no macros.</li>
-<li>Not a second language runtime. Cluaupp only <em>emits</em> Luau. Studio runs Luau.</li>
+<li>Not ISO C++. No <code>std::</code>, no <code>int main()</code> as the boot.</li>
+<li>Not a second language runtime. <code>clpp</code> emits Luau. Studio runs Luau. Cluaupp wires Rojo.</li>
 </ul>
-<p>Next: <a href="logging.html">2. Output</a> — <code>print</code> and <code>cout</code>.</p>`,
+<p>Next: <a href="logging.html">2. Output</a> — <code>post</code> and <code>print</code>.</p>`,
 	);
 
 	page(
@@ -72,7 +71,7 @@ void Give(Player* player) {
 	print(player.Name)
 end`,
 )}
-<p>There is no <code>///</code> doc emit and no Luau <code>--</code> inside a <code>.cpp</code>. Write C++ comments; Cluaupp strips them in the lexer.</p>
+<p>There is no <code>///</code> doc emit and no Luau <code>--</code> inside a <code>.clpp</code>. Write <code>//</code> comments; they never appear in Luau.</p>
 <p>Next: <a href="variables.html">4. Variables</a>.</p>`,
 	);
 
@@ -138,7 +137,7 @@ end`,
 )}
 <h2>From expressions</h2>
 <table>
-<tr><th>C++</th><th>Luau</th><th>Meaning</th></tr>
+<tr><th>CL++</th><th>Luau</th><th>Meaning</th></tr>
 <tr><td><code>==</code> <code>!=</code></td><td><code>==</code> <code>~=</code></td><td>equal / not equal</td></tr>
 <tr><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td><td><code>and</code> <code>or</code> <code>not</code></td><td>and / or / not</td></tr>
 <tr><td><code>nullptr</code></td><td><code>nil</code></td><td>missing Instance — falsy in <code>if (folder)</code></td></tr>
@@ -253,7 +252,7 @@ export function registerLuauLesson(page: PageFn, { codePair, preCode }: PageHelp
 		GROUP,
 		`<p class="muted">Cluaupp’s output is <a href="https://luau.org/getting-started/">Luau</a> — a small, gradually typed language derived from Lua 5.1. Studio runs that file. You do not edit <code>out/</code>.</p>
 <h2>Creating a script</h2>
-<p>The Luau tutorial starts with a <code>.luau</code> file you type by hand. In Cluaupp you type <code>.cpp</code>; <code>cluaupp build</code> writes the <code>.luau</code>.</p>
+<p>The Luau tutorial starts with a <code>.luau</code> file you type by hand. In Cluaupp you type <code>.clpp</code>; <code>cluaupp build</code> writes the <code>.luau</code>.</p>
 ${codePair(
 	`bool IsPositive(int x) {
 	return x > 0;
@@ -287,18 +286,18 @@ const function IsPositive(x: number): boolean
 end`, "luau")}
 <p><code>cluaupp build --analyze</code> runs <code>luau-analyze</code> on what you emitted.</p>
 <h2>Annotations</h2>
-<p>Luau lets you annotate locals, arguments, and return types. Cluaupp already did that from your C++ types:</p>
+<p>Luau lets you annotate locals, arguments, and return types. CL++ already did that from your types:</p>
 <table>
-<tr><th>You wrote (C++)</th><th>Luau annotation</th></tr>
+<tr><th>You wrote (CL++)</th><th>Luau annotation</th></tr>
 <tr><td><code>int x</code></td><td><code>x: number</code></td></tr>
 <tr><td><code>bool ready</code></td><td><code>ready: boolean</code></td></tr>
 <tr><td><code>string name</code></td><td><code>name: string</code></td></tr>
 <tr><td><code>Player* player</code></td><td><code>player: Player</code></td></tr>
 <tr><td><code>int Double(int n)</code></td><td><code>function Double(n: number): number</code></td></tr>
 </table>
-<p>If you later change a C++ return type and forget a call site, <code>luau-analyze</code> in strict mode flags the mismatch — the same “oops, we return a string now” story as the Luau tutorial.</p>
-<p>C++ types are the source of truth. Do not sprinkle Luau <code>:</code> annotations inside a <code>.cpp</code>.</p>
+<p>If you later change a CL++ return type and forget a call site, <code>luau-analyze</code> in strict mode flags the mismatch — the same “oops, we return a string now” story as the Luau tutorial.</p>
+<p>CL++ types are the source of truth. Do not sprinkle Luau <code>:</code> annotations inside a <code>.clpp</code>.</p>
 <h2>Conclusions</h2>
-<p>You learned the subset the way a C++ class is taught, then saw the Luau it becomes. Keep <a href="reference.html">Language reference</a> open while you write. Official Luau: <a href="https://luau.org/getting-started/">luau.org/getting-started</a>. Official engine members: <a href="https://create.roblox.com/docs/reference/engine">Creator Hub</a>.</p>`,
+<p>You learned CL++ the way a language class is taught, then saw the Luau it becomes. Keep <a href="reference.html">Language reference</a> open while you write. Official Luau: <a href="https://luau.org/getting-started/">luau.org/getting-started</a>. Official engine members: <a href="https://create.roblox.com/docs/reference/engine">Creator Hub</a>. Language site: <a href="https://kartzrbx.github.io/CLPP/">CL++</a>.</p>`,
 	);
 }

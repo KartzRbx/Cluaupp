@@ -1,7 +1,7 @@
 import type { PageHelpers } from "../lib/types";
 
 export function uiPageInner({ codePair, preCode }: Pick<PageHelpers, "codePair" | "preCode">) {
-	return `<p class="muted">roblox-ts can compile <a href="https://roblox-ts.com/docs/guides/roact-jsx">Roact JSX</a> because TypeScript has JSX. Cluaupp does <strong>not</strong>. There are no <code>&lt;frame /&gt;</code> tags. You call the library the way Luau does, with C++ spelling: functions, designated-initializer tables, lambdas.</p>
+	return `<p class="muted">roblox-ts can compile <a href="https://roblox-ts.com/docs/guides/roact-jsx">Roact JSX</a> because TypeScript has JSX. Cluaupp does <strong>not</strong>. There are no <code>&lt;frame /&gt;</code> tags. You call the library the way Luau does, with CL++ spelling: functions, designated-initializer tables, lambdas.</p>
 
 <h2>Pick a model</h2>
 <p>All of these draw Roblox GuiObjects. They differ in <em>who updates the tree</em>.</p>
@@ -34,7 +34,7 @@ export function uiPageInner({ codePair, preCode }: Pick<PageHelpers, "codePair" 
 <h2>1. Imperative HUD (no library)</h2>
 <p>Start here if the screen is three labels. State still comes from DataService; you assign properties.</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#include <clpp/roblox.clh>
 #include <cluaupp/libs/dataservice.hpp>
 #include <cluaupp/libs/janitor.hpp>
 
@@ -77,7 +77,7 @@ end`,
 
 <h3>Value + a label</h3>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#include <clpp/roblox.clh>
 #include <cluaupp/libs/fusion.hpp>
 
 void init() {
@@ -350,7 +350,7 @@ local button = React.createElement("TextButton", {
 )}
 
 <h3>Children and conditionals</h3>
-<p>JSX <code>{condition &amp;&amp; &lt;frame /&gt;}</code> is an extra argument (or a nil you skip). There is no spread <code>{...items}</code> in the C++ subset — build the child list with functions, then pass it.</p>
+<p>JSX <code>{condition &amp;&amp; &lt;frame /&gt;}</code> is an extra argument (or a nil you skip). There is no spread <code>{...items}</code> in CL++ — build the child list with functions, then pass it.</p>
 ${codePair(
 	`ReactElement extra = nullptr;
 if (showPanel) {
@@ -395,7 +395,7 @@ ${codePair(
 <h2>5. Iris — immediate debug UI, shipped</h2>
 <p>Iris is <em>not</em> a retained HUD. Every frame it draws widgets inside <code>Connect</code>. Use it for cheats, economy inspectors, Studio-only panels. Players should not see it in production.</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#include <clpp/roblox.clh>
 #include <cluaupp/libs/iris.hpp>
 #include <cluaupp/libs/dataservice.hpp>
 
@@ -507,7 +507,7 @@ tag:SetMaxDistance(80)`,
 <tr><td>Fusion graph + React mount on the same ScreenGui</td><td>Two owners fight the Instance tree</td></tr>
 <tr><td>Iris Window as the live HUD</td><td>Redraws every frame; looks like a debug overlay</td></tr>
 <tr><td>Client <code>data-&gt;Set</code> on persisted Paths</td><td>Will not save; write on the server</td></tr>
-<tr><td>JSX in a <code>.cpp</code></td><td>Parse error. Use <code>createElement</code> / <code>Fusion::New</code></td></tr>
+<tr><td>JSX in a <code>.clpp</code></td><td>Parse error. Use <code>createElement</code> / <code>Fusion::New</code></td></tr>
 </table>
 <p>One ScreenGui, one owner. Fusion <em>or</em> Vide <em>or</em> React <em>or</em> raw Instances. Twinkle / TopbarPlus / EzVisualz can decorate that owner’s Instances. Iris stays on a debug ScreenGui of its own.</p>`;
 }

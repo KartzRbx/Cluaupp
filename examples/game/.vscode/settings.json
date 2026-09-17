@@ -1,18 +1,10 @@
 {
-	"clangd.enable": true,
-	"clangd.arguments": [
-		"--compile-commands-dir=${workspaceFolder}",
-		"--header-insertion=never",
-		"--query-driver=**/clang++*,**/clang++.exe,**/g++*,**/g++.exe"
-	],
 	"files.associations": {
-		"*.hpp": "cpp",
-		"*.h": "cpp",
-		"*.server.cpp": "cpp",
-		"*.client.cpp": "cpp",
-		"*.plugin.cpp": "cpp",
-		"*.legacy.cpp": "cpp",
-		"*.legacy.server.cpp": "cpp",
-		"*.legacy.client.cpp": "cpp"
+		"*.clpp": "clpp",
+		"*.clp": "clpp",
+		"*.clh": "clpp",
+		"*.server.clpp": "clpp",
+		"*.client.clpp": "clpp",
+		"*.plugin.clpp": "clpp"
 	}
 }

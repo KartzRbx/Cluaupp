@@ -5,28 +5,21 @@ sidebar_position: 1
 
 # Examples
 
-High-quality Cluaupp systems you can copy. Each page is a full service: C++ that the subset actually compiles, server authority, Janitor cleanup, and the file names Studio expects.
+High-quality Cluaupp systems you can copy. Each page is a full service in **CL++**. Live sample: [`examples/game`](../../examples/game). Language reference: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
-In this repo the live sample is [`examples/game`](../../examples/game) (`src/server`, `src/client`, `src/shared`). Compiler TypeScript is never mixed with game C++. `cluaupp init` still copies [`templates/game`](../../templates/game).
-
-These are **not** dumps of `int main()`. Entry is `void init()`. Types are `struct` + `Class::` methods. Callbacks may be named functions or lambdas. Canonical Leaderstats: [handbook](https://kartzrbx.github.io/Cluaupp/docs/leaderstats.html).
+These are **not** dumps of `int main()`. Entry is `void init()`. Types are `struct` + `Class::` methods. Canonical Leaderstats: [handbook](https://kartzrbx.github.io/Cluaupp/docs/leaderstats.html).
 
 ## Suggested layout
 
 ```
 src/
-  shared/constants/TemplateData.hpp
-  shared/constants/CombatConfig.hpp
-  shared/constants/ShopCatalog.hpp
-  server/boot/DataBoot.server.cpp
-  client/boot/DataBoot.client.cpp
-  server/services/leaderstats/LeaderstatsServer.server.cpp
-  server/services/combat/CombatServer.server.cpp
-  client/controllers/combat/CombatClient.client.cpp
-  server/services/shop/ShopServer.server.cpp
-  client/controllers/shop/ShopClient.client.cpp
-  client/controllers/hud/HudClient.client.cpp
-  server/services/weapons/SwordServer.server.cpp
+  shared/PlayerData.clh
+  shared/config.clp
+  shared/features.clp
+  server/leaderstats.server.clpp
+  server/combat.server.clpp
+  client/init.client.clpp
+  client/hud.client.clpp
 ```
 
 Boot DataService **once**. Other services `WaitFor` after that.

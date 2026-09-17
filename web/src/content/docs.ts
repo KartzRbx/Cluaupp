@@ -14,15 +14,15 @@ export function createDocsPages({ codePair, preCode, escapeHtml, mappingTable }:
 		"index.html",
 		"Introduction",
 		"Start",
-		`<p class="muted">This handbook is a C++ class for the Cluaupp subset. Read it in order, like the <a href="https://www.w3schools.com/CPP/default.asp">W3Schools C++ tutorial</a>: syntax, output, comments, variables, types, then functions and <a href="lambdas.html">lambdas</a>. Each example shows the C++ you type and the <a href="https://luau.org/getting-started/">Luau</a> Cluaupp emits.</p>
-<p>You write <code>.cpp</code> / <code>.h</code>. There is no <code>int main()</code> — Scripts boot with <code>void init()</code>. There is no <code>#include &lt;iostream&gt;</code> — use <code>#include &lt;cluaupp/roblox.hpp&gt;</code>. clangd completes. Studio runs Luau, not C++.</p>
+		`<p class="muted">Cluaupp is the <strong>Roblox toolchain</strong> for <a href="https://kartzrbx.github.io/CLPP/">CL++</a>. You write <code>.clpp</code> / <code>.clp</code> / <code>.clh</code>. Cluaupp runs <code>clpp api compile</code>, rewrites <code>ClppLibs</code> into <code>ReplicatedStorage.CluauppLibs</code>, and writes <code>out/</code> for Rojo. Studio runs Luau — never CL++.</p>
+<p>The language course lives on the <a href="https://kartzrbx.github.io/CLPP/">CL++ site</a>. This handbook is the game side: files, CLI, libs, and how emitted Luau looks.</p>
 <h2>A first program</h2>
-<p>Same role as W3Schools’ Hello World, with Cluaupp’s entry point:</p>
+<p>There is no <code>int main()</code>. Scripts boot with <code>void init()</code>.</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#include <clpp/roblox.clh>
 
 void init() {
-	print("Hello World!");
+	post("Hello World!");
 }`,
 	`const function init()
 	print("Hello World!")
@@ -30,61 +30,70 @@ end
 
 init()`,
 )}
-<p>Save as <code>Hello.server.cpp</code> or <code>Hello.client.cpp</code>. Then <a href="setup.html">Setup</a> if the CLI is not installed yet. First syntax lesson: <a href="syntax.html">1. Syntax</a>.</p>
+<p>Save as <code>Hello.server.clpp</code> or <code>Hello.client.clpp</code>. Then <a href="setup.html">Setup</a> if the CLI is not installed yet. First syntax lesson: <a href="syntax.html">1. Syntax</a>.</p>
 <h2>How a lesson is built</h2>
 <ol>
 <li>A short rule (what the statement is).</li>
-<li>A C++ / Luau pair — the right tab is what Studio runs.</li>
-<li>What full C++ would do that this subset rejects (<code>cin</code>, <code>std::</code>, C-style <code>for</code>…).</li>
+<li>A CL++ / Luau pair — the right tab is what Studio runs.</li>
+<li>Operators that belong to CL++: <code>.:</code> concat, <code>::</code> methods, <code>~&gt;</code> janitor Connect, <code>guard</code>, <code>match</code>, <code>signal</code>.</li>
 </ol>
 <h2>A real game script</h2>
-<p>After the basics, this is the shape of production code: a <code>struct</code>, filename tags, Janitor, <code>init()</code>.</p>
+<p>After the basics, this is the shape of production code: filename tags, Janitor, <code>init()</code>.</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/janitor.hpp>
-#include "LeaderstatsServer.h"
+	`#include <clpp/roblox.clh>
+#include <clpp/libs/janitor.clh>
 
-void LeaderstatsServer::PlayerEntered(Player* player) {
-	Folder* folder = EnsurePlayerLeaderstatsFolder(player);
-	janitor->Add(folder, "Destroy", GetPlayerJanitorKey(player));
+void CreateLeaderstats(Player* player) {
+	guard (player != null) else {
+		return;
+	}
+	if (player::FindFirstChild("leaderstats") != null) {
+		return;
+	}
+	Folder* leaderstats = new Folder(player);
+	leaderstats.Name = "leaderstats";
+	IntValue* coins = new IntValue(leaderstats);
+	coins.Name = "Coins";
+	coins.Value = 0;
 }
 
 void init() {
 	Players* players = GetService<Players>();
-	LeaderstatsServer leaderstatsServer;
-	leaderstatsServer.janitor = new Janitor();
-	for (Player* player : players->GetPlayers()) {
-		leaderstatsServer.PlayerEntered(player);
+	for (Player* player : players::GetPlayers()) {
+		CreateLeaderstats(player);
 	}
-	players->PlayerAdded.Connect([&](Player* playerEntered) {
-		leaderstatsServer.PlayerEntered(playerEntered);
-	});
+	players::PlayerAdded~>Connect(CreateLeaderstats);
 }`,
 	`local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
 
-local LeaderstatsServer = {}
-
-function LeaderstatsServer:PlayerEntered(player: Player)
-	local folder: Folder = EnsurePlayerLeaderstatsFolder(player)
-	self.janitor:Add(folder, "Destroy", self:GetPlayerJanitorKey(player))
+local function CreateLeaderstats(player: Player)
+	if not player then
+		return
+	end
+	if player:FindFirstChild("leaderstats") ~= nil then
+		return
+	end
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Parent = player
+	leaderstats.Name = "leaderstats"
+	local coins = Instance.new("IntValue")
+	coins.Parent = leaderstats
+	coins.Name = "Coins"
+	coins.Value = 0
 end
 
 const function init()
 	local players: Players = game:GetService("Players")
-	local leaderstatsServer: LeaderstatsServer = LeaderstatsServer
-	leaderstatsServer.janitor = Janitor.new()
 	for _, player in players:GetPlayers() do
-		leaderstatsServer:PlayerEntered(player)
+		CreateLeaderstats(player)
 	end
-	players.PlayerAdded:Connect(function(playerEntered: Player)
-		leaderstatsServer:PlayerEntered(playerEntered)
-	end)
+	players.PlayerAdded:Connect(CreateLeaderstats)
 end
 
 init()`,
 )}
-<p>Course vs dump: engine member lists stay on <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>. The cheat sheet is <a href="reference.html">Language reference</a>.</p>`,
+<p>Language spec: <a href="https://kartzrbx.github.io/CLPP/">kartzrbx.github.io/CLPP</a>. Engine members: <a href="https://create.roblox.com/docs/reference/engine">create.roblox.com</a>. Cheat sheet: <a href="reference.html">Language reference</a>. Coming from <code>.cpp</code>: <a href="migration.html">Migration</a>.</p>`,
 	);
 
 	page(
@@ -92,29 +101,34 @@ init()`,
 		"setup.html",
 		"Setup",
 		"Start",
-		`<p class="muted">Node 18+, Rojo <strong>7.7.0</strong>, LLVM clangd. Microsoft <code>ms-vscode.cpptools</code> is not licensed for Cursor — do not install it.</p>
-<h2>Install</h2>
+		`<p class="muted">Node 18+, Rojo <strong>7.7.0</strong>, and <strong>clpp on PATH</strong> from <a href="https://github.com/KartzRbx/CLPP">KartzRbx/CLPP</a>. Cluaupp does not compile CL++ itself.</p>
+<h2>Install CL++</h2>
+${preCode(`git clone https://github.com/KartzRbx/CLPP
+cd CLPP
+cargo install --path .
+clpp install`, "plain")}
+<p>Override the binary with <code>CLPP_PATH</code> if it is not on PATH.</p>
+<h2>Install Cluaupp</h2>
 ${preCode(`npm install -g cluaupp
 cluaupp init my-game
 cd my-game
 rokit install
 cluaupp build
 rojo serve`, "plain")}
-<p><code>npm install cluaupp</code> only adds the compiler. Scaffolding is <code>cluaupp init</code> (or <code>npx cluaupp init .</code> in an empty folder).</p>
+<p><code>npm install cluaupp</code> only adds the toolchain. Scaffolding is <code>cluaupp init</code> (or <code>npx cluaupp init .</code> in an empty folder).</p>
 <p>Without a global install: <code>npx cluaupp init my-game</code>. As a game dependency: <code>npm install --save-dev cluaupp</code> and npm scripts <code>cluaupp build</code> / <code>cluaupp watch</code>.</p>
 <h2>What init writes</h2>
 ${preCode(`my-game/
   cluaupp.config.json
   default.project.json
   rokit.toml
-  include/cluaupp/roblox.hpp
-  src/server/   *.server.cpp
-  src/client/   *.client.cpp
-  src/shared/   .h / .cpp modules
+  src/server/   *.server.clpp
+  src/client/   *.client.clpp
+  src/shared/   .clp / .clh modules
   out/          generated Luau — do not edit
   libs/         CluauppLibs (copied on build)`, "plain")}
-<h2>clangd</h2>
-<p><code>cluaupp init</code> / <code>cluaupp intellisense</code> write <code>compile_commands.json</code>, <code>.clangd</code>, and <code>compile_flags.txt</code> with <code>-Iinclude</code> so <code>#include &lt;cluaupp/roblox.hpp&gt;</code> resolves. Reload the window after install.</p>
+<h2>IntelliSense</h2>
+<p>Language completion is <code>clpp install</code>. <code>cluaupp intellisense</code> writes <code>files.associations</code> for <code>.clpp</code> / <code>.clp</code> / <code>.clh</code>. Reload the window after install.</p>
 <p>Full command list: <a href="cli.html">CLI</a>. Config keys: <a href="config.html">Config</a>.</p>`,
 	);
 
@@ -123,18 +137,18 @@ ${preCode(`my-game/
 		"cli.html",
 		"CLI",
 		"Start",
-		`<p class="muted">Every form the <code>cluaupp</code> (alias <code>cluau</code>) binary accepts. Omit <code>[folder]</code> and the current directory is used.</p>
+		`<p class="muted">Every form the <code>cluaupp</code> (alias <code>cluau</code>) binary accepts. Omit <code>[folder]</code> and the current directory is used. Compile errors come from <code>clpp</code> and print <code>file:line:column</code>.</p>
 ${preCode(`cluaupp <command> [folder]
 cluaupp --help
 cluaupp --version
 cluaupp -v`, "plain")}
-<p>No command prints help. Parse errors print <code>file:line:column</code> and exit 1.</p>
+<p>No command prints help. If <code>clpp</code> is missing, install <a href="https://github.com/KartzRbx/CLPP">CL++</a> or set <code>CLPP_PATH</code>.</p>
 <h2>cluaupp init [folder]</h2>
-<p>Copies the game template: <code>src/server</code>, <code>src/client</code>, <code>src/shared</code>, <code>cluaupp.config.json</code>, Rojo <code>default.project.json</code>, <code>rokit.toml</code> (Rojo 7.7.0), IntelliSense headers, and clangd files.</p>
+<p>Copies the game template: <code>src/server</code>, <code>src/client</code>, <code>src/shared</code>, <code>cluaupp.config.json</code>, Rojo <code>default.project.json</code>, <code>rokit.toml</code> (Rojo 7.7.0), and CL++ samples.</p>
 ${preCode(`cluaupp init .
 cluaupp init my-game`, "plain")}
 <h2>cluaupp build [folder]</h2>
-<p>Transpiles <code>src/**/*.{cpp,cc,cxx,c,h,hpp,hh}</code> into <code>out/</code>. One tagged file becomes one Luau instance. After emit, orphans in <code>out/</code> are removed (deleted source → deleted Luau). <code>out/</code> itself is never wiped. <code>libs/</code> is fill-only: missing files restored, existing files never overwritten or deleted (Rojo 7 unwrap-crashes if a lib folder vanishes mid-serve).</p>
+<p>Compiles <code>src/**/*.{clpp,clp,clh}</code> via <code>clpp api compile</code>, then post-processes Luau into <code>out/</code>. One tagged file becomes one Luau instance. After emit, orphans in <code>out/</code> are removed (deleted source → deleted Luau). <code>out/</code> itself is never wiped. <code>libs/</code> is fill-only: missing files restored, existing files never overwritten or deleted (Rojo 7 unwrap-crashes if a lib folder vanishes mid-serve).</p>
 <table>
 <tr><th>Flag</th><th>Does</th></tr>
 <tr><td><code>-r, --rojo &lt;path&gt;</code></td><td>Rojo project for <code>require</code> mapping (default <code>./default.project.json</code>)</td></tr>
@@ -147,24 +161,27 @@ ${preCode(`cluaupp build
 cluaupp build ./my-game
 cluaupp build --format --analyze`, "plain")}
 <h3>Single file</h3>
-<p>Both <code>--input</code> and <code>--output</code> are required in this mode. Input may be one file or a directory of C++. If output ends in <code>.luau</code>, input must be a single file.</p>
-${preCode(`cluaupp build -i src/server/boot.server.cpp -o out/boot.server.luau --rojo default.project.json
+<p>Both <code>--input</code> and <code>--output</code> are required in this mode. Input may be one file or a directory of CL++. If output ends in <code>.luau</code>, input must be a single file.</p>
+${preCode(`cluaupp build -i src/server/boot.server.clpp -o out/boot.server.luau --rojo default.project.json
 cluaupp build --input ./src --output ./out --strict --format --analyze`, "plain")}
 <h2>cluaupp watch [folder]</h2>
 <p>Rebuilds when anything under <code>src/</code> changes, including deletes. Parse errors are printed; the watcher stays alive and <strong>does not write <code>out/</code></strong> until the project compiles cleanly. A second watcher in the same game exits. Watch never copies <code>libs/</code>.</p>
 ${preCode(`cluaupp watch
 cluaupp watch ./my-game --format -r ./default.project.json`, "plain")}
+<h2>cluaupp language</h2>
+<p>Prints <code>clpp api manifest</code> (extensions, tags, operators).</p>
 <h2>cluaupp lsp [folder]</h2>
-<p>Stdio JSON-RPC for <strong>subset parse errors only</strong>. Completion, hover, and definitions are clangd. Use this so the editor can underline code clangd accepts as C++ but Cluaupp will not transpile.</p>
+<p>Delegates language services to CL++. Use <code>clpp install</code> for completion, hover, and definitions.</p>
 <h2>cluaupp intellisense [folder]</h2>
-<p>Alias: <code>intelisense</code>. Writes <code>compile_commands.json</code>, <code>.clangd</code>, <code>.vscode</code>, and installs LLVM clangd when needed. Then reload the window.</p>
+<p>Alias: <code>intelisense</code>. Writes <code>files.associations</code> for CL++ and runs <code>clpp install</code>. Then reload the window.</p>
 ${preCode(`cluaupp intellisense
 cluaupp intelisense .`, "plain")}
 <h2>What build does not do</h2>
 <ul>
-<li>It does not invent Main / Controller folders unless <code>"architecture": true</code>.</li>
+<li>It does not parse CL++. That is <code>clpp</code>.</li>
+<li>It does not invent Main / Controller folders (<code>"architecture": true</code> is not implemented on this path).</li>
 <li>It does not emit <code>--!strict</code> unless <code>#pragma strict</code>, config <code>"strict": true</code>, or <code>--strict</code> on the single-file path. <code>#pragma nstrict</code> always wins.</li>
-<li>Angle-bracket <code>#include &lt;cluaupp/...&gt;</code> is never inlined. Library headers inject <code>require(CluauppLibs.*)</code>.</li>
+<li>Angle-bracket <code>#include &lt;clpp/...&gt;</code> is never inlined. Library headers inject <code>require(ReplicatedStorage.CluauppLibs.*)</code>.</li>
 </ul>`,
 	);
 
@@ -182,10 +199,10 @@ ${preCode(`{
 }`, "json")}
 <table>
 <tr><th>Field</th><th>Default</th><th>Effect</th></tr>
-<tr><td><code>rootDir</code></td><td><code>"src"</code></td><td>Where <code>.cpp</code> / <code>.h</code> / <code>.hpp</code> live</td></tr>
+<tr><td><code>rootDir</code></td><td><code>"src"</code></td><td>Where <code>.clpp</code> / <code>.clp</code> / <code>.clh</code> live</td></tr>
 <tr><td><code>outDir</code></td><td><code>"out"</code></td><td>Where Luau is written — never edit</td></tr>
 <tr><td><code>strict</code></td><td><code>false</code></td><td>Prefix <code>--!strict</code> (overridden by <code>#pragma strict</code> / <code>#pragma nstrict</code>)</td></tr>
-<tr><td><code>architecture</code></td><td><code>false</code></td><td>If <code>true</code>, PascalCase service folders instead of one Luau per <code>.cpp</code></td></tr>
+<tr><td><code>architecture</code></td><td><code>false</code></td><td>Reserved. ForeverHD folder split is not implemented on the CL++ path</td></tr>
 </table>
 <h2>Rojo mapping (template)</h2>
 <table>
@@ -203,19 +220,15 @@ ${preCode(`{
 		"intellisense.html",
 		"IntelliSense",
 		"Start",
-		`<p class="muted">C++ completion is <strong>clangd</strong>. Cluaupp does not index C++ itself. <code>cluaupp lsp</code> only publishes subset parse errors.</p>
-<p>Microsoft <code>ms-vscode.cpptools</code> is not licensed for Cursor and is marked unwanted. Two C++ engines in one window fight.</p>
-<h2>What init / intellisense write</h2>
+		`<p class="muted">CL++ completion is <strong><code>clpp install</code></strong>. Cluaupp does not index the language. <code>cluaupp intellisense</code> only writes editor associations and runs the CL++ installer.</p>
+<h2>What intellisense writes</h2>
 <table>
 <tr><th>File</th><th>Role</th></tr>
-<tr><td><code>.clangd</code></td><td>C++20, <code>-Iinclude</code>, skip <code>out/</code> and <code>libs/</code></td></tr>
-<tr><td><code>compile_flags.txt</code></td><td>Fallback flags</td></tr>
-<tr><td><code>compile_commands.json</code></td><td>One entry per file under <code>src/</code></td></tr>
-<tr><td><code>.vscode/settings.json</code></td><td><code>clangd.enable</code></td></tr>
-<tr><td><code>.vscode/extensions.json</code></td><td>Recommends clangd; marks cpptools unwanted</td></tr>
+<tr><td><code>.vscode/settings.json</code></td><td><code>files.associations</code> for <code>.clpp</code> / <code>.clp</code> / <code>.clh</code></td></tr>
+<tr><td>CL++ language pack</td><td>Installed by <code>clpp install</code> (hover, complete, diagnose)</td></tr>
 </table>
-<p>Put <code>#include &lt;cluaupp/roblox.hpp&gt;</code> at the top of each source. The header is not compiled to Luau. After <code>cluaupp intellisense</code>, reload: Command Palette → Developer: Reload Window.</p>
-<p><code>cluaupp build</code> / <code>watch</code> only refresh <code>compile_commands.json</code> (no download).</p>`,
+<p>Put <code>#include &lt;clpp/roblox.clh&gt;</code> at the top of each source. Engine stubs are not compiled to Luau. After <code>cluaupp intellisense</code>, reload: Command Palette → Developer: Reload Window.</p>
+<p>Language reference: <a href="https://kartzrbx.github.io/CLPP/">CL++ docs</a>.</p>`,
 	);
 
 	page(
@@ -232,7 +245,7 @@ ${preCode(`{
 </table>
 <p>If a file needs DataStoreService, it is server. If it needs UserInputService, it is client. Shared code must compile in both.</p>
 <h2>One system per file</h2>
-<p>Name the job: <code>LeaderstatsServer.server.cpp</code>, <code>Hud.client.cpp</code>. Do not put shop UI in the leaderstats script. Do not edit <code>out/</code>.</p>
+<p>Name the job: <code>leaderstats.server.clpp</code>, <code>hud.client.clpp</code>. Do not put shop UI in the leaderstats script. Do not edit <code>out/</code>.</p>
 <p>Default emit is one tagged file → one <code>.server.luau</code> / <code>.client.luau</code>. Tags: <a href="files.html">File tags</a>. Includes: <a href="includes.html">Includes</a>.</p>`,
 	);
 
@@ -244,19 +257,15 @@ ${preCode(`{
 		`<p class="muted">The filename decides the Roblox instance — the same key idea as roblox-ts (<code>*.server.ts</code> → Script).</p>
 <table>
 <tr><th>Source</th><th>Studio</th><th>Output</th></tr>
-<tr><td><code>LeaderstatsServer.server.cpp</code></td><td>Script (RunContext Server)</td><td><code>LeaderstatsServer.server.luau</code></td></tr>
-<tr><td><code>Hud.client.cpp</code></td><td>LocalScript</td><td><code>Hud.client.luau</code></td></tr>
-<tr><td><code>Tools.plugin.cpp</code></td><td>Script (RunContext Plugin)</td><td><code>Tools.luau</code></td></tr>
-<tr><td><code>Boot.legacy.cpp</code></td><td>Legacy Script</td><td><code>Boot.server.luau</code></td></tr>
-<tr><td><code>Boot.legacy.server.cpp</code></td><td>Legacy Script</td><td><code>Boot.server.luau</code></td></tr>
-<tr><td><code>Boot.legacy.client.cpp</code></td><td>Legacy LocalScript</td><td><code>Boot.client.luau</code></td></tr>
-<tr><td><code>config.cpp</code> (no tag)</td><td>ModuleScript</td><td><code>Config.luau</code></td></tr>
-<tr><td><code>PlayerData.h</code></td><td>ModuleScript (<code>export type</code> + constructor)</td><td><code>PlayerData.luau</code></td></tr>
-<tr><td>Sibling <code>Name.cpp</code> of <code>Name.h</code></td><td>ModuleScript construction</td><td><code>NameImpl.luau</code></td></tr>
+<tr><td><code>leaderstats.server.clpp</code></td><td>Script</td><td><code>leaderstats.server.luau</code></td></tr>
+<tr><td><code>hud.client.clpp</code></td><td>LocalScript</td><td><code>hud.client.luau</code></td></tr>
+<tr><td><code>config.clp</code> (no tag)</td><td>ModuleScript</td><td><code>config.luau</code></td></tr>
+<tr><td><code>PlayerData.clh</code></td><td>ModuleScript</td><td><code>PlayerData.luau</code></td></tr>
+<tr><td>untagged <code>Name.clpp</code> with sibling <code>Name.clh</code></td><td>ModuleScript (skip auto <code>init</code>)</td><td><code>Name.luau</code></td></tr>
 </table>
-<p>Extensions accepted: <code>.cpp</code> <code>.cc</code> <code>.cxx</code> <code>.c</code> <code>.h</code> <code>.hpp</code> <code>.hh</code>.</p>
+<p>Extensions accepted: <code>.clpp</code> <code>.clp</code> <code>.clh</code>.</p>
 <h2>Sibling stem</h2>
-<p>Methods on <code>LeaderstatsServer</code> belong in <code>LeaderstatsServer.h</code> next to <code>LeaderstatsServer.server.cpp</code> (same stem, tags stripped). <code>#include "leaderstats.h"</code> from a differently named <code>.cpp</code> is a <code>require</code>, not an inline class body — fields like <code>janitor</code> will not be on the table.</p>
+<p>A header <code>PlayerData.clh</code> next to <code>PlayerData.clpp</code> (same stem, tags stripped) is the module pair. <code>#include "config.clh"</code> from a differently named file is a <code>require</code>, not an inline class body.</p>
 <p>Scripts and LocalScripts call <code>init()</code> at the end if you defined it. ModuleScripts return a table and do not auto-run unless they also define <code>init()</code> (avoid that on shared modules).</p>`,
 	);
 
@@ -265,33 +274,67 @@ ${preCode(`{
 		"includes.html",
 		"Includes and pragmas",
 		"Files",
-		`<p class="muted">The lexer drops every <code>#</code> line from the C++ it parses. The preprocessor still <em>uses</em> includes and pragmas before that.</p>
+		`<p class="muted"><code>clpp</code> owns includes. Cluaupp only rewrites library requires after compile.</p>
 <h2>Quoted vs angle</h2>
 <table>
-<tr><th>Write</th><th>Compiler</th></tr>
-<tr><td><code>#include &lt;cluaupp/roblox.hpp&gt;</code></td><td>IntelliSense only (engine stub). Never inlined. Never <code>require</code>d.</td></tr>
-<tr><td><code>#include &lt;cluaupp/libs/janitor.hpp&gt;</code></td><td>IntelliSense + inject <code>require(ReplicatedStorage.CluauppLibs.Janitor)</code></td></tr>
-<tr><td><code>#include "LeaderstatsServer.h"</code> (same stem)</td><td>Own header inlined into the <code>.cpp</code></td></tr>
-<tr><td><code>#include "config.h"</code> (other file)</td><td><code>require</code> the compiled module</td></tr>
-<tr><td><code>#include "../../shared/PlayerData.h"</code></td><td><code>require</code> the shared module (Rojo path)</td></tr>
+<tr><th>Write</th><th>Toolchain</th></tr>
+<tr><td><code>#include &lt;clpp/roblox.clh&gt;</code></td><td>Engine stub. Never inlined. Never <code>require</code>d.</td></tr>
+<tr><td><code>#include &lt;clpp/libs/janitor.clh&gt;</code></td><td>Inject <code>require(ReplicatedStorage.CluauppLibs.Janitor)</code></td></tr>
+<tr><td><code>#include "PlayerData.clh"</code> (same stem)</td><td>Own header pair</td></tr>
+<tr><td><code>#include "config.clh"</code> (other file)</td><td><code>require</code> the compiled module</td></tr>
+<tr><td><code>#include "../../shared/PlayerData.clh"</code></td><td><code>require</code> the shared module (Rojo path)</td></tr>
 </table>
-<p><code>.h</code> / <code>.hpp</code> / <code>.hh</code> variants of the same stem resolve. A quoted include of an engine stub is skipped. Duplicate includes are skipped.</p>
+<p>A quoted include of an engine stub is skipped. Duplicate includes are skipped. After <code>clpp</code> emits Luau, Cluaupp rewrites <code>require(ClppLibs.X)</code> to <code>require(ReplicatedStorage.CluauppLibs.X)</code>.</p>
 <h2>Pragmas</h2>
 <table>
 <tr><th>Line</th><th>Effect</th></tr>
-<tr><td><code>#pragma once</code></td><td>Ignored (include guard is the seen-set)</td></tr>
+<tr><td><code>#pragma once</code></td><td>Include guard</td></tr>
 <tr><td><code>#pragma strict</code></td><td>This compilation unit emits <code>--!strict</code></td></tr>
 <tr><td><code>#pragma nstrict</code></td><td>Never emit <code>--!strict</code>, even if config / <code>--strict</code></td></tr>
 </table>
-<p>Other macros are not expanded. <code>#define</code> is dropped with the <code>#</code> line.</p>
-<h2>Comments</h2>
-<p><code>//</code> line comments and <code>/* block */</code> comments are stripped by the lexer. They never appear in Luau. There is no <code>///</code> doc emit.</p>
-<h2>using / namespace</h2>
-<p><code>using …;</code> is skipped. <code>namespace Name { … }</code> is flattened: inner declarations bubble to the file. Do not rely on C++ namespaces as Luau tables.</p>
-<p><code>enum</code>, <code>template</code>, <code>typedef</code>, and <code>extern</code> declarations are skipped (engine enums still work as <code>Enum::Material::Plastic</code> expressions).</p>`,
+<p>Comments: <code>//</code> and <code>/* block */</code> never appear in Luau.</p>`,
 	);
 
 	registerCppLessons(page, { codePair, preCode, escapeHtml, mappingTable });
+
+	page(
+		"migration",
+		"migration.html",
+		"Migration",
+		"Start",
+		`<p class="muted">Cluaupp 1.0 compiles <strong>CL++</strong>, not a C++ subset. Language docs: <a href="https://kartzrbx.github.io/CLPP/">kartzrbx.github.io/CLPP</a>.</p>
+<h2>Files</h2>
+<table>
+<tr><th>Before</th><th>After</th></tr>
+<tr><td><code>*.server.cpp</code></td><td><code>*.server.clpp</code></td></tr>
+<tr><td><code>*.client.cpp</code></td><td><code>*.client.clpp</code></td></tr>
+<tr><td>untagged <code>*.cpp</code></td><td><code>*.clp</code></td></tr>
+<tr><td><code>*.h</code> / <code>*.hpp</code></td><td><code>*.clh</code></td></tr>
+</table>
+<p><code>#include &lt;cluaupp/roblox.hpp&gt;</code> → <code>#include &lt;clpp/roblox.clh&gt;</code><br>
+<code>#include &lt;cluaupp/libs/janitor.hpp&gt;</code> → <code>#include &lt;clpp/libs/janitor.clh&gt;</code><br>
+Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>.</p>
+<h2>Operators and IO</h2>
+<table>
+<tr><th>Old C++ subset</th><th>CL++</th><th>Luau</th></tr>
+<tr><td><code>player-&gt;Name</code></td><td><code>player.Name</code></td><td><code>.</code></td></tr>
+<tr><td><code>player-&gt;GetPlayers()</code></td><td><code>player::GetPlayers()</code></td><td><code>:</code></td></tr>
+<tr><td><code>DataService::Server</code></td><td><code>DataService:Server</code></td><td><code>.</code></td></tr>
+<tr><td><code>"hi " + name</code></td><td><code>"hi " .: name</code></td><td><code>..</code></td></tr>
+<tr><td><code>signal.Connect(fn)</code></td><td><code>signal~&gt;Connect(fn)</code></td><td>Janitor <code>Add</code></td></tr>
+<tr><td><code>print</code> / <code>error</code></td><td><code>post</code> / <code>report</code></td><td><code>print</code> / <code>error</code></td></tr>
+<tr><td><code>nullptr</code></td><td><code>null</code></td><td><code>nil</code></td></tr>
+<tr><td><code>[](Player* p) { }</code></td><td><code>func [](Player* p) { }</code></td><td><code>function</code></td></tr>
+</table>
+<h2>Workflow</h2>
+<ol>
+<li>Install CL++ from <a href="https://github.com/KartzRbx/CLPP">github.com/KartzRbx/CLPP</a> (<code>cargo install --path .</code>).</li>
+<li><code>clpp install</code> (editor highlighting + IntelliSense).</li>
+<li>Rename sources and apply the tables above.</li>
+<li><code>cluaupp build</code> — <code>clpp</code> must be on PATH (<code>CLPP_PATH</code> if needed).</li>
+</ol>
+<p><code>"architecture": true</code> (ForeverHD folders) is not generated in 1.0. One source file still becomes one <code>.luau</code> file.</p>`,
+	);
 
 	page(
 		"reference",
@@ -302,15 +345,15 @@ ${preCode(`{
 <h2>Files and CLI</h2>
 <table>
 <tr><th>Write</th><th>Becomes / does</th></tr>
-<tr><td><code>.server.cpp</code> / <code>.client.cpp</code> / untagged / <code>.plugin</code> / <code>.legacy*</code></td><td>Script / LocalScript / ModuleScript / Plugin / Legacy — <a href="files.html">tags</a></td></tr>
-<tr><td><code>#include "Own.h"</code> vs <code>#include "Other.h"</code></td><td>inline vs <code>require</code> — <a href="includes.html">includes</a></td></tr>
-<tr><td><code>#include &lt;cluaupp/libs/janitor.hpp&gt;</code></td><td><code>require(CluauppLibs.Janitor)</code></td></tr>
+<tr><td><code>.server.clpp</code> / <code>.client.clpp</code> / <code>.clp</code> / <code>.clh</code></td><td>Script / LocalScript / ModuleScript — <a href="files.html">tags</a></td></tr>
+<tr><td><code>#include "Own.clh"</code> vs <code>#include "Other.clh"</code></td><td>sibling header vs <code>require</code> — <a href="includes.html">includes</a></td></tr>
+<tr><td><code>#include &lt;clpp/libs/janitor.clh&gt;</code></td><td><code>require(ReplicatedStorage.CluauppLibs.Janitor)</code></td></tr>
 <tr><td><code>#pragma strict</code> / <code>nstrict</code></td><td><code>--!strict</code> on/off</td></tr>
-<tr><td><code>cluaupp init | build | watch | lsp | intellisense</code></td><td><a href="cli.html">CLI</a></td></tr>
+<tr><td><code>cluaupp init | build | watch | language | intellisense</code></td><td><a href="cli.html">CLI</a></td></tr>
 </table>
 <h2>Types</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>int</code> <code>float</code> <code>double</code></td><td><code>number</code></td></tr>
 <tr><td><code>bool</code></td><td><code>boolean</code></td></tr>
 <tr><td><code>string</code></td><td><code>string</code> (not <code>std::string</code>)</td></tr>
@@ -326,7 +369,7 @@ ${preCode(`{
 </table>
 <h2>Declarations and OOP</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>int coins = 0;</code></td><td><code>local coins: number = 0</code></td></tr>
 <tr><td><code>const int MAX = 20;</code></td><td><code>const MAX: number = 20</code></td></tr>
 <tr><td><code>struct Name { fields; methods; }</code></td><td>table + colon methods / constructor — <a href="structs.html">structs</a></td></tr>
@@ -341,7 +384,7 @@ ${preCode(`{
 </table>
 <h2>Control, operators, strings</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>if (x) { } else { }</code></td><td><code>if x then … else … end</code></td></tr>
 <tr><td><code>while (x) { }</code></td><td><code>while x do … end</code></td></tr>
 <tr><td><code>for (T* x : list)</code></td><td><code>for _, x in list do</code> — range-for only</td></tr>
@@ -356,7 +399,7 @@ ${preCode(`{
 </table>
 <h2>Engine, callbacks, casts</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>new Folder(player)</code></td><td><code>Instance.new("Folder")</code> + <code>.Parent = player</code></td></tr>
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
 <tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
@@ -364,25 +407,25 @@ ${preCode(`{
 <tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
 <tr><td><code>CFrame::lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>signal.Connect(fn)</code> / lambda <code>[]</code> <code>[&amp;]</code> <code>[=]</code></td><td><code>signal:Connect(function…)</code> — <a href="events.html">callbacks</a></td></tr>
+<tr><td><code>signal~&gt;Connect(fn)</code> / <code>func []</code></td><td>Janitor <code>Add</code> + <code>Connect</code> — <a href="events.html">callbacks</a></td></tr>
 <tr><td><code>static_cast&lt;Folder*&gt;(x)</code> / <code>(void)x</code></td><td>the value / omitted — <a href="casts.html">casts</a></td></tr>
 <tr><td><code>Type { .Field = value }</code></td><td><code>{ Field = value }</code></td></tr>
-<tr><td><code>print</code> / <code>cout &lt;&lt; … &lt;&lt; endl</code></td><td><code>print(…)</code> — <a href="logging.html">logging</a></td></tr>
+<tr><td><code>post</code> / <code>warn</code> / <code>report</code></td><td><code>print(…)</code> — <a href="logging.html">logging</a></td></tr>
 <tr><td>globals <code>game</code> <code>workspace</code> <code>script</code></td><td>same</td></tr>
 <tr><td><code>tick()</code> <code>wait()</code> <code>spawn(fn)</code> <code>delay(s, fn)</code></td><td>same Roblox globals</td></tr>
 </table>
 <h2>Not in the subset</h2>
-<p><code>std::</code> (except type aliases the mapper knows), macros besides pragmas, C-style <code>for</code>, <code>++ -- +=</code>, <code>continue</code>, <code>do/while</code>, ternary <code>? :</code>, <code>int&amp;</code> references, <code>*p</code>, pointer arithmetic, <code>delete</code>, overloading, general templates, JSX, custom <code>class</code> vtables, <code>goto</code>, <code>try/catch</code>. Full contrast: <a href="vs-cpp.html">Syntax vs C++</a>.</p>`,
+<p>ISO C++ is not CL++. See <a href="migration.html">Migration</a> and the <a href="https://kartzrbx.github.io/CLPP/">CL++ language</a>.</p>`,
 	);
 
 	page(
 		"types",
 		"types.html",
 		"5. Data types",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Lesson 5 — like <a href="https://www.w3schools.com/CPP/cpp_data_types.asp">W3Schools Data Types</a>. A type tells the compiler what a box holds. Cluaupp maps that to a Luau annotation (see <a href="luau.html">The Luau you emit</a>).</p>
 <table>
-<tr><th>C++</th><th>Luau</th><th>Use</th></tr>
+<tr><th>CL++</th><th>Luau</th><th>Use</th></tr>
 <tr><td><code>int</code> / <code>float</code> / <code>double</code></td><td><code>number</code></td><td>counts vs world units — same at runtime</td></tr>
 <tr><td><code>bool</code></td><td><code>boolean</code></td><td>flags</td></tr>
 <tr><td><code>string</code></td><td><code>string</code></td><td>names, keys — not <code>std::string</code></td></tr>
@@ -470,7 +513,7 @@ struct PlayerData {
 		"functions",
 		"functions.html",
 		"10. Functions",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Lesson 10 — like <a href="https://www.w3schools.com/CPP/cpp_functions.asp">W3Schools Functions</a>. A function is a block that runs when you call it. You pass parameters in. You reuse the body.</p>
 <h2>Create a function</h2>
 <p><code>void</code> means no return value. Parentheses <code>()</code> hold parameters (empty for none). Braces hold the body:</p>
@@ -536,7 +579,7 @@ end`,
 		"scopes",
 		"scopes.html",
 		"12. Scopes",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Cluaupp has file scope, function scope, and method <code>self</code>. It does not have C++ namespaces as tables, and it does not have <code>int&amp;</code> lifetime.</p>
 <h2>File scope</h2>
 <p>Top-level <code>int coins = 0;</code> becomes a file-level <code>local</code> (or <code>const</code>). Top-level functions are <code>const function</code>. They are visible to later functions in the same file. There is no <code>static</code> linkage — <code>static</code> only helps mark constants.</p>
@@ -584,7 +627,7 @@ end`,
 		"control",
 		"control-flow.html",
 		"9. If, while, for",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Lesson 9 — conditions and loops. W3Schools splits these across If, While, For, Switch. Cluaupp has <code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, and <code>switch</code>. There is no C-style <code>for (int i = 0; …)</code> and no <code>do/while</code>.</p>
 ${codePair(
 	`if (coinsValue) {
@@ -661,12 +704,12 @@ until true`,
 		"operators",
 		"operators.html",
 		"6. Operators",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Binary operators are left-associative in this subset (no C++ precedence table). Use parentheses when mixing arithmetic and compares.</p>
 ${mappingTable ? mappingTable() : ""}
 <h2>Arithmetic and compare</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>+</code> <code>-</code> <code>*</code> <code>/</code></td><td>same (<code>*</code> is multiply, not dereference)</td></tr>
 <tr><td>unary <code>-</code> <code>!</code></td><td><code>-</code> <code>not</code></td></tr>
 <tr><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td><code>==</code> <code>~=</code> and the rest same</td></tr>
@@ -677,7 +720,7 @@ ${mappingTable ? mappingTable() : ""}
 </table>
 <h2>Member access</h2>
 <table>
-<tr><th>C++</th><th>When</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>When</th><th>Luau</th></tr>
 <tr><td><code>part-&gt;Size</code></td><td>Instance / table property</td><td><code>part.Size</code></td></tr>
 <tr><td><code>part-&gt;FindFirstChild("x")</code></td><td>engine or library method</td><td><code>part:FindFirstChild("x")</code></td></tr>
 <tr><td><code>players-&gt;PlayerAdded.Connect(fn)</code></td><td>signal</td><td><code>players.PlayerAdded:Connect(fn)</code></td></tr>
@@ -695,7 +738,7 @@ ${mappingTable ? mappingTable() : ""}
 		"strings",
 		"strings.html",
 		"7. Strings",
-		"C++ class",
+		"CL++ class",
 		`<p class="muted">Luau concatenates with <code>..</code>. Cluaupp gives you two C++ forms that emit that. Do not write Luau <code>..</code> inside a <code>.cpp</code>.</p>
 <p><code>string</code> in the headers is <code>const char*</code>. Quoted literals are <code>"text"</code> (escapes <code>\\</code> work). There are no raw string literals and no <code>'c'</code> chars.</p>
 <h2>Operator +</h2>
@@ -723,8 +766,8 @@ local one: string = name`,
 		"logging",
 		"logging.html",
 		"2. Output",
-		"C++ class",
-		`<p class="muted">Lesson 2 — like <a href="https://www.w3schools.com/CPP/cpp_output.asp">W3Schools C++ Output</a>. Textbook C++ uses <code>cout</code> and <code>&lt;iostream&gt;</code>. Cluaupp has <code>cout</code> so that spelling still compiles, but the emit is Roblox <code>print</code> / <code>warn</code> / <code>error</code>. Prefer <code>print</code>.</p>
+		"CL++ class",
+		`<p class="muted">Lesson 2 — output. CL++ uses <code>post</code> / <code>warn</code> / <code>report</code>. Those emit Roblox <code>print</code> / <code>warn</code> / <code>error</code>.</p>
 ${codePair(
 	`print("ok");
 warn("careful");
@@ -748,7 +791,7 @@ print("here")
 print()`,
 )}
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>cout &lt;&lt; … &lt;&lt; endl</code></td><td><code>print(…)</code> — each <code>&lt;&lt;</code> is another argument; <code>endl</code> flushes the statement</td></tr>
 <tr><td><code>cerr &lt;&lt; …</code></td><td><code>warn(…)</code></td></tr>
 <tr><td><code>cout::print</code> / <code>cout::ping</code></td><td><code>print</code></td></tr>
@@ -767,7 +810,7 @@ print()`,
 		"Language",
 		`<p class="muted">Luau has no casts. Cluaupp accepts C++ spellings so clangd is happy, then emits the value.</p>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>static_cast&lt;Folder*&gt;(inst)</code></td><td><code>inst</code></td></tr>
 <tr><td><code>const_cast</code> / <code>reinterpret_cast</code> / <code>dynamic_cast</code></td><td>same — the argument</td></tr>
 <tr><td><code>(void)x;</code></td><td>omitted (marks unused for clangd)</td></tr>
@@ -790,67 +833,43 @@ end`,
 		"vs-cpp.html",
 		"Syntax vs C++",
 		"Language",
-		`<p class="muted">Cluaupp looks like C++ so clangd works. The subset is what the compiler emits. Everything else is either ignored or a parse error.</p>
-<h2>Supported</h2>
+		`<p class="muted">CL++ looks C-like. It is <strong>not</strong> ISO C++. <code>clpp</code> compiles it. Cluaupp does not. Coming from the old Cluaupp C++ subset: <a href="migration.html">Migration</a>.</p>
+<h2>CL++ writes</h2>
 <table>
 <tr><th>Area</th><th>Write</th></tr>
-<tr><td>Files</td><td><code>.cpp</code> <code>.h</code> <code>.hpp</code>, tags <code>.server</code> <code>.client</code> <code>.plugin</code> <code>.legacy</code>, quoted includes, <code>#pragma strict</code></td></tr>
-<tr><td>Types</td><td><code>int</code> <code>bool</code> <code>string</code> <code>void</code> <code>auto</code> <code>*</code> Instances, <code>LuaArray&lt;T&gt;</code>, <code>optional&lt;T&gt;</code>, datatypes, <code>Enum::</code></td></tr>
-<tr><td>Decls</td><td><code>const</code> <code>static</code> <code>constexpr</code> <code>inline</code>, <code>struct</code> / <code>class</code> fields, nested structs, <code>Class::Method</code>, <code>this</code></td></tr>
-<tr><td>Engine</td><td><code>new Class(parent)</code>, <code>GetService&lt;T&gt;()</code>, <code>-&gt;</code>, <code>::</code> statics, <code>.Connect</code></td></tr>
-<tr><td>Control</td><td><code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, <code>switch</code>, <code>return</code>, <code>break</code></td></tr>
-<tr><td>Exprs</td><td><code>== != &amp;&amp; || ! + - * /</code>, string <code>+</code>, <code>string_concat</code>, lambdas, casts, <code>(void)x</code>, designated init, <code>cout &lt;&lt;</code></td></tr>
+<tr><td>Files</td><td><code>.clpp</code> <code>.clp</code> <code>.clh</code>, tags <code>.server</code> <code>.client</code>, quoted includes, <code>#pragma strict</code></td></tr>
+<tr><td>Types</td><td><code>int</code> <code>bool</code> <code>string</code> <code>void</code> <code>auto</code> <code>*</code> Instances, datatypes, <code>Enum::</code></td></tr>
+<tr><td>Engine</td><td><code>new Class(parent)</code>, <code>GetService&lt;T&gt;()</code>, <code>.</code> properties, <code>::</code> methods</td></tr>
+<tr><td>Control</td><td><code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, <code>guard</code>, <code>match</code>, <code>return</code></td></tr>
+<tr><td>Exprs</td><td><code>== != &amp;&amp; || !</code>, concat <code>.:</code>, janitor <code>~&gt;</code>, <code>func []</code> lambdas</td></tr>
+<tr><td>IO</td><td><code>post</code> / <code>warn</code> / <code>report</code>, <code>null</code></td></tr>
 <tr><td>Boot</td><td><code>void init()</code> called at end of Scripts / LocalScripts</td></tr>
 </table>
-<h2>Not C++</h2>
+<h2>Not ISO C++</h2>
 <table>
-<tr><th>Full C++</th><th>Cluaupp</th></tr>
-<tr><td><code>std::string</code>, <code>std::vector</code></td><td><code>string</code>, <code>LuaArray&lt;T&gt;</code></td></tr>
-<tr><td><code>int&amp;</code> references</td><td>return the value, or mutate an Instance / Data path</td></tr>
-<tr><td><code>*p</code>, pointer arithmetic, <code>delete</code></td><td>not supported</td></tr>
-<tr><td>macros (except pragmas)</td><td>not expanded</td></tr>
-<tr><td>C-style <code>for</code>, <code>++ -- +=</code>, <code>continue</code>, ternary, <code>do/while</code></td><td>range-<code>for</code>, <code>n = n + 1</code>, <code>if</code> / <code>while</code></td></tr>
-<tr><td>overloading two runtimes</td><td>one name, one emit</td></tr>
-<tr><td>templates besides <code>GetService</code> / casts / <code>LuaArray</code> / <code>string_concat</code></td><td>not general templates</td></tr>
-<tr><td>JSX / XML UI</td><td>call Fusion / Iris / Vide / React as functions</td></tr>
-<tr><td>custom <code>class</code> vtables</td><td><code>struct</code> + <code>Class::</code> methods</td></tr>
-<tr><td><code>try</code> / <code>catch</code> / <code>goto</code></td><td>not supported</td></tr>
-<tr><td><code>namespace</code> as a table</td><td>flattened</td></tr>
+<tr><th>Full C++</th><th>CL++</th></tr>
+<tr><td><code>.cpp</code> / clangd / <code>ms-vscode.cpptools</code></td><td><code>.clpp</code> and <code>clpp install</code></td></tr>
+<tr><td><code>std::string</code>, <code>std::vector</code></td><td><code>string</code>, arrays</td></tr>
+<tr><td><code>player-&gt;Name</code></td><td><code>player.Name</code></td></tr>
+<tr><td><code>player-&gt;GetPlayers()</code></td><td><code>player::GetPlayers()</code></td></tr>
+<tr><td><code>int main()</code> / <code>iostream</code></td><td><code>void init()</code> / <code>clpp/roblox.clh</code></td></tr>
+<tr><td><code>nullptr</code> / <code>print</code></td><td><code>null</code> / <code>post</code></td></tr>
+<tr><td><code>cin</code></td><td>TextBox, UserInputService, remotes</td></tr>
 </table>
-<h2>Operators → Luau</h2>
-<table>
-<tr><th>C++</th><th>Luau</th></tr>
-<tr><td><code>!=</code></td><td><code>~=</code></td></tr>
-<tr><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td><td><code>and</code> <code>or</code> <code>not</code></td></tr>
-<tr><td>string <code>+</code> / <code>string_concat</code></td><td><code>..</code></td></tr>
-<tr><td><code>nullptr</code></td><td><code>nil</code></td></tr>
-</table>
-<p>The complete grid: <a href="reference.html">Language reference</a>.</p>
-<h2>W3Schools chapters that are not this subset</h2>
-<table>
-<tr><th>W3Schools C++</th><th>In Cluaupp</th></tr>
-<tr><td><code>int main()</code> / <code>#include &lt;iostream&gt;</code> / <code>using namespace std</code></td><td><code>void init()</code> / <code>roblox.hpp</code> / no <code>std</code></td></tr>
-<tr><td><code>cin</code> user input</td><td>TextBox, UserInputService, remotes</td></tr>
-<tr><td>C-style <code>for</code>, <code>++</code>, <code>do/while</code>, <code>continue</code></td><td>range-<code>for</code>, <code>n = n + 1</code>, <code>while</code></td></tr>
-<tr><td>References <code>int&amp;</code>, raw pointers, <code>delete</code></td><td><code>Player*</code> is an Instance handle</td></tr>
-<tr><td>Function overloading, default args</td><td>one name, one emit</td></tr>
-<tr><td>Classes, inheritance, polymorphism, access specifiers</td><td><code>struct</code> + <code>Class::</code> methods; specifiers ignored</td></tr>
-<tr><td>Files, exceptions, dates, <code>std::vector</code></td><td>DataStores / DataService, no <code>try/catch</code>, <code>LuaArray&lt;T&gt;</code></td></tr>
-<tr><td>Lambdas + <code>std::function</code></td><td>Lambdas emit Luau <code>function</code> — <a href="lambdas.html">lesson 11</a></td></tr>
-</table>`,
+<p>Language course: <a href="https://kartzrbx.github.io/CLPP/">kartzrbx.github.io/CLPP</a>. Cheat sheet: <a href="reference.html">Language reference</a>.</p>`,
 	);
 
 	page(
 		"structs",
 		"structs.html",
 		"13. Structs and methods",
-		"C++ class",
-		`<p class="muted">This is how you write a type in Cluaupp. A <code>struct</code> (or <code>class</code>) in the header is the public shape. <code>Class::Method</code> in the <code>.cpp</code> is the implementation. There is no emitted C++ vtable — this is the subset.</p>
+		"CL++ class",
+		`<p class="muted">This is how you write a type in CL++. A <code>struct</code> (or <code>class</code>) in the <code>.clh</code> is the public shape. <code>Class::Method</code> in the <code>.clpp</code> is the implementation.</p>
 <h2>Header — the type</h2>
 ${preCode(`#pragma once
-#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/janitor.hpp>
-#include <cluaupp/libs/dataservice.hpp>
+#include <clpp/roblox.clh>
+#include <clpp/libs/janitor.clh>
+#include <clpp/libs/dataservice.clh>
 
 struct LeaderstatsServer {
 	static constexpr int STARTING_COINS = 0;
@@ -866,11 +885,11 @@ struct LeaderstatsServer {
 <ul>
 <li><code>static constexpr int</code> becomes a Luau <code>const</code>.</li>
 <li>Fields (<code>Janitor* janitor</code>) live on the table as <code>self.janitor</code>.</li>
-<li>Method declarations have no bodies. Bodies go in the sibling <code>.cpp</code>.</li>
+<li>Method declarations have no bodies. Bodies go in the sibling <code>.clpp</code>.</li>
 <li><code>public:</code> / <code>private:</code> / <code>protected:</code> are accepted and ignored.</li>
 </ul>
 <h2>Cpp — the methods</h2>
-${preCode(`#include "LeaderstatsServer.h"
+${preCode(`#include "LeaderstatsServer.clh"
 
 string LeaderstatsServer::GetPlayerJanitorKey(Player* player) {
 	return string_concat(player->Name, "_LeaderstatsJanitor");
@@ -883,7 +902,7 @@ void LeaderstatsServer::UpdateLeaderstatsWithValues(IntValue* currentValue, int 
 }`, "cpp")}
 <p>Emit uses colon methods: <code>function LeaderstatsServer:GetPlayerJanitorKey(player: Player)</code>. Inside the body, <code>this</code> is <code>self</code>, fields become <code>self.janitor</code>, other methods become <code>self:PlayerEntered</code>.</p>
 <h2>Boot</h2>
-<p>Construct the table, assign fields, hook signals in <code>void init()</code>. Untagged files that only define <code>Class::</code> methods <code>return</code> the table (ModuleScript). A <code>.server.cpp</code> with <code>init()</code> runs as a Script. If every function is a <code>Class::</code> method, emit also aliases <code>Start</code> / <code>Init</code> to <code>init</code> when <code>init</code> exists, then <code>return Class</code>.</p>
+<p>Construct the table, assign fields, hook signals in <code>void init()</code>. Untagged files that only define <code>Class::</code> methods <code>return</code> the table (ModuleScript). A <code>.server.clpp</code> with <code>init()</code> runs as a Script. If every function is a <code>Class::</code> method, emit also aliases <code>Start</code> / <code>Init</code> to <code>init</code> when <code>init</code> exists, then <code>return Class</code>.</p>
 <h2>Data Template (nested structs)</h2>
 <p>Save shape is yours. Nested structs with defaults become nested Luau tables. Pass that value to <code>DataService::Server.Init</code> once. Gameplay uses <code>DataService::Server.Paths....</code> — not a local <code>int Coins</code>.</p>
 ${preCode(`#pragma once
@@ -995,7 +1014,7 @@ init()`,
 		"modules.html",
 		"Modules",
 		"OOP",
-		`<p class="muted">Untagged <code>.cpp</code> / <code>.h</code> become ModuleScripts. Tagged files become Scripts / LocalScripts that may <code>require</code> those modules.</p>
+		`<p class="muted">Untagged <code>.clp</code> / <code>.clh</code> become ModuleScripts. Tagged files become Scripts / LocalScripts that may <code>require</code> those modules.</p>
 <h2>Header-only types</h2>
 <p>A <code>.h</code> with structs and <code>const</code> values emits <code>export type</code> plus a constructor / bound constants, then <code>return</code>s the table. Prototypes become type fields; bodies are not emitted from the header.</p>
 <h2>Sibling implementation</h2>
@@ -1045,7 +1064,7 @@ coinsValue.Name = "Coins"
 coinsValue.Value = STARTING_COINS`,
 )}
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>new Folder(player)</code></td><td><code>Instance.new("Folder")</code> + <code>.Parent = player</code></td></tr>
 <tr><td><code>new Folder()</code></td><td><code>Instance.new("Folder")</code> with no parent</td></tr>
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code> (library, not Instance)</td></tr>
@@ -1104,7 +1123,7 @@ players.PlayerAdded:Connect(OnPlayer)`,
 )}
 <h2>Lambda forms</h2>
 <table>
-<tr><th>C++</th><th>Meaning in this subset</th></tr>
+<tr><th>CL++</th><th>Meaning in this subset</th></tr>
 <tr><td><code>[](Player* p) { … }</code></td><td>Accepted. Capture list is ignored in Luau (closures see enclosing locals).</td></tr>
 <tr><td><code>[&amp;](Player* p) { … }</code></td><td>Same. Write <code>[&amp;]</code> when you use <code>init()</code> locals.</td></tr>
 <tr><td><code>[=](Player* p) { … }</code></td><td>Same. Luau does not copy-capture like C++.</td></tr>
@@ -1133,7 +1152,7 @@ local rs: ReplicatedStorage = game:GetService("ReplicatedStorage")`,
 )}
 <h2>Datatypes</h2>
 <table>
-<tr><th>C++</th><th>Luau</th></tr>
+<tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>Vector3(x, y, z)</code></td><td><code>Vector3.new(x, y, z)</code></td></tr>
 <tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
 <tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
@@ -1342,7 +1361,7 @@ opt-in architecture: true → Main / Managers / Controllers / Types`, "plain")}
 		"leaderstats.html",
 		"Example: Leaderstats",
 		"Examples",
-		`<p class="muted">Three files. Header stem matches the <code>.server.cpp</code>. Coins come from DataService Paths after a separate boot <code>Init</code>.</p>
+		`<p class="muted">Three files. Header stem matches the <code>.server.clpp</code>. Coins come from DataService Paths after a separate boot <code>Init</code>.</p>
 <h2>shared/PlayerData.h</h2>
 ${preCode(`#pragma once
 #include <cluaupp/datatypes.hpp>
@@ -1364,9 +1383,9 @@ struct PlayerData {
 };`, "cpp")}
 <h2>server/LeaderstatsServer.h</h2>
 ${preCode(`#pragma once
-#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/janitor.hpp>
-#include <cluaupp/libs/dataservice.hpp>
+#include <clpp/roblox.clh>
+#include <clpp/libs/janitor.clh>
+#include <clpp/libs/dataservice.clh>
 
 struct LeaderstatsServer {
 	static constexpr int STARTING_COINS = 0;
@@ -1376,10 +1395,10 @@ struct LeaderstatsServer {
 	Folder* EnsurePlayerLeaderstatsFolder(Player* player);
 	void PlayerEntered(Player* player);
 };`, "cpp")}
-<h2>server/LeaderstatsServer.server.cpp</h2>
-${preCode(`#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/dataservice.hpp>
-#include <cluaupp/libs/janitor.hpp>
+<h2>server/LeaderstatsServer.server.clpp</h2>
+${preCode(`#include <clpp/roblox.clh>
+#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/janitor.clh>
 #include "LeaderstatsServer.h"
 #include "../../shared/PlayerData.h"
 
@@ -1438,7 +1457,7 @@ void init() {
 		leaderstatsServer.janitor->Destroy();
 	});
 }`, "cpp")}
-<p>Call <code>DataService::Server.Init</code> in <code>DataBoot.server.cpp</code> with <code>PlayerData {}</code>. This file never calls <code>Init</code> again.</p>
+<p>Call <code>DataService::Server.Init</code> in <code>DataBoot.server.clpp</code> with <code>PlayerData {}</code>. This file never calls <code>Init</code> again.</p>
 <p>This example uses: sibling headers, <code>Class::</code> methods, <code>string_concat</code>, <code>static_cast</code>, lambdas, range-<code>for</code>, a service singleton in <code>init()</code>, Janitor keys, and DataService Paths.</p>`,
 	);
 
@@ -1475,7 +1494,7 @@ export function groupDocs(pages: DocsPage[]) {
 		group.items.push(page);
 	}
 	for (const group of groups) {
-		if (group.name !== "C++ class") {
+		if (group.name !== "CL++ class") {
 			continue;
 		}
 		group.items.sort((a, b) => {

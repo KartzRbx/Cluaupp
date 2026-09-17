@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.collectSourcesFiles = void 0;
 exports.loadConfig = loadConfig;
 exports.collectCpp = collectCpp;
 exports.build = build;
@@ -11,7 +12,7 @@ exports.watch = watch;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const package_info_js_1 = require("../package-info.js");
-const preprocess_js_1 = require("../preprocess.js");
+const paths_js_1 = require("../clpp/paths.js");
 const intellisense_js_1 = require("../intellisense.js");
 const process_orchestrator_js_1 = require("./process-orchestrator.js");
 const rojo_mapper_js_1 = require("./rojo-mapper.js");
@@ -149,20 +150,9 @@ function copyHeaders(dest) {
     syncDir(from, node_path_1.default.join(dest, "include", "cluaupp"));
 }
 function collectCpp(dir, files = []) {
-    if (!node_fs_1.default.existsSync(dir)) {
-        return files;
-    }
-    for (const entry of node_fs_1.default.readdirSync(dir, { withFileTypes: true })) {
-        const full = node_path_1.default.join(dir, entry.name);
-        if (entry.isDirectory()) {
-            collectCpp(full, files);
-        }
-        else if ((0, preprocess_js_1.isSourceFile)(entry.name)) {
-            files.push(full);
-        }
-    }
-    return files;
+    return (0, paths_js_1.collectSources)(dir, files);
 }
+exports.collectSourcesFiles = paths_js_1.collectSources;
 function collectFiles(dir, files = []) {
     if (!node_fs_1.default.existsSync(dir)) {
         return files;
@@ -186,9 +176,9 @@ function posixRel(from, file) {
     return node_path_1.default.relative(from, file).replace(/\\/g, "/");
 }
 function sourcePrefixes(rel) {
-    const noExt = rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, "");
+    const noExt = rel.replace(/\.(clpp|clp|clh)$/i, "");
     const noTag = noExt.replace(/\.(server|client)$/i, "");
-    return [...new Set([noExt, noTag, (0, preprocess_js_1.toLuauPath)(rel).replace(/\\/g, "/")])];
+    return [...new Set([noExt, noTag, (0, paths_js_1.toLuauPath)(rel).replace(/\\/g, "/")])];
 }
 function matchesPrefix(relOut, prefixes) {
     const n = relOut.replace(/\\/g, "/").toLowerCase();
@@ -253,7 +243,7 @@ function createMapper(root, config, rojoPath) {
 }
 function compileProject(root, config, mapper) {
     const srcDir = node_path_1.default.join(root, config.rootDir);
-    const files = collectCpp(srcDir);
+    const files = (0, paths_js_1.collectSources)(srcDir);
     const jobs = [];
     const errors = [];
     for (const file of files) {
@@ -264,7 +254,7 @@ function compileProject(root, config, mapper) {
                 ...config,
                 filePath: file,
                 relativeName: rel,
-                outName: (0, preprocess_js_1.toLuauPath)(rel),
+                outName: (0, paths_js_1.toLuauPath)(rel),
                 architecture: config.architecture === true,
                 includeDirs: [node_path_1.default.dirname(file), srcDir, node_path_1.default.join(root, "include")],
                 srcDir,
@@ -341,8 +331,8 @@ function build(root, options = {}) {
         ensureVendor(root);
     }
     const srcDir = node_path_1.default.join(root, config.rootDir);
-    if (!node_fs_1.default.existsSync(srcDir) || collectCpp(srcDir).length === 0) {
-        console.error("no .cpp/.h/.hpp files in", config.rootDir);
+    if (!node_fs_1.default.existsSync(srcDir) || (0, paths_js_1.collectSources)(srcDir).length === 0) {
+        console.error("no .clpp/.clp/.clh files in", config.rootDir);
         if (!holdOnError) {
             pruneOut(root, config, new Set(), []);
         }
@@ -400,16 +390,11 @@ async function init(dest) {
     copyDir(include, node_path_1.default.join(target, "include"));
     copyRuntime(target);
     (0, intellisense_js_1.syncEditorSupport)(target);
-    const installed = await (0, intellisense_js_1.installEditorSupport)();
     console.log("Cluaupp ready in", target);
+    console.log("  clpp install          (CL++ highlighting + IntelliSense)");
     console.log("  rokit install");
     console.log("  cluaupp build");
     console.log("  rojo serve");
-    if (installed.local.length ||
-        (installed.clangd && (installed.clangd.status === "installed" || installed.clangd.status === "already")) ||
-        (installed.llvm && (installed.llvm.status === "installed" || installed.llvm.status === "already"))) {
-        console.log("  reload Cursor (Ctrl+Shift+P → Developer: Reload Window)");
-    }
 }
 function pidAlive(pid) {
     try {

@@ -21,7 +21,7 @@ export function CodePair({ cpp, luau }: Props) {
 					id={`${id}-tab-cpp`}
 					onClick={() => setTab("cpp")}
 				>
-					C++
+					CL++
 				</button>
 				<button
 					type="button"

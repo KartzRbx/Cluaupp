@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import type { BuildOptions, BuildResult, ProjectConfig } from "../types.js";
 import { pkg } from "../package-info.js";
-import { isSourceFile, toLuauPath } from "../preprocess.js";
-import { installEditorSupport, syncEditorSupport } from "../intellisense.js";
+import { collectSources, toLuauPath } from "../clpp/paths.js";
+import { syncEditorSupport } from "../intellisense.js";
 import { ProcessOrchestrator } from "./process-orchestrator.js";
 import { RojoMapper } from "./rojo-mapper.js";
 import { transpileSource } from "../transpile.js";
@@ -145,19 +145,10 @@ function copyHeaders(dest: string): void {
 }
 
 export function collectCpp(dir: string, files: string[] = []): string[] {
-	if (!fs.existsSync(dir)) {
-		return files;
-	}
-	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-		const full = path.join(dir, entry.name);
-		if (entry.isDirectory()) {
-			collectCpp(full, files);
-		} else if (isSourceFile(entry.name)) {
-			files.push(full);
-		}
-	}
-	return files;
+	return collectSources(dir, files);
 }
+
+export const collectSourcesFiles = collectSources;
 
 function collectFiles(dir: string, files: string[] = []): string[] {
 	if (!fs.existsSync(dir)) {
@@ -184,7 +175,7 @@ function posixRel(from: string, file: string): string {
 }
 
 function sourcePrefixes(rel: string): string[] {
-	const noExt = rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, "");
+	const noExt = rel.replace(/\.(clpp|clp|clh)$/i, "");
 	const noTag = noExt.replace(/\.(server|client)$/i, "");
 	return [...new Set([noExt, noTag, toLuauPath(rel).replace(/\\/g, "/")])];
 }
@@ -256,7 +247,7 @@ function createMapper(root: string, config: ProjectConfig, rojoPath?: string): R
 
 function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper) {
 	const srcDir = path.join(root, config.rootDir);
-	const files = collectCpp(srcDir);
+	const files = collectSources(srcDir);
 	const jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }> = [];
 	const errors: Array<{ rel: string; prefixes: string[]; message: string }> = [];
 
@@ -350,8 +341,8 @@ export function build(root: string, options: BuildOptions = {}): BuildResult {
 		ensureVendor(root);
 	}
 	const srcDir = path.join(root, config.rootDir);
-	if (!fs.existsSync(srcDir) || collectCpp(srcDir).length === 0) {
-		console.error("no .cpp/.h/.hpp files in", config.rootDir);
+	if (!fs.existsSync(srcDir) || collectSources(srcDir).length === 0) {
+		console.error("no .clpp/.clp/.clh files in", config.rootDir);
 		if (!holdOnError) {
 			pruneOut(root, config, new Set(), []);
 		}
@@ -412,18 +403,11 @@ export async function init(dest: string): Promise<void> {
 	copyDir(include, path.join(target, "include"));
 	copyRuntime(target);
 	syncEditorSupport(target);
-	const installed = await installEditorSupport();
 	console.log("Cluaupp ready in", target);
+	console.log("  clpp install          (CL++ highlighting + IntelliSense)");
 	console.log("  rokit install");
 	console.log("  cluaupp build");
 	console.log("  rojo serve");
-	if (
-		installed.local.length ||
-		(installed.clangd && (installed.clangd.status === "installed" || installed.clangd.status === "already")) ||
-		(installed.llvm && (installed.llvm.status === "installed" || installed.llvm.status === "already"))
-	) {
-		console.log("  reload Cursor (Ctrl+Shift+P → Developer: Reload Window)");
-	}
 }
 
 function pidAlive(pid: number): boolean {

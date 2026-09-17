@@ -1,34 +1,29 @@
 import { Link } from "react-router-dom";
 import { CodePair } from "../components/CodePair";
 
-const HOME_CPP = `#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/janitor.hpp>
-#include "LeaderstatsServer.h"
+const HOME_CLPP = `#include <clpp/roblox.clh>
+#include <clpp/libs/janitor.clh>
 
 void init() {
 	Players* players = GetService<Players>();
-	LeaderstatsServer leaderstatsServer;
-	leaderstatsServer.janitor = new Janitor();
-	for (Player* player : players->GetPlayers()) {
-		leaderstatsServer.PlayerEntered(player);
-	}
-	players->PlayerAdded.Connect([&](Player* playerEntered) {
-		leaderstatsServer.PlayerEntered(playerEntered);
+	players::PlayerAdded~>Connect(func [](Player* player) {
+		guard (player != null) else {
+			return;
+		}
+		post("hello, " .: player.Name);
 	});
 }`;
 
-const HOME_LUAU = `local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
-local LeaderstatsServer = {}
+const HOME_LUAU = `const Players = game:GetService("Players")
+const Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
 
 const function init()
 	local players: Players = game:GetService("Players")
-	local leaderstatsServer: LeaderstatsServer = LeaderstatsServer
-	leaderstatsServer.janitor = Janitor.new()
-	for _, player in players:GetPlayers() do
-		leaderstatsServer:PlayerEntered(player)
-	end
-	players.PlayerAdded:Connect(function(playerEntered: Player)
-		leaderstatsServer:PlayerEntered(playerEntered)
+	players.PlayerAdded:Connect(function(player: Player)
+		if not player then
+			return
+		end
+		print("hello, " .. player.Name)
 	end)
 end
 
@@ -40,16 +35,18 @@ export function HomePage() {
 		<>
 			<section className="hero">
 				<div className="hero-copy reveal">
-					<p className="eyebrow">C++ × Luau</p>
+					<p className="eyebrow">CL++ × Luau</p>
 					<h1>
-						A TypeScript-to-Luau compiler
+						The Roblox toolchain
 						<br />
-						for people who write C++.
+						for people who write CL++.
 					</h1>
 					<p className="lede">
-						Cluaupp is a C++ subset that compiles to readable Roblox Luau. clangd completes. Filename tags pick Script /
-						LocalScript / ModuleScript. You write structs, methods, and <code>init()</code> — not an API dump. The docs
-						are the language: every construct the CLI accepts.
+						You write{" "}
+						<a href="https://kartzrbx.github.io/CLPP/">CL++</a> (<code>.clpp</code> / <code>.clp</code> /{" "}
+						<code>.clh</code>). Cluaupp calls <code>clpp</code>, maps libraries into{" "}
+						<code>ReplicatedStorage.CluauppLibs</code>, and syncs with Rojo. Filename tags pick Script /
+						LocalScript / ModuleScript. Entry is <code>void init()</code>.
 					</p>
 					<div className="hero-actions">
 						<Link className="btn btn-primary" to="/docs/setup">
@@ -58,33 +55,37 @@ export function HomePage() {
 						<Link className="btn btn-ghost" to="/docs">
 							Docs
 						</Link>
+						<a className="btn btn-ghost" href="https://kartzrbx.github.io/CLPP/">
+							CL++ language
+						</a>
 					</div>
 				</div>
 				<img className="hero-logo" src={logo} alt="Cluaupp mark" />
 			</section>
 			<section className="section" data-reveal>
-				<CodePair cpp={HOME_CPP} luau={HOME_LUAU} />
+				<CodePair cpp={HOME_CLPP} luau={HOME_LUAU} />
 			</section>
 			<section className="section" data-reveal>
 				<div className="grid">
 					<Link className="card" to="/docs/syntax">
-						<strong>A C++ class</strong>
+						<strong>CL++ syntax</strong>
 						<span className="muted">
-							Syntax, output, variables, types, functions, lambdas — taught like W3Schools, emitted as Luau.
+							<code>guard</code>, <code>match</code>, <code>signal</code>, <code>.:</code>, <code>::</code>,{" "}
+							<code>~&gt;</code> — taught here, specified on the CL++ site.
 						</span>
 					</Link>
 					<Link className="card" to="/docs/structs">
-						<strong>Types you own</strong>
+						<strong>Structs you own</strong>
 						<span className="muted">
-							A struct in the header, Class:: methods in the .cpp, void init() to boot. Same pattern for Template data
-							and services.
+							A struct in the <code>.clh</code>, <code>Class::</code> methods in the <code>.clpp</code>,{" "}
+							<code>void init()</code> to boot.
 						</span>
 					</Link>
 					<Link className="card" to="/docs/cli">
-						<strong>clangd + Rojo</strong>
+						<strong>clpp + Rojo</strong>
 						<span className="muted">
-							init, build, watch, lsp, intellisense. Filename tags pick Script / LocalScript / ModuleScript. First-party
-							libs require themselves.
+							<code>init</code>, <code>build</code>, <code>watch</code>. IntelliSense is{" "}
+							<code>clpp install</code>. First-party libs require themselves.
 						</span>
 					</Link>
 				</div>

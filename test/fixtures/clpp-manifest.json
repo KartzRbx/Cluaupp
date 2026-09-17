@@ -1,0 +1,5 @@
+{
+	"name": "CL++",
+	"id": "clpp",
+	"extensions": [".clpp", ".clp", ".clh"]
+}

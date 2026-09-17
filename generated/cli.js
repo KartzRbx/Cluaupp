@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.program = exports.init = exports.watch = void 0;
+exports.hasClpp = exports.program = exports.init = exports.watch = void 0;
 exports.build = build;
 exports.dispatch = dispatch;
 const commander_1 = require("commander");
@@ -11,7 +11,10 @@ const promises_1 = __importDefault(require("node:fs/promises"));
 const node_path_1 = __importDefault(require("node:path"));
 const package_info_js_1 = require("./package-info.js");
 const lsp_js_1 = require("./lsp.js");
-const preprocess_js_1 = require("./preprocess.js");
+const paths_js_1 = require("./clpp/paths.js");
+const contract_js_1 = require("./clpp/contract.js");
+const runner_js_1 = require("./clpp/runner.js");
+Object.defineProperty(exports, "hasClpp", { enumerable: true, get: function () { return runner_js_1.hasClpp; } });
 const intellisense_js_1 = require("./intellisense.js");
 const rojo_mapper_js_1 = require("./utils/rojo-mapper.js");
 const process_orchestrator_js_1 = require("./utils/process-orchestrator.js");
@@ -23,7 +26,7 @@ const program = new commander_1.Command();
 exports.program = program;
 program
     .name("cluaupp")
-    .description("Definitive transpiler from C++ subset to structured Luau")
+    .description("Cluaupp toolchain — compile CL++ to Luau, Rojo, and CluauppLibs")
     .version(package_info_js_1.pkg.version, "-v, --version", "print version")
     .showHelpAfterError()
     .action(() => {
@@ -44,14 +47,14 @@ program
 });
 program
     .command("build")
-    .description("Transpila um arquivo, diretório ou projeto C++ para Luau")
+    .description("Compile a CL++ file, directory, or project to Luau")
     .argument("[folder]", "project folder", ".")
-    .option("-i, --input <path>", "Arquivo ou diretório C++ de entrada")
-    .option("-o, --output <path>", "Arquivo ou diretório Luau de saída")
-    .option("-r, --rojo <path>", "Caminho para o default.project.json do Rojo", "./default.project.json")
-    .option("--strict", "Emitir --!strict")
-    .option("--format", "Rodar StyLua no output")
-    .option("--analyze", "Rodar luau-analyze no output")
+    .option("-i, --input <path>", "CL++ file or directory")
+    .option("-o, --output <path>", "Luau file or directory")
+    .option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
+    .option("--strict", "Emit --!strict")
+    .option("--format", "Run StyLua on output")
+    .option("--analyze", "Run luau-analyze on output")
     .action(async (folder, options) => {
     if (options.input) {
         await buildInput(options);
@@ -73,8 +76,8 @@ program
     .command("watch")
     .description("rebuild on save")
     .argument("[folder]", "project folder", ".")
-    .option("-r, --rojo <path>", "Caminho para o default.project.json do Rojo", "./default.project.json")
-    .option("--format", "Rodar StyLua no output")
+    .option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
+    .option("--format", "Run StyLua on output")
     .action((folder, options) => {
     try {
         (0, project_js_1.watch)(node_path_1.default.resolve(process.cwd(), folder), {
@@ -89,7 +92,7 @@ program
 });
 program
     .command("lsp")
-    .description("Cluaupp subset diagnostics over stdio (JSON-RPC). C++ completion is clangd.")
+    .description("Language server stdio (JSON-RPC). Use `clpp install` for CL++ IntelliSense.")
     .argument("[folder]", "project folder", ".")
     .action((folder) => {
     (0, lsp_js_1.start)({ projectRoot: node_path_1.default.resolve(process.cwd(), folder) });
@@ -97,18 +100,32 @@ program
 program
     .command("intellisense")
     .alias("intelisense")
-    .description("install LLVM clangd and write compile_commands.json")
+    .description("Point the editor at CL++ (`clpp install`)")
     .argument("[folder]", "project folder", ".")
     .action(async (folder) => {
     try {
         const root = node_path_1.default.resolve(process.cwd(), folder);
         (0, intellisense_js_1.syncEditorSupport)(root, (0, project_js_1.loadConfig)(root));
-        const installed = await (0, intellisense_js_1.installEditorSupport)();
-        console.log("cluaupp: compile_commands.json, .clangd, and .vscode updated in", root);
-        console.log("cluaupp: C++ completion is clangd (include/cluaupp/roblox.hpp)");
-        if (installed.clangd || installed.llvm) {
-            console.log("cluaupp: reload Cursor (Ctrl+Shift+P → Developer: Reload Window)");
+        await (0, intellisense_js_1.installEditorSupport)();
+        console.log("cluaupp: editor associations written in", root);
+        console.log("cluaupp:", contract_js_1.CLPP_INSTALL_HINT);
+    }
+    catch (err) {
+        console.error(err instanceof Error ? err.message : err);
+        process.exit(1);
+    }
+});
+program
+    .command("language")
+    .description("CL++ manifest (`clpp api manifest`)")
+    .action(() => {
+    try {
+        (0, runner_js_1.resolveClppBinary)();
+        const version = (0, runner_js_1.clppVersion)();
+        if (version) {
+            console.log("clpp", version);
         }
+        console.log(JSON.stringify((0, runner_js_1.clppManifest)(), null, "\t"));
     }
     catch (err) {
         console.error(err instanceof Error ? err.message : err);
@@ -129,14 +146,13 @@ async function buildInput(options) {
         console.error(`[Erro] O caminho de entrada especificado não existe: ${inputPath}`);
         process.exit(1);
     }
-    console.log("🏁 Inicializando Pipeline do Compilador Cluaupp V2...");
     const mapper = new rojo_mapper_js_1.RojoMapper(node_path_1.default.resolve(options.rojo), node_path_1.default.dirname(inputPath));
     await mapper.load();
     const inputs = (await promises_1.default.stat(inputPath)).isDirectory()
-        ? (0, project_js_1.collectCpp)(inputPath)
+        ? (0, paths_js_1.collectSources)(inputPath)
         : [inputPath];
     if (inputs.length === 0) {
-        console.error("no .cpp/.h/.hpp files in", inputPath);
+        console.error("no .clpp/.clp/.clh files in", inputPath);
         process.exit(1);
     }
     const outputIsFile = /\.luau$/i.test(outputPath);
@@ -154,7 +170,7 @@ async function buildInput(options) {
             srcDir: node_path_1.default.dirname(file),
             includeDirs: [node_path_1.default.dirname(file)],
         }, mapper);
-        const dest = outputIsFile ? outputPath : node_path_1.default.join(outputPath, node_path_1.default.basename((0, preprocess_js_1.toLuauPath)(rel)));
+        const dest = outputIsFile ? outputPath : node_path_1.default.join(outputPath, node_path_1.default.basename((0, paths_js_1.toLuauPath)(rel)));
         await promises_1.default.mkdir(node_path_1.default.dirname(dest), { recursive: true });
         const luau = compiled.files[0]?.contents ?? "";
         await promises_1.default.writeFile(dest, luau, "utf8");
@@ -167,7 +183,7 @@ async function buildInput(options) {
                 console.log("\nRelatório de Análise Estática do Luau:\n", analysisReport);
             }
         }
-        console.log(`Transpilação concluída! ${file} → ${dest}`);
+        console.log(`Compiled ${file} → ${dest}`);
     }
 }
 function build(root, options = {}) {

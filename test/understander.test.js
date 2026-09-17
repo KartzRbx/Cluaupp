@@ -9,16 +9,16 @@ const {
 	determineArchitecture,
 } = require("../generated/system-understander");
 
-const server = parseFileTag("src/server/combat.server.cpp");
+const server = parseFileTag("src/server/combat.server.clpp");
 expect(server.key === "server" && server.rojo === "Script" && server.runContext === "Server", "server tag");
 
-const client = parseFileTag("hud.client.cpp");
+const client = parseFileTag("hud.client.clpp");
 expect(client.key === "client" && client.rojo === "LocalScript" && client.runtime === "client", "client tag");
 
-const plugin = parseFileTag("tools.plugin.cpp");
+const plugin = parseFileTag("tools.plugin.clpp");
 expect(plugin.key === "plugin" && plugin.runContext === "Plugin", "plugin tag");
 
-const moduleTag = parseFileTag("src/shared/damage.cpp");
+const moduleTag = parseFileTag("src/shared/damage.clp");
 expect(moduleTag.key === "module" && moduleTag.rojo === "ModuleScript", "module tag");
 
 const named = namesIn({
@@ -43,7 +43,7 @@ const combatAst = {
 		{ type: "string", value: "Humanoid" },
 	],
 };
-const combat = determineArchitecture("combat.server.cpp", combatAst);
+const combat = determineArchitecture("combat.server.clpp", combatAst);
 expect(combat.role === "controller", `combat role ${combat.role}`);
 expect(combat.suggestedModule === "CombatController", `combat module ${combat.suggestedModule}`);
 expect(combat.fileTag.rojo === "Script", "combat stays a Script");
@@ -59,11 +59,11 @@ const hudAst = {
 		{ type: "new", className: "TextLabel" },
 	],
 };
-const hud = determineArchitecture("hud.client.cpp", hudAst);
+const hud = determineArchitecture("hud.client.clpp", hudAst);
 expect(hud.role === "controller" && hud.suggestedModule === "ViewController", `hud ${hud.role} ${hud.suggestedModule}`);
 expect(hud.fileTag.rojo === "LocalScript", "hud stays a LocalScript");
 
-const util = determineArchitecture("math.cpp", {
+const util = determineArchitecture("math.clp", {
 	type: "program",
 	body: [{ type: "ident", name: "Add" }],
 });

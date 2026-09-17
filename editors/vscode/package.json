@@ -1,8 +1,8 @@
 {
 	"name": "cluaupp-diagnostics",
 	"displayName": "Cluaupp",
-	"description": "Cluaupp subset parse errors. C++ completion, hover, and go-to-definition come from clangd + include/cluaupp/roblox.hpp.",
-	"version": "0.2.2",
+	"description": "Cluaupp project diagnostics. Language highlighting and IntelliSense come from clpp install (CL++).",
+	"version": "1.0.0",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"
@@ -11,14 +11,14 @@
 		"Linters"
 	],
 	"activationEvents": [
-		"onLanguage:cpp"
+		"onLanguage:clpp"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "cluaupp.restartIntelliSense",
-				"title": "Cluaupp: Reload subset diagnostics"
+				"title": "Cluaupp: Reload CL++ diagnostics"
 			}
 		]
 	}

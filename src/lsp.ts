@@ -1,4 +1,3 @@
-import path from "node:path";
 import {
 	createConnection,
 	ProposedFeatures,
@@ -31,10 +30,7 @@ export function start(options: { projectRoot?: string } = {}): void {
 
 	const publish = (document: TextDocument) => {
 		const file = uriPath(document.uri);
-		const items = diagnosticsFor(document.getText(), file, {
-			filePath: file,
-			includeDirs: [path.dirname(file), path.join(projectRoot, "src"), path.join(projectRoot, "include")],
-		});
+		const items = diagnosticsFor(document.getText(), file);
 		connection.sendDiagnostics({
 			uri: document.uri,
 			diagnostics: items.map((item) => ({

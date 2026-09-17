@@ -1,18 +1,16 @@
 # Sample game
 
-This is the C++ a Cluaupp game looks like — **not** the compiler.
+CL++ sources for a Cluaupp project — **not** the compiler. Language samples: [CL++ examples](https://github.com/KartzRbx/CLPP/tree/main/examples).
 
 | Folder | Rojo | Tag |
 | --- | --- | --- |
-| `src/server/*.server.cpp` | Script | server |
-| `src/client/*.client.cpp` | LocalScript | client |
-| `src/shared/*` | ModuleScript | none |
-
-`src/` of **this repo** is the TypeScript CLI ([roblox-ts](https://github.com/roblox-ts/roblox-ts) does the same). The sample scripts live here so they never mix with `understand.ts`.
+| `src/server/*.server.clpp` | Script | server |
+| `src/client/*.client.clpp` | LocalScript | client |
+| `src/shared/*.clp` / `*.clh` | ModuleScript | none |
 
 ```bash
 cd examples/game
 npx cluaupp build .
 ```
 
-`cluaupp init` copies `templates/game` (the slim scaffold). This folder adds combat / HUD so `SystemUnderstander` has real tokens to score.
+`cluaupp init` copies `templates/game`. This folder adds combat (`guard` / `match` / `signal` / `observable` / `spawn`), a Fusion HUD, `features.clp`, and `PlayerData.clh`.

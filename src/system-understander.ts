@@ -40,7 +40,7 @@ export interface ArchitectureReport {
 	reasoning: string[];
 }
 
-const EXT = "(cpp|cc|cxx|c|h|hpp|hh)";
+const EXT = "(clpp|clp|clh)";
 const EXT_REGEX = new RegExp(`\\.${EXT}$`, "i");
 const SCORE_THRESHOLD = 2;
 

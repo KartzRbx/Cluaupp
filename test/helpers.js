@@ -103,6 +103,15 @@ function buildGame(root, options = {}) {
 	});
 }
 
+function skipWithoutClpp() {
+	try {
+		require("../generated/clpp/runner").resolveClppBinary();
+	} catch (err) {
+		console.log("skip:", err instanceof Error ? err.message : err);
+		process.exit(0);
+	}
+}
+
 module.exports = {
 	ROOT,
 	TEMPLATE,
@@ -117,4 +126,5 @@ module.exports = {
 	makeGame,
 	copyTemplateGame,
 	buildGame,
+	skipWithoutClpp,
 };
