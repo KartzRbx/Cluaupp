@@ -53,13 +53,20 @@ void init() {
 	"utf8",
 );
 
+const headerResult = compileService(fs.readFileSync(header, "utf8"), "server/shop/ShopService.hpp", {
+	strict: true,
+	filePath: header,
+	relativeName: "server/shop/ShopService.hpp",
+	includeDirs: [folder, srcDir],
+	srcDir,
+});
+
 const moduleResult = compileService(fs.readFileSync(impl, "utf8"), "server/shop/ShopService.cpp", {
 	strict: true,
 	filePath: impl,
 	relativeName: "server/shop/ShopService.cpp",
 	includeDirs: [folder, srcDir],
 	srcDir,
-	architecture: true,
 });
 
 const bootResult = compileService(fs.readFileSync(boot, "utf8"), "server/boot/Start.server.cpp", {
@@ -68,17 +75,46 @@ const bootResult = compileService(fs.readFileSync(boot, "utf8"), "server/boot/St
 	relativeName: "server/boot/Start.server.cpp",
 	includeDirs: [path.dirname(boot), srcDir],
 	srcDir,
-	architecture: true,
 });
 
+const headerFiles = Object.fromEntries(headerResult.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
 const moduleFiles = Object.fromEntries(moduleResult.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
 const bootFiles = Object.fromEntries(bootResult.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
-const shop = moduleFiles["server/shop/ShopService.luau"] || Object.values(moduleFiles)[0];
+const types = headerFiles["server/shop/ShopService.luau"] || Object.values(headerFiles)[0];
+const shop = moduleFiles["server/shop/ShopServiceImpl.luau"] || Object.values(moduleFiles)[0];
 const start = Object.values(bootFiles).find((contents) => contents.includes("ShopService") && contents.includes("function")) || Object.values(bootFiles).join("\n");
 
 const missing = [];
+if (!types) {
+	missing.push("ShopService header module");
+} else {
+	if (!types.includes("export type ShopService = {")) {
+		missing.push("export type ShopService");
+	}
+	if (!types.includes("Buy: (self: ShopService, player: Player) -> ()")) {
+		missing.push("typed Buy");
+	}
+	if (!types.includes("init: (self: ShopService) -> ()")) {
+		missing.push("typed init");
+	}
+	if (!types.includes("Stock: number")) {
+		missing.push("typed Stock");
+	}
+	if (!types.includes("const ShopServiceModule = require(")) {
+		missing.push("header requires impl");
+	}
+	if (!types.includes("Buy = ShopServiceModule.Buy")) {
+		missing.push("header binds Buy");
+	}
+	if (!types.includes("const ShopService: ShopService = {")) {
+		missing.push("typed header table");
+	}
+	if (types.includes("function ShopService:Buy")) {
+		missing.push("header must not emit method bodies");
+	}
+}
 if (!shop) {
-	missing.push("ShopService module");
+	missing.push("ShopService impl module");
 } else {
 	if (!shop.includes("Stock")) {
 		missing.push("struct field Stock");
@@ -111,7 +147,8 @@ if (missing.length) {
 	for (const item of missing) {
 		console.error(" -", item);
 	}
-	console.error("\n--- module ---\n", shop);
+	console.error("\n--- header ---\n", types);
+	console.error("\n--- impl ---\n", shop);
 	console.error("\n--- boot files ---\n", Object.keys(bootFiles));
 	console.error(start);
 	process.exit(1);

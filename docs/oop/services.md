@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Services
 
-Write **one tagged file per system**. Cluaupp reads the AST and emits a PascalCase folder: `Main`, managers, controllers, `*Types`.
+Write **one tagged file per system**. Cluaupp emits **one** Luau instance: `LeaderstatsServer.server.luau` from `LeaderstatsServer.server.cpp`. It does not invent Main / Controller / Types unless `"architecture": true`.
 
 ## Example: leaderstats
 
@@ -44,29 +44,22 @@ void init() {
 Typical output:
 
 ```
-out/server/LeaderstatsServer/
-  init.luau              -- Script, RunContext Server
-  init.meta.json
-  Main.luau              -- Start / Stop
-  PlayersManager.luau    -- PlayerAdded + Janitor
-  DataController.luau    -- your WaitFor / GetChangedSignal
-  CacheController.luau   -- if you create IntValue folders
-  LeaderstatsServerTypes.luau
+out/server/services/leaderstats/LeaderstatsServer.server.luau
 ```
 
-Your functions stay in the matching controller. The planner does not drop `SetupPlayerManager` because `init` still calls it.
+Your functions stay in that file. `init()` runs at the end. There is no fake `Main` that only forwards to a Controller.
 
 ## Lifecycle
 
-Generated `Main` exposes `Start` / `Stop`. Managers own a Janitor. `Stop` cleans connections.
+You own `init` and Janitor cleanup in the same file. You do not write `class LeaderstatsServer` — name the **file** `LeaderstatsServer.server.cpp` and keep **functions** as the public API.
 
-You do not write `class LeaderstatsServer` — name the **file** `LeaderstatsServer.server.cpp` and keep **functions** as the public API.
+`"architecture": true` is the old ForeverHD split (`Main.Start` / `Main.Stop`, Managers, Types). Leave it off unless you want that.
 
 ## Boot vs gameplay
 
 Keep DataService `Init` in `DataBoot.server.cpp` / `DataBoot.client.cpp`. Keep leaderstats / combat in their own `.server.cpp`. Services `WaitFor` after boot has run.
 
-## What becomes which role
+## Opt-in roles (`"architecture": true`)
 
 | Your C++ | Generated role |
 | --- | --- |
@@ -78,6 +71,6 @@ Keep DataService `Init` in `DataBoot.server.cpp` / `DataBoot.client.cpp`. Keep l
 | `UserInputService` | `InputController` |
 | wiring | `Main.Start` / `Main.Stop` |
 
-A tiny `print` in `init.client.cpp` stays a single LocalScript. The planner does not invent Managers for hello-world.
+A tiny `print` in `init.client.cpp` stays a single LocalScript.
 
 Copy-paste: [Examples](../examples/index.md).

@@ -6,17 +6,17 @@ File: `cluaupp.config.json` at the game root (next to `src/`).
 {
 	"rootDir": "src",
 	"outDir": "out",
-	"strict": true,
-	"architecture": true
+	"strict": false,
+	"architecture": false
 }
 ```
 
 | Field | Default | Effect |
 | --- | --- | --- |
 | `rootDir` | `"src"` | Where the `.cpp` / `.h` / `.hpp` files live |
-| `outDir` | `"out"` | Where services and modules are written |
-| `strict` | `true` | Prefix `--!strict` on every generated file |
-| `architecture` | `true` | Emit PascalCase service folders (`LeaderStats/Main.luau`, …) instead of one dump per `.cpp` |
+| `outDir` | `"out"` | Where Luau is written |
+| `strict` | `false` | Prefix `--!strict` on generated files (overridden by `#pragma strict` / `#pragma nstrict`) |
+| `architecture` | `false` | If `true`, emit PascalCase service folders (`LeaderStats/Main.luau`, …) instead of one Luau per `.cpp` |
 
 If the file is missing, those defaults apply.
 
@@ -28,4 +28,4 @@ The template ships `default.project.json` mapping:
 - `out/client` → `StarterPlayer.StarterPlayerScripts.Cluaupp`
 - `out/shared` → `ReplicatedStorage.Cluaupp`
 
-`*.server.cpp` becomes a folder with `init.luau` + `init.meta.json` (`className` Script, `RunContext` Server). `.client` stays LocalScript via `init.client.luau`. A `.legacy.server.cpp` dump is still `*.server.luau` (Legacy).
+`*.server.cpp` becomes `*.server.luau` (Script). `*.client.cpp` becomes `*.client.luau` (LocalScript). Untagged files become ModuleScripts.

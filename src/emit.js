@@ -4,7 +4,7 @@ const { isInstanceType, isMethod, isDatatype, luauType } = require("./api");
 const { isLibraryType, isLibraryMethod, MODULE_COLON } = require("./libs");
 
 function emit(ast, options = {}) {
-	const strict = options.strict !== false;
+	const strict = options.strict === true;
 	const lines = [];
 	if (!options.skipHeader) {
 		if (strict) {

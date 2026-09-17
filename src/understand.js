@@ -482,9 +482,11 @@ function analyze(ast, fileName) {
 }
 
 function modernScriptOutName(relativeName) {
-	return String(relativeName)
-		.replace(/\\/g, "/")
-		.replace(/\.(server|client|plugin)\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau");
+	const rel = String(relativeName).replace(/\\/g, "/");
+	if (/\.plugin\.(cpp|cc|cxx|c|h|hpp|hh)$/i.test(rel)) {
+		return rel.replace(/\.plugin\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau");
+	}
+	return rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau");
 }
 
 function legacyOutName(relativeName) {

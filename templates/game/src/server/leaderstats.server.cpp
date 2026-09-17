@@ -1,3 +1,4 @@
+#pragma strict
 #include <cluaupp/roblox.hpp>
 
 void CreateLeaderstats(Player* player) {

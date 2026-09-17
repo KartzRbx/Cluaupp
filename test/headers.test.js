@@ -50,7 +50,13 @@ const cppLuau = compileSource(fs.readFileSync(sourceFile, "utf8"), "game.cpp", {
 	includeDirs: [dir],
 });
 
-const headerChecks = ["const STARTING_COINS: number = 25"];
+const headerChecks = [
+	"export type stats = {",
+	"CreateLeaderstats: (player: Player) -> ()",
+	"const STARTING_COINS: number = 25",
+	"const stats: stats = {",
+	"return stats",
+];
 const cppChecks = [
 	"const STARTING_COINS = stats.STARTING_COINS",
 	'Instance.new("IntValue")',
@@ -63,6 +69,9 @@ const missingHeader = headerChecks.filter((piece) => !headerLuau.includes(piece)
 const missingCpp = cppChecks.filter((piece) => !cppLuau.includes(piece));
 if (headerLuau.includes("local function CreateLeaderstats") || headerLuau.includes("const function CreateLeaderstats")) {
 	missingHeader.push("prototype should not emit a function body");
+}
+if (headerLuau.includes("const function stats(") || headerLuau.includes("function stats(")) {
+	missingHeader.push("header must not emit a constructor for function prototypes");
 }
 
 if (missingHeader.length || missingCpp.length) {

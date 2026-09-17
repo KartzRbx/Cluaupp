@@ -57,7 +57,8 @@ void LeaderstatsServer::init() {}
 
 fs.writeFileSync(
 	path.join(boot, "DataBoot.server.cpp"),
-	`#include "../../shared/constants/TemplateData.hpp"
+	`#include <cluaupp/libs/dataservice.hpp>
+#include "../../shared/constants/TemplateData.hpp"
 #include "../configurations/PlayerDataVersion.hpp"
 int main() {
 	TemplateData playerData = TemplateData();
@@ -88,7 +89,6 @@ function compile(rel, file) {
 		relativeName: rel,
 		includeDirs: [path.dirname(file), srcDir],
 		srcDir,
-		architecture: true,
 	});
 }
 
@@ -102,8 +102,11 @@ function fail(message, extra) {
 
 const template = compile("shared/constants/TemplateData.h", path.join(shared, "TemplateData.h"));
 const templateLuau = template.files[0].contents;
-if (!templateLuau.includes("const function TemplateData()")) {
-	fail("TemplateData should emit a constructor", templateLuau);
+if (!templateLuau.includes("export type TemplateData = {")) {
+	fail("TemplateData header should export a type", templateLuau);
+}
+if (!templateLuau.includes("const function TemplateData(): TemplateData")) {
+	fail("TemplateData data header should still emit a constructor", templateLuau);
 }
 if (!templateLuau.includes("Money = 0") || !templateLuau.includes("CurrentIsland = 1")) {
 	fail("TemplateData constructor should include defaults", templateLuau);
@@ -112,20 +115,57 @@ if (!templateLuau.includes("return TemplateData")) {
 	fail("TemplateData module should return the constructor", templateLuau);
 }
 
+const serviceHeader = compile("server/services/leaderstats/LeaderstatsServer.h", path.join(services, "LeaderstatsServer.h"));
+const serviceHeaderLuau = serviceHeader.files[0].contents;
+if (!serviceHeaderLuau.includes("export type LeaderstatsServer = {")) {
+	fail("service header should export a method type", serviceHeaderLuau);
+}
+if (!serviceHeaderLuau.includes("init: (self: LeaderstatsServer) -> ()")) {
+	fail("service header should type init with self", serviceHeaderLuau);
+}
+if (!serviceHeaderLuau.includes("const LeaderstatsServerModule = require(")) {
+	fail("service header should require the .cpp impl module", serviceHeaderLuau);
+}
+if (!serviceHeaderLuau.includes("const LeaderstatsServer: LeaderstatsServer = {")) {
+	fail("service header should return a table typed as the export", serviceHeaderLuau);
+}
+if (!serviceHeaderLuau.includes("init = LeaderstatsServerModule.init")) {
+	fail("service header should bind init from the impl", serviceHeaderLuau);
+}
+if (serviceHeaderLuau.includes("function LeaderstatsServer:init") || serviceHeaderLuau.includes("const function LeaderstatsServer")) {
+	fail("service header must not construct the implementation", serviceHeaderLuau);
+}
+
+const impl = compile("server/services/leaderstats/LeaderstatsServer.cpp", path.join(services, "LeaderstatsServer.cpp"));
+const implFiles = Object.fromEntries(impl.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
+const implLuau = implFiles["server/services/leaderstats/LeaderstatsServerImpl.luau"] || "";
+if (!implLuau) {
+	fail("sibling .cpp should emit LeaderstatsServerImpl.luau", Object.keys(implFiles).join("\n"));
+}
+if (!implLuau.includes("function LeaderstatsServer:init")) {
+	fail("impl should contain the method body", implLuau);
+}
+
 const dataBoot = compile("server/boot/DataBoot.server.cpp", path.join(boot, "DataBoot.server.cpp"));
 const dataFiles = Object.fromEntries(dataBoot.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
-const dataController = Object.values(dataFiles).find((contents) => contents.includes("TemplateData") && contents.includes("function")) || "";
-if (!dataController.includes("const TemplateData = require(")) {
-	fail("DataBoot must require TemplateData", dataController);
+const dataLuau = dataFiles["server/boot/DataBoot.server.luau"] || Object.values(dataFiles)[0] || "";
+if (!dataLuau.includes("const TemplateData = require(ReplicatedStorage.Cluaupp.constants.TemplateData)")) {
+	fail("DataBoot must require TemplateData from ReplicatedStorage.Cluaupp", dataLuau);
 }
-if (!dataController.includes("const PlayerDataVersion = require(") && !dataController.includes("PLAYER_DATA_VERSION")) {
-	fail("DataBoot must require PlayerDataVersion", dataController);
+if (!dataLuau.includes("const PlayerDataVersion = require(ServerScriptService.Cluaupp.configurations.PlayerDataVersion)")) {
+	fail("DataBoot must require PlayerDataVersion from ServerScriptService.Cluaupp", dataLuau);
 }
-if (!dataController.includes("const PLAYER_DATA_VERSION = PlayerDataVersion.PLAYER_DATA_VERSION")) {
-	fail("DataBoot must bind PLAYER_DATA_VERSION from the module", dataController);
+if (dataLuau.includes("script.Parent.Parent") || dataLuau.includes(".shared.constants")) {
+	fail("DataBoot must not use script.Parent chains or a fake .shared instance path", dataLuau);
 }
-if (dataController.includes("local ReplicatedStorage") || dataController.includes("local DataService = require") || dataController.includes("local function main")) {
-	fail("DataBoot must use const requires/functions, not local", dataController);
+if (!dataLuau.includes("const PLAYER_DATA_VERSION = PlayerDataVersion.PLAYER_DATA_VERSION")) {
+	fail("DataBoot must bind PLAYER_DATA_VERSION from the module", dataLuau);
+}
+if (dataLuau.includes("local ReplicatedStorage") || dataLuau.includes("local DataService = require") || dataLuau.includes("local function main")) {
+	fail("DataBoot must use const requires/functions, not local", dataLuau);
+}
+if (dataLuau.includes("require(script.Main)") || dataLuau.includes("DataController") || dataLuau.includes("DataBootTypes")) {
+	fail("DataBoot must not invent Main/Controller/Types", dataLuau);
 }
 
 const servicesBoot = compile("server/boot/ServicesBoot.server.cpp", path.join(boot, "ServicesBoot.server.cpp"));

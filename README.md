@@ -12,7 +12,7 @@
 [![Node.js](https://img.shields.io/node/v/cluaupp.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Source-to-source transpiler: you write a C++ subset, Cluaupp emits modern [Luau](https://luau.org/getting-started) (`--!strict`, `local`, `const`). C++ structure, Luau quality, one language.
+Source-to-source transpiler: you write a C++ subset, Cluaupp emits modern [Luau](https://luau.org/getting-started) (`local`, `const`, optional `--!strict`). C++ structure, Luau quality, one language.
 
 No WASM. No Emscripten. No `lua_call`. Roblox APIs come out as they do in Studio: `game:GetService("Players")`, `player:FindFirstChild("leaderstats")`, `players:GetPlayers()`.
 
@@ -66,12 +66,12 @@ rojo serve
 Connect the Rojo plugin in Roblox Studio. Edit `src/**/*.{cpp,h,hpp}`, run `cluaupp watch` to rebuild on save.
 
 ```
-src/server/*.server.cpp  →  out/server/LeaderStats/   Script + ModuleScripts
-src/client/*.client.cpp  →  out/client/*.client.luau  LocalScript (or a service folder)
-src/shared/config.*      →  out/shared/Config.luau    typed config module
+src/server/*.server.cpp  →  out/server/*.server.luau  Script
+src/client/*.client.cpp  →  out/client/*.client.luau  LocalScript
+src/shared/*.cpp         →  out/shared/*.luau         ModuleScript
 ```
 
-A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheController`. A combat `.server.cpp` becomes `CombatController` with your `TakeDamage` logic. Filename tags: `.server.cpp`, `.client.cpp`, `.legacy.server.cpp`, `.legacy.client.cpp`, or no tag (ModuleScript). See [Architecture](docs/architecture.md) and [OOP structure](docs/oop/index.md).
+Filename tags: `.server.cpp`, `.client.cpp`, `.legacy.server.cpp`, `.legacy.client.cpp`, or no tag (ModuleScript). One source file becomes one instance. Set `"architecture": true` only for the old PascalCase folder split. See [Architecture](docs/architecture.md) and [OOP structure](docs/oop/index.md).
 
 ## Documentation
 
@@ -84,7 +84,7 @@ A tiny `leaderstats.server.cpp` becomes `Main` / `PlayersManager` / `CacheContro
 | [Syntax](docs/syntax.md) | C++ subset → Luau (`local`, `const`, types) |
 | [print and cout](docs/print-cout.md) | `cout <<`, `cout::warn`, `endl` |
 | [Roblox API](docs/roblox-api.md) | Vector3, CFrame, UDim2, GetService, Instance.new |
-| [Architecture](docs/architecture.md) | PascalCase services, Types modules, not a 200-line dump |
+| [Architecture](docs/architecture.md) | One file in, one file out; opt-in ForeverHD folders |
 | [OOP structure](docs/oop/index.md) | File tags, services, modules, structs |
 | [Libraries](docs/libraries/index.md) | DataService Init, Janitor, Promise, Net |
 | [Examples](docs/examples/index.md) | Leaderstats, combat validation, shop, HUD, sword |

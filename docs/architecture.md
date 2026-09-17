@@ -3,54 +3,52 @@ title: Architecture
 sidebar_position: 15
 ---
 
-# Output treated as a Roblox system
+# One file in, one file out
 
-roblox-ts decides **what instance you get** from a filename **key** (the same idea as Rojo):
+roblox-ts decides **what instance you get** from a filename **key** (the same idea as Rojo). Cluaupp does the same — and **stops there** by default. It does not invent Main / Controller / Types folders.
 
-| Key | Rojo instance |
-| --- | --- |
-| `*.server.ts` | Script |
-| `*.client.ts` | LocalScript |
-| no suffix | ModuleScript |
+| Key | Rojo instance | Default output |
+| --- | --- | --- |
+| `*.server.cpp` | Script | `*.server.luau` |
+| `*.client.cpp` | LocalScript | `*.client.luau` |
+| no suffix | ModuleScript | `Name.luau` |
+| `*.legacy.server.cpp` | Legacy Script | `*.server.luau` |
 
-Flamework then stamps a second key (`@Service` / `@Controller`) so the runtime knows the **role**. Cluaupp does both steps without decorators.
+`DataBoot.client.cpp` becomes `out/client/boot/DataBoot.client.luau` with your `init()` at the end. Shared `#include` modules use `require(ReplicatedStorage.Cluaupp...)`.
 
-1. **Tag** (filename) — where the code runs and whether it is a Script, LocalScript, ModuleScript, or a 1:1 “legacy” dump.
-2. **Intent** (AST) — what the code *is for*: players, cache, combat, input, UI, net, data, … scored from APIs and identifiers, the same idea as intent classification in program analysis (features from the tree, not a 200-line dump).
+`--!strict` is opt-in: put `#pragma strict` in the `.cpp`, or set `"strict": true` in `cluaupp.config.json`.
 
-Leaderstats was the example. A combat `.server.cpp` is a different system and gets Combat folders, not a fake CacheController.
+The ForeverHD-style folder split (`LeaderStats/Main.luau`, …) is **opt-in**: `"architecture": true`.
 
 ## File tags
 
 | Source | Meaning | Output |
 | --- | --- | --- |
-| `combat.server.cpp` | **Script** RunContext Server | `Combat/init.luau` + `init.meta.json` |
-| `hud.client.cpp` | **LocalScript** | `Hud/init.client.luau` |
-| `tools.plugin.cpp` | **Script** RunContext Plugin | `Tools/init.luau` + `init.meta.json` |
-| `boot.legacy.cpp` | Legacy Script | `boot.server.luau` |
+| `combat.server.cpp` | **Script** | `combat.server.luau` |
+| `hud.client.cpp` | **LocalScript** | `hud.client.luau` |
+| `tools.plugin.cpp` | **Script** RunContext Plugin | `tools.luau` (legacy plugin tag) |
 | `boot.legacy.server.cpp` | Legacy Script | `boot.server.luau` |
-| `boot.legacy.client.cpp` | Legacy LocalScript | `boot.client.luau` |
-| `boot.legacy.plugin.cpp` | Plugin | `boot.luau` + Plugin meta |
 | `damage.cpp` (no tag) | **ModuleScript** | `Damage.luau` |
 
-Trivial entry files (`init.client.cpp` that only `print`) stay a single LocalScript (`init.client.luau`). The planner does not invent Managers for a hello-world.
+## What a tagged file becomes
 
-## How the planner reasons
+```
+src/server/leaderstats.server.cpp  →  out/server/leaderstats.server.luau
+src/client/boot/DataBoot.client.cpp  →  out/client/boot/DataBoot.client.luau
+src/shared/damage.cpp  →  out/shared/Damage.luau
+```
+
+Scripts and LocalScripts keep your functions and call `init()` at the end. ModuleScripts return a table. There is no invented Main, Controller, or Types file.
+
+## Opt-in: ForeverHD folders (`"architecture": true`)
+
+Set `"architecture": true` in `cluaupp.config.json` to restore the old planner: PascalCase service folders, `Main` / Managers / Controllers / Types, and `require(script.Main):Start()`.
 
 ```
 filename key  →  server | client | module | legacy
 AST features  →  GetService, Instance.new, methods, identifiers
 intent scores →  combat:2, character:1, …
 roles         →  Main + Managers + Controllers + Types
-user functions→  kept in the matching Controller (not discarded)
-```
-
-Generated files start with that trace:
-
-```luau
--- tag server → Script (service)
--- intents combat:2, character:1
--- roles Main, CombatController, CombatTypes
 ```
 
 | Evidence in the C++ | Role |
@@ -64,54 +62,6 @@ Generated files start with that trace:
 | Domain shapes / stats | `{Service}Types` (`export type`, `return {}`) |
 | Wiring | `Main.Start` / `Main.Stop` |
 
-If the C++ creates Coins/Level, CacheController is generated (higher quality than copying `CreateLeaderstats`). Combat logic is **not** rewritten into leaderstats — `ApplyDamage` stays in `CombatController.luau`.
+Switching back to 1:1 deletes the stale `LeaderStats/` / `DataBoot/` folders on the next `cluaupp build`.
 
-The domain controller keeps **every** user function. CacheController is generated beside it; it must not delete `SetupPlayerManager` while `init` still calls that name. `GetChangedSignal(Paths.Currencies)` stays in `DataController`.
-
-## What leaderstats becomes
-
-```
-src/server/leaderstats.server.cpp
-```
-
-```
-out/server/LeaderStats/
-  init.luau
-  init.meta.json
-  Main.luau
-  PlayersManager.luau
-  CacheController.luau
-  LeaderStatsTypes.luau
-```
-
-## What combat becomes
-
-```
-src/server/combat.server.cpp   -- TakeDamage, Humanoid
-```
-
-```
-out/server/Combat/
-  init.luau
-  init.meta.json
-  Main.luau
-  CombatController.luau    -- your ApplyDamage / OnHit
-  CombatTypes.luau
-```
-
-No PlayersManager unless you actually listen to players. No CacheController unless you actually create value Instances.
-
-## ForeverHD-style rules
-
-- PascalCase folders and modules; camelCase locals
-- `--!strict` everywhere
-- Public API `Start` / `Stop`. `Start` is idempotent (`Stop` first). Domain `Stop` is `janitor:Cleanup()` (unbind, janitor stays reusable). `OnClose` / `Destroy` stay for `BindToClose`. `PlayersManager.Stop` disconnects and runs `onLeave`. `CacheController.ClearAll` drops the cache.
-- Janitor owns connections in the Manager
-- Module layout in generated Luau (no section banners): requires, types, constants, variables, functions, cleanup, return.
-- Transparent `require(script.Parent.X)`
-
-## Config
-
-`cluaupp.config.json`: `"architecture": true` (default). `"architecture": false` forces 1:1 dumps (or use `.legacy.server.cpp` / `.legacy.client.cpp` per file).
-
-How to **write** a service, tags, and module-style OOP: [OOP structure](oop/index.md). Copy-paste systems: [Examples](examples/index.md). Also [organization](cpp-organization.md) and [comparison](comparison.md).
+How to **write** a system, tags, and module-style OOP: [OOP structure](oop/index.md). Copy-paste systems: [Examples](examples/index.md). Also [organization](cpp-organization.md) and [comparison](comparison.md).

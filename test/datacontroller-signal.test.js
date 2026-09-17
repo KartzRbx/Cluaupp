@@ -72,15 +72,15 @@ const result = compileService(source, "server/leaderstats.server.cpp", {
 	relativeName: "server/leaderstats.server.cpp",
 });
 
-if (result.kind !== "service") {
-	console.error("expected service, got", result.kind);
+if (result.kind !== "flat") {
+	console.error("expected 1:1 flat emit, got", result.kind);
 	process.exit(1);
 }
 
 const files = Object.fromEntries(result.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
-const data = files["server/LeaderStats/DataController.luau"];
+const data = files["server/leaderstats.server.luau"];
 if (!data) {
-	console.error("missing DataController");
+	console.error("missing server/leaderstats.server.luau");
 	console.error(Object.keys(files));
 	process.exit(1);
 }
@@ -92,34 +92,33 @@ const required = [
 	"Paths.Currencies",
 	"SetupPlayerManager(player)",
 	"PlayerAdded:Connect(SetupPlayerManager)",
-	"janitor:Cleanup()",
-	"function DataController.Stop()",
+	"init()",
 ];
 
 const missing = required.filter((piece) => !data.includes(piece));
 if (missing.length > 0) {
-	console.error("DataController missing:");
+	console.error("leaderstats missing:");
 	for (const piece of missing) {
 		console.error(" -", piece);
 	}
-	console.error("\n--- DataController ---\n" + data);
+	console.error("\n--- luau ---\n" + data);
 	process.exit(1);
 }
 
 if (/\bSetupPlayerManager\(/.test(data) && !/\bconst function SetupPlayerManager\b/.test(data)) {
-	console.error("DataController calls SetupPlayerManager without defining it");
+	console.error("calls SetupPlayerManager without defining it");
 	console.error(data);
 	process.exit(1);
 }
 
 if (data.includes("-- API") || data.includes("-- TIPAGENS") || data.includes("-- FUNÇÕES")) {
-	console.error("DataController should not emit section banners");
+	console.error("must not emit section banners");
 	console.error(data);
 	process.exit(1);
 }
 
-if (data.indexOf("function DataController.Start()") > data.indexOf("function DataController.Stop()")) {
-	console.error("Start should come before Stop");
+if (data.includes("require(script.Main)") || data.includes("function DataController.")) {
+	console.error("must not invent Main/DataController wrappers");
 	console.error(data);
 	process.exit(1);
 }

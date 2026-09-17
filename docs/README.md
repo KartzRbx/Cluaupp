@@ -10,7 +10,7 @@
 8. [Safety](cpp-safety.md) — client trust, Janitor, Net, DataService
 9. [Organization](cpp-organization.md) — server / client / shared
 10. [Advanced](cpp-advanced.md) — `::` vs `:`, Wally, performance
-11. [Architecture](architecture.md) — PascalCase services, Types modules, vs roblox-ts dumps
+11. [Architecture](architecture.md) — one file in, one file out; opt-in ForeverHD folders
 12. [OOP structure](oop/index.md) — file tags, services, modules, structs
 13. [Libraries](libraries/index.md) — DataService Init, Janitor, Promise, Net, more
 14. [Examples](examples/index.md) — leaderstats, combat validation, shop, HUD, sword

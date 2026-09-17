@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { compileService } = require("./compile");
-const { isSourceFile, isHeaderFile, toLuauPath, siblingImplementation } = require("./preprocess");
+const { isSourceFile, toLuauPath } = require("./preprocess");
 const { syncEditorSupport, installEditorSupport } = require("./intellisense");
 const pkg = require("../package.json");
 
@@ -12,7 +12,7 @@ function printHelp() {
 
 Usage:
   cluaupp init [folder]    create a game (src/server, src/client, src/shared)
-  cluaupp build [folder]   transpile src → out (PascalCase services)
+  cluaupp build [folder]   transpile src → out (one file per .cpp)
   cluaupp watch [folder]   rebuild on save
   cluaupp lsp [folder]     language server (stdio JSON-RPC)
   cluaupp intellisense     install Cursor/VS Code IntelliSense
@@ -110,10 +110,10 @@ function loadConfig(root) {
 	for (const name of configNames) {
 		const file = path.join(root, name);
 		if (fs.existsSync(file)) {
-			return { rootDir: "src", outDir: "out", strict: true, ...JSON.parse(fs.readFileSync(file, "utf8")) };
+			return { rootDir: "src", outDir: "out", strict: false, architecture: false, ...JSON.parse(fs.readFileSync(file, "utf8")) };
 		}
 	}
-	return { rootDir: "src", outDir: "out", strict: true };
+	return { rootDir: "src", outDir: "out", strict: false, architecture: false };
 }
 
 function collectCpp(dir, files = []) {
@@ -144,10 +144,6 @@ function collectFiles(dir, files = []) {
 		}
 	}
 	return files;
-}
-
-function siblingCpp(file) {
-	return siblingImplementation(file) || file.replace(/\.(h|hpp|hh)$/i, ".cpp");
 }
 
 function resolveKey(file) {
@@ -223,14 +219,10 @@ function pruneOut(root, config, written, failedPrefixes) {
 function compileProject(root, config) {
 	const srcDir = path.join(root, config.rootDir);
 	const files = collectCpp(srcDir);
-	const fileSet = new Set(files.map((file) => path.resolve(file)));
 	const jobs = [];
 	const errors = [];
 
 	for (const file of files) {
-		if (isHeaderFile(file) && fileSet.has(path.resolve(siblingCpp(file)))) {
-			continue;
-		}
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
 		try {
@@ -239,7 +231,7 @@ function compileProject(root, config) {
 				filePath: file,
 				relativeName: rel,
 				outName: toLuauPath(rel),
-				architecture: config.architecture !== false,
+				architecture: config.architecture === true,
 				includeDirs: [path.dirname(file), srcDir, path.join(root, "include")],
 				srcDir,
 			});

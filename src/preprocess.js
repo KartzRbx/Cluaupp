@@ -52,6 +52,28 @@ function siblingImplementation(headerPath) {
 	return null;
 }
 
+function siblingHeader(implPath) {
+	if (!implPath || isHeaderFile(implPath)) {
+		return null;
+	}
+	const base = String(implPath).replace(/\.(cpp|cc|cxx|c)$/i, "");
+	if (base === String(implPath)) {
+		return null;
+	}
+	for (const ext of [".h", ".hpp", ".hh"]) {
+		if (fs.existsSync(base + ext)) {
+			return base + ext;
+		}
+	}
+	return null;
+}
+
+function implOutName(rel) {
+	return String(rel)
+		.replace(/\\/g, "/")
+		.replace(/\.(cpp|cc|cxx|c)$/i, "Impl.luau");
+}
+
 function resolveInclude(name, fromFile, includeDirs) {
 	const bases = [path.dirname(fromFile), ...(includeDirs || [])];
 	for (const base of bases) {
@@ -78,7 +100,8 @@ function scanHeaderExports(source) {
 			structs.push(match[1]);
 		}
 	}
-	return { consts, structs };
+	const hasProtos = /\b(?:void|int|bool|float|double|auto|string|[\w:]+)\s+\w+\s*\([^;]*\)\s*;/.test(String(source));
+	return { consts, structs, hasProtos };
 }
 
 function pushModuleInclude(options, resolved, impl) {
@@ -96,7 +119,28 @@ function pushModuleInclude(options, resolved, impl) {
 	});
 }
 
+function applyPragmas(source, options) {
+	let nstrict = false;
+	let strict = false;
+	for (const line of String(source).split(/\r?\n/)) {
+		if (/^\s*#\s*pragma\s+nstrict\b/i.test(line)) {
+			nstrict = true;
+		} else if (/^\s*#\s*pragma\s+strict\b/i.test(line)) {
+			strict = true;
+		}
+	}
+	if (nstrict) {
+		options.strict = false;
+	} else if (strict) {
+		options.strict = true;
+	}
+}
+
 function preprocess(source, filePath, options = {}) {
+	if (!options.pragmaResolved) {
+		options.pragmaResolved = true;
+		applyPragmas(source, options);
+	}
 	const seen = options.seen || new Set();
 	const includeDirs = options.includeDirs || [];
 	const resolvedSelf = filePath ? path.resolve(filePath) : null;
@@ -140,9 +184,12 @@ module.exports = {
 	isSourceFile,
 	isHeaderFile,
 	toLuauPath,
+	applyPragmas,
 	preprocess,
 	scanHeaderExports,
 	isEngineStub,
 	siblingImplementation,
+	siblingHeader,
+	implOutName,
 	resolveInclude,
 };

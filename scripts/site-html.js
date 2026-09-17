@@ -105,12 +105,7 @@ function studioExplorer() {
 		exBranch("game", "game", "DataModel", [
 			exBranch("sss", "ServerScriptService", "ServerScriptService", [
 				exBranch("folder", "Cluaupp", "Folder", [
-					exBranch("script", "LeaderStats", "Script", [
-						exLeaf("module", "Main", "ModuleScript"),
-						exLeaf("module", "PlayersManager", "ModuleScript"),
-						exLeaf("module", "CacheController", "ModuleScript"),
-						exLeaf("module", "LeaderStatsTypes", "ModuleScript"),
-					], true),
+					exLeaf("script", "leaderstats.server", "Script"),
 				]),
 			]),
 			exBranch("rs", "ReplicatedStorage", "ReplicatedStorage", [
@@ -125,7 +120,7 @@ function studioExplorer() {
 			exBranch("player", "StarterPlayer", "StarterPlayer", [
 				exBranch("folder", "StarterPlayerScripts", "StarterPlayerScripts", [
 					exBranch("folder", "Cluaupp", "Folder", [
-						exBranch("localscript", "Hud", "LocalScript", [exLeaf("module", "Main", "ModuleScript")], true),
+						exLeaf("localscript", "hud.client", "LocalScript"),
 					]),
 				]),
 			]),
@@ -172,7 +167,7 @@ function learnNextBar(id) {
 		["learn-mapping", "Mapping"],
 		["learn-types", "Types and safety"],
 		["learn-org", "Organization"],
-		["learn-arch", "Architecture"],
+		["learn-arch", "One file out"],
 		["learn-oop", "OOP structure"],
 		["learn-libs", "Libraries"],
 		["learn-cout", "print / cout"],
@@ -329,7 +324,7 @@ function introBody(p) {
 <div class="crumb"><a href="${p}index.html">Cluaupp</a> / Intro</div>
 <p class="eyebrow">C++ × Luau</p>
 <h1>Cluaupp</h1>
-<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>--!strict</code>, <code>local</code>, and <code>const</code>, and calls the Roblox API the way Studio does.</p>
+<p class="lede">The definitive merge of C++ and modern Luau. You write a C++ subset. Cluaupp emits Luau with <code>local</code> and <code>const</code> (and <code>--!strict</code> when you opt in), and calls the Roblox API the way Studio does.</p>
 <p>This page is the old Moonwave <code>/intro</code> route. The public site is this cinematic dump — not ISO C++, not WASM.</p>
 <div class="hero-actions">
   <a class="btn btn-primary" href="${p}learn/index.html">Learn the language</a>
@@ -411,7 +406,7 @@ function learnBody() {
 		${learnTab("learn-mapping", false, "Mapping")}
 		${learnTab("learn-types", false, "Types and safety")}
 		${learnTab("learn-org", false, "Organization")}
-		${learnTab("learn-arch", false, "Architecture")}
+		${learnTab("learn-arch", false, "One file out")}
 		${learnTab("learn-oop", false, "OOP structure")}
 		${learnTab("learn-libs", false, "Libraries")}
 		${learnTab("learn-cout", false, "print / cout")}
@@ -424,17 +419,19 @@ function learnBody() {
 			true,
 			"What Cluaupp is",
 			`<p class="muted">Cluaupp is not a full C++ compiler. It is a subset aimed at Roblox scripts, in the same spirit as roblox-ts: a familiar syntax, a restricted language, readable output.</p>
-<p>You write <code>.cpp</code> / <code>.h</code>. Cluaupp emits modern Luau: <code>--!strict</code>, <code>local</code>, and <code>const</code>. There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
+<p>You write <code>.cpp</code> / <code>.h</code>. Cluaupp emits modern Luau: <code>local</code>, <code>const</code>, and <code>--!strict</code> only when you put <code>#pragma strict</code> in the file (or set <code>"strict": true</code>). There is no WASM, no Emscripten, no <code>lua_call</code>.</p>
 <p>Start on <strong>Basics</strong> for <code>int</code>, <code>string</code>, <code>const</code>, <code>*</code> (the original Instance), and why <code>&amp;</code> is not how you mutate numbers here.</p>
 <p>If <code>void init()</code> exists, the compiler calls it at the end of the script. That is how Scripts and LocalScripts boot.</p>
 ${codePair(
-	`#include <cluaupp/roblox.hpp>
+	`#pragma strict
+#include <cluaupp/roblox.hpp>
 
 void init() {
 	print("Cluaupp client ok");
 }`,
 	`--!strict
-local function init()
+-- Compiled by Cluaupp — C++ × Luau
+const function init()
 	print("Cluaupp client ok")
 end
 
@@ -663,7 +660,7 @@ init()`,
 			"The C++ subset",
 			`<p class="muted">Extensions: <code>.cpp</code>, <code>.h</code>, <code>.hpp</code> (also <code>.cc</code>, <code>.hh</code>). Quoted <code>#include "file.h"</code> is inlined. <code>#include &lt;cluaupp/...&gt;</code> is IntelliSense only — library headers also inject <code>require</code>.</p>
 <p>Read <strong>Basics</strong> first for <code>int</code>, <code>string</code>, <code>const</code>, and <code>*</code>. This tab is functions, locals, and control flow.</p>
-<p>Function prototypes are skipped. Only functions with a body are emitted. <code>#pragma once</code> and other <code>#</code> lines are ignored.</p>
+<p>Function prototypes are skipped. Only functions with a body are emitted. <code>#pragma once</code> is ignored. <code>#pragma strict</code> / <code>#pragma nstrict</code> control <code>--!strict</code> for that compilation unit.</p>
 ${codePair(
 	`void CreateLeaderstats(Player* player) {
 	return;
@@ -758,7 +755,7 @@ local players: Players = game:GetService("Players")`,
 			"learn-luau",
 			false,
 			"The Luau that comes out",
-			`<p class="muted">Generated Luau follows the current language. Every module starts with <code>--!strict</code>. Variables are <code>local</code>. Constants are Luau <code>const</code>, not <code>local x &lt;const&gt;</code>.</p>
+			`<p class="muted">Generated Luau follows the current language. Variables are <code>local</code>. Constants are Luau <code>const</code>, not <code>local x &lt;const&gt;</code>. <code>--!strict</code> is emitted only with <code>#pragma strict</code> or <code>"strict": true</code> in config.</p>
 <p><code>-&gt;</code> becomes <code>.</code> for properties and <code>:</code> for engine and library methods. <code>signal.Connect</code> becomes <code>signal:Connect</code>.</p>
 ${codePair(
 	`player->Name = "Kartz";
@@ -856,7 +853,7 @@ janitor:Add(players.PlayerAdded:Connect(OnPlayer))`,
 			"learn-org",
 			false,
 			"Server, client, shared",
-			`<p class="muted">A Cluaupp game is laid out like a roblox-ts project on disk. The output is not a 1:1 dump: <code>cluaupp build</code> turns each system into a PascalCase service. Rojo places those folders under Studio services.</p>
+			`<p class="muted">A Cluaupp game is laid out like a roblox-ts project on disk. One tagged <code>.cpp</code> becomes one Script / LocalScript / ModuleScript. Rojo places those files under Studio services.</p>
 ${studioStage()}
 <p class="note">Icons match Studio Explorer: yellow folder, blue Script / LocalScript, brown ModuleScript. Expand a row the way you would in Roblox Studio.</p>
 <table>
@@ -866,41 +863,43 @@ ${studioStage()}
 <tr><td><code>src/shared</code></td><td>Both</td><td>types, <code>const</code> config, FormatNumber</td></tr>
 </table>
 <p>If a file needs DataStoreService, it is server. If it needs UserInputService, it is client. Shared code must compile in both.</p>
-<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI.</p>`,
+<p>Filename tags: <code>*.server.cpp</code>, <code>*.client.cpp</code>, <code>*.legacy.server.cpp</code>, <code>*.legacy.client.cpp</code>, or no tag (ModuleScript). One system per file: <code>leaderstats.server.cpp</code> does not also open the shop UI. One source file becomes one instance.</p>`,
 		)}
 		${learnPanel(
 			"learn-arch",
 			false,
-			"Service architecture",
-			`<p class="muted">The planner reads two keys. The filename tag decides Script / LocalScript / ModuleScript. AST intents decide the roles: Main, Managers, Controllers, Types.</p>
-<p>Rojo’s <code>init.server.luau</code> rule is how a service lands in Studio: the <strong>folder becomes the Script</strong>. Sibling <code>.luau</code> files become ModuleScript children. The boot file is one line:</p>
+			"One file in, one file out",
+			`<p class="muted">The filename tag decides Script / LocalScript / ModuleScript — the same keys as roblox-ts. Cluaupp stops there by default. It does not invent Main / Controller / Types folders.</p>
+<p><code>DataBoot.client.cpp</code> becomes <code>out/client/boot/DataBoot.client.luau</code>. Shared <code>#include</code> modules use <code>require(ReplicatedStorage.Cluaupp...)</code>.</p>
 ${codePair(
-	`// src/server/leaderstats.server.cpp
+	`#pragma strict
 #include <cluaupp/roblox.hpp>
+#include <cluaupp/libs/dataservice.hpp>
 
-void CreateLeaderstats(Player* player) {
-	auto* folder = new Folder(player);
-	folder->Name = "leaderstats";
-	auto* coins = new IntValue(folder);
-	coins->Name = "Coins";
+void init() {
+	DataService::Client.Init();
 }`,
-	`-- out/server/LeaderStats/init.luau
---!strict
-require(script.Main):Start()
+	`--!strict
+-- Compiled by Cluaupp — C++ × Luau
 
--- LeaderStats (Script, RunContext Server via init.meta.json)
---   Main, PlayersManager, CacheController, LeaderStatsTypes`,
+const ReplicatedStorage = game:GetService("ReplicatedStorage")
+const DataService = require(ReplicatedStorage.CluauppLibs.DataService)
+type DataService = DataService.DataService
+
+const function init()
+	DataService.Client:Init()
+end
+
+init()`,
 )}
+<p>Rojo maps <code>out/server</code> to <code>ServerScriptService.Cluaupp</code>, <code>out/client</code> to <code>StarterPlayerScripts.Cluaupp</code>, <code>out/shared</code> to <code>ReplicatedStorage.Cluaupp</code>.</p>
+<p>Set <code>"architecture": true</code> only if you want the old ForeverHD planner: PascalCase folders, <code>Main.Start</code> / <code>Stop</code>, Managers, Controllers, Types.</p>
 ${serviceExplorers()}
 ${preCode(`filename key  →  server | client | module | legacy
-AST features  →  GetService, Instance.new, methods, identifiers
-intent scores →  combat:2, character:1, …
+opt-in architecture: true
 roles         →  Main + Managers + Controllers + Types`, "plain")}
-<p>A tiny <code>leaderstats.server.cpp</code> becomes <code>LeaderStats/</code> with Main, PlayersManager, CacheController, LeaderStatsTypes. A combat file with TakeDamage becomes CombatController — not a fake CacheController.</p>
-<p>The OOP tab is how you <em>write</em> that service with typed structs. The Examples tab is copy-paste systems.</p>
-<p>Trivial files that only <code>print</code> stay a single LocalScript. The planner does not invent Managers for hello-world.</p>
-<p>ForeverHD-style rules in the output: PascalCase folders, <code>--!strict</code>, public <code>Start</code> / <code>Stop</code>, Janitor in the Manager, Types modules <code>return {}</code>.</p>
-<p>Set <code>"architecture": false</code> in <code>cluaupp.config.json</code> (or use <code>.legacy.*.cpp</code>) for a 1:1 dump.</p>`,
+<p>The OOP tab is how you <em>write</em> a system with typed structs. The Examples tab is copy-paste systems.</p>
+<p><code>--!strict</code> is opt-in: <code>#pragma strict</code> in the <code>.cpp</code>, or <code>"strict": true</code> in config. <code>#pragma nstrict</code> never emits it.</p>`,
 		)}
 		${learnPanel("learn-oop", false, "OOP structure", guides().oopInner())}
 		${learnPanel("learn-libs", false, "CluauppLibs", guides().librariesInner())}

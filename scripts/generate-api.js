@@ -912,7 +912,7 @@ function buildSite({ classes, enums, byName, dump, instanceTypes, services }) {
 	const getting = `
 <div class="crumb"><a href="../index.html">Cluaupp</a> / Get started</div>
 <h1>Getting started</h1>
-<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>--!strict</code>, <code>local</code>, and <code>const</code>) with first-class Roblox APIs.</p>
+<p class="muted">Cluaupp is the definitive merge of C++ and modern Luau (<code>local</code>, <code>const</code>, optional <code>--!strict</code>) with first-class Roblox APIs.</p>
 <h2>Install</h2>
 ${preCode(`npm install -g cluaupp
 cluaupp init my-game

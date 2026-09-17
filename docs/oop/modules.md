@@ -25,7 +25,9 @@ int DoubleCoins(int coins) {
 out/shared/util/Coins.luau   -- ModuleScript, exported functions
 ```
 
-Shared **data and constants** belong in headers (`#include "TemplateData.hpp"`) — they are inlined. Untagged `.cpp` is for a ModuleScript other Luau can `require`. Prefer headers for data and tagged `.server.cpp` / `.client.cpp` for behavior.
+Quoted `#include "TemplateData.hpp"` is not inlined when the header has a sibling `.cpp` or is a shared module: `cluaupp build` emits `require(ReplicatedStorage.Cluaupp.constants.TemplateData)` / `require(ServerScriptService.Cluaupp.configurations.PlayerDataVersion)` (Rojo roots from `default.project.json`), never `script.Parent.Parent.shared`.
+
+`.h` / `.hpp` are **type modules**. A service header becomes `export type Name = { init: (self: Name) -> (), … }` and a typed table. The sibling `.cpp` is the construction (`NameImpl.luau`); the header `require`s that impl and binds the functions. Data-only structs still emit a constructor so `TemplateData()` works. Untagged `.cpp` without a header is a ModuleScript other Luau can `require`. Prefer headers for the public type, tagged `.server.cpp` / `.client.cpp` for scripts, and the sibling `.cpp` for method bodies.
 
 ## Structs = data, not classes
 

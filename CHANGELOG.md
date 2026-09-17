@@ -1,9 +1,18 @@
 # Changelog
 
+## 0.1.5
+
+- Default emit is one tagged `.cpp` → one `.server.luau` / `.client.luau`. `"architecture": true` keeps the old ForeverHD service folders.
+- `--!strict` is opt-in: `#pragma strict`, `#pragma nstrict`, or `"strict": true` in config (default `false`).
+- `.h` / `.hpp` emit type ModuleScripts (`export type` + typed table). A sibling `.cpp` becomes `*Impl.luau`; the header binds those functions.
+- Shared `#include` modules `require` game-rooted paths (`ReplicatedStorage.Cluaupp...` / `ServerScriptService.Cluaupp...`).
+
 ## 0.1.4
 
 - Quoted `#include "Header.h"` of project files becomes `const Header = require(...)`. Header-only structs emit a constructor (`TemplateData()`); const headers bind `PLAYER_DATA_VERSION` from the module. Boot scripts require services (`LeaderstatsServer:init()`).
 - Keep `const` for injected `require` / `GetService` and `const function` for C++ functions (not `local`).
+- `init.meta.json` stays pure JSON. Library `require` injection no longer prepends Luau onto Rojo meta files (which made `rojo serve` fail with a JSONC parse error).
+- Server services emit `init.server.luau` + `init.meta.json` with **only** `RunContext.Server`. Rojo forbids `className` when an `init.*` script exists (the folder is already a Script, not a Folder). `init.luau` is pruned so the instance is not a ModuleScript.
 
 ## 0.1.3
 

@@ -16,34 +16,33 @@ The **filename** decides the Roblox instance. This is the same key idea as roblo
 | `Boot.legacy.server.cpp` | Script | **Legacy** |
 | `Boot.legacy.client.cpp` | LocalScript | Legacy |
 | `Damage.cpp` (no tag) | **ModuleScript** | — |
+| `LeaderstatsServer.h` | **ModuleScript** (types) | — |
+| `LeaderstatsServer.cpp` (sibling of `.h`) | **ModuleScript** (`*Impl`) | — |
 
-## Server is not Legacy
+## One file in, one file out
 
-`.server.cpp` is **not** `init.server.luau`. Rojo maps `*.server.luau` to a Script with RunContext **Legacy**. Cluaupp emits:
+Rojo infers the instance from the filename key: `*.server.luau` is a Script, `*.client.luau` is a LocalScript, untagged `.luau` is a ModuleScript.
 
 ```
-out/server/LeaderstatsServer/
-  init.luau
-  init.meta.json    -- className Script, RunContext Server
+src/server/boot/DataBoot.server.cpp  →  out/server/boot/DataBoot.server.luau
+src/client/boot/DataBoot.client.cpp  →  out/client/boot/DataBoot.client.luau
+src/shared/damage.cpp                →  out/shared/Damage.luau
+src/server/services/leaderstats/LeaderstatsServer.h   →  LeaderstatsServer.luau  (export type)
+src/server/services/leaderstats/LeaderstatsServer.cpp →  LeaderstatsServerImpl.luau
 ```
 
-`.legacy.server.cpp` is the 1:1 dump that *does* become Legacy.
-
-`.client.cpp` stays `init.client.luau` (LocalScript). Do not add `init.meta.json` on the client boot.
+`.legacy.server.cpp` still emits a Legacy Script (`boot.server.luau`). `.client.cpp` stays a LocalScript. Do not invent `init.meta.json` on the default 1:1 path.
 
 ## Where files live
 
 ```
-src/server/.../*.server.cpp   → out/server  (ServerScriptService)
-src/client/.../*.client.cpp   → out/client  (StarterPlayerScripts)
-src/shared/.../*.cpp          → out/shared  (ReplicatedStorage)
+src/server/.../*.server.cpp   → out/server  (ServerScriptService.Cluaupp)
+src/client/.../*.client.cpp   → out/client  (StarterPlayerScripts.Cluaupp)
+src/shared/.../*.cpp          → out/shared  (ReplicatedStorage.Cluaupp)
 ```
 
-Name the **system**, not `init.server.cpp`. `LeaderstatsServer.server.cpp` and `DataBoot.server.cpp` are two services.
+Name the **system**, not `init.server.cpp`. `LeaderstatsServer.server.cpp` and `DataBoot.server.cpp` are two files.
 
-## Skip the planner
+## Opt-in planner
 
-- `"architecture": false` in `cluaupp.config.json`, or
-- `.legacy.server.cpp` / `.legacy.client.cpp` per file
-
-Use legacy only when you want one Luau file with no Main / Controller split.
+`"architecture": true` in `cluaupp.config.json` restores PascalCase service folders (`Main`, Controller, Types). Default is off.

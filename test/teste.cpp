@@ -2,7 +2,7 @@
 
 const int STARTING_COINS = 0;
 
-export void init() {
+void init() {
 	const auto* players = GetService<Players>();
 	auto* part = new Part(workspace);
 	part->Size = Vector3(8, 1, 8);

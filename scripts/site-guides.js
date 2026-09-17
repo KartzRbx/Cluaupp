@@ -362,9 +362,7 @@ void init() {
 	Attack->On(OnAttack);
 	janitor->Add(Attack);
 }`,
-	`--!strict
--- CombatServer (Script, RunContext Server)
--- roles Main, CombatController, NetController, DataController, CombatServerTypes
+	`-- Compiled by Cluaupp — C++ × Luau
 
 const Players = game:GetService("Players")
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -390,16 +388,10 @@ const function OnAttack(attacker: Player, targetUserId: number)
 	-- ResolveTarget, IsAlive, InRange, StampCooldown, TakeDamage(Config.Damage)
 end`,
 )}
-<p>Cluaupp turns that file into a PascalCase folder:</p>
-${preCode(`out/server/services/combat/CombatServer/
-  init.luau              Script · RunContext Server
-  init.meta.json
-  Main.luau              Start / Stop  → constructor / destructor
-  CombatController.luau  your typed functions
-  NetController.luau
-  DataController.luau
-  CombatServerTypes.luau export type … return {}`, "plain")}
-<p><code>Main</code> is the class. Controllers are the methods. <code>*Types</code> is the typed public surface. Janitor is the destructor.</p>
+<p>Cluaupp turns that file into one Script:</p>
+${preCode(`out/server/services/combat/CombatServer.server.luau
+  -- your typed functions + init() at the end`, "plain")}
+<p>Keep DataService boot in <code>DataBoot.server.cpp</code>. Combat stays in this file. Set <code>"architecture": true</code> only if you want a PascalCase folder with Main / Controller / Types.</p>
 <h2>Client half (intent only)</h2>
 ${codePair(
 	`void OnInputBegan(InputObject* input, bool gameProcessed) {

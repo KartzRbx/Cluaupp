@@ -66,7 +66,8 @@ my-game/
     shared/config.h
     shared/config.cpp
   out/                    ← generated Luau (do not edit)
-    server/LeaderStats/     Main, PlayersManager, CacheController, Types
+    server/leaderstats.server.luau
+    client/init.client.luau
     shared/Config.luau
 ```
 

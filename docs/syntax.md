@@ -2,15 +2,16 @@
 
 Cluaupp is not a full C++ compiler. It is a **subset** aimed at Roblox scripts, in the same spirit as roblox-ts (restricted TypeScript → Luau).
 
-Generated Luau follows the current language: [`--!strict`](https://luau.org/getting-started), `local`, `const`, and `const function`. Injected `require` / `GetService` lines are `const`.
+Generated Luau follows the current language: [`local`](https://luau.org/getting-started), `const`, and `const function`. Injected `require` / `GetService` lines are `const`. `--!strict` is emitted only when the file has `#pragma strict` (or `"strict": true` in config).
 
 ## Files
 
 - Extensions: `.cpp`, `.h`, `.hpp` (also `.cc`, `.hh`)
-- Quoted `#include "file.h"` is inlined (C preprocessor)
+- Quoted `#include "file.h"` becomes a Rojo `require` (or is inlined for a header that belongs to the same `.cpp`)
 - `#include <cluaupp/roblox.hpp>` and `<cluaupp/libs/*.hpp>` are IntelliSense only; library headers also inject `require(CluauppLibs.*)`
-- Other `#` lines (`#pragma once`) are ignored
-- Function prototypes (`void foo();`) are skipped; only functions with a body are emitted
+- `#pragma once` is ignored
+- `#pragma strict` / `#pragma nstrict` control `--!strict` for that compilation unit
+- Function prototypes in a `.h` / `.hpp` become `export type` fields (`init: (self: Name) -> ()`). Only `.cpp` files emit function bodies.
 
 ## Functions
 
@@ -199,6 +200,6 @@ Full table and IntelliSense notes: [print and cout](print-cout.md).
 
 ## Not supported yet
 
-Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `std::`, overloading, macros (except skipping `#` lines).
+Custom C++ classes, generic templates besides `GetService<T>`, pointer arithmetic, `std::`, overloading, macros (except `#pragma strict` / `#pragma nstrict` / `#pragma once`).
 
 If you need one of those patterns, open an issue with the C++ and the expected Luau.

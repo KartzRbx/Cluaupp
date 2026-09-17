@@ -9,9 +9,39 @@ const source = fs.readFileSync(
 	"utf8",
 );
 
+const one = compileService(source, "server/leaderstats.server.cpp", {
+	relativeName: "server/leaderstats.server.cpp",
+});
+
+if (one.kind !== "flat") {
+	console.error("expected 1:1 flat emit, got", one.kind);
+	process.exit(1);
+}
+
+const oneName = one.files[0].name.replace(/\\/g, "/");
+if (oneName !== "server/leaderstats.server.luau") {
+	console.error("expected server/leaderstats.server.luau, got", oneName);
+	process.exit(1);
+}
+
+const oneLuau = one.files[0].contents;
+for (const piece of ["--!strict", "CreateLeaderstats", "GetPlayers", "PlayerAdded", "init()"]) {
+	if (!oneLuau.includes(piece)) {
+		console.error("1:1 leaderstats missing", piece);
+		console.error(oneLuau);
+		process.exit(1);
+	}
+}
+if (oneLuau.includes("require(script.Main)") || oneLuau.includes("LeaderStatsTypes") || oneLuau.includes("DataController")) {
+	console.error("1:1 leaderstats must not invent Main/Types/Controller");
+	console.error(oneLuau);
+	process.exit(1);
+}
+
 const result = compileService(source, "server/leaderstats.server.cpp", {
 	strict: true,
 	relativeName: "server/leaderstats.server.cpp",
+	architecture: true,
 });
 
 if (result.kind !== "service") {
@@ -21,7 +51,7 @@ if (result.kind !== "service") {
 
 const files = Object.fromEntries(result.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
 const requiredNames = [
-	"server/LeaderStats/init.luau",
+	"server/LeaderStats/init.server.luau",
 	"server/LeaderStats/init.meta.json",
 	"server/LeaderStats/Main.luau",
 	"server/LeaderStats/PlayersManager.luau",
@@ -41,7 +71,7 @@ const types = files["server/LeaderStats/LeaderStatsTypes.luau"];
 const cache = files["server/LeaderStats/CacheController.luau"];
 const players = files["server/LeaderStats/PlayersManager.luau"];
 const main = files["server/LeaderStats/Main.luau"];
-const boot = files["server/LeaderStats/init.luau"];
+const boot = files["server/LeaderStats/init.server.luau"];
 
 const checks = {
 	"server/LeaderStats/LeaderStatsTypes.luau": [
@@ -89,8 +119,8 @@ const checks = {
 		"CacheController.ClearAll()",
 		"return Main",
 	],
-	"server/LeaderStats/init.luau": ["--!strict", "require(script.Main):Start()"],
-	"server/LeaderStats/init.meta.json": ['"className": "Script"', "Enum.RunContext.Server"],
+	"server/LeaderStats/init.server.luau": ["--!strict", "require(script.Main):Start()"],
+	"server/LeaderStats/init.meta.json": ["Enum.RunContext.Server"],
 };
 
 let failed = false;
@@ -120,5 +150,6 @@ if (failed) {
 }
 
 console.log("Cluaupp leaderstats service ok");
+console.log(oneName);
 console.log(Object.keys(files).join("\n"));
 console.log(main);

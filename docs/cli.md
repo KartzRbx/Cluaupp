@@ -23,13 +23,12 @@ cluaupp init my-game
 
 ## `cluaupp build [folder]`
 
-Transpiles `src/**/*.{cpp,h,hpp}` into `out/`. Script files become PascalCase **service folders** (`LeaderStats/Main.luau`, `PlayersManager.luau`, `CacheController.luau`, `LeaderStatsTypes.luau`) plus `init.luau` and `init.meta.json` (`RunContext.Server`) for Rojo. Shared `const` headers become `Config.luau`.
+Transpiles `src/**/*.{cpp,h,hpp}` into `out/`. One tagged `.cpp` becomes one Luau instance (`leaderstats.server.luau`, `hud.client.luau`). Shared untagged files become ModuleScripts. Set `"architecture": true` for the old PascalCase service folders.
 
-- `--!strict` on every module
-- `#include "file.h"` inlines that header into the current file
+- `--!strict` only with `#pragma strict` or `"strict": true`
+- `#include "file.h"` becomes `require(ReplicatedStorage.Cluaupp...)` / `require(ServerScriptService.Cluaupp...)` for shared/server modules
 - `#include <cluaupp/roblox.hpp>` is ignored
-- `.h` / `.hpp` with a sibling `.cpp` are not emitted twice
-- `new Folder(parent)` in a stats system becomes `CacheController.Ensure`
+- `.h` / `.hpp` emit a type ModuleScript (`export type` + typed table). A sibling `.cpp` becomes `*Impl.luau` (the construction); the header binds those functions.
 - A parse error exits with code 1 and `file:line:column`
 - After emit, **orphans in `out/` are removed** (source deleted → matching Luau deleted). `out/` itself is never wiped, so a running Rojo serve keeps the live tree.
 - `libs/` and `include/cluaupp` are synced by writing missing/changed files only. They are **never** deleted as a folder — Rojo 7 unwrap-crashes if `libs/ArrayIndexer` vanishes while serving.

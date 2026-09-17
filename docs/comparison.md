@@ -6,9 +6,9 @@
 
 Both are source-to-source. Neither goes through WASM. Generated Luau calls the Roblox API directly.
 
-The difference is **what Studio receives**. roblox-ts stops at the filename key (`*.server.ts` → Script). Cluaupp uses that key **and** reads the AST so a combat system is not emitted as a fake leaderstats. See [Architecture](architecture.md).
+By default Cluaupp matches that filename key: `*.server.cpp` → one Script, `*.client.cpp` → one LocalScript, untagged → ModuleScript. The ForeverHD folder split is opt-in (`"architecture": true`). See [Architecture](architecture.md).
 
-Current Luau has [`local`, `const`, and `--!strict`](https://luau.org/getting-started). Cluaupp emits that on purpose: `const int` in C++ becomes `const x = ...` in Luau.
+Current Luau has [`local`, `const`, and `--!strict`](https://luau.org/getting-started). Cluaupp emits `const` from C++ `const`. `--!strict` is opt-in (`#pragma strict` or `"strict": true`).
 
 ## vs C++ → WASM → Luau (RBX-CPP / Emscripten)
 
@@ -33,5 +33,5 @@ is exactly what Studio expects, not a parallel runtime.
 | Goal | Tool |
 | --- | --- |
 | Game in TypeScript | roblox-ts |
-| Game in C++, clear Roblox API, Luau `--!strict` | **Cluaupp** |
+| Game in C++, clear Roblox API | **Cluaupp** |
 | Full native C++ (templates, STL, engines) | not Cluaupp today |

@@ -5,7 +5,7 @@ sidebar_position: 13
 
 # Organization
 
-A Cluaupp game is laid out like a roblox-ts project on disk. The **output** is not a dump: `cluaupp build` turns each system into a PascalCase service folder (Main, Manager, Controller, Types). See [Architecture](architecture.md).
+A Cluaupp game is laid out like a roblox-ts project on disk. One tagged `.cpp` becomes one Luau instance (`leaderstats.server.luau`, `hud.client.luau`). See [Architecture](architecture.md).
 
 ```
 src/
@@ -47,7 +47,7 @@ const string REMOTE_COINS = "Coins";
 
 `leaderstats.server.cpp` creates leaderstats. It does not also open the shop UI. Name files after the system: `inventory.server.cpp`, `shop.client.cpp`.
 
-`*.server.cpp` / `*.client.cpp` are **tags** (the same keys roblox-ts uses). Untagged `.cpp` is a ModuleScript. `.legacy.server.cpp` / `.legacy.client.cpp` skip the service split. See [Architecture](architecture.md) and [OOP structure](oop/index.md).
+`*.server.cpp` / `*.client.cpp` are **tags** (the same keys roblox-ts uses). Untagged `.cpp` is a ModuleScript. Set `"architecture": true` only if you want the old PascalCase folder split. See [Architecture](architecture.md) and [OOP structure](oop/index.md).
 
 ## CluauppLibs vs extra Wally
 

@@ -53,24 +53,42 @@ const combat = compileService(combatSrc, "server/combat.server.cpp", {
 	strict: true,
 	relativeName: "server/combat.server.cpp",
 });
-expect(combat.kind === "service", `combat kind ${combat.kind}`);
+expect(combat.kind === "flat", `combat kind ${combat.kind}`);
 const combatFiles = Object.fromEntries(combat.files.map((file) => [file.name.replace(/\\/g, "/"), file.contents]));
-expect(!!combatFiles["server/Combat/init.luau"], "Combat bootstrap");
-expect(!!combatFiles["server/Combat/Main.luau"], "Combat Main");
-expect(!!combatFiles["server/Combat/CombatController.luau"], "CombatController from TakeDamage/Humanoid");
-expect(!!combatFiles["server/Combat/CombatTypes.luau"], "CombatTypes");
-expect(!combatFiles["server/Combat/CacheController.luau"], "combat must not invent CacheController");
-expect(!combatFiles["server/Combat/PlayersManager.luau"], "combat must not invent PlayersManager");
-expect(combatFiles["server/Combat/CombatController.luau"].includes("TakeDamage"), "user combat logic kept");
-expect(combatFiles["server/Combat/CombatController.luau"].includes("function CombatController.Start()"), "Start API");
-expect(combatFiles["server/Combat/Main.luau"].includes("CombatController.Start()"), "Main wires domain");
-expect(combatFiles["server/Combat/init.luau"].includes("require(script.Main):Start()"), "bootstrap");
-expect(!combatFiles["server/Combat/init.server.luau"], "server must not emit init.server.luau (Rojo Legacy Script)");
-expect(!!combatFiles["server/Combat/init.meta.json"], "server Script RunContext comes from init.meta.json");
-expect(combatFiles["server/Combat/init.meta.json"].includes("Enum.RunContext.Server"), "RunContext Server");
+const combatLuau = combatFiles["server/combat.server.luau"] || "";
+expect(!!combatLuau, `combat path ${Object.keys(combatFiles)}`);
+expect(combatLuau.includes("TakeDamage"), "user combat logic kept");
+expect(combatLuau.includes("init()"), "script calls init");
+expect(!combatLuau.includes("require(script.Main)"), "must not invent Main bootstrap");
+expect(!combatLuau.includes("CombatController"), "must not wrap combat in a Controller");
+expect(!combatLuau.includes("CombatTypes"), "must not invent Types module");
 expect(server.runContext === "Server", `server runContext ${server.runContext}`);
 expect(combat.plan.reasoning.some((line) => line.includes("tag server")), "reasoning records tag");
 expect(combat.plan.reasoning.some((line) => line.includes("combat")), "reasoning records combat intent");
+
+const noStrict = compileService(combatSrc, "server/combat.server.cpp", {
+	relativeName: "server/combat.server.cpp",
+});
+expect(!noStrict.files[0].contents.startsWith("--!strict"), "no --!strict without pragma or config");
+
+const pragmaSrc = `#pragma strict
+void init() {
+	print("ok");
+}
+`;
+const pragma = compileService(pragmaSrc, "client/boot.client.cpp", { relativeName: "client/boot.client.cpp" });
+expect(pragma.files[0].contents.includes("--!strict"), "#pragma strict emits --!strict");
+
+const nstrict = compileService(
+	`#pragma nstrict
+void init() {
+	print("ok");
+}
+`,
+	"client/boot.client.cpp",
+	{ strict: true, relativeName: "client/boot.client.cpp" },
+);
+expect(!nstrict.files[0].contents.includes("--!strict"), "#pragma nstrict never emits --!strict");
 
 const moduleSrc = `int DamageOf(int base) {
 	return base;

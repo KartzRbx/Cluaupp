@@ -2,17 +2,23 @@
 
 const path = require("path");
 const { emit } = require("./emit");
-const { collectLibraries, insertRequires, requireCluauppLib } = require("./libs");
+const { requireCluauppLib } = require("./libs");
 const { organizeDecls, janitorNames, emitSection, joinBlocks, SECTION, ENTRY_FN } = require("./layout");
 const {
 	VALUE_CLASSES,
 	analyze,
 	toPascalServiceName,
 	legacyOutName,
+	modernScriptOutName,
 } = require("./understand");
+const { implOutName } = require("./preprocess");
 
 function header(plan) {
-	const lines = ["--!strict", "-- Compiled by Cluaupp — C++ × Luau"];
+	const lines = [];
+	if (plan && plan.strict) {
+		lines.push("--!strict");
+	}
+	lines.push("-- Compiled by Cluaupp — C++ × Luau");
 	if (plan && plan.reasoning) {
 		for (const line of plan.reasoning) {
 			lines.push(`-- ${line}`);
@@ -328,9 +334,7 @@ function emitDomainController(plan, ast, options) {
 		return decl.type === "decl" || decl.type === "proto" || decl.type === "function" || decl.type === "expr";
 	});
 	const groups = organizeDecls(keep);
-	const subset = { type: "program", body: keep };
 	const name = plan.roles.domain;
-	const libs = collectLibraries(options.source || "", subset);
 	const entry = keep.find((decl) => decl.type === "function" && ENTRY_FN.test(decl.name || ""));
 	const bootExprs = keep.filter((decl) => decl.type === "expr");
 	const janitors = janitorNames(keep);
@@ -356,7 +360,7 @@ function emitDomainController(plan, ast, options) {
 	const startFn = `function ${name}.Start()\n	${name}.Stop()\n${boot}\nend`;
 	const stopFn = `function ${name}.Stop()\n${stopLines.join("\n")}\nend`;
 	const body = `${header(plan).trimEnd()}\n\n${emitSection(SECTION.api, emitDecls(groups.api, options))}${emitSection(SECTION.constants, emitDecls(groups.constants, options))}${emitSection(SECTION.variables, joinBlocks([emitDecls(groups.variables, options), `local ${name} = {}`]))}${emitSection(SECTION.support, emitDecls(groups.support, options))}${emitSection(SECTION.principal, joinBlocks([emitDecls(groups.principal, options), startFn]))}${emitSection(SECTION.cleanup, joinBlocks([emitDecls(groups.cleanup, options), stopFn]))}${emitSection(SECTION.returns, `return ${name}`)}`;
-	return insertRequires(body, libs);
+	return body;
 }
 
 function emitModule(plan, ast, options) {
@@ -366,7 +370,6 @@ function emitModule(plan, ast, options) {
 function emitScriptMeta(runContext) {
 	return `${JSON.stringify(
 		{
-			className: "Script",
 			properties: {
 				RunContext: `Enum.RunContext.${runContext}`,
 			},
@@ -380,7 +383,7 @@ function serviceBootName(plan) {
 	if (plan.isClient) {
 		return "init.client.luau";
 	}
-	return "init.luau";
+	return "init.server.luau";
 }
 
 function serviceFiles(plan, ast, options, dir) {
@@ -404,33 +407,75 @@ function serviceFiles(plan, ast, options, dir) {
 	return files;
 }
 
+function serviceFolderStale(plan, rel) {
+	const dir = path.posix.dirname(rel).replace(/^\.$/, "");
+	const serviceDir = dir && dir !== "." ? dir : plan.isClient ? "client" : "server";
+	const folder = `${serviceDir}/${plan.serviceName}`;
+	return [
+		folder,
+		`${folder}/init.luau`,
+		`${folder}/init.server.luau`,
+		`${folder}/init.client.luau`,
+		`${folder}/init.meta.json`,
+		`${folder}/Main.luau`,
+		`${folder}/PlayersManager.luau`,
+		`${folder}/CacheController.luau`,
+		`${folder}/${plan.typesName}.luau`,
+		plan.roles && plan.roles.domain ? `${folder}/${plan.roles.domain}.luau` : null,
+	].filter(Boolean);
+}
+
 function planOutput(ast, fileName, options = {}) {
 	const plan = analyze(ast, fileName);
+	plan.strict = options.strict === true;
 	const rel = (options.relativeName || fileName).replace(/\\/g, "/");
 	const dir = path.dirname(rel).replace(/^\.$/, "");
 	const outDir = dir && dir !== "." ? dir : "";
 	const prefix = outDir ? `${outDir}/` : "";
+	const stale = serviceFolderStale(plan, rel);
 
-	if (options.architecture === false) {
-		return { kind: "flat", plan, files: null };
+	if (options.siblingHeader) {
+		return {
+			kind: "module",
+			plan,
+			files: [{ name: implOutName(rel), contents: emitModule(plan, ast, { ...options, skipInit: true }) }],
+			stale: [],
+		};
+	}
+
+	if (options.architecture === true) {
+		if (plan.kind === "legacy") {
+			return { kind: "legacy", plan, files: null, stale: [], outName: legacyOutName(rel) };
+		}
+
+		if (plan.kind === "service") {
+			const serviceDir = outDir || (plan.isClient ? "client" : "server");
+			const folder = `${serviceDir}/${plan.serviceName}`;
+			const serviceStale = plan.isClient
+				? [`${folder}/init.luau`, `${folder}/init.server.luau`, `${folder}/init.meta.json`]
+				: [`${folder}/init.luau`, `${folder}/init.client.luau`];
+			return {
+				kind: "service",
+				plan,
+				files: serviceFiles(plan, ast, options, serviceDir),
+				stale: serviceStale,
+			};
+		}
+
+		if (plan.kind === "config" || plan.kind === "module") {
+			return {
+				kind: plan.kind,
+				plan,
+				files: [{ name: `${prefix}${plan.serviceName}.luau`, contents: emitModule(plan, ast, options) }],
+				stale: [rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau")],
+			};
+		}
+
+		return { kind: "flat", plan, files: null, stale: [], outName: modernScriptOutName(rel) };
 	}
 
 	if (plan.kind === "legacy") {
-		return { kind: "legacy", plan, files: null, stale: [], outName: legacyOutName(rel) };
-	}
-
-	if (plan.kind === "service") {
-		const serviceDir = outDir || (plan.isClient ? "client" : "server");
-		const folder = `${serviceDir}/${plan.serviceName}`;
-		const stale = plan.isClient
-			? [`${folder}/init.luau`, `${folder}/init.server.luau`, `${folder}/init.meta.json`]
-			: [`${folder}/init.server.luau`, `${folder}/init.client.luau`];
-		return {
-			kind: "service",
-			plan,
-			files: serviceFiles(plan, ast, options, serviceDir),
-			stale,
-		};
+		return { kind: "legacy", plan, files: null, stale, outName: legacyOutName(rel) };
 	}
 
 	if (plan.kind === "config" || plan.kind === "module") {
@@ -438,11 +483,14 @@ function planOutput(ast, fileName, options = {}) {
 			kind: plan.kind,
 			plan,
 			files: [{ name: `${prefix}${plan.serviceName}.luau`, contents: emitModule(plan, ast, options) }],
-			stale: [rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau")],
+			stale: [rel.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau"), ...stale],
 		};
 	}
 
-	return { kind: "flat", plan, files: null, stale: [] };
+	const outName = modernScriptOutName(rel);
+	const stripped = rel.replace(/\.(server|client|plugin)\.(cpp|cc|cxx|c|h|hpp|hh)$/i, ".luau");
+	const extraStale = stripped !== outName ? [stripped] : [];
+	return { kind: "flat", plan, files: null, stale: [...stale, ...extraStale], outName };
 }
 
 module.exports = {
