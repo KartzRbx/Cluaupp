@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { CompileOptions, CompileServiceResult } from "./types.js";
 import { compileViaClpp } from "./clpp/runner.js";
 import { clppLuauToGame, shouldSkipInit } from "./clpp/postprocess.js";
@@ -12,10 +13,12 @@ export function compileService(source: string, fileName?: string, options: Compi
 	const outName = options.outName || toLuauPath(relative);
 	const header = options.filePath ? siblingHeader(options.filePath) : null;
 	const skipInit = options.skipInit === true || shouldSkipInit(relative, Boolean(header));
+	const diskPath = options.filePath ? path.resolve(options.filePath) : null;
 	const artifact = compileViaClpp({
 		source,
-		fileName: relative,
+		fileName: diskPath ? diskPath.replace(/\\/g, "/") : relative,
 		strict: options.strict,
+		cwd: diskPath ? path.dirname(diskPath) : options.srcDir,
 	});
 	const luau = clppLuauToGame(artifact, {
 		relativeName: relative,

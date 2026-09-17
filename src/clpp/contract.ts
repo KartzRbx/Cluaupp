@@ -4,6 +4,7 @@ export interface CompileRequest {
 	source: string;
 	fileName: string;
 	strict?: boolean;
+	cwd?: string;
 }
 
 export interface CompileArtifact {

@@ -65,6 +65,7 @@ export function compileViaClpp(request: CompileRequest): CompileArtifact {
 	const result = spawnSync(bin, ["api", "compile"], {
 		input: payload,
 		encoding: "utf8",
+		cwd: request.cwd,
 		maxBuffer: 16 * 1024 * 1024,
 		windowsHide: true,
 	});
