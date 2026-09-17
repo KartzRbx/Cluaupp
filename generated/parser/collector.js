@@ -1,7 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ASTCollector = void 0;
 exports.emptyState = emptyState;
+const node_path_1 = __importDefault(require("node:path"));
+const preprocess_js_1 = require("../preprocess.js");
 const translators_js_1 = require("../emitter/translators.js");
 function emptyState(strict = false) {
     return {
@@ -16,9 +21,11 @@ function emptyState(strict = false) {
 }
 class ASTCollector {
     mapper;
+    context;
     state;
     constructor(mapper, context = { fileName: "input.cpp" }) {
         this.mapper = mapper;
+        this.context = context;
         this.state = emptyState(context.strict === true);
     }
     collect(rootNode) {
@@ -58,12 +65,41 @@ class ASTCollector {
             }
         }
     }
+    includeTarget(raw) {
+        const from = this.context.sourcePath;
+        if (!from) {
+            return null;
+        }
+        const cleaned = raw.replace(/[<>'"]/g, "").trim();
+        if (!cleaned || raw.includes("<")) {
+            return null;
+        }
+        return node_path_1.default.resolve(node_path_1.default.dirname(from), cleaned);
+    }
+    isOwnHeader(raw) {
+        const from = this.context.sourcePath;
+        if (!from) {
+            return false;
+        }
+        const target = this.includeTarget(raw);
+        if (!target) {
+            return false;
+        }
+        if (node_path_1.default.resolve(from) === target) {
+            return true;
+        }
+        const header = (0, preprocess_js_1.siblingHeader)(from);
+        return Boolean(header && node_path_1.default.resolve(header) === target);
+    }
     collectInclude(node) {
         const pathNode = node.childForFieldName("path") || node.namedChildren[0] || node.child(1);
         if (!pathNode) {
             return;
         }
-        const resolved = this.mapper.resolveIncludeToRequire(pathNode.text);
+        if (this.isOwnHeader(pathNode.text)) {
+            return;
+        }
+        const resolved = this.mapper.resolveIncludeToRequire(pathNode.text, this.context.sourcePath);
         if (resolved) {
             this.state.moduleRequires.set(resolved.alias, resolved.path);
         }

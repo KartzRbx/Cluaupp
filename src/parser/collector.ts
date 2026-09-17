@@ -1,6 +1,8 @@
+import path from "node:path";
 import type Parser from "tree-sitter";
 import type { CollectorContext, TranspilerState } from "../types.js";
 import type { RojoMapper } from "../utils/rojo-mapper.js";
+import { siblingHeader } from "../preprocess.js";
 import {
 	translateAlias,
 	translateConstant,
@@ -28,7 +30,7 @@ export class ASTCollector {
 
 	constructor(
 		private mapper: RojoMapper,
-		context: CollectorContext = { fileName: "input.cpp" },
+		private context: CollectorContext = { fileName: "input.cpp" },
 	) {
 		this.state = emptyState(context.strict === true);
 	}
@@ -68,12 +70,43 @@ export class ASTCollector {
 		}
 	}
 
+	private includeTarget(raw: string): string | null {
+		const from = this.context.sourcePath;
+		if (!from) {
+			return null;
+		}
+		const cleaned = raw.replace(/[<>'"]/g, "").trim();
+		if (!cleaned || raw.includes("<")) {
+			return null;
+		}
+		return path.resolve(path.dirname(from), cleaned);
+	}
+
+	private isOwnHeader(raw: string): boolean {
+		const from = this.context.sourcePath;
+		if (!from) {
+			return false;
+		}
+		const target = this.includeTarget(raw);
+		if (!target) {
+			return false;
+		}
+		if (path.resolve(from) === target) {
+			return true;
+		}
+		const header = siblingHeader(from);
+		return Boolean(header && path.resolve(header) === target);
+	}
+
 	private collectInclude(node: SyntaxNode): void {
 		const pathNode = node.childForFieldName("path") || node.namedChildren[0] || node.child(1);
 		if (!pathNode) {
 			return;
 		}
-		const resolved = this.mapper.resolveIncludeToRequire(pathNode.text);
+		if (this.isOwnHeader(pathNode.text)) {
+			return;
+		}
+		const resolved = this.mapper.resolveIncludeToRequire(pathNode.text, this.context.sourcePath);
 		if (resolved) {
 			this.state.moduleRequires.set(resolved.alias, resolved.path);
 		}

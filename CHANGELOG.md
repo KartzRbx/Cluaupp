@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.2.2
+
+- Header modules with a sibling `.cpp` now re-export those functions (`startingCoins` from `config.cpp` lands on `config.luau` via `configImpl`). The impl no longer `require`s its own header (`ReplicatedStorage.config`).
+
+## 0.2.1
+
+- Pin `tree-sitter` 0.21.1 and `tree-sitter-c` 0.23.2 so `npm i -g cluaupp` no longer pulls `tree-sitter-c@0.23.6` (peerOptional `tree-sitter@^0.22.1`).
+
 ## 0.2.0
 
 - CLI rewritten as a TypeScript collector-emitter pipeline: Tree-sitter collection, Rojo-mapped `require`s, ordered Luau blocks (Services → Requires → Types → Constants → Code), then optional StyLua / `luau-analyze`. Commands `init`, `build`, `watch`, `lsp`, and `intellisense` stay. `cluaupp build -i file.cpp -o out.luau --rojo default.project.json` is the single-file path.

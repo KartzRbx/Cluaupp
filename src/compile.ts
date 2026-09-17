@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { parse } from "./parse.js";
 import { emit } from "./emit.js";
@@ -5,7 +6,7 @@ import { preprocess, isHeaderFile, toLuauPath, siblingImplementation, siblingHea
 import { collectLibraries, insertPreamble } from "./libs.js";
 import { planOutput } from "./architecture.js";
 import { emitHeaderModule, primaryHeaderName } from "./headers.js";
-import type { AstProgram, ModuleInclude, PreprocessOptions } from "./ast.js";
+import type { AstNode, AstProgram, ModuleInclude, PreprocessOptions } from "./ast.js";
 import type { CompileOptions, CompileServiceResult } from "./types.js";
 
 function shouldAttachRequires(name: string, contents: string): boolean {
@@ -32,12 +33,53 @@ function posixRel(from: string, file: string): string {
 	return path.relative(from, file).replace(/\\/g, "/");
 }
 
+function declKey(decl: AstNode): string {
+	return `${decl.owner || ""}::${decl.name}`;
+}
+
+function mergeSiblingImpl(ast: AstProgram, implPath: string, options: PreprocessOptions): void {
+	const implOptions: PreprocessOptions = {
+		...options,
+		moduleIncludes: [],
+		seen: new Set(),
+		pragmaResolved: false,
+	};
+	const prepared = preprocess(fs.readFileSync(implPath, "utf8"), implPath, implOptions);
+	const implAst = parse(prepared, path.basename(implPath)) as AstProgram;
+	if (!Array.isArray(ast.body)) {
+		ast.body = [];
+	}
+	const existing = new Set(
+		(ast.body || [])
+			.filter((decl) => decl && (decl.type === "function" || decl.type === "proto") && decl.name)
+			.map(declKey),
+	);
+	for (const decl of implAst.body || []) {
+		if ((decl.type !== "function" && decl.type !== "proto") || !decl.name) {
+			continue;
+		}
+		const key = declKey(decl);
+		if (existing.has(key)) {
+			continue;
+		}
+		existing.add(key);
+		ast.body.push({
+			type: "proto",
+			name: decl.name,
+			owner: decl.owner,
+			returnType: decl.returnType,
+			params: decl.params,
+		});
+	}
+}
+
 function wireHeaderImpl(ast: AstProgram, fileName: string, options: PreprocessOptions): void {
 	const headerPath = options.filePath || null;
 	const impl = headerPath ? siblingImplementation(headerPath) : null;
 	if (!impl) {
 		return;
 	}
+	mergeSiblingImpl(ast, impl, options);
 	const typeName = primaryHeaderName(ast, options.relativeName || fileName);
 	const implRel = options.srcDir ? posixRel(options.srcDir, impl) : path.basename(impl).replace(/\\/g, "/");
 	const implOut = implOutName(implRel);

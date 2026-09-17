@@ -29,10 +29,23 @@ const client = readOut(template, "client/init.client.luau");
 contains(client, ['print("Cluaupp client ok")', "init()"], "init.client.luau");
 
 const config = readOut(template, "shared/config.luau");
-contains(config, ["const STARTING_COINS", "return"], "config.h module");
+contains(config, [
+	"export type config = {",
+	"startingCoins: () -> number",
+	"const STARTING_COINS",
+	"const configModule = require(ReplicatedStorage.Cluaupp.configImpl)",
+	"startingCoins = configModule.startingCoins",
+	"return",
+], "config.h module");
+refuses(config, ["const function startingCoins", "require(ReplicatedStorage.config)"], "header must bind impl, not emit bodies");
 
 const configImpl = readOut(template, "shared/configImpl.luau");
 contains(configImpl, ["startingCoins", "STARTING_COINS"], "config.cpp impl");
+refuses(configImpl, [
+	"const config = require",
+	"require(ReplicatedStorage.config)",
+	"require(ReplicatedStorage.Cluaupp.config)",
+], "impl must not require its own header");
 
 for (const [file, kind, outName] of [
 	["server/combat.server.cpp", "flat", "server/combat.server.luau"],

@@ -2,7 +2,7 @@
 	"name": "cluaupp-diagnostics",
 	"displayName": "Cluaupp",
 	"description": "Cluaupp subset parse errors. C++ completion, hover, and go-to-definition come from clangd + include/cluaupp/roblox.hpp.",
-	"version": "0.2.0",
+	"version": "0.2.2",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"

@@ -64,7 +64,24 @@ export class RojoMapper {
 		this.bindings = this.walkTree(this.config.tree, []);
 	}
 
-	public resolveIncludeToRequire(includePath: string): RequireBinding | null {
+	private resolveQuotedFile(raw: string, fromFile?: string): string | null {
+		const bases: string[] = [];
+		if (fromFile) {
+			bases.push(path.dirname(fromFile));
+		}
+		if (this.srcDir) {
+			bases.push(this.srcDir);
+		}
+		for (const base of bases) {
+			const candidate = path.resolve(base, raw);
+			if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	public resolveIncludeToRequire(includePath: string, fromFile?: string): RequireBinding | null {
 		const raw = includePath.replace(/[<>'"]/g, "").trim();
 		if (!raw) {
 			return null;
@@ -82,12 +99,18 @@ export class RojoMapper {
 			return library;
 		}
 
-		const fromTree = this.resolveFromRojoTree(cleanPath, baseName);
+		const resolvedFile = this.resolveQuotedFile(raw, fromFile);
+		const lookupPath =
+			resolvedFile && this.srcDir
+				? posix(path.relative(this.srcDir, resolvedFile)).replace(/\.h(pp|h)?$/i, "")
+				: cleanPath;
+
+		const fromTree = this.resolveFromRojoTree(lookupPath, baseName);
 		if (fromTree) {
 			return fromTree;
 		}
 
-		const segments = cleanPath.split("/").filter(Boolean);
+		const segments = lookupPath.split("/").filter(Boolean);
 		if (segments[0] === "src") {
 			segments.shift();
 		}

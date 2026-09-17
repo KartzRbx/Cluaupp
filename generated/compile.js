@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.compileSource = compileSource;
 exports.compileService = compileService;
+const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const parse_js_1 = require("./parse.js");
 const emit_js_1 = require("./emit.js");
@@ -33,12 +34,49 @@ function attachRequires(contents, source, ast, options, outName) {
 function posixRel(from, file) {
     return node_path_1.default.relative(from, file).replace(/\\/g, "/");
 }
+function declKey(decl) {
+    return `${decl.owner || ""}::${decl.name}`;
+}
+function mergeSiblingImpl(ast, implPath, options) {
+    const implOptions = {
+        ...options,
+        moduleIncludes: [],
+        seen: new Set(),
+        pragmaResolved: false,
+    };
+    const prepared = (0, preprocess_js_1.preprocess)(node_fs_1.default.readFileSync(implPath, "utf8"), implPath, implOptions);
+    const implAst = (0, parse_js_1.parse)(prepared, node_path_1.default.basename(implPath));
+    if (!Array.isArray(ast.body)) {
+        ast.body = [];
+    }
+    const existing = new Set((ast.body || [])
+        .filter((decl) => decl && (decl.type === "function" || decl.type === "proto") && decl.name)
+        .map(declKey));
+    for (const decl of implAst.body || []) {
+        if ((decl.type !== "function" && decl.type !== "proto") || !decl.name) {
+            continue;
+        }
+        const key = declKey(decl);
+        if (existing.has(key)) {
+            continue;
+        }
+        existing.add(key);
+        ast.body.push({
+            type: "proto",
+            name: decl.name,
+            owner: decl.owner,
+            returnType: decl.returnType,
+            params: decl.params,
+        });
+    }
+}
 function wireHeaderImpl(ast, fileName, options) {
     const headerPath = options.filePath || null;
     const impl = headerPath ? (0, preprocess_js_1.siblingImplementation)(headerPath) : null;
     if (!impl) {
         return;
     }
+    mergeSiblingImpl(ast, impl, options);
     const typeName = (0, headers_js_1.primaryHeaderName)(ast, options.relativeName || fileName);
     const implRel = options.srcDir ? posixRel(options.srcDir, impl) : node_path_1.default.basename(impl).replace(/\\/g, "/");
     const implOut = (0, preprocess_js_1.implOutName)(implRel);
