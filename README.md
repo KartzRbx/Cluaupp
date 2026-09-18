@@ -20,7 +20,7 @@ Cluaupp is the **toolchain**, not the language compiler. [KartzRbx/CLPP](https:/
 
 void init() {
 	Players* players = GetService<Players>();
-	players::PlayerAdded~>Connect(func [](Player* player) {
+	players.PlayerAdded::Connect(func (Player* player) {
 		guard (player != null) else {
 			return;
 		}
@@ -68,7 +68,7 @@ cluaupp intellisense      # files.associations + clpp install
 
 Course and reference: **[kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/)**.
 
-Exclusive CL++ (`guard`, `match`, `signal`, `observable`, `.:`, `::`, `~>`, Fusion) is compiled by `clpp`. Samples: [`examples/game`](examples/game). Old C++ games: [docs/migration.md](docs/migration.md).
+Exclusive CL++ (`guard`, `match`, `signal`, `observable`, `.:`, `::`, Fusion) is compiled by `clpp`. Samples: [`examples/game`](examples/game). Old C++ games: [docs/migration.md](docs/migration.md).
 
 ## License
 

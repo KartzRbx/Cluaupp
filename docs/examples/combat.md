@@ -10,7 +10,7 @@ Live source: [`examples/game/src/server/combat.server.clpp`](../../examples/game
 This sample uses exclusive CL++:
 
 - `guard` / `match` instead of nested null checks
-- `signal<Player*, int> OnHit` and `OnHit~>Connect` / `OnHit::Fire`
+- `signal<Player*, int> OnHit` and `OnHit::Connect` / `OnHit::Fire`
 - `observable int combo`
 - `[[server]]` on `WatchWorkspace`
 - `spawn { task::wait(1); … }`

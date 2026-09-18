@@ -35,7 +35,7 @@ init()`,
 <ol>
 <li>A short rule (what the statement is).</li>
 <li>A CL++ / Luau pair — the right tab is what Studio runs.</li>
-<li>Operators that belong to CL++: <code>.:</code> concat, <code>::</code> methods, <code>~&gt;</code> janitor Connect, <code>guard</code>, <code>match</code>, <code>signal</code>.</li>
+<li>Operators that belong to CL++: <code>.:</code> concat, <code>.</code> properties, <code>::</code> methods, <code>guard</code>, <code>match</code>, <code>signal</code>.</li>
 </ol>
 <h2>A real game script</h2>
 <p>After the basics, this is the shape of production code: filename tags, Janitor, <code>init()</code>.</p>
@@ -62,7 +62,7 @@ void init() {
 	for (Player* player : players::GetPlayers()) {
 		CreateLeaderstats(player);
 	}
-	players::PlayerAdded~>Connect(CreateLeaderstats);
+	players.PlayerAdded::Connect(CreateLeaderstats);
 }`,
 	`local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Janitor = require(ReplicatedStorage.CluauppLibs.Janitor)
@@ -321,10 +321,10 @@ Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>
 <tr><td><code>player-&gt;GetPlayers()</code></td><td><code>player::GetPlayers()</code></td><td><code>:</code></td></tr>
 <tr><td><code>DataService::Server</code></td><td><code>DataService:Server</code></td><td><code>.</code></td></tr>
 <tr><td><code>"hi " + name</code></td><td><code>"hi " .: name</code></td><td><code>..</code></td></tr>
-<tr><td><code>signal.Connect(fn)</code></td><td><code>signal~&gt;Connect(fn)</code></td><td>Janitor <code>Add</code></td></tr>
+<tr><td><code>signal.Connect(fn)</code></td><td><code>signal::Connect(fn)</code></td><td><code>:</code></td></tr>
 <tr><td><code>print</code> / <code>error</code></td><td><code>post</code> / <code>report</code></td><td><code>print</code> / <code>error</code></td></tr>
 <tr><td><code>nullptr</code></td><td><code>null</code></td><td><code>nil</code></td></tr>
-<tr><td><code>[](Player* p) { }</code></td><td><code>func [](Player* p) { }</code></td><td><code>function</code></td></tr>
+<tr><td><code>[](Player* p) { }</code></td><td><code>func (Player* p) { }</code></td><td><code>function</code></td></tr>
 </table>
 <h2>Workflow</h2>
 <ol>
@@ -407,7 +407,7 @@ Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>
 <tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
 <tr><td><code>CFrame::lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>signal~&gt;Connect(fn)</code> / <code>func []</code></td><td>Janitor <code>Add</code> + <code>Connect</code> — <a href="events.html">callbacks</a></td></tr>
+<tr><td><code>signal::Connect(fn)</code> / <code>func (…)</code></td><td><code>signal:Connect(function…)</code> — <a href="events.html">callbacks</a></td></tr>
 <tr><td><code>static_cast&lt;Folder*&gt;(x)</code> / <code>(void)x</code></td><td>the value / omitted — <a href="casts.html">casts</a></td></tr>
 <tr><td><code>Type { .Field = value }</code></td><td><code>{ Field = value }</code></td></tr>
 <tr><td><code>post</code> / <code>warn</code> / <code>report</code></td><td><code>print(…)</code> — <a href="logging.html">logging</a></td></tr>
@@ -841,7 +841,7 @@ end`,
 <tr><td>Types</td><td><code>int</code> <code>bool</code> <code>string</code> <code>void</code> <code>auto</code> <code>*</code> Instances, datatypes, <code>Enum::</code></td></tr>
 <tr><td>Engine</td><td><code>new Class(parent)</code>, <code>GetService&lt;T&gt;()</code>, <code>.</code> properties, <code>::</code> methods</td></tr>
 <tr><td>Control</td><td><code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, <code>guard</code>, <code>match</code>, <code>return</code></td></tr>
-<tr><td>Exprs</td><td><code>== != &amp;&amp; || !</code>, concat <code>.:</code>, janitor <code>~&gt;</code>, <code>func []</code> lambdas</td></tr>
+<tr><td>Exprs</td><td><code>== != &amp;&amp; || !</code>, concat <code>.:</code>, janitor <code>~&gt;</code>, <code>func (…)</code> callbacks</td></tr>
 <tr><td>IO</td><td><code>post</code> / <code>warn</code> / <code>report</code>, <code>null</code></td></tr>
 <tr><td>Boot</td><td><code>void init()</code> called at end of Scripts / LocalScripts</td></tr>
 </table>
@@ -1121,14 +1121,11 @@ end)
 
 players.PlayerAdded:Connect(OnPlayer)`,
 )}
-<h2>Lambda forms</h2>
+<h2>Callback forms</h2>
 <table>
 <tr><th>CL++</th><th>Meaning in this subset</th></tr>
-<tr><td><code>[](Player* p) { … }</code></td><td>Accepted. Capture list is ignored in Luau (closures see enclosing locals).</td></tr>
-<tr><td><code>[&amp;](Player* p) { … }</code></td><td>Same. Write <code>[&amp;]</code> when you use <code>init()</code> locals.</td></tr>
-<tr><td><code>[=](Player* p) { … }</code></td><td>Same. Luau does not copy-capture like C++.</td></tr>
-<tr><td><code>[coinsValue](int n) { … }</code></td><td>Same. Keep <code>coinsValue</code> alive with Janitor so it is not a dangling handle.</td></tr>
-<tr><td><code>[]() { … }</code></td><td>No parameters.</td></tr>
+<tr><td><code>func (Player* p) { … }</code></td><td>Anonymous callback. Luau closures see enclosing locals.</td></tr>
+<tr><td><code>func () { … }</code></td><td>No parameters.</td></tr>
 </table>
 <p>Parameters are typed the same way as functions. The body is a block of statements.</p>
 <h2>Named functions vs methods</h2>

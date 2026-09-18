@@ -22,10 +22,9 @@ CL++ does **not** use `->`.
 | --- | --- | --- |
 | `player.Name` | property | `.` |
 | `player::FindFirstChild("x")` | method | `:` |
+| `players.PlayerAdded::Connect(fn)` | property then method | `.` then `:` |
 | `DataService:Server` | table key | `.` |
 | `"hi " .: name` | concat | `..` |
-| `signal~>Connect(fn)` | janitor Connect | `janitor:Add(..., "Disconnect")` |
-| `signal~>Once(fn)` | one-shot | `Once` + janitor |
 
 `post` / `warn` / `report` → `print` / `warn` / `error`. `null` is `nil`.
 
@@ -44,12 +43,12 @@ match (child) {
 };
 
 observable int wallet = 100;
-wallet.OnChange(func [](int newValue) {
+wallet.OnChange(func (int newValue) {
 	post("Coins changed to: " .: newValue);
 });
 
 signal<Player*, int> OnHit;
-OnHit~>Connect(func [](Player* player, int amount) {
+OnHit::Connect(func (Player* player, int amount) {
 	post(player.Name .: " dmg " .: amount);
 });
 OnHit::Fire(player, 10);

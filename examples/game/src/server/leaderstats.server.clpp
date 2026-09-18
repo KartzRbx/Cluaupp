@@ -20,10 +20,9 @@ void CreateLeaderstats(Player* player) {
 
 void init() {
 	Players* players = GetService<Players>();
-
 	for (Player* player : players::GetPlayers()) {
 		CreateLeaderstats(player);
 	}
 
-	players::PlayerAdded::Connect(CreateLeaderstats);
+	players.PlayerAdded::Connect(CreateLeaderstats);
 }

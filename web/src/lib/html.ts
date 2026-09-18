@@ -32,13 +32,14 @@ export function mappingTable() {
 <tr><td><code>Color3.fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
 <tr><td><code>Enum::Material::Plastic</code></td><td><code>Enum.Material.Plastic</code></td></tr>
 <tr><td><code>new Part(workspace)</code></td><td><code>Instance.new("Part")</code> + <code>.Parent</code></td></tr>
-<tr><td><code>part.Name</code></td><td><code>part.Name</code></td></tr>
+<tr><td><code>player.Name</code></td><td><code>player.Name</code></td></tr>
 <tr><td><code>player::FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code></td></tr>
+<tr><td><code>players.PlayerAdded::Connect(fn)</code></td><td><code>players.PlayerAdded:Connect(fn)</code></td></tr>
 <tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
 <tr><td><code>DataService:Server</code></td><td><code>DataService.Server</code></td></tr>
 <tr><td><code>"hi " .: name</code></td><td><code>"hi " .. name</code></td></tr>
-<tr><td><code>signal~&gt;Connect(fn)</code></td><td>Janitor <code>Add</code> + <code>Connect</code></td></tr>
+<tr><td><code>signal::Connect(fn)</code></td><td><code>signal:Connect(fn)</code></td></tr>
 <tr><td><code>post</code> / <code>report</code></td><td><code>print</code> / <code>error</code></td></tr>
 <tr><td><code>null</code></td><td><code>nil</code></td></tr>
 </table>`;

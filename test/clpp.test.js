@@ -21,7 +21,7 @@ void init() {
 	for (Player* player : players::GetPlayers()) {
 		Greet(player);
 	}
-	players::PlayerAdded::Connect(func [](Player* playerEntered) {
+	players.PlayerAdded::Connect(func (Player* playerEntered) {
 		post("New player connected: " .: playerEntered.Name);
 	});
 }

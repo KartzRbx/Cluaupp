@@ -6,7 +6,7 @@ const HOME_CLPP = `#include <clpp/roblox.clh>
 
 void init() {
 	Players* players = GetService<Players>();
-	players::PlayerAdded~>Connect(func [](Player* player) {
+	players.PlayerAdded::Connect(func (Player* player) {
 		guard (player != null) else {
 			return;
 		}
@@ -70,8 +70,7 @@ export function HomePage() {
 					<Link className="card" to="/docs/syntax">
 						<strong>CL++ syntax</strong>
 						<span className="muted">
-							<code>guard</code>, <code>match</code>, <code>signal</code>, <code>.:</code>, <code>::</code>,{" "}
-							<code>~&gt;</code> — taught here, specified on the CL++ site.
+							<code>guard</code>, <code>match</code>, <code>signal</code>, <code>.:</code>, <code>::</code> — taught here, specified on the CL++ site.
 						</span>
 					</Link>
 					<Link className="card" to="/docs/structs">

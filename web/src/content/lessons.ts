@@ -159,18 +159,18 @@ end`,
 	page(
 		"lambdas",
 		"lambdas.html",
-		"11. Lambdas",
+		"11. Callbacks",
 		GROUP,
-		`<p class="muted">A lambda is a mini function you write in place — the same idea as the <a href="https://www.w3schools.com/CPP/cpp_functions_lambda.asp">W3Schools C++ Lambda</a> chapter. Cluaupp emits a Luau <code>function</code>. There is no <code>std::function</code> and no <code>&lt;functional&gt;</code>.</p>
+		`<p class="muted">An anonymous callback is a mini function you write in place. CL++ uses <code>func (params) { }</code> — there is no C++ capture list. Cluaupp emits a Luau <code>function</code>. There is no <code>std::function</code> and no <code>&lt;functional&gt;</code>.</p>
 <h2>Syntax</h2>
-${preCode(`[capture](parameters) { body }`, "plain")}
-<p>For a first example, use empty capture <code>[]</code>:</p>
+${preCode(`func (parameters) { body }`, "plain")}
+<p>There are no C++ captures <code>[]</code> / <code>[&amp;]</code>. Luau closures still see outer locals.</p>
 ${codePair(
-	`auto message = []() {
-	print("Hello World!");
+	`func message = func () {
+	post("Hello World!");
 };
 message();`,
-	`local message = function()
+	`local message: (...any) -> any = function()
 	print("Hello World!")
 end
 message()`,
@@ -178,48 +178,49 @@ message()`,
 <h2>Parameters</h2>
 <p>Pass values like a regular function:</p>
 ${codePair(
-	`auto add = [](int a, int b) {
+	`func add = func (int a, int b) {
 	return a + b;
 };
-print(add(3, 4));`,
-	`local add = function(a: number, b: number)
+post(add(3, 4));`,
+	`local add: (...any) -> any = function(a: number, b: number)
 	return a + b
 end
 print(add(3, 4))`,
 )}
-<h2>Pass a lambda to Connect</h2>
+<h2>Pass a callback to Connect</h2>
 <p>This is the usual Roblox use. You tell a signal what to do, not just what data to use:</p>
 ${codePair(
-	`players->PlayerAdded.Connect([](Player* player) {
-	print(player->Name);
+	`players.PlayerAdded::Connect(func (Player* player) {
+	post(player.Name);
 });`,
-	`players.PlayerAdded:Connect(function(player: Player)
+	`__janitor:Add(players.PlayerAdded:Connect(function(player: Player)
 	print(player.Name)
-end)`,
+end), "Disconnect")`,
 )}
-<h2>Capture []</h2>
-<p>W3Schools: <code>[x]</code> copies, <code>[&amp;x]</code> / <code>[&amp;]</code> sees the original. Cluaupp accepts <code>[]</code>, <code>[=]</code>, <code>[&amp;]</code>, and named lists. Luau closures always see the outer locals — there is no separate copy vs reference machine. Write <code>[&amp;]</code> when the callback must use a struct you built in <code>init()</code>:</p>
+<h2>No capture list</h2>
+<p>CL++ does not have pointers to capture. Write <code>func (…)</code>. Outer locals are visible because Luau closures close over the environment. Keep Instances alive with Janitor:</p>
 ${codePair(
 	`void init() {
 	LeaderstatsServer leaderstatsServer;
 	leaderstatsServer.janitor = new Janitor();
 	Players* players = GetService<Players>();
-	players->PlayerAdded.Connect([&](Player* playerEntered) {
+	players.PlayerAdded::Connect(func (Player* playerEntered) {
 		leaderstatsServer.PlayerEntered(playerEntered);
 	});
 }`,
 	`const function init()
+	local __janitor = Janitor.new()
 	local leaderstatsServer: LeaderstatsServer = LeaderstatsServer
 	leaderstatsServer.janitor = Janitor.new()
 	local players: Players = game:GetService("Players")
-	players.PlayerAdded:Connect(function(playerEntered: Player)
+	__janitor:Add(players.PlayerAdded:Connect(function(playerEntered: Player)
 		leaderstatsServer:PlayerEntered(playerEntered)
-	end)
+	end), "Disconnect")
 end`,
 )}
-<h2>Regular function vs lambda</h2>
+<h2>Regular function vs callback</h2>
 <table>
-<tr><th>Use a named function when…</th><th>Use a lambda when…</th></tr>
+<tr><th>Use a named function when…</th><th>Use <code>func (…)</code> when…</th></tr>
 <tr><td>You call it from more than one place</td><td>You need it once (almost always <code>Connect</code>)</td></tr>
 <tr><td>The body is long</td><td>The body is a few statements</td></tr>
 <tr><td>You want a clear name in the stack trace</td><td>The work is “on this signal”</td></tr>
@@ -229,14 +230,14 @@ ${codePair(
 	return a + b;
 }
 
-auto add = [](int a, int b) {
+func add = func (int a, int b) {
 	return a + b;
 };`,
 	`const function Add(a: number, b: number): number
 	return a + b
 end
 
-local add = function(a: number, b: number)
+local add: (...any) -> any = function(a: number, b: number)
 	return a + b
 end`,
 )}

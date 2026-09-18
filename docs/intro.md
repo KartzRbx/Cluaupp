@@ -31,7 +31,7 @@ void OnPlayer(Player* player) {
 
 void init() {
 	Players* players = GetService<Players>();
-	players::PlayerAdded~>Connect(OnPlayer);
+	players.PlayerAdded::Connect(OnPlayer);
 }
 ```
 

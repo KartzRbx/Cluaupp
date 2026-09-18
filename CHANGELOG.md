@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0
+
+Properties use `.`, methods use `::`: `players.PlayerAdded::Connect(fn)`.
+
+- Templates, examples, README, and handbook match that accessor rule.
+- `~>` is not used in Cluaupp samples (`signal::Connect` / `signal::Once`).
+
+## 1.1.0
+
+CL++ 0.3.0: anonymous callbacks are `func (params) { }`. `func [](…)` and C++ capture lists are rejected by `clpp`.
+
+- Examples, README, migration table, and docs use `func (…)` / `func ()`.
+- Requires CL++ **0.3.0** on PATH (`clpp install` for the error lens).
+
 ## 1.0.0
 
 Breaking: Cluaupp no longer transpiles a C++ subset. Games are **CL++** (`.clpp` / `.clp` / `.clh`). The CLI orchestrates the [`clpp`](https://github.com/KartzRbx/CLPP) binary (`clpp api compile`), post-processes Luau (`ClppLibs` → `ReplicatedStorage.CluauppLibs`), and writes `out/` for Rojo.

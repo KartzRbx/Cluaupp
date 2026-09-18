@@ -25,5 +25,5 @@ void init() {
 		CreateLeaderstats(player);
 	}
 
-	players::PlayerAdded::Connect(CreateLeaderstats);
+	players.PlayerAdded::Connect(CreateLeaderstats);
 }

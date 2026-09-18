@@ -21,12 +21,13 @@ Quoted includes: `"leaderstats.h"` → `"leaderstats.clh"`.
 | --- | --- | --- |
 | `player->Name` | `player.Name` | `.` |
 | `player->GetPlayers()` | `player::GetPlayers()` | `:` |
+| `players->PlayerAdded.Connect(fn)` | `players.PlayerAdded::Connect(fn)` | `.` then `:` |
 | `DataService::Server` | `DataService:Server` | `.` |
 | `"hi " + name` | `"hi " .: name` | `..` |
-| `signal.Connect(fn)` | `signal~>Connect(fn)` | Janitor `Add` |
+| `signal.Connect(fn)` | `signal::Connect(fn)` | `:` |
 | `print` / `error` | `post` / `report` | `print` / `error` |
 | `nullptr` | `null` | `nil` |
-| `[](Player* p) { }` | `func [](Player* p) { }` | `function` |
+| `[](Player* p) { }` | `func (Player* p) { }` | `function` |
 
 ## Workflow
 
