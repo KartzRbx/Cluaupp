@@ -14,8 +14,6 @@ export function isEngineStub(filePath: string): boolean {
 		normalized.includes("/include/clpp/") ||
 		normalized.includes("/include/cluau/") ||
 		normalized.includes("/stdlib/") ||
-		normalized.endsWith("/roblox.hpp") ||
-		normalized.endsWith("/roblox.h") ||
 		normalized.endsWith("/roblox.clh")
 	);
 }

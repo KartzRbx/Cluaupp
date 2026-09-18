@@ -65,6 +65,7 @@ program
             format: options.format === true,
             analyze: options.analyze === true,
             rojo: options.rojo,
+            strict: options.strict === true,
         });
     }
     catch (err) {
@@ -120,10 +121,15 @@ program
     .description("CL++ manifest (`clpp api manifest`)")
     .action(() => {
     try {
-        (0, runner_js_1.resolveClppBinary)();
+        const bin = (0, runner_js_1.resolveClppBinary)();
         const version = (0, runner_js_1.clppVersion)();
         if (version) {
-            console.log("clpp", version);
+            console.log(version, `(${bin})`);
+        }
+        for (const install of (0, runner_js_1.clppInstalls)()) {
+            if (!install.selected) {
+                console.log(`skipped ${install.bin} (${install.version || "unknown"})`);
+            }
         }
         console.log(JSON.stringify((0, runner_js_1.clppManifest)(), null, "\t"));
     }

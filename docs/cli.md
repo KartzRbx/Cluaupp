@@ -30,10 +30,10 @@ Rebuilds on save. Does not write `out/` while compile fails.
 
 ## `cluaupp language`
 
-Prints `clpp api manifest` (extensions, tags, operators).
+Prints the selected `clpp` binary + version, skipped older installs, and `clpp api manifest`. Needs CL++ **0.2.6+**.
 
 ## `cluaupp intellisense` / `cluaupp lsp`
 
-Delegates to CL++ (`clpp install`). Cluaupp only writes `files.associations` for `clpp`.
+Writes `files.associations` for `clpp` and runs `clpp install`. Language diagnostics stay with the CL++ pack — Cluaupp does not recompile on every keystroke.
 
 ## `cluaupp --version` / `--help`

@@ -5,19 +5,9 @@ import {
 	TextDocumentSyncKind,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { diagnosticsFor } from "./intellisense.js";
 import { pkg } from "./package-info.js";
 
-function uriPath(uri: string): string {
-	let file = String(uri || "").replace(/^file:\/\//, "");
-	if (/^\/[A-Za-z]:/.test(file)) {
-		file = file.slice(1);
-	}
-	return decodeURIComponent(file);
-}
-
-export function start(options: { projectRoot?: string } = {}): void {
-	const projectRoot = options.projectRoot || process.cwd();
+export function start(_options: { projectRoot?: string } = {}): void {
 	const connection = createConnection(ProposedFeatures.all);
 	const documents = new TextDocuments(TextDocument);
 
@@ -28,28 +18,13 @@ export function start(options: { projectRoot?: string } = {}): void {
 		serverInfo: { name: "cluaupp", version: pkg.version },
 	}));
 
-	const publish = (document: TextDocument) => {
-		const file = uriPath(document.uri);
-		const items = diagnosticsFor(document.getText(), file);
-		connection.sendDiagnostics({
-			uri: document.uri,
-			diagnostics: items.map((item) => ({
-				range: {
-					start: { line: Math.max(0, (item.line || 1) - 1), character: Math.max(0, (item.col || 1) - 1) },
-					end: { line: Math.max(0, (item.line || 1) - 1), character: Math.max(1, item.col || 1) },
-				},
-				severity: 1,
-				source: "cluaupp",
-				message: item.message,
-			})),
-		});
+	const clear = (uri: string) => {
+		connection.sendDiagnostics({ uri, diagnostics: [] });
 	};
 
-	documents.onDidOpen((event) => publish(event.document));
-	documents.onDidChangeContent((event) => publish(event.document));
-	documents.onDidClose((event) => {
-		connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
-	});
+	documents.onDidOpen((event) => clear(event.document.uri));
+	documents.onDidChangeContent((event) => clear(event.document.uri));
+	documents.onDidClose((event) => clear(event.document.uri));
 
 	documents.listen(connection);
 	connection.listen();

@@ -28,7 +28,7 @@ function loadEngine(context) {
 			}
 		}
 	}
-	throw new Error("Cluaupp diagnostics engine not found. Run `cluaupp intellisense` in the game folder.");
+	throw new Error("Cluaupp editor helper not found. Run `cluaupp intellisense` then `clpp install`.");
 }
 
 function activate(context) {
@@ -43,44 +43,21 @@ function activate(context) {
 	const diagnostics = vscode.languages.createDiagnosticCollection("cluaupp");
 	context.subscriptions.push(diagnostics);
 
-	const optionsFor = (document) => ({
-		projectRoot: loaded.workspaceFolder || path.dirname(document.uri.fsPath),
-		file: document.uri.fsPath,
-		filePath: document.uri.fsPath,
-		includeDirs: [
-			path.dirname(document.uri.fsPath),
-			path.join(loaded.workspaceFolder || "", "src"),
-			path.join(loaded.workspaceFolder || "", "include"),
-		],
-	});
-
-	const refreshDiagnostics = (document) => {
-		if (!document || (document.languageId !== "clpp" && document.languageId !== "cpp")) {
+	const clearCluaupp = (document) => {
+		if (!document || document.languageId !== "clpp") {
 			return;
 		}
-		if (typeof loaded.engine.diagnosticsFor !== "function") {
-			return;
-		}
-		const items = loaded.engine.diagnosticsFor(document.getText(), document.uri.fsPath, optionsFor(document));
-		diagnostics.set(
-			document.uri,
-			items.map((item) => {
-				const line = Math.max(0, (item.line || 1) - 1);
-				const col = Math.max(0, (item.col || 1) - 1);
-				const range = new vscode.Range(line, col, line, col + 1);
-				return new vscode.Diagnostic(range, item.message, vscode.DiagnosticSeverity.Error);
-			}),
-		);
+		diagnostics.set(document.uri, []);
 	};
 
 	context.subscriptions.push(
-		vscode.workspace.onDidChangeTextDocument((event) => refreshDiagnostics(event.document)),
-		vscode.workspace.onDidOpenTextDocument(refreshDiagnostics),
+		vscode.workspace.onDidOpenTextDocument(clearCluaupp),
 		vscode.commands.registerCommand("cluaupp.restartIntelliSense", () => {
 			try {
 				delete require.cache[require.resolve(loaded.enginePath)];
 				loaded = loadEngine(context);
-				vscode.window.showInformationMessage("Cluaupp diagnostics reloaded. C++ completion is clangd.");
+				diagnostics.clear();
+				vscode.window.showInformationMessage("Cluaupp helper reloaded. Language diagnostics come from clpp install.");
 			} catch (err) {
 				vscode.window.showErrorMessage(String(err.message || err));
 			}
@@ -88,7 +65,7 @@ function activate(context) {
 	);
 
 	for (const document of vscode.workspace.textDocuments) {
-		refreshDiagnostics(document);
+		clearCluaupp(document);
 	}
 }
 

@@ -337,6 +337,9 @@ export function build(root: string, options: BuildOptions = {}): BuildResult {
 	const holdOnError = options.holdOnError === true;
 	const format = options.format === true;
 	const config = loadConfig(root);
+	if (options.strict === true) {
+		config.strict = true;
+	}
 	if (options.syncVendor !== false) {
 		ensureVendor(root);
 	}

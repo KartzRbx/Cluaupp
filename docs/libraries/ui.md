@@ -7,17 +7,17 @@ sidebar_position: 5
 
 Live handbook (examples, C++ / Luau tabs): **[Declarative UI](https://kartzrbx.github.io/Cluaupp/docs/ui.html)**.
 
-roblox-ts can compile [Roact JSX](https://roblox-ts.com/docs/guides/roact-jsx) because TypeScript has JSX. **Cluaupp does not.** There are no `<frame />` tags. You call the library the way Luau does: functions, designated-initializer tables, lambdas.
+roblox-ts can compile [Roact JSX](https://roblox-ts.com/docs/guides/roact-jsx) because TypeScript has JSX. **Cluaupp does not.** There are no `<frame />` tags. You call the library the way Luau does: functions, designated-initializer tables, `func [](…)` callbacks.
 
 ## Pick a model
 
 | When you want… | Use | In Cluaupp |
 | --- | --- | --- |
 | A few labels you set by hand | Imperative Instances | `new TextLabel(gui)` |
-| UI that follows state | [Fusion](https://github.com/dphfox/Fusion) | Shipped: `#include <cluaupp/libs/fusion.hpp>` |
+| UI that follows state | [Fusion](https://github.com/dphfox/Fusion) | Shipped: `#include <clpp/libs/fusion.clh>` |
 | The same idea, sources | [Vide](https://github.com/centau/vide) | Not shipped — calling convention on the handbook |
 | A virtual tree | Roact / [jsdotlua React](https://github.com/jsdotlua/react) | Not shipped — `createElement`, never JSX |
-| Studio debug panels | [Iris](https://github.com/SirMallard/Iris) | Shipped: `#include <cluaupp/libs/iris.hpp>` |
+| Studio debug panels | [Iris](https://github.com/SirMallard/Iris) | Shipped: `#include <clpp/libs/iris.clh>` |
 | Topbar / fade / rainbow | TopbarPlus, Twinkle, EzVisualz | Shipped — polish Instances you already have |
 
 Fusion and Iris are in CluauppLibs. Vide and React/Roact are **not** vendored.
@@ -26,26 +26,26 @@ Fusion and Iris are in CluauppLibs. Vide and React/Roact are **not** vendored.
 
 | roblox-ts JSX | Cluaupp |
 | --- | --- |
-| `<frame Size={u} />` | `React::createElement("Frame", { .Size = u })` |
+| `<frame Size={u} />` | `React:createElement("Frame", { .Size = u })` |
 | `<textlabel Key="Coins" />` | `.Key = "Coins"` on the props table |
 | `Event={{ Activated: fn }}` | `.Event = { .Activated = fn }` |
-| `<MyButton text="Buy" />` | `React::createElement(MyButton, { .text = "Buy" })` |
+| `<MyButton text="Buy" />` | `React:createElement(MyButton, { .text = "Buy" })` |
 
 ## Fusion (shipped)
 
-```cpp
-#include <cluaupp/libs/fusion.hpp>
+```clpp
+#include <clpp/libs/fusion.clh>
 
-FusionScope scope = Fusion::scoped();
-FusionState coins = Fusion::Value(0);
-Fusion::New("TextLabel")({
+FusionScope scope = Fusion:scoped();
+FusionState coins = Fusion:Value(0);
+Fusion:New("TextLabel")({
 	.Name = "Coins",
 	.Parent = gui,
-	.Size = UDim2::fromScale(1, 0.1),
+	.Size = UDim2:fromScale(1, 0.1),
 });
 ```
 
-Wire `coins(newValue)` from `DataService::Client` `GetChangedSignal(Paths.Currencies.Coins)`. Use `Computed` for strings, `Hydrate` for a ScreenGui that already exists in Studio, `Spring` / `Tween` for motion.
+Wire `coins(newValue)` from `DataService:Client` `GetChangedSignal(Paths.Currencies.Coins)`. Use `Computed` for strings, `Hydrate` for a ScreenGui that already exists in Studio, `Spring` / `Tween` for motion.
 
 ## Vide / React
 
@@ -53,19 +53,19 @@ Same subset: **no JSX**. Vide is `source` / `derive` / `create("TextLabel")({ .P
 
 ## Iris (shipped, debug only)
 
-```cpp
-#include <cluaupp/libs/iris.hpp>
+```clpp
+#include <clpp/libs/iris.clh>
 
 void DrawEconomy() {
-	if (Iris::Window("Economy")) {
-		Iris::Text("Coins");
-		Iris::End();
+	if (Iris:Window("Economy")) {
+		Iris:Text("Coins");
+		Iris:End();
 	}
 }
 
 void init() {
-	Iris::Init();
-	Iris::Connect(DrawEconomy);
+	Iris:Init();
+	Iris:Connect(DrawEconomy);
 }
 ```
 

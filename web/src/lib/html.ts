@@ -28,8 +28,8 @@ export function mappingTable() {
 <tr><td><code>Part*</code> / <code>auto*</code></td><td><code>Part</code> (Instance handle)</td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
 <tr><td><code>CFrame.lookAt(from, look)</code> / <code>CFrame::lookAt</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
-<tr><td><code>UDim2.fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
-<tr><td><code>Color3.fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
+<tr><td><code>UDim2:fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
+<tr><td><code>Color3:fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
 <tr><td><code>Enum::Material::Plastic</code></td><td><code>Enum.Material.Plastic</code></td></tr>
 <tr><td><code>new Part(workspace)</code></td><td><code>Instance.new("Part")</code> + <code>.Parent</code></td></tr>
 <tr><td><code>player.Name</code></td><td><code>player.Name</code></td></tr>
@@ -39,7 +39,8 @@ export function mappingTable() {
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
 <tr><td><code>DataService:Server</code></td><td><code>DataService.Server</code></td></tr>
 <tr><td><code>"hi " .: name</code></td><td><code>"hi " .. name</code></td></tr>
-<tr><td><code>signal::Connect(fn)</code></td><td><code>signal:Connect(fn)</code></td></tr>
+<tr><td><code>for (T* x in list)</code></td><td><code>for _, x in list do</code></td></tr>
+<tr><td><code>func [](Player* p) { }</code></td><td><code>function(p: Player)</code></td></tr>
 <tr><td><code>post</code> / <code>report</code></td><td><code>print</code> / <code>error</code></td></tr>
 <tr><td><code>null</code></td><td><code>nil</code></td></tr>
 </table>`;

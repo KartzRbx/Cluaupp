@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1
+
+Align with CL++ **0.2.6** (the current KartzRbx/CLPP release — there is no 0.3.0).
+
+- Pick the newest `clpp` on PATH (installer 0.2.6 over stale cargo 0.1.0). Refuse compilers older than **0.2.6**.
+- Stop live `clpp api compile` from the Cluaupp editor helper / LSP (that duplicated `source=clpp` and froze IntelliSense).
+- Range-for is `for (T x in list)`, not C++ `:`.
+- Lambdas are `func [](params)`. `func (params)` and `(void)x` are parse errors on 0.2.6.
+- Table keys use `:` (`Color3:fromRGB`, `UDim2:fromScale`, `Fusion:scoped`, `DataService:Server`).
+
 ## 1.2.0
 
 Properties use `.`, methods use `::`: `players.PlayerAdded::Connect(fn)`.

@@ -59,7 +59,7 @@ void CreateLeaderstats(Player* player) {
 
 void init() {
 	Players* players = GetService<Players>();
-	for (Player* player : players::GetPlayers()) {
+	for (Player* player in players::GetPlayers()) {
 		CreateLeaderstats(player);
 	}
 	players.PlayerAdded::Connect(CreateLeaderstats);
@@ -324,7 +324,7 @@ Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>
 <tr><td><code>signal.Connect(fn)</code></td><td><code>signal::Connect(fn)</code></td><td><code>:</code></td></tr>
 <tr><td><code>print</code> / <code>error</code></td><td><code>post</code> / <code>report</code></td><td><code>print</code> / <code>error</code></td></tr>
 <tr><td><code>nullptr</code></td><td><code>null</code></td><td><code>nil</code></td></tr>
-<tr><td><code>[](Player* p) { }</code></td><td><code>func (Player* p) { }</code></td><td><code>function</code></td></tr>
+<tr><td><code>[](Player* p) { }</code></td><td><code>func [](Player* p) { }</code></td><td><code>function</code></td></tr>
 </table>
 <h2>Workflow</h2>
 <ol>
@@ -387,7 +387,7 @@ Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>
 <tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>if (x) { } else { }</code></td><td><code>if x then … else … end</code></td></tr>
 <tr><td><code>while (x) { }</code></td><td><code>while x do … end</code></td></tr>
-<tr><td><code>for (T* x : list)</code></td><td><code>for _, x in list do</code> — range-for only</td></tr>
+<tr><td><code>for (T* x in list)</code></td><td><code>for _, x in list do</code> — range-for uses <code>in</code>, not <code>:</code></td></tr>
 <tr><td><code>switch / case / default / break</code></td><td><code>repeat</code> + <code>if</code> / <code>elseif</code> — <a href="control-flow.html">control</a></td></tr>
 <tr><td><code>return;</code> / <code>return x;</code></td><td><code>return</code> / <code>return x</code></td></tr>
 <tr><td><code>== != &lt; &gt; &lt;= &gt;= + - * /</code></td><td>same, except <code>!=</code> → <code>~=</code></td></tr>
@@ -403,12 +403,12 @@ Quoted includes: <code>"leaderstats.h"</code> → <code>"leaderstats.clh"</code>
 <tr><td><code>new Folder(player)</code></td><td><code>Instance.new("Folder")</code> + <code>.Parent = player</code></td></tr>
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code></td></tr>
 <tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
-<tr><td><code>part-&gt;Name</code></td><td><code>part.Name</code> (property)</td></tr>
-<tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
-<tr><td><code>CFrame::lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
+<tr><td><code>part.Name</code></td><td><code>part.Name</code> (property)</td></tr>
+<tr><td><code>player::FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
+<tr><td><code>CFrame:lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>signal::Connect(fn)</code> / <code>func (…)</code></td><td><code>signal:Connect(function…)</code> — <a href="events.html">callbacks</a></td></tr>
-<tr><td><code>static_cast&lt;Folder*&gt;(x)</code> / <code>(void)x</code></td><td>the value / omitted — <a href="casts.html">casts</a></td></tr>
+<tr><td><code>signal::Connect(fn)</code> / <code>func [](…)</code></td><td><code>signal:Connect(function…)</code> — <a href="events.html">callbacks</a></td></tr>
+<tr><td><code>static_cast&lt;Folder*&gt;(x)</code></td><td>the value — <a href="casts.html">casts</a></td></tr>
 <tr><td><code>Type { .Field = value }</code></td><td><code>{ Field = value }</code></td></tr>
 <tr><td><code>post</code> / <code>warn</code> / <code>report</code></td><td><code>print(…)</code> — <a href="logging.html">logging</a></td></tr>
 <tr><td>globals <code>game</code> <code>workspace</code> <code>script</code></td><td>same</td></tr>
@@ -628,20 +628,20 @@ end`,
 		"control-flow.html",
 		"9. If, while, for",
 		"CL++ class",
-		`<p class="muted">Lesson 9 — conditions and loops. W3Schools splits these across If, While, For, Switch. Cluaupp has <code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, and <code>switch</code>. There is no C-style <code>for (int i = 0; …)</code> and no <code>do/while</code>.</p>
+		`<p class="muted">Lesson 9 — conditions and loops. CL++ has <code>if</code> / <code>else</code>, <code>while</code>, C-style <code>for</code>, range-<code>for (T x in list)</code>, and <code>switch</code>. There is no <code>do/while</code>.</p>
 ${codePair(
 	`if (coinsValue) {
-	coinsValue->Value = newValue;
+	coinsValue.Value = newValue;
 } else {
 	warn("missing Coins");
 }
 
 while (true) {
-	print("tick");
+	post("tick");
 }
 
-for (Player* player : players->GetPlayers()) {
-	leaderstatsServer.PlayerEntered(player);
+for (Player* player in players::GetPlayers()) {
+	leaderstatsServer::PlayerEntered(player);
 }
 
 switch (action) {
@@ -692,7 +692,7 @@ until true`,
 <h2>while</h2>
 <p><code>while (test) { body }</code> → <code>while test do … end</code>. There is no <code>do { } while</code>.</p>
 <h2>Range-for</h2>
-<p>The only <code>for</code> accepted: <code>for (Type* x : list)</code> or <code>for (auto* x : list)</code> or <code>for (const auto* x : list)</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> is a parse error. Emit is <code>for _, x in list do</code> (Luau generic for, first return discarded).</p>
+<p>Range-for is <code>for (Type* x in list)</code> (or <code>auto*</code>). Do not write C++ <code>for (T x : list)</code> — CL++ uses <code>in</code>. C-style <code>for (int i = 0; i &lt; n; i++)</code> also compiles. Emit for range-for is <code>for _, x in list do</code>.</p>
 <h2>switch</h2>
 <p>The discriminant is evaluated once. Stacked <code>case</code> labels share a body (<code>case "buy": case "purchase":</code>). There is no C-style fall-through into the next case’s statements. <code>break</code> leaves the switch even from inside an <code>if</code>, because the whole switch is <code>repeat … until true</code>. <code>default</code> is <code>else</code>.</p>
 <p>Complex discriminants are stored in a local <code>__switchN</code> so they are not re-evaluated.</p>
@@ -724,7 +724,7 @@ ${mappingTable ? mappingTable() : ""}
 <tr><td><code>part-&gt;Size</code></td><td>Instance / table property</td><td><code>part.Size</code></td></tr>
 <tr><td><code>part-&gt;FindFirstChild("x")</code></td><td>engine or library method</td><td><code>part:FindFirstChild("x")</code></td></tr>
 <tr><td><code>players-&gt;PlayerAdded.Connect(fn)</code></td><td>signal</td><td><code>players.PlayerAdded:Connect(fn)</code></td></tr>
-<tr><td><code>CFrame::lookAt(a, b)</code></td><td>datatype / enum / module static</td><td><code>CFrame.lookAt(a, b)</code></td></tr>
+<tr><td><code>CFrame:lookAt(a, b)</code></td><td>datatype / enum / module static</td><td><code>CFrame.lookAt(a, b)</code></td></tr>
 <tr><td><code>DataService::Server.Init(opts)</code></td><td>library singleton method</td><td><code>DataService.Server:Init(opts)</code></td></tr>
 <tr><td><code>Module3D::Attach3D(a, b)</code></td><td>colon statics (<code>MODULE_COLON</code>)</td><td><code>Module3D:Attach3D(a, b)</code></td></tr>
 <tr><td><code>obj.Field</code></td><td>dot in C++</td><td><code>obj.Field</code></td></tr>
@@ -808,17 +808,13 @@ print()`,
 		"casts.html",
 		"Casts",
 		"Language",
-		`<p class="muted">Luau has no casts. Cluaupp accepts C++ spellings so clangd is happy, then emits the value.</p>
+		`<p class="muted">Luau has no runtime casts. <code>static_cast&lt;T&gt;(x)</code> is a source annotation. CL++ 0.2.6 does not parse <code>(void)x</code>.</p>
 <table>
 <tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>static_cast&lt;Folder*&gt;(inst)</code></td><td><code>inst</code></td></tr>
-<tr><td><code>const_cast</code> / <code>reinterpret_cast</code> / <code>dynamic_cast</code></td><td>same — the argument</td></tr>
-<tr><td><code>(void)x;</code></td><td>omitted (marks unused for clangd)</td></tr>
-<tr><td><code>(Folder*)inst</code> C-style</td><td>the argument if parsed as a cast</td></tr>
 </table>
 ${codePair(
 	`Folder* AsFolder(Instance* inst) {
-	(void)inst;
 	return static_cast<Folder*>(inst);
 }`,
 	`const function AsFolder(inst: Instance): Folder
@@ -841,7 +837,7 @@ end`,
 <tr><td>Types</td><td><code>int</code> <code>bool</code> <code>string</code> <code>void</code> <code>auto</code> <code>*</code> Instances, datatypes, <code>Enum::</code></td></tr>
 <tr><td>Engine</td><td><code>new Class(parent)</code>, <code>GetService&lt;T&gt;()</code>, <code>.</code> properties, <code>::</code> methods</td></tr>
 <tr><td>Control</td><td><code>if</code> / <code>else</code>, <code>while</code>, range-<code>for</code>, <code>guard</code>, <code>match</code>, <code>return</code></td></tr>
-<tr><td>Exprs</td><td><code>== != &amp;&amp; || !</code>, concat <code>.:</code>, janitor <code>~&gt;</code>, <code>func (…)</code> callbacks</td></tr>
+<tr><td>Exprs</td><td><code>== != &amp;&amp; || !</code>, concat <code>.:</code>, janitor <code>~&gt;</code>, <code>func [](…)</code> callbacks</td></tr>
 <tr><td>IO</td><td><code>post</code> / <code>warn</code> / <code>report</code>, <code>null</code></td></tr>
 <tr><td>Boot</td><td><code>void init()</code> called at end of Scripts / LocalScripts</td></tr>
 </table>
@@ -970,11 +966,11 @@ ${codePair(
 	Players* players = GetService<Players>();
 	LeaderstatsServer leaderstatsServer;
 	leaderstatsServer.janitor = new Janitor();
-	for (Player* player : players->GetPlayers()) {
-		leaderstatsServer.PlayerEntered(player);
+	for (Player* player in players::GetPlayers()) {
+		leaderstatsServer::PlayerEntered(player);
 	}
-	players->PlayerAdded.Connect([&](Player* playerEntered) {
-		leaderstatsServer.PlayerEntered(playerEntered);
+	players.PlayerAdded::Connect(func [](Player* playerEntered) {
+		leaderstatsServer::PlayerEntered(playerEntered);
 	});
 	game->BindToClose([&]() {
 		leaderstatsServer.janitor->Cleanup();
@@ -1068,11 +1064,11 @@ coinsValue.Value = STARTING_COINS`,
 <tr><td><code>new Folder(player)</code></td><td><code>Instance.new("Folder")</code> + <code>.Parent = player</code></td></tr>
 <tr><td><code>new Folder()</code></td><td><code>Instance.new("Folder")</code> with no parent</td></tr>
 <tr><td><code>new Janitor()</code></td><td><code>Janitor.new()</code> (library, not Instance)</td></tr>
-<tr><td><code>part-&gt;Name</code></td><td><code>part.Name</code> (property)</td></tr>
-<tr><td><code>player-&gt;FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
+<tr><td><code>part.Name</code></td><td><code>part.Name</code> (property)</td></tr>
+<tr><td><code>player::FindFirstChild("x")</code></td><td><code>player:FindFirstChild("x")</code> (method)</td></tr>
 <tr><td><code>GetService&lt;Players&gt;()</code></td><td><code>game:GetService("Players")</code></td></tr>
 <tr><td><code>Vector3(0, 10, 0)</code></td><td><code>Vector3.new(0, 10, 0)</code></td></tr>
-<tr><td><code>CFrame::lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
+<tr><td><code>CFrame:lookAt(a, b)</code></td><td><code>CFrame.lookAt(a, b)</code></td></tr>
 <tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
 <tr><td><code>Color3::fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
 <tr><td><code>BrickColor("Bright red")</code></td><td><code>BrickColor.new("Bright red")</code></td></tr>
@@ -1124,8 +1120,8 @@ players.PlayerAdded:Connect(OnPlayer)`,
 <h2>Callback forms</h2>
 <table>
 <tr><th>CL++</th><th>Meaning in this subset</th></tr>
-<tr><td><code>func (Player* p) { … }</code></td><td>Anonymous callback. Luau closures see enclosing locals.</td></tr>
-<tr><td><code>func () { … }</code></td><td>No parameters.</td></tr>
+<tr><td><code>func [](Player* p) { … }</code></td><td>Anonymous callback. Luau closures see enclosing locals.</td></tr>
+<tr><td><code>func []() { … }</code></td><td>No parameters.</td></tr>
 </table>
 <p>Parameters are typed the same way as functions. The body is a block of statements.</p>
 <h2>Named functions vs methods</h2>
@@ -1151,7 +1147,7 @@ local rs: ReplicatedStorage = game:GetService("ReplicatedStorage")`,
 <table>
 <tr><th>CL++</th><th>Luau</th></tr>
 <tr><td><code>Vector3(x, y, z)</code></td><td><code>Vector3.new(x, y, z)</code></td></tr>
-<tr><td><code>CFrame::lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
+<tr><td><code>CFrame:lookAt(from, look)</code></td><td><code>CFrame.lookAt(from, look)</code></td></tr>
 <tr><td><code>UDim2::fromScale(1, 1)</code></td><td><code>UDim2.fromScale(1, 1)</code></td></tr>
 <tr><td><code>Color3::fromRGB(255, 0, 0)</code></td><td><code>Color3.fromRGB(255, 0, 0)</code></td></tr>
 <tr><td><code>BrickColor("Bright red")</code></td><td><code>BrickColor.new("Bright red")</code></td></tr>
@@ -1440,8 +1436,8 @@ void init() {
 	Players* players = GetService<Players>();
 	LeaderstatsServer leaderstatsServer;
 	leaderstatsServer.janitor = new Janitor();
-	for (Player* player : players->GetPlayers()) {
-		leaderstatsServer.PlayerEntered(player);
+	for (Player* player in players::GetPlayers()) {
+		leaderstatsServer::PlayerEntered(player);
 	}
 	leaderstatsServer.janitor->Add(
 		players->PlayerAdded.Connect([&](Player* playerEntered) {

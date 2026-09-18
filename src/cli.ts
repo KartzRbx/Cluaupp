@@ -5,7 +5,7 @@ import { pkg } from "./package-info.js";
 import { start as startLsp } from "./lsp.js";
 import { collectSources, toLuauPath } from "./clpp/paths.js";
 import { CLPP_INSTALL_HINT } from "./clpp/contract.js";
-import { clppManifest, clppVersion, hasClpp, resolveClppBinary } from "./clpp/runner.js";
+import { clppInstalls, clppManifest, clppVersion, hasClpp, resolveClppBinary } from "./clpp/runner.js";
 import { installEditorSupport, syncEditorSupport } from "./intellisense.js";
 import { RojoMapper } from "./utils/rojo-mapper.js";
 import { ProcessOrchestrator } from "./utils/process-orchestrator.js";
@@ -64,6 +64,7 @@ program
 				format: options.format === true,
 				analyze: options.analyze === true,
 				rojo: options.rojo,
+				strict: options.strict === true,
 			});
 		} catch (err) {
 			console.error(err instanceof Error ? err.message : err);
@@ -120,10 +121,15 @@ program
 	.description("CL++ manifest (`clpp api manifest`)")
 	.action(() => {
 		try {
-			resolveClppBinary();
+			const bin = resolveClppBinary();
 			const version = clppVersion();
 			if (version) {
-				console.log("clpp", version);
+				console.log(version, `(${bin})`);
+			}
+			for (const install of clppInstalls()) {
+				if (!install.selected) {
+					console.log(`skipped ${install.bin} (${install.version || "unknown"})`);
+				}
 			}
 			console.log(JSON.stringify(clppManifest(), null, "\t"));
 		} catch (err) {

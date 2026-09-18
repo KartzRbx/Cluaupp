@@ -26,7 +26,7 @@ CL++ does **not** use `->`.
 | `DataService:Server` | table key | `.` |
 | `"hi " .: name` | concat | `..` |
 
-`post` / `warn` / `report` → `print` / `warn` / `error`. `null` is `nil`.
+`post` / `warn` / `report` → `print` / `warn` / `error`. `null` is `nil`. Range-for is `for (T x in list)` (not `:`). C-style `for (int i = 0; i < n; i++)` is also valid.
 
 ## Exclusive CL++ (compiled by `clpp`)
 
@@ -43,12 +43,12 @@ match (child) {
 };
 
 observable int wallet = 100;
-wallet.OnChange(func (int newValue) {
+wallet::OnChange(func [](int newValue) {
 	post("Coins changed to: " .: newValue);
 });
 
 signal<Player*, int> OnHit;
-OnHit::Connect(func (Player* player, int amount) {
+OnHit::Connect(func [](Player* player, int amount) {
 	post(player.Name .: " dmg " .: amount);
 });
 OnHit::Fire(player, 10);

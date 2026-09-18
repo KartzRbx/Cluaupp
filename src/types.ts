@@ -53,6 +53,7 @@ export interface BuildOptions {
 	format?: boolean;
 	analyze?: boolean;
 	rojo?: string;
+	strict?: boolean;
 }
 
 export interface BuildResult {

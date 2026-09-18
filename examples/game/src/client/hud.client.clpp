@@ -27,18 +27,18 @@ void init() {
 	auto label = newLabel({
 		{"Name", "Amount"},
 		{"BackgroundTransparency", 1},
-		{"Size", UDim2.fromScale(1, 1)},
+		{"Size", UDim2:fromScale(1, 1)},
 		{"Text", title},
-		{"TextColor3", Color3.fromRGB(255, 255, 255)},
+		{"TextColor3", Color3:fromRGB(255, 255, 255)},
 		{"TextScaled", true}
 	});
 
 	auto frame = newFrame({
 		{"Name", "Hud"},
 		{"AnchorPoint", Vector2(0, 1)},
-		{"Position", UDim2.fromScale(0, 1)},
-		{"Size", UDim2.fromOffset(220, 64)},
-		{"BackgroundColor3", Color3.fromRGB(28, 18, 48)},
+		{"Position", UDim2:fromScale(0, 1)},
+		{"Size", UDim2:fromOffset(220, 64)},
+		{"BackgroundColor3", Color3:fromRGB(28, 18, 48)},
 		{Children, label}
 	});
 

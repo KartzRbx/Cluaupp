@@ -6,7 +6,7 @@ const HOME_CLPP = `#include <clpp/roblox.clh>
 
 void init() {
 	Players* players = GetService<Players>();
-	players.PlayerAdded::Connect(func (Player* player) {
+	players.PlayerAdded::Connect(func [](Player* player) {
 		guard (player != null) else {
 			return;
 		}

@@ -5,74 +5,72 @@ sidebar_position: 14
 
 # Advanced Cluaupp
 
-The subset is intentional. What exists is enough for game scripts; what is missing is listed so you do not fight the compiler.
+CL++ is the language (`clpp` 0.2.6+). Cluaupp orchestrates Rojo and CluauppLibs. Full course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
-## Supported
+## Supported (CL++ 0.2.6)
 
-- Functions, prototypes (headers only), `if` / `else` / `while` / range-`for` / `switch` (`case`, `default`, `break`)
-- `struct` types + `Class::` methods in a sibling `.h` / `.cpp`
-- `new Class(parent)`, `GetService<T>()`, `::` statics (`CFrame::lookAt`, `Enum::Material::Plastic`)
-- `static_cast<T>(x)`, `(void)x`, lambdas in `Connect` / `Add`
-- `static` / `constexpr` / `inline` specifiers, `LuaArray<T>`, `string_concat`
-- `->` methods and properties, `.` members, `Connect`
-- `const`, `auto`, `nullptr`, arithmetic, `&&` `||` `!=`, string `+`
-- Quoted includes, `.h` / `.hpp` as sources
-- Libraries via `#include <cluaupp/libs/...>` → `require(CluauppLibs.*)`
+- `.clpp` / `.clp` / `.clh`, tags `.server` / `.client`, `#pragma strict`, `void init()`
+- `if` / `else` / `while` / C-style `for` / range-`for (T x in list)` / `switch` / `guard` / `match`
+- `struct` + `Class::Method`, `new Class(parent)`, `GetService<T>()`, `static_cast<T>(x)`
+- Property `.`, method `::`, table key `:`, concat `.:`
+- Lambdas `func [](params) { }` — `func (params)` is a parse error on 0.2.6
+- `post` / `warn` / `report`, `null`, `observable`, `signal`, `spawn` / `parallel`
+- Quoted includes; angled `#include <clpp/...>` is IntelliSense-only
+- Libraries via `#include <clpp/libs/janitor.clh>` → `require(ReplicatedStorage.CluauppLibs.Janitor)`
 
-## Not supported (yet)
+## Not in CL++
 
-Full C++: templates besides `GetService<T>` / `static_cast` / `LuaArray`, `class` bodies as emitted metatables, `std::`, overloading as two runtimes, C-style `for`, macros, pointer arithmetic, JSX.
+`->`, `continue`, ternary, `do/while`, `try/catch`, `goto`, `(void)x`, C++ captures `[&]`, `func (params)` without `[]`, ISO `std::`, JSX.
 
-If you need a custom type, it is usually a **ModuleScript in shared** (a `.cpp` of functions) or a Wally package, not a C++ class the compiler would lower to a metatable.
+If you need a custom type, it is usually a **ModuleScript in shared** (a `.clp`) or a Wally package.
 
-## `::` vs `:` vs `.`
+## `.` vs `::` vs `:`
 
-| C++ | Luau | When |
+| CL++ | Luau | When |
 | --- | --- | --- |
-| `CFrame::lookAt(a, b)` | `CFrame.lookAt(a, b)` | datatype / enum / module static |
-| `MathUtils::Lerp(a, b, t)` | `MathUtils.Lerp(a, b, t)` | Cluaupp module function |
-| `Module3D::Attach3D(frame, model)` | `Module3D:Attach3D(frame, model)` | Module3D’s colon API |
-| `player->FindFirstChild("x")` | `player:FindFirstChild("x")` | Instance method |
-| `player->Name` | `player.Name` | property |
-| `janitor->Add(conn)` | `janitor:Add(conn)` | library method |
+| `player.Name` | `player.Name` | property |
+| `player::FindFirstChild("x")` | `player:FindFirstChild("x")` | method |
+| `CFrame:lookAt(a, b)` | `CFrame.lookAt(a, b)` | datatype table key |
+| `DataService:Server` | `DataService.Server` | module table key |
+| `janitor::Add(conn)` | `janitor:Add(conn)` | library method |
+| `for (Player* p in list)` | `for _, p in list do` | range-for |
 
 ## Init
 
-If a file defines `void init()`, Cluaupp calls `init()` at the end of the `.luau`. Use that as the Script / LocalScript entry. Shared modules should **not** define `init()` unless you want them to run on require.
+If a file defines `void init()`, `clpp` calls `init()` at the end of Scripts / LocalScripts. Shared modules (`.clp`) should **not** define `init()` unless you want them to run on require.
 
 ## Mixing extra Wally packages
 
-CluauppLibs already contains the full Janitor, Fusion, Cmdr, DataServiceV2, … systems (copied from GitHub into `runtime/`). Add Wally only for packages that are **not** in CluauppLibs. Headers in `include/cluaupp/libs/` match the shipped Luau.
+CluauppLibs already contains Janitor, Fusion, Cmdr, DataServiceV2, … (copied into `runtime/`). Add Wally only for packages that are **not** in CluauppLibs. Headers live in `include/clpp/libs/`.
 
-```cpp
-#include <cluaupp/libs/dataservice.hpp>
+```clpp
+#include <clpp/libs/dataservice.clh>
 
 void Grant(Player* player, int amount) {
-	Data* data = DataService::Server.WaitFor(player);
-	if (data == nullptr) {
+	Data* data = DataService:Server::WaitFor(player);
+	guard (data != null) else {
 		return;
 	}
-	int coins = data->Get(DataService::Server.Paths.Currencies.Money);
-	data->Set(DataService::Server.Paths.Currencies.Money, coins + amount);
+	int coins = data::Get(DataService:Server.Paths.Currencies.Coins);
+	data::Set(DataService:Server.Paths.Currencies.Coins, coins + amount);
 }
 ```
 
-`Paths.Currencies.Money` exists because **your** Template passed to `Init` had that field. Full copies: [Examples](examples/index.md).
+`Paths.Currencies.Coins` exists because **your** Template passed to `Init` had that field.
 
 ## Performance notes
 
 - Prefer `const` and locals over recomputing in `RenderStepped`.
 - `Net` already uses `buffer`. Batch when you can; do not fire per-heartbeat for every NPC.
-- Module3D is a ViewportFrame — fine for shops and inventory, not for cloning the whole map (same advice as the [original Module3D thread](https://devforum.roblox.com/t/module3d-v61-viewportframe-implementation/207383)).
-- Janitor `Cleanup` is O(tracked objects). Link to the Instance that owns the scope instead of a global janitor for the whole server.
+- Janitor `Cleanup` is O(tracked objects). Link to the Instance that owns the scope.
 
-## Good C++ conduct that still applies
+## Conduct that still applies
 
 1. **Initialize everything.** `int coins;` without a value is a bug; write `int coins = 0`.
 2. **Small functions.** One behavior, named after the behavior.
 3. **No magic numbers.** `const int MAX_INVENTORY = 20`.
 4. **Early return.** Flatten `if` pyramids.
-5. **Headers declare, scripts define.** Prototypes in `.h`, bodies in `.cpp`.
+5. **Headers declare, scripts define.** Prototypes in `.clh`, bodies in `.clp` / `.clpp`.
 6. **Do not share mutable statics across server and client** — use Net or DataService.
 
-See also: [syntax](syntax.md) (complete subset), [print and cout](print-cout.md), [libraries](libraries/index.md), [OOP](oop/index.md), [examples](examples/index.md), [comparison](comparison.md). Optimization notes on the site: [Optimization](https://kartzrbx.github.io/Cluaupp/docs/optimization.html).
+See also: [syntax](syntax.md), [libraries](libraries/index.md). Language: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).

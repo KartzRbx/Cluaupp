@@ -94,22 +94,10 @@ function writeVscode(root) {
         unwantedRecommendations: uniqueStrings(extensions.unwantedRecommendations, ["ms-vscode.cpptools"]),
     });
 }
-function diagnosticsFor(source, fileName) {
-    if (!(0, runner_js_1.hasClpp)()) {
-        return [];
-    }
-    try {
-        (0, runner_js_1.compileViaClpp)({ source, fileName: fileName || "input.clpp" });
-        return [];
-    }
-    catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        const match = message.match(/:(\d+):(\d+):\s*(.*)$/);
-        if (match) {
-            return [{ line: Number(match[1]), col: Number(match[2]), message: match[3], severity: "error" }];
-        }
-        return [{ line: 1, col: 1, message, severity: "error" }];
-    }
+function diagnosticsFor(_source, _fileName) {
+    // Language diagnostics belong to `clpp install`. Do not spawn `clpp api compile`
+    // from the editor — that duplicates source=clpp and freezes on every keystroke.
+    return [];
 }
 function syncEditorSupport(root, _config = {}) {
     writeVscode(root);

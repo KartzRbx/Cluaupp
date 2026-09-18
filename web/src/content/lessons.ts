@@ -161,12 +161,12 @@ end`,
 		"lambdas.html",
 		"11. Callbacks",
 		GROUP,
-		`<p class="muted">An anonymous callback is a mini function you write in place. CL++ uses <code>func (params) { }</code> — there is no C++ capture list. Cluaupp emits a Luau <code>function</code>. There is no <code>std::function</code> and no <code>&lt;functional&gt;</code>.</p>
+		`<p class="muted">An anonymous callback is a mini function you write in place. CL++ uses <code>func [](params) { }</code> — there is no C++ capture list. Cluaupp emits a Luau <code>function</code>. There is no <code>std::function</code> and no <code>&lt;functional&gt;</code>.</p>
 <h2>Syntax</h2>
-${preCode(`func (parameters) { body }`, "plain")}
-<p>There are no C++ captures <code>[]</code> / <code>[&amp;]</code>. Luau closures still see outer locals.</p>
+${preCode(`func [](parameters) { body }`, "plain")}
+<p>The <code>[]</code> after <code>func</code> is required in CL++ 0.2.6. There are no C++ captures <code>[&amp;]</code> / <code>[=]</code>. Luau closures still see outer locals.</p>
 ${codePair(
-	`func message = func () {
+	`func message = func []() {
 	post("Hello World!");
 };
 message();`,
@@ -178,7 +178,7 @@ message()`,
 <h2>Parameters</h2>
 <p>Pass values like a regular function:</p>
 ${codePair(
-	`func add = func (int a, int b) {
+	`func add = func [](int a, int b) {
 	return a + b;
 };
 post(add(3, 4));`,
@@ -190,7 +190,7 @@ print(add(3, 4))`,
 <h2>Pass a callback to Connect</h2>
 <p>This is the usual Roblox use. You tell a signal what to do, not just what data to use:</p>
 ${codePair(
-	`players.PlayerAdded::Connect(func (Player* player) {
+	`players.PlayerAdded::Connect(func [](Player* player) {
 	post(player.Name);
 });`,
 	`__janitor:Add(players.PlayerAdded:Connect(function(player: Player)
@@ -198,13 +198,13 @@ ${codePair(
 end), "Disconnect")`,
 )}
 <h2>No capture list</h2>
-<p>CL++ does not have pointers to capture. Write <code>func (…)</code>. Outer locals are visible because Luau closures close over the environment. Keep Instances alive with Janitor:</p>
+<p>CL++ does not have pointers to capture. Write <code>func [](…)</code>. Outer locals are visible because Luau closures close over the environment. Keep Instances alive with Janitor:</p>
 ${codePair(
 	`void init() {
 	LeaderstatsServer leaderstatsServer;
 	leaderstatsServer.janitor = new Janitor();
 	Players* players = GetService<Players>();
-	players.PlayerAdded::Connect(func (Player* playerEntered) {
+	players.PlayerAdded::Connect(func [](Player* playerEntered) {
 		leaderstatsServer.PlayerEntered(playerEntered);
 	});
 }`,
@@ -220,7 +220,7 @@ end`,
 )}
 <h2>Regular function vs callback</h2>
 <table>
-<tr><th>Use a named function when…</th><th>Use <code>func (…)</code> when…</th></tr>
+<tr><th>Use a named function when…</th><th>Use <code>func [](…)</code> when…</th></tr>
 <tr><td>You call it from more than one place</td><td>You need it once (almost always <code>Connect</code>)</td></tr>
 <tr><td>The body is long</td><td>The body is a few statements</td></tr>
 <tr><td>You want a clear name in the stack trace</td><td>The work is “on this signal”</td></tr>
@@ -230,7 +230,7 @@ ${codePair(
 	return a + b;
 }
 
-func add = func (int a, int b) {
+func add = func [](int a, int b) {
 	return a + b;
 };`,
 	`const function Add(a: number, b: number): number

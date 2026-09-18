@@ -18,10 +18,10 @@ void Greet(Player* player) {
 
 void init() {
 	Players* players = GetService<Players>();
-	for (Player* player : players::GetPlayers()) {
+	for (Player* player in players::GetPlayers()) {
 		Greet(player);
 	}
-	players.PlayerAdded::Connect(func (Player* playerEntered) {
+	players.PlayerAdded::Connect(func [](Player* playerEntered) {
 		post("New player connected: " .: playerEntered.Name);
 	});
 }
@@ -30,7 +30,7 @@ void init() {
 	{ strict: true },
 );
 
-contains(hello, ['game:GetService("Players")', "init()"], "hello GetService + init");
+contains(hello, ['game:GetService("Players")', "init()", "in players:GetPlayers()"], "hello GetService + init + for-in");
 refuses(hello, ["require(ClppLibs."], "hello must not leak ClppLibs");
 
 const rewritten = clppLuauToGame(

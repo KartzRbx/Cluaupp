@@ -35,5 +35,7 @@ export interface LanguageManifest {
 	io: Array<{ clpp: string; luau: string }>;
 }
 
+export const MIN_CLPP_VERSION = "0.2.6";
+
 export const CLPP_INSTALL_HINT =
-	"Install CL++ and put `clpp` on PATH: https://github.com/KartzRbx/CLPP (`cargo install --path .` then `clpp install`). Override with CLPP_PATH.";
+	"Install CL++ 0.2.6+ and put `clpp` on PATH: https://github.com/KartzRbx/CLPP/releases (`clpp-setup.exe`, then `clpp install`). A stale cargo 0.1.0 on PATH will break for-in / GetService. Override with CLPP_PATH.";

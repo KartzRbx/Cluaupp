@@ -27,11 +27,12 @@ Quoted includes: `"leaderstats.h"` → `"leaderstats.clh"`.
 | `signal.Connect(fn)` | `signal::Connect(fn)` | `:` |
 | `print` / `error` | `post` / `report` | `print` / `error` |
 | `nullptr` | `null` | `nil` |
-| `[](Player* p) { }` | `func (Player* p) { }` | `function` |
+| `[](Player* p) { }` | `func [](Player* p) { }` | `function` |
+| `for (T* x : list)` | `for (T* x in list)` | `for _, x in list` |
 
 ## Workflow
 
-1. Install CL++: [github.com/KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) (`cargo install --path .`).
+1. Install CL++ 0.2.6+: [github.com/KartzRbx/CLPP/releases](https://github.com/KartzRbx/CLPP/releases). `cluaupp language` must print 0.2.6, not cargo 0.1.0.
 2. `clpp install` (editor highlighting + IntelliSense).
 3. Rename sources and apply the table above.
 4. `cluaupp build` — `clpp` must be on PATH (`CLPP_PATH` if needed).

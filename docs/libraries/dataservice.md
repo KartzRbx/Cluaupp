@@ -5,13 +5,13 @@ sidebar_position: 2
 
 # DataService
 
-Player profiles (DataServiceV2). Header: `#include <cluaupp/libs/dataservice.hpp>`.
+Player profiles (DataServiceV2). Header: `#include <clpp/libs/dataservice.clh>`.
 
 The **save shape is yours**. Do not put `Currencies` / `Money` on the library `DataPath` type. Define a struct in the game (shared header) and pass it as `.Template`.
 
 ## 1. Template (shared)
 
-```cpp
+```clpp
 #pragma once
 
 struct TemplateData {
@@ -26,16 +26,16 @@ Luau `DataService.Paths` follows this table (`Paths.Currencies.Money`).
 
 ## 2. Start the server
 
-Call **once** from a server boot script (`DataBoot.server.cpp`). `void init()` is what Cluaupp runs (not `int main()`).
+Call **once** from a server boot script (`DataBoot.server.clpp`). `void init()` is the entry (not `int main()`).
 
-```cpp
-#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/dataservice.hpp>
-#include "../../shared/constants/TemplateData.hpp"
+```clpp
+#include <clpp/roblox.clh>
+#include <clpp/libs/dataservice.clh>
+#include "../shared/PlayerData.clh"
 
 void init() {
 	TemplateData playerData = TemplateData {};
-	DataService::Server.Init(DataServiceOptions {
+	DataService:Server::Init(DataServiceOptions {
 		.Template = playerData,
 		.StoreName = "PlayerData",
 		.UseMock = true,
@@ -54,49 +54,49 @@ void init() {
 
 ## 3. Start the client
 
-```cpp
-#include <cluaupp/roblox.hpp>
-#include <cluaupp/libs/dataservice.hpp>
+```clpp
+#include <clpp/roblox.clh>
+#include <clpp/libs/dataservice.clh>
 
 void init() {
-	DataService::Client.Init();
+	DataService:Client::Init();
 }
 ```
 
 ## 4. Read / wait
 
-```cpp
-Data* data = DataService::Server.WaitFor(player);
-if (data == nullptr) {
+```clpp
+Data* data = DataService:Server::WaitFor(player);
+guard (data != null) else {
 	return;
 }
 
-int money = data->Get(DataService::Server.Paths.Currencies.Money);
+int money = data::Get(DataService:Server.Paths.Currencies.Money);
 ```
 
 - `WaitFor` — yield until the profile exists.
-- `Get(player)` — already loaded or `nullptr`.
-- `data->Get()` with no path — whole table.
+- `Get(player)` — already loaded or `null`.
+- `data::Get()` with no path — whole table.
 - `GetPersisted` / `GetTransient` — saved vs session-only.
 
-Client: `DataService::Client.WaitForData()` / `Get()`.
+Client: `DataService:Client::WaitForData()` / `Get()`.
 
 ## 5. Write and listen
 
-```cpp
-data->Set(DataService::Server.Paths.Currencies.Money, 10);
+```clpp
+data::Set(DataService:Server.Paths.Currencies.Money, 10);
 
 void OnCurrenciesChanged() {
 	return;
 }
 
-data->GetChangedSignal(DataService::Server.Paths.Currencies).Connect(OnCurrenciesChanged);
-data->GetChangedSignal(DataService::Server.Paths.Currencies.Coins).Connect([](int coins) {
-	print(coins);
+data::GetChangedSignal(DataService:Server.Paths.Currencies)::Connect(OnCurrenciesChanged);
+data::GetChangedSignal(DataService:Server.Paths.Currencies.Coins)::Connect(func [](int coins) {
+	post(coins);
 });
 ```
 
-`GetChangedSignal` fires when that path (or a child) changes. Use a named function or a lambda (`[](int newValue) { ... }`).
+`GetChangedSignal` fires when that path (or a child) changes. Use a named function or `func [](int newValue) { ... }`.
 
 ## Rules
 

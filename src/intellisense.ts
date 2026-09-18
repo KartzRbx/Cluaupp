@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { pkg, projectRoot as PACKAGE_ROOT } from "./package-info.js";
 import type { ProjectConfig } from "./types.js";
 import { CLPP_INSTALL_HINT } from "./clpp/contract.js";
-import { compileViaClpp, hasClpp } from "./clpp/runner.js";
+import { hasClpp } from "./clpp/runner.js";
 import { isSourceFile } from "./clpp/paths.js";
 
 export type CluauppDiagnostic = {
@@ -97,21 +97,10 @@ function writeVscode(root: string): void {
 	});
 }
 
-export function diagnosticsFor(source: string, fileName?: string): CluauppDiagnostic[] {
-	if (!hasClpp()) {
-		return [];
-	}
-	try {
-		compileViaClpp({ source, fileName: fileName || "input.clpp" });
-		return [];
-	} catch (err) {
-		const message = err instanceof Error ? err.message : String(err);
-		const match = message.match(/:(\d+):(\d+):\s*(.*)$/);
-		if (match) {
-			return [{ line: Number(match[1]), col: Number(match[2]), message: match[3], severity: "error" }];
-		}
-		return [{ line: 1, col: 1, message, severity: "error" }];
-	}
+export function diagnosticsFor(_source?: string, _fileName?: string): CluauppDiagnostic[] {
+	// Language diagnostics belong to `clpp install`. Do not spawn `clpp api compile`
+	// from the editor — that duplicates source=clpp and freezes on every keystroke.
+	return [];
 }
 
 export function syncEditorSupport(root: string, _config: Partial<ProjectConfig> = {}): void {

@@ -15,7 +15,7 @@ void CombatServer::BindPart(BasePart* part) {
 		return;
 	}
 
-	part.Touched::Once(func (BasePart* other) {
+	part.Touched::Once(func [](BasePart* other) {
 		Instance* character = other.Parent;
 		guard (character != null) else {
 			return;
@@ -45,7 +45,7 @@ void CombatServer::PlayerEntered(Player* player) {
 	}
 
 	observable int combo = 0;
-	OnHit::Connect(func (Player* victim, int amount) {
+	OnHit::Connect(func [](Player* victim, int amount) {
 		guard (victim == player) else {
 			return;
 		}
@@ -56,7 +56,7 @@ void CombatServer::PlayerEntered(Player* player) {
 
 [[server]]
 void CombatServer::WatchWorkspace() {
-	workspace.ChildAdded::Connect(func (Instance* child) {
+	workspace.ChildAdded::Connect(func [](Instance* child) {
 		match (child) {
 			BasePart* p => BindPart(p),
 			Model* m => post("model spawned " .: m.Name),
@@ -75,10 +75,10 @@ void init() {
 	};
 
 	Players* players = GetService<Players>();
-	for (Player* player : players::GetPlayers()) {
+	for (Player* player in players::GetPlayers()) {
 		combat::PlayerEntered(player);
 	}
-	players.PlayerAdded::Connect(func (Player* p) {
+	players.PlayerAdded::Connect(func [](Player* p) {
 		combat::PlayerEntered(p);
 	});
 	combat::WatchWorkspace();

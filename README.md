@@ -20,7 +20,7 @@ Cluaupp is the **toolchain**, not the language compiler. [KartzRbx/CLPP](https:/
 
 void init() {
 	Players* players = GetService<Players>();
-	players.PlayerAdded::Connect(func (Player* player) {
+	players.PlayerAdded::Connect(func [](Player* player) {
 		guard (player != null) else {
 			return;
 		}
@@ -33,7 +33,7 @@ void init() {
 
 1. [Node.js](https://nodejs.org/) 18+
 2. [Rojo](https://rojo.space/) **7.7.0**
-3. **`clpp` on PATH** from [CL++](https://github.com/KartzRbx/CLPP) (`cargo install --path .`)
+3. **`clpp` on PATH** from [CL++](https://github.com/KartzRbx/CLPP/releases) (`clpp-setup.exe`, 0.2.6+). Do not leave a cargo `clpp 0.1.0` first on PATH.
 
 ```bash
 npm install -g cluaupp

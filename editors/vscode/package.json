@@ -2,7 +2,7 @@
 	"name": "cluaupp-diagnostics",
 	"displayName": "Cluaupp",
 	"description": "Cluaupp project diagnostics. Language highlighting and IntelliSense come from clpp install (CL++).",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"
@@ -18,7 +18,7 @@
 		"commands": [
 			{
 				"command": "cluaupp.restartIntelliSense",
-				"title": "Cluaupp: Reload CL++ diagnostics"
+				"title": "Cluaupp: Reload editor helper"
 			}
 		]
 	}
