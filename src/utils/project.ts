@@ -3,6 +3,8 @@ import path from "node:path";
 import type { BuildOptions, BuildResult, ProjectConfig } from "../types.js";
 import { pkg } from "../package-info.js";
 import { collectSources, toLuauPath } from "../clpp/paths.js";
+import { collectFlareFiles, compileFlareFile } from "../flare/index.js";
+import { collectNativeSchemaFiles, compileNativeSchemaFile } from "../native/index.js";
 import { syncEditorSupport } from "../intellisense.js";
 import { ProcessOrchestrator } from "./process-orchestrator.js";
 import { RojoMapper } from "./rojo-mapper.js";
@@ -89,14 +91,16 @@ function tryRm(target: string, root?: string): boolean {
 }
 
 function copyFileIfChanged(src: string, dest: string, mode = "fill"): void {
-	if (mode === "fill" && fs.existsSync(dest)) {
-		return;
-	}
-	if (mode === "update" && fs.existsSync(dest)) {
-		const from = fs.statSync(src);
-		const to = fs.statSync(dest);
-		if (from.size === to.size && from.mtimeMs <= to.mtimeMs) {
+	if (mode !== "force") {
+		if (mode === "fill" && fs.existsSync(dest)) {
 			return;
+		}
+		if (mode === "update" && fs.existsSync(dest)) {
+			const from = fs.statSync(src);
+			const to = fs.statSync(dest);
+			if (from.size === to.size && from.mtimeMs <= to.mtimeMs) {
+				return;
+			}
 		}
 	}
 	fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -128,12 +132,55 @@ function syncDir(from: string, to: string, mode = "fill"): void {
 	}
 }
 
+function pruneStaleLibs(libs: string): void {
+	if (!fs.existsSync(libs)) {
+		return;
+	}
+	const staleNames = [
+		"Janitor",
+		"Signal",
+		"MathUtils",
+		"FormatNumber",
+		"Module3D",
+		"Twinkle",
+		"EzVisualz",
+		"Spring",
+		"Display",
+		"StickyBillboard",
+		"Icon",
+		"TopbarPlus",
+		"Cmdr",
+		"Chrono",
+		"Iris",
+		"Fusion",
+		"StateMachine",
+		"VfxUtil",
+		"DataService",
+		"TutorialKit",
+		"TutorialServer",
+		"QuickNet",
+	];
+	const stale = [
+		...staleNames.map((name) => path.join(libs, name)),
+		path.join(libs, "Keep", "Packages"),
+		path.join(libs, "Keep", "ProfileStore.luau"),
+	];
+	for (const target of stale) {
+		if (!fs.existsSync(target)) {
+			continue;
+		}
+		fs.rmSync(target, { recursive: true, force: true });
+	}
+}
+
 function copyRuntime(dest: string): void {
 	const runtime = path.join(__dirname, "..", "..", "runtime");
 	if (!fs.existsSync(runtime)) {
 		return;
 	}
-	syncDir(runtime, path.join(dest, "libs"));
+	const libs = path.join(dest, "libs");
+	pruneStaleLibs(libs);
+	syncDir(runtime, libs, "force");
 }
 
 function copyHeaders(dest: string): void {
@@ -259,11 +306,67 @@ function compileOptions(root: string, config: ProjectConfig, file: string, rel: 
 	};
 }
 
-function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper) {
-	const srcDir = path.join(root, config.rootDir);
-	const files = collectSources(srcDir);
+function compileSchemaJobs(root: string, config: ProjectConfig, srcDir: string) {
 	const jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }> = [];
 	const errors: Array<{ rel: string; prefixes: string[]; message: string }> = [];
+	const flare = compileFlareJobs(root, config, srcDir);
+	jobs.push(...flare.jobs);
+	errors.push(...flare.errors);
+	for (const file of collectNativeSchemaFiles(srcDir)) {
+		const rel = posixRel(srcDir, file);
+		try {
+			const emit = compileNativeSchemaFile(file, srcDir);
+			const headerDest = path.join(srcDir, emit.headerRel);
+			if (!isInside(path.resolve(root, config.rootDir), headerDest) && !isInside(srcDir, headerDest)) {
+				throw new Error(`cluaupp schema: skip unsafe header ${emit.headerRel}`);
+			}
+			writeTextIfChanged(headerDest, emit.header);
+			jobs.push({
+				rel,
+				files: [{ name: emit.luauRel, contents: emit.luau }],
+				stale: [],
+			});
+		} catch (err) {
+			errors.push({
+				rel,
+				prefixes: sourcePrefixes(rel.replace(/\.(mint|bloom|helm|shift|hive|axiom)$/i, ".clh")),
+				message: (err as Error).message,
+			});
+		}
+	}
+	return { jobs, errors };
+}
+
+function compileFlareJobs(root: string, config: ProjectConfig, srcDir: string) {
+	const jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }> = [];
+	const errors: Array<{ rel: string; prefixes: string[]; message: string }> = [];
+	for (const file of collectFlareFiles(srcDir)) {
+		const rel = posixRel(srcDir, file);
+		try {
+			const { emit } = compileFlareFile(file, srcDir);
+			const headerDest = path.join(srcDir, emit.headerRel);
+			if (!isInside(path.resolve(root, config.rootDir), headerDest) && !isInside(srcDir, headerDest)) {
+				throw new Error(`cluaupp flare: skip unsafe header ${emit.headerRel}`);
+			}
+			writeTextIfChanged(headerDest, emit.header);
+			jobs.push({
+				rel,
+				files: [{ name: emit.luauRel, contents: emit.luau }],
+				stale: [],
+			});
+		} catch (err) {
+			errors.push({ rel, prefixes: sourcePrefixes(rel.replace(/\.flare$/i, ".clh")), message: (err as Error).message });
+		}
+	}
+	return { jobs, errors };
+}
+
+function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper) {
+	const srcDir = path.join(root, config.rootDir);
+	const schema = compileSchemaJobs(root, config, srcDir);
+	const files = collectSources(srcDir);
+	const jobs = [...schema.jobs];
+	const errors = [...schema.errors];
 
 	for (const file of files) {
 		const source = fs.readFileSync(file, "utf8");
@@ -281,9 +384,10 @@ function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper)
 
 async function compileProjectAsync(root: string, config: ProjectConfig, mapper: RojoMapper) {
 	const srcDir = path.join(root, config.rootDir);
+	const schema = compileSchemaJobs(root, config, srcDir);
 	const files = collectSources(srcDir);
-	const jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }> = [];
-	const errors: Array<{ rel: string; prefixes: string[]; message: string }> = [];
+	const jobs = [...schema.jobs];
+	const errors = [...schema.errors];
 
 	for (const file of files) {
 		const source = fs.readFileSync(file, "utf8");

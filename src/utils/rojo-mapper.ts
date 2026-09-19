@@ -115,14 +115,20 @@ export class RojoMapper {
 			segments.shift();
 		}
 		const alias = this.safeAlias(baseName);
-		if (segments[0] === "shared") {
-			return { alias, path: `ReplicatedStorage.Cluaupp.${segments.slice(1).join(".")}` };
+		if (segments[0] === "ReplicatedFirst") {
+			return { alias, path: `ReplicatedFirst.${segments.slice(1).join(".")}` };
 		}
-		if (segments[0] === "server") {
-			return { alias, path: `ServerScriptService.Cluaupp.${segments.slice(1).join(".")}` };
+		if (segments[0] === "ReplicatedStorage") {
+			return { alias, path: `ReplicatedStorage.${segments.slice(1).join(".")}` };
 		}
-		if (segments[0] === "client") {
-			return { alias, path: `StarterPlayer.StarterPlayerScripts.Cluaupp.${segments.slice(1).join(".")}` };
+		if (segments[0] === "ServerScriptService") {
+			return { alias, path: `ServerScriptService.${segments.slice(1).join(".")}` };
+		}
+		if (segments[0] === "StarterPlayer") {
+			return { alias, path: `StarterPlayer.${segments.slice(1).join(".")}` };
+		}
+		if (segments[0] === "ServerStorage") {
+			return { alias, path: `ServerStorage.${segments.slice(1).join(".")}` };
 		}
 		return { alias, path: `ReplicatedStorage.${segments.join(".")}` };
 	}

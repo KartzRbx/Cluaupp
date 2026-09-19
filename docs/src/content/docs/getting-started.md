@@ -43,9 +43,11 @@ my-game/
   cluaupp.config.json
   default.project.json
   src/
-    server/leaderstats.server.clpp
-    client/init.client.clpp
-    shared/config.clp
+    ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
+    ServerScriptService/Boot/DataBoot.server.clpp
+    ServerScriptService/Handlers/PlayerHandler.server.clpp
+    StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
+    StarterPlayer/StarterCharacterScripts/Character/CharacterReady.client.clpp
   out/                    ← generated Luau (do not edit)
   libs/                   ← CluauppLibs
 ```

@@ -17,6 +17,7 @@ exports.siblingHeader = siblingHeader;
 exports.collectSources = collectSources;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+const index_js_1 = require("../flare/index.js");
 exports.SOURCE_EXTS = [".clpp", ".clp", ".clh"];
 function isSourceFile(fileName) {
     return exports.SOURCE_EXTS.includes(node_path_1.default.extname(fileName).toLowerCase());
@@ -111,7 +112,7 @@ function collectSources(dir, files = []) {
         if (entry.isDirectory()) {
             collectSources(full, files);
         }
-        else if (isSourceFile(entry.name)) {
+        else if (isSourceFile(entry.name) && !(0, index_js_1.isGeneratedHeader)(full)) {
             files.push(full);
         }
     }

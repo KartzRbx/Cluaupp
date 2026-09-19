@@ -7,6 +7,7 @@ exports.MODULE_COLON = exports.LIBRARY_METHODS = exports.LIBRARY_TYPES = exports
 exports.isLibraryType = isLibraryType;
 exports.isLibraryMethod = isLibraryMethod;
 exports.collectLibraries = collectLibraries;
+exports.libraryNamesFromIncludes = libraryNamesFromIncludes;
 exports.requireCluauppLib = requireCluauppLib;
 exports.emitRequires = emitRequires;
 exports.insertRequires = insertRequires;
@@ -15,93 +16,128 @@ exports.insertPreamble = insertPreamble;
 // @ts-nocheck
 const node_path_1 = __importDefault(require("node:path"));
 const TYPE_EXPORTS = {
-    Janitor: "Janitor",
+    Sweep: "Sweep",
     Promise: "Promise",
     Net: "Net",
-    Icon: "Icon",
-    StateMachine: "StateMachine",
-    Spring: "Spring",
-    StickyBillboard: "StickyBillboard",
-    EzVisualz: "EzVisualz",
-    Module3D: "Module3D",
-    MathUtils: "MathUtils",
-    Twinkle: "Twinkle",
-    VfxUtil: "VfxUtil",
-    FormatNumber: "FormatNumber",
-    Fusion: "Fusion",
-    Iris: "Iris",
-    Cmdr: "Cmdr",
-    Chrono: "Chrono",
-    DataService: "DataService",
-    Display: "Display",
+    Crest: "Crest",
+    Shift: "Shift",
+    Coil: "Coil",
+    Pin: "Pin",
+    Bloom: "Bloom",
+    Stage: "Stage",
+    Axiom: "Axiom",
+    Ember: "Ember",
+    Mint: "Mint",
+    Gleam: "Gleam",
+    Lens: "Lens",
+    Helm: "Helm",
+    Echo: "Echo",
+    Keep: "DataService",
+    Trace: "Trace",
+    Spark: "Spark",
+    Guide: "Guide",
+    Roster: "Roster",
+    Hive: "Hive",
+    Flare: "Flare",
 };
 exports.TYPE_EXPORTS = TYPE_EXPORTS;
 const EXTRA_TYPE_EXPORTS = {
-    DataService: {
+    Keep: {
         Data: "Data",
         DataPath: "Path",
         DataServiceServer: "ServerApi",
         DataServiceClient: "ClientApi",
     },
+    Spark: {
+        SparkConnection: "Connection",
+    },
 };
 exports.EXTRA_TYPE_EXPORTS = EXTRA_TYPE_EXPORTS;
 const MODULES = {
-    Janitor: { file: "Janitor", bind: "Janitor" },
+    Sweep: { file: "Sweep", bind: "Sweep" },
     Promise: { file: "Promise", bind: "Promise" },
     Net: { file: "Net", bind: "Net" },
     NetEvent: { file: "Net", bind: "Net" },
     NetFunction: { file: "Net", bind: "Net" },
-    MathUtils: { file: "MathUtils", bind: "MathUtils" },
-    FormatNumber: { file: "FormatNumber", bind: "FormatNumber" },
-    Module3D: { file: "Module3D", bind: "Module3D" },
-    Model3D: { file: "Module3D", bind: "Module3D" },
-    Twinkle: { file: "Twinkle", bind: "Twinkle" },
-    DataService: { file: "DataService", bind: "DataService" },
-    EzVisualz: { file: "EzVisualz", bind: "EzVisualz" },
-    EzVisual: { file: "EzVisualz", bind: "EzVisualz" },
-    Spring: { file: "Spring", bind: "Spring" },
-    Display: { file: "Display", bind: "Display" },
-    StickyBillboard: { file: "StickyBillboard", bind: "StickyBillboard" },
-    Icon: { file: "TopbarPlus", bind: "Icon" },
-    TopbarPlus: { file: "TopbarPlus", bind: "Icon" },
-    Cmdr: { file: "Cmdr", bind: "Cmdr" },
-    Chrono: { file: "Chrono", bind: "Chrono" },
-    Iris: { file: "Iris", bind: "Iris" },
-    Fusion: { file: "Fusion", bind: "Fusion" },
-    StateMachine: { file: "StateMachine", bind: "StateMachine" },
-    VfxUtil: { file: "VfxUtil", bind: "VfxUtil" },
+    Axiom: { file: "Axiom", bind: "Axiom" },
+    Mint: { file: "Mint", bind: "Mint" },
+    Stage: { file: "Stage", bind: "Stage" },
+    Keep: { file: "Keep", bind: "Keep" },
+    Bloom: { file: "Bloom", bind: "Bloom" },
+    Coil: { file: "Coil", bind: "Coil" },
+    Trace: { file: "Trace", bind: "Trace" },
+    Pin: { file: "Pin", bind: "Pin" },
+    Crest: { file: "Crest", bind: "Crest" },
+    Helm: { file: "Helm", bind: "Helm" },
+    Echo: { file: "Echo", bind: "Echo" },
+    Lens: { file: "Lens", bind: "Lens" },
+    Gleam: { file: "Gleam", bind: "Gleam" },
+    Shift: { file: "Shift", bind: "Shift" },
+    Ember: { file: "Ember", bind: "Ember" },
     ArrayIndexer: { file: "ArrayIndexer", bind: "ArrayIndexer" },
     Occlude: { file: "Occlude", bind: "Occlude" },
+    Spark: { file: "Spark", bind: "Spark" },
+    Guide: { file: "Guide", bind: "Guide" },
+    Flare: { file: "Flare", bind: "Flare" },
+    Roster: { file: "Roster", bind: "Roster" },
+    Hive: { file: "Hive", bind: "Hive" },
+    Ward: { file: "Ward", bind: "Ward" },
 };
 exports.MODULES = MODULES;
 const INCLUDE_TO_MODULE = {
-    janitor: "Janitor",
+    sweep: "Sweep",
+    janitor: "Sweep",
+    maid: "Sweep",
     promise: "Promise",
     net: "Net",
-    math: "MathUtils",
-    mathutils: "MathUtils",
-    formatnumber: "FormatNumber",
-    module3d: "Module3D",
-    dataservice: "DataService",
-    dataservicev2: "DataService",
-    ezvisual: "EzVisualz",
-    ezvisualz: "EzVisualz",
-    twinkle: "Twinkle",
-    spring: "Spring",
-    display: "Display",
-    stickybillboard: "StickyBillboard",
-    topbarplus: "Icon",
-    icon: "Icon",
-    cmdr: "Cmdr",
-    chrono: "Chrono",
-    iris: "Iris",
-    fusion: "Fusion",
-    statemachine: "StateMachine",
-    robloxstatemachine: "StateMachine",
-    vfx: "VfxUtil",
-    vfxutil: "VfxUtil",
+    axiom: "Axiom",
+    math: "Axiom",
+    mint: "Mint",
+    formatnumber: "Mint",
+    stage: "Stage",
+    module3d: "Stage",
+    keep: "Keep",
+    dataservice: "Keep",
+    dataservicev2: "Keep",
+    bloom: "Bloom",
+    twinkle: "Bloom",
+    ezvisual: "Bloom",
+    ezvisualz: "Bloom",
+    coil: "Coil",
+    spring: "Coil",
+    trace: "Trace",
+    display: "Trace",
+    pin: "Pin",
+    stickybillboard: "Pin",
+    crest: "Crest",
+    icon: "Crest",
+    topbarplus: "Crest",
+    helm: "Helm",
+    cmdr: "Helm",
+    echo: "Echo",
+    chrono: "Echo",
+    lens: "Lens",
+    iris: "Lens",
+    gleam: "Gleam",
+    fusion: "Gleam",
+    vide: "Gleam",
+    shift: "Shift",
+    statemachine: "Shift",
+    ember: "Ember",
+    vfx: "Ember",
+    vfxutil: "Ember",
     arrayindexer: "ArrayIndexer",
     occlude: "Occlude",
+    spark: "Spark",
+    signal: "Spark",
+    guide: "Guide",
+    tutorialkit: "Guide",
+    flare: "Flare",
+    zap: "Flare",
+    quicknet: "Flare",
+    roster: "Roster",
+    hive: "Hive",
+    ward: "Ward",
     libs: null,
 };
 exports.INCLUDE_TO_MODULE = INCLUDE_TO_MODULE;
@@ -126,7 +162,15 @@ const LIBRARY_METHODS = new Set([
     "Await",
     "Cancel",
     "Fire",
+    "FireDeferred",
     "FireAll",
+    "Wrap",
+    "DisconnectAll",
+    "GetConnections",
+    "ConnectParallel",
+    "OnceParallel",
+    "IsDestroyed",
+    "register",
     "On",
     "OnClient",
     "OnServer",
@@ -230,6 +274,31 @@ const LIBRARY_METHODS = new Set([
     "PushConfig",
     "PopConfig",
     "ForceRefresh",
+    "build",
+    "to",
+    "focus",
+    "tour",
+    "SetStep",
+    "GetStep",
+    "Complete",
+    "GoTo",
+    "Advance",
+    "FireServer",
+    "FireAll",
+    "Invoke",
+    "Start",
+    "Allow",
+    "Strike",
+    "Packet",
+    "Grace",
+    "WatchMovement",
+    "SaveWait",
+    "Begin",
+    "Reserve",
+    "Commit",
+    "Abort",
+    "Ensure",
+    "Credit",
 ]);
 exports.LIBRARY_METHODS = LIBRARY_METHODS;
 const MODULE_COLON = new Set(["Attach3D", "RegisterDefaultCommands", "RegisterHook", "Connect", "LoadDirectory"]);
@@ -269,14 +338,9 @@ function modulesFromIncludes(source) {
             found.add(mapped);
         }
         if (key === "libs") {
-            found.add("Janitor");
-            found.add("Promise");
-            found.add("Net");
-            found.add("MathUtils");
-            found.add("FormatNumber");
-            found.add("Module3D");
-            found.add("Twinkle");
-            found.add("DataService");
+            for (const name of Object.keys(MODULES)) {
+                found.add(name);
+            }
         }
     }
     return found;
@@ -284,13 +348,13 @@ function modulesFromIncludes(source) {
 function collectLibraries(source, ast) {
     const used = modulesFromIncludes(source);
     walk(ast, (node) => {
-        if (node.type === "ident" && MODULES[node.name]) {
+        if (node.type === "ident" && MODULES[node.name] && node.name !== "Net" && node.name !== "NetEvent" && node.name !== "NetFunction") {
             used.add(node.name === "NetEvent" || node.name === "NetFunction" ? "Net" : node.name);
         }
         if (node.type === "new" && MODULES[node.className]) {
             used.add(node.className === "NetEvent" || node.className === "NetFunction" ? "Net" : node.className);
         }
-        if (node.type === "call" && node.object && node.object.type === "ident" && MODULES[node.object.name]) {
+        if (node.type === "call" && node.object && node.object.type === "ident" && MODULES[node.object.name] && node.object.name !== "Net") {
             const name = node.object.name;
             used.add(name === "NetEvent" || name === "NetFunction" ? "Net" : name);
         }
@@ -308,15 +372,19 @@ function collectLibraries(source, ast) {
     return unique;
 }
 const ROJO_ROOTS = {
-    shared: { service: "ReplicatedStorage", expr: "ReplicatedStorage.Cluaupp" },
-    server: { service: "ServerScriptService", expr: "ServerScriptService.Cluaupp" },
-    client: { service: "StarterPlayer", expr: "StarterPlayer.StarterPlayerScripts.Cluaupp" },
+    ReplicatedFirst: { service: "ReplicatedFirst", expr: "ReplicatedFirst" },
+    ReplicatedStorage: { service: "ReplicatedStorage", expr: "ReplicatedStorage" },
+    ServerScriptService: { service: "ServerScriptService", expr: "ServerScriptService" },
+    StarterPlayer: { service: "StarterPlayer", expr: "StarterPlayer" },
+    ServerStorage: { service: "ServerStorage", expr: "ServerStorage" },
 };
-const SERVICE_ORDER = ["ReplicatedStorage", "ServerScriptService", "StarterPlayer"];
+const SERVICE_ORDER = ["ReplicatedFirst", "ReplicatedStorage", "ServerScriptService", "StarterPlayer", "ServerStorage"];
 const SERVICE_GET = {
+    ReplicatedFirst: 'const ReplicatedFirst = game:GetService("ReplicatedFirst")',
     ReplicatedStorage: 'const ReplicatedStorage = game:GetService("ReplicatedStorage")',
     ServerScriptService: 'const ServerScriptService = game:GetService("ServerScriptService")',
     StarterPlayer: 'const StarterPlayer = game:GetService("StarterPlayer")',
+    ServerStorage: 'const ServerStorage = game:GetService("ServerStorage")',
 };
 function requireCluauppLib(name) {
     return `require(ReplicatedStorage.CluauppLibs.${name})`;
@@ -481,4 +549,7 @@ function insertBlock(luau, block) {
     const insertAt = match[0].length;
     const rest = luau.slice(insertAt).replace(/^\n*/, "\n");
     return `${luau.slice(0, insertAt)}\n${block}\n${rest}`;
+}
+function libraryNamesFromIncludes(source) {
+    return [...modulesFromIncludes(source)];
 }

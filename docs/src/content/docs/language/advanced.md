@@ -13,7 +13,7 @@ CL++ is the language (`clpp` 0.3.2). Cluaupp orchestrates Rojo and CluauppLibs. 
 - Lambdas `func (params) { }`
 - `post` / `warn` / `report`, `null`, `observable`, `signal`, `spawn` / `parallel`
 - Quoted includes; angled `#include <clpp/...>` is IntelliSense-only
-- Libraries via `#include <clpp/libs/janitor.clh>` → `require(ReplicatedStorage.CluauppLibs.Janitor)`
+- Libraries via `#include <clpp/libs/sweep.clh>` → `require(ReplicatedStorage.CluauppLibs.Sweep)`
 
 ## Not in CL++
 
@@ -42,7 +42,7 @@ If a file defines `void init()`, `clpp` calls `init()` at the end of Scripts / L
 CluauppLibs already contains Janitor, Fusion, Cmdr, DataServiceV2, … (copied into `runtime/`). Add Wally only for packages that are **not** in CluauppLibs. Headers live in `include/clpp/libs/`.
 
 ```clpp
-#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/keep.clh>
 
 void Grant(Player player, int amount) {
 	Data data = DataService.Server.WaitFor(player);

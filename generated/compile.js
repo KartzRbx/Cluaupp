@@ -29,7 +29,7 @@ function compileArgs(source, fileName, options) {
         options,
     };
 }
-function finishArtifact(artifact, relative, outName, options, skipInit) {
+function finishArtifact(artifact, relative, outName, options, skipInit, source) {
     const luau = (0, postprocess_js_1.clppLuauToGame)(artifact, {
         relativeName: relative,
         outName,
@@ -37,6 +37,7 @@ function finishArtifact(artifact, relative, outName, options, skipInit) {
         rootDir: options.rootDir,
         strict: options.strict,
         skipInit,
+        source,
     });
     return {
         kind: (0, paths_js_1.emitKind)(relative),
@@ -51,10 +52,10 @@ function compileSource(source, fileName, options = {}) {
 function compileService(source, fileName, options = {}) {
     const args = compileArgs(source, fileName, options);
     const artifact = (0, runner_js_1.compileViaClpp)(args.request);
-    return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit);
+    return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit, source);
 }
 async function compileServiceAsync(source, fileName, options = {}) {
     const args = compileArgs(source, fileName, options);
     const artifact = await (0, runner_js_1.compileViaClppAsync)(args.request);
-    return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit);
+    return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit, source);
 }

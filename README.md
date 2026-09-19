@@ -12,7 +12,9 @@
 [![Node.js](https://img.shields.io/node/v/cluaupp.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-white.svg)](LICENSE)
 
-Cluaupp is the **toolchain**, not the language compiler. [KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) owns syntax, IntelliSense (`clpp setup`), and Luau codegen. This CLI finds `.clpp` / `.clp` / `.clh`, runs `clpp api compile`, rewrites `ClppLibs` → `ReplicatedStorage.CluauppLibs`, and writes `out/` for Rojo.
+Cluaupp is the **toolchain**, not the language compiler. [KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) owns syntax, IntelliSense (`clpp setup`), and Luau codegen. This CLI finds `.clpp` / `.clp` / `.clh` (and `.flare` / `.mint` / `.bloom` / `.helm` / `.shift` / `.hive` / `.axiom`), runs `clpp api compile`, rewrites `ClppLibs` → `ReplicatedStorage.CluauppLibs`, and writes `out/` for Rojo.
+
+Native PascalCase CluauppLibs: **Flare** net, **Sweep** zelador, **Spark** signal, **Keep** data, **Mint** numbers, **Axiom** math, **Roster** tables, **Gleam** UI, **Bloom** effects, **Lens** debug UI, **Crest** topbar, **Pin** billboard, **Stage** viewport 3D, **Coil** spring, **Helm** commands, **Shift** states, **Hive** ECS, **Ward** anti-cheat, **Ember** VFX, **Echo** replication, **Guide** tutorials, **Trace** pretty-print. Schemas pack u8 ids / ColorSequence / tables — never JSON on the hot path. Name map: [`runtime/SOURCES.md`](runtime/SOURCES.md).
 
 ```clpp
 #include <clpp/roblox.clh>

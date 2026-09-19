@@ -13,10 +13,43 @@ function insertAfterHeader(luau, block) {
     const rest = luau.slice(insertAt).replace(/^\n*/, "\n");
     return `${luau.slice(0, insertAt)}\n${block}\n${rest}`;
 }
-function rewriteClppLibs(luau) {
-    return String(luau).replace(/require\(\s*ClppLibs\.([A-Za-z0-9_]+)\s*\)/g, (_all, name) => {
-        return (0, libs_js_1.requireCluauppLib)(name);
+const CLPP_LIB_FILE = {
+    Janitor: "Sweep",
+    Signal: "Spark",
+    MathUtils: "Axiom",
+    FormatNumber: "Mint",
+    Module3D: "Stage",
+    Twinkle: "Bloom",
+    EzVisualz: "Bloom",
+    Spring: "Coil",
+    Display: "Trace",
+    StickyBillboard: "Pin",
+    Icon: "Crest",
+    TopbarPlus: "Crest",
+    Cmdr: "Helm",
+    Chrono: "Echo",
+    Iris: "Lens",
+    Fusion: "Gleam",
+    StateMachine: "Shift",
+    VfxUtil: "Ember",
+    DataService: "Keep",
+    TutorialKit: "Guide",
+    TutorialServer: "Guide",
+};
+function rewriteClppLibs(luau, relativeName) {
+    let next = String(luau).replace(/require\(\s*ClppLibs\.([A-Za-z0-9_]+)\s*\)/g, (_all, name) => {
+        return (0, libs_js_1.requireCluauppLib)(CLPP_LIB_FILE[name] || name);
     });
+    next = next.replace(/CluauppLibs\.Janitor\b/g, "CluauppLibs.Sweep");
+    next = next.replace(/CluauppLibs\.Signal\b/g, "CluauppLibs.Spark");
+    next = next.replace(/:Add\(([^,\n()]+),\s*"Disconnect"\s*\)/g, ":Add($1)");
+    const tagged = relativeName ? (0, paths_js_1.isTaggedScript)(relativeName) : false;
+    const hasConnect = /:Connect\(/.test(next);
+    const hasSweep = /CluauppLibs\.Sweep/.test(next) || /\bjanitor\b/.test(next) || /\bsweep\b/.test(next);
+    if (tagged && hasConnect && !hasSweep) {
+        next = insertAfterHeader(next, "local sweep = require(ReplicatedStorage.CluauppLibs.Sweep).new()");
+    }
+    return next;
 }
 function ensureReplicatedStorage(luau) {
     if (!luau.includes("CluauppLibs")) {
@@ -39,11 +72,22 @@ function ensureStrict(luau, strict) {
     }
     return `--!strict\n${luau}`;
 }
+function normalizeLibraryName(name) {
+    const mapped = CLPP_LIB_FILE[name] || name;
+    if (libs_js_1.MODULES[mapped]) {
+        return mapped;
+    }
+    return null;
+}
 function librarySpecs(names) {
     const specs = [];
     const seen = new Set();
     for (const name of names || []) {
-        const spec = libs_js_1.MODULES[name];
+        const mapped = normalizeLibraryName(name);
+        if (!mapped) {
+            continue;
+        }
+        const spec = libs_js_1.MODULES[mapped];
         if (!spec || seen.has(spec.bind)) {
             continue;
         }
@@ -51,6 +95,20 @@ function librarySpecs(names) {
         specs.push(spec);
     }
     return specs;
+}
+function includedLibraryNames(artifact, source) {
+    const names = [];
+    for (const name of artifact.libraries || []) {
+        if (name === "*") {
+            names.push(...Object.keys(libs_js_1.MODULES));
+            continue;
+        }
+        names.push(name);
+    }
+    if (source) {
+        names.push(...(0, libs_js_1.libraryNamesFromIncludes)(source));
+    }
+    return names;
 }
 function missingLibraries(luau, names) {
     return librarySpecs(names).filter((spec) => {
@@ -64,13 +122,13 @@ function shouldSkipInit(fileName, hasSiblingHeader) {
     return !(0, paths_js_1.isTaggedScript)(fileName);
 }
 function clppLuauToGame(artifact, options) {
-    let luau = rewriteClppLibs(artifact.luau || "");
+    let luau = rewriteClppLibs(artifact.luau || "", options.relativeName);
     luau = ensureReplicatedStorage(luau);
     if (options.skipInit) {
         luau = stripInitCall(luau);
     }
     luau = ensureStrict(luau, options.strict);
-    const missing = missingLibraries(luau, artifact.libraries);
+    const missing = missingLibraries(luau, includedLibraryNames(artifact, options.source));
     if (missing.length > 0) {
         luau = (0, libs_js_1.insertPreamble)(luau, [], missing, options.outName);
     }

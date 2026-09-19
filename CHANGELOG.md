@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.0
+
+- **Init** writes a Roblox service tree (`ServerScriptService`, `ReplicatedStorage/Shared`, `StarterPlayer`, `ServerStorage`, `ReplicatedFirst`) with DataBoot + TemplateData. Breaking: no more `src/server` / `src/client` / `src/shared`.
+- Native CluauppLibs only: **Flare, Sweep, Spark, Keep, Mint, Axiom, Roster, Gleam, Bloom, Lens, Crest, Pin, Stage, Coil, Helm, Shift, Hive, Ember, Echo, Guide, Trace, Ward**. No Wally alias folders, no `@cluaupp/janitor` workspaces. Promise stays evaera. Libs ship inside the `cluaupp` npm tarball (`runtime/`).
+- Buffer law: `.flare` / `.mint` / `.bloom` / `.helm` / `.shift` / `.hive` / `.axiom` pack u8 ids, ColorSequence, or tables — no JSON on the hot path. Net codec tables use tagged buffers (no `JSONEncode`).
+- **Keep** is ProfileStore-class session lock plus duplication-proof trade escrow: `Reserve` deducts into a vault, `Commit` credits with receipts and `SaveWait`s both profiles (in-place rollback if a save fails), `AbortIfActive` on leave.
+- **Ward** is the server anti-cheat kernel (rate-limit remotes, packet cap, speed strikes). Flare, Net, Keep replication, and Helm call Ward on inbound client buffers. Hive worlds are authoritative (client writes no-op) by default.
+- **Sweep** is the zelador (`~>` Connect). **Spark** is engine-grade GoodSignal (O(1) Disconnect, reentrant Fire queue, `ConnectParallel`). **Shift** compiles FSM/HSM to u8. **Hive** is jecs-style ECS.
+- Starlight handbooks per native name. HUD: Gleam+Mint+Bloom. NPC: Shift+Hive.
+- Instance headers flatten inherited members and creatable classes get `Class()` plus `Class(Instance parent)`.
+- Accept CL++ **0.3.3** (same JSON contract as 0.3.2).
+- `#include <clpp/libs/keep.clh>` (and the other native headers) now insert `require(ReplicatedStorage.CluauppLibs.*)` even when CL++ does not list the lib in `artifact.libraries`. Template `include/clpp/libs/` ships every native `.clh`.
+
 ## 1.3.0
 
 Align with CL++ **0.3.2**.

@@ -69,6 +69,7 @@ void init() {
 	</TabItem>
 	<TabItem label="Luau gerado">
 ```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 function HelloServer:Greet(player: Player)
@@ -81,9 +82,10 @@ local function init()
 	for _, player in players:GetPlayers() do
 		hello:Greet(player)
 	end
-	__janitor:Add(players.PlayerAdded:Connect(function(playerEntered: Player)
+	local sweep = require(ReplicatedStorage.CluauppLibs.Sweep).new()
+	sweep:Add(players.PlayerAdded:Connect(function(playerEntered: Player)
 		hello:Greet(playerEntered)
-	end), "Disconnect")
+	end))
 end
 
 init()

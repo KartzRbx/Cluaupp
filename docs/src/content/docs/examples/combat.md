@@ -16,7 +16,7 @@ The client never decides damage. Touched parts fire `OnHit`; the server prints c
 
 ```clpp
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
+#include <clpp/libs/sweep.clh>
 
 struct CombatServer {
 	Janitor janitor;

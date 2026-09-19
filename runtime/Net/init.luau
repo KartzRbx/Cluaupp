@@ -6,6 +6,7 @@
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local codec = require(script.src.codec)
+local Ward = require(script.Parent.Ward)
 
 export type Event<T...> = {
 	Fire: (self: Event<T...>, player: Player, T...) -> (),
@@ -71,7 +72,22 @@ end
 function Event:On<T...>(callback: (Player?, T...) -> ()): RBXScriptConnection
 	if RunService:IsServer() then
 		return self._remote.OnServerEvent:Connect(function(player: Player, payload: buffer)
-			callback(player, table.unpack(codec.decode(payload)))
+			if typeof(payload) ~= "buffer" then
+				Ward.Strike(player, "net:type")
+				return
+			end
+			if not Ward.Packet(player, buffer.len(payload)) then
+				return
+			end
+			if not Ward.Allow(player, "net:" .. self._name, 30, 60) then
+				return
+			end
+			local ok, decoded = pcall(codec.decode, payload)
+			if not ok or typeof(decoded) ~= "table" then
+				Ward.Strike(player, "net:decode")
+				return
+			end
+			callback(player, table.unpack(decoded))
 		end)
 	end
 	return self._remote.OnClientEvent:Connect(function(payload: buffer)
@@ -89,7 +105,22 @@ end
 function Fn:On<R, T...>(callback: (Player?, T...) -> R)
 	if RunService:IsServer() then
 		self._remote.OnServerInvoke = function(player: Player, payload: buffer)
-			return codec.encode({ callback(player, table.unpack(codec.decode(payload))) })
+			if typeof(payload) ~= "buffer" then
+				Ward.Strike(player, "net:fn-type")
+				return codec.encode({})
+			end
+			if not Ward.Packet(player, buffer.len(payload)) then
+				return codec.encode({})
+			end
+			if not Ward.Allow(player, "netfn:" .. self._name, 10, 20) then
+				return codec.encode({})
+			end
+			local ok, decoded = pcall(codec.decode, payload)
+			if not ok or typeof(decoded) ~= "table" then
+				Ward.Strike(player, "net:fn-decode")
+				return codec.encode({})
+			end
+			return codec.encode({ callback(player, table.unpack(decoded)) })
 		end
 	else
 		self._remote.OnClientInvoke = function(payload: buffer)

@@ -32,8 +32,8 @@ It does **not** call `DataService.Init`. Boot that in [Data boot](/examples/data
 ```clpp
 #pragma once
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
-#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/sweep.clh>
+#include <clpp/libs/keep.clh>
 
 struct LeaderstatsServer {
 	static constexpr int STARTING_COINS = 0;

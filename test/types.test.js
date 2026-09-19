@@ -63,11 +63,14 @@ expect(tagged.kind === "flat", `client kind ${tagged.kind}`);
 expect(tagged.files[0].name.replace(/\\/g, "/") === "hud.client.luau", `client out ${tagged.files[0].name}`);
 
 const combat = compileSource(
-	require("fs").readFileSync(require("path").join(__dirname, "..", "examples", "game", "src", "server", "combat.server.clpp"), "utf8"),
-	"combat.server.clpp",
+	require("fs").readFileSync(
+		require("path").join(__dirname, "..", "templates", "game", "src", "ServerScriptService", "Handlers", "PlayerHandler.server.clpp"),
+		"utf8",
+	),
+	"PlayerHandler.server.clpp",
 	{ strict: true },
 );
-contains(combat, ["init()"], "combat init");
-refuses(combat, ["require(ClppLibs."], "combat ClppLibs");
+contains(combat, ["init()", "WaitFor", "CluauppLibs.Keep"], "PlayerHandler init + Keep require");
+refuses(combat, ["require(ClppLibs."], "PlayerHandler ClppLibs");
 
 console.log("Cluaupp types / CL++ emit ok");

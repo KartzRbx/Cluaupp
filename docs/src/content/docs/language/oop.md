@@ -11,7 +11,7 @@ Declare the type in a `.clh`, implement `Class::Method` in a `.clp` / `.clpp`. C
 ```clpp
 #pragma once
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
+#include <clpp/libs/sweep.clh>
 
 struct LeaderstatsServer {
 	static constexpr int STARTING_COINS = 0;

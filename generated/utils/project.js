@@ -14,6 +14,8 @@ const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const package_info_js_1 = require("../package-info.js");
 const paths_js_1 = require("../clpp/paths.js");
+const index_js_1 = require("../flare/index.js");
+const index_js_2 = require("../native/index.js");
 const intellisense_js_1 = require("../intellisense.js");
 const process_orchestrator_js_1 = require("./process-orchestrator.js");
 const rojo_mapper_js_1 = require("./rojo-mapper.js");
@@ -97,14 +99,16 @@ function tryRm(target, root) {
     }
 }
 function copyFileIfChanged(src, dest, mode = "fill") {
-    if (mode === "fill" && node_fs_1.default.existsSync(dest)) {
-        return;
-    }
-    if (mode === "update" && node_fs_1.default.existsSync(dest)) {
-        const from = node_fs_1.default.statSync(src);
-        const to = node_fs_1.default.statSync(dest);
-        if (from.size === to.size && from.mtimeMs <= to.mtimeMs) {
+    if (mode !== "force") {
+        if (mode === "fill" && node_fs_1.default.existsSync(dest)) {
             return;
+        }
+        if (mode === "update" && node_fs_1.default.existsSync(dest)) {
+            const from = node_fs_1.default.statSync(src);
+            const to = node_fs_1.default.statSync(dest);
+            if (from.size === to.size && from.mtimeMs <= to.mtimeMs) {
+                return;
+            }
         }
     }
     node_fs_1.default.mkdirSync(node_path_1.default.dirname(dest), { recursive: true });
@@ -136,12 +140,54 @@ function syncDir(from, to, mode = "fill") {
         }
     }
 }
+function pruneStaleLibs(libs) {
+    if (!node_fs_1.default.existsSync(libs)) {
+        return;
+    }
+    const staleNames = [
+        "Janitor",
+        "Signal",
+        "MathUtils",
+        "FormatNumber",
+        "Module3D",
+        "Twinkle",
+        "EzVisualz",
+        "Spring",
+        "Display",
+        "StickyBillboard",
+        "Icon",
+        "TopbarPlus",
+        "Cmdr",
+        "Chrono",
+        "Iris",
+        "Fusion",
+        "StateMachine",
+        "VfxUtil",
+        "DataService",
+        "TutorialKit",
+        "TutorialServer",
+        "QuickNet",
+    ];
+    const stale = [
+        ...staleNames.map((name) => node_path_1.default.join(libs, name)),
+        node_path_1.default.join(libs, "Keep", "Packages"),
+        node_path_1.default.join(libs, "Keep", "ProfileStore.luau"),
+    ];
+    for (const target of stale) {
+        if (!node_fs_1.default.existsSync(target)) {
+            continue;
+        }
+        node_fs_1.default.rmSync(target, { recursive: true, force: true });
+    }
+}
 function copyRuntime(dest) {
     const runtime = node_path_1.default.join(__dirname, "..", "..", "runtime");
     if (!node_fs_1.default.existsSync(runtime)) {
         return;
     }
-    syncDir(runtime, node_path_1.default.join(dest, "libs"));
+    const libs = node_path_1.default.join(dest, "libs");
+    pruneStaleLibs(libs);
+    syncDir(runtime, libs, "force");
 }
 function copyHeaders(dest) {
     const from = node_path_1.default.join(__dirname, "..", "..", "include", "clpp");
@@ -255,11 +301,67 @@ function compileOptions(root, config, file, rel) {
         outDir: config.outDir,
     };
 }
-function compileProject(root, config, mapper) {
-    const srcDir = node_path_1.default.join(root, config.rootDir);
-    const files = (0, paths_js_1.collectSources)(srcDir);
+function compileSchemaJobs(root, config, srcDir) {
     const jobs = [];
     const errors = [];
+    const flare = compileFlareJobs(root, config, srcDir);
+    jobs.push(...flare.jobs);
+    errors.push(...flare.errors);
+    for (const file of (0, index_js_2.collectNativeSchemaFiles)(srcDir)) {
+        const rel = posixRel(srcDir, file);
+        try {
+            const emit = (0, index_js_2.compileNativeSchemaFile)(file, srcDir);
+            const headerDest = node_path_1.default.join(srcDir, emit.headerRel);
+            if (!(0, safe_paths_js_1.isInside)(node_path_1.default.resolve(root, config.rootDir), headerDest) && !(0, safe_paths_js_1.isInside)(srcDir, headerDest)) {
+                throw new Error(`cluaupp schema: skip unsafe header ${emit.headerRel}`);
+            }
+            writeTextIfChanged(headerDest, emit.header);
+            jobs.push({
+                rel,
+                files: [{ name: emit.luauRel, contents: emit.luau }],
+                stale: [],
+            });
+        }
+        catch (err) {
+            errors.push({
+                rel,
+                prefixes: sourcePrefixes(rel.replace(/\.(mint|bloom|helm|shift|hive|axiom)$/i, ".clh")),
+                message: err.message,
+            });
+        }
+    }
+    return { jobs, errors };
+}
+function compileFlareJobs(root, config, srcDir) {
+    const jobs = [];
+    const errors = [];
+    for (const file of (0, index_js_1.collectFlareFiles)(srcDir)) {
+        const rel = posixRel(srcDir, file);
+        try {
+            const { emit } = (0, index_js_1.compileFlareFile)(file, srcDir);
+            const headerDest = node_path_1.default.join(srcDir, emit.headerRel);
+            if (!(0, safe_paths_js_1.isInside)(node_path_1.default.resolve(root, config.rootDir), headerDest) && !(0, safe_paths_js_1.isInside)(srcDir, headerDest)) {
+                throw new Error(`cluaupp flare: skip unsafe header ${emit.headerRel}`);
+            }
+            writeTextIfChanged(headerDest, emit.header);
+            jobs.push({
+                rel,
+                files: [{ name: emit.luauRel, contents: emit.luau }],
+                stale: [],
+            });
+        }
+        catch (err) {
+            errors.push({ rel, prefixes: sourcePrefixes(rel.replace(/\.flare$/i, ".clh")), message: err.message });
+        }
+    }
+    return { jobs, errors };
+}
+function compileProject(root, config, mapper) {
+    const srcDir = node_path_1.default.join(root, config.rootDir);
+    const schema = compileSchemaJobs(root, config, srcDir);
+    const files = (0, paths_js_1.collectSources)(srcDir);
+    const jobs = [...schema.jobs];
+    const errors = [...schema.errors];
     for (const file of files) {
         const source = node_fs_1.default.readFileSync(file, "utf8");
         const rel = posixRel(srcDir, file);
@@ -275,9 +377,10 @@ function compileProject(root, config, mapper) {
 }
 async function compileProjectAsync(root, config, mapper) {
     const srcDir = node_path_1.default.join(root, config.rootDir);
+    const schema = compileSchemaJobs(root, config, srcDir);
     const files = (0, paths_js_1.collectSources)(srcDir);
-    const jobs = [];
-    const errors = [];
+    const jobs = [...schema.jobs];
+    const errors = [...schema.errors];
     for (const file of files) {
         const source = node_fs_1.default.readFileSync(file, "utf8");
         const rel = posixRel(srcDir, file);

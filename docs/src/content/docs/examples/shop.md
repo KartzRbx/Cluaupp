@@ -33,9 +33,9 @@ int PriceOf(int productId) {
 
 ```clpp
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
+#include <clpp/libs/sweep.clh>
 #include <clpp/libs/net.hpp>
-#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/keep.clh>
 #include "../../../shared/constants/ShopCatalog.hpp"
 
 Janitor janitor = new Janitor();
@@ -91,7 +91,7 @@ Debit **before** (or atomically with) the effect. If you grant the item first an
 
 ```clpp
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
+#include <clpp/libs/sweep.clh>
 #include <clpp/libs/net.hpp>
 #include "../../../shared/constants/ShopCatalog.hpp"
 

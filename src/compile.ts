@@ -25,7 +25,14 @@ function compileArgs(source: string, fileName: string | undefined, options: Comp
 	};
 }
 
-function finishArtifact(artifact: CompileArtifact, relative: string, outName: string, options: CompileOptions, skipInit: boolean): CompileServiceResult {
+function finishArtifact(
+	artifact: CompileArtifact,
+	relative: string,
+	outName: string,
+	options: CompileOptions,
+	skipInit: boolean,
+	source: string,
+): CompileServiceResult {
 	const luau = clppLuauToGame(artifact, {
 		relativeName: relative,
 		outName,
@@ -33,6 +40,7 @@ function finishArtifact(artifact: CompileArtifact, relative: string, outName: st
 		rootDir: options.rootDir,
 		strict: options.strict,
 		skipInit,
+		source,
 	});
 	return {
 		kind: emitKind(relative),
@@ -49,11 +57,11 @@ export function compileSource(source: string, fileName?: string, options: Compil
 export function compileService(source: string, fileName?: string, options: CompileOptions = {}): CompileServiceResult {
 	const args = compileArgs(source, fileName, options);
 	const artifact = compileViaClpp(args.request);
-	return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit);
+	return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit, source);
 }
 
 export async function compileServiceAsync(source: string, fileName?: string, options: CompileOptions = {}): Promise<CompileServiceResult> {
 	const args = compileArgs(source, fileName, options);
 	const artifact = await compileViaClppAsync(args.request);
-	return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit);
+	return finishArtifact(artifact, args.relative, args.outName, args.options, args.skipInit, source);
 }

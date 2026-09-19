@@ -1,6 +1,12 @@
+--!native
+--!optimize 2
 --!strict
 --[=[
 	@class ArrayIndexer
+	Dense reusable indices for ECS-like ids. Acquire pops a free slot (or
+	grows); Release returns the id to the pool and swap-removes it from the
+	packed live list.
+
 	Type function `Table` — pick one or more keys from a service manifest.
 	`Table<Manifest, "CurrencyService">` is the service, not a generic table.
 ]=]
@@ -9,31 +15,41 @@ type ManifestExample = {
 	DataService: { FetchData: () -> (), ClearData: () -> () },
 	PlayerService: { RespawnChar: () -> (), RemoveChar: () -> () },
 }
+
 export type function Table(list: type, id: type): type
 	if not list:is("table") then
-		error(`[Manifest] list deve ser a manifest table, recebi {list.tag}`)
+		error(`[ArrayIndexer] list must be the manifest table, got {list.tag}`)
 	end
 
 	if id:is("any") or id:is("unknown") or id:is("never") then
 		return types.any
 	end
 
-	-- quantas opcoes um tipo descreve (para desempatar intersection)
-	local function largura(t: type): number?
-		local alvo = t
-		if alvo:is("table") then
-			local ix = alvo:readindexer()
-			if not ix then
+	local function availableNames(): { string }
+		local names = {}
+		for key in list:properties() do
+			table.insert(names, tostring(key:value()))
+		end
+		table.sort(names)
+		return names
+	end
+
+	-- How many options a type describes (narrower wins on intersection).
+	local function width(t: type): number?
+		local target = t
+		if target:is("table") then
+			local indexer = target:readindexer()
+			if not indexer then
 				return nil
 			end
-			alvo = ix.result
+			target = indexer.result
 		end
-		if alvo:is("singleton") then
+		if target:is("singleton") then
 			return 1
 		end
-		if alvo:is("union") then
+		if target:is("union") then
 			local n = 0
-			for _ in alvo:components() do
+			for _ in target:components() do
 				n += 1
 			end
 			return n
@@ -41,104 +57,153 @@ export type function Table(list: type, id: type): type
 		return nil
 	end
 
-	-- 1. INTERSECTION: fica o ramo mais estreito, sem depender de ordem
 	if id:is("intersection") then
-		local melhor, menor = nil, math.huge
-		for _, parte in id:components() do
-			local w = largura(parte)
-			if w and w < menor then
-				menor, melhor = w, parte
+		local best: type? = nil
+		local smallest = math.huge
+		for _, branch in id:components() do
+			local w = width(branch)
+			if w and w < smallest then
+				smallest = w
+				best = branch
 			end
 		end
-		if not melhor then
-			error("[Manifest] intersection sem ramo utilizavel (nenhum singleton, union ou array deles)")
+		if not best then
+			error("[ArrayIndexer] intersection has no usable branch (need a singleton, union, or array of those)")
 		end
-		id = melhor
+		id = best
 	end
 
-	-- 2. ARRAY: desce no indexer
 	local fromArray = false
 	if id:is("table") then
 		local indexer = id:readindexer()
 		if not indexer then
-			error("[Manifest] esperava array de chaves, recebi table sem indexer")
+			error("[ArrayIndexer] expected an array of keys, got a table with no indexer")
 		end
 		fromArray = true
 		id = indexer.result
 	end
 
 	if id:is("string") then
-		error(
-			'[Manifest] WIDENED: as chaves viraram `string`. Use `:: { "A" | "B" }` no literal, ou passe a union direto'
-		)
+		error('[ArrayIndexer] keys widened to `string`. Use `:: { "A" | "B" }` on the literal, or pass the union directly')
 	end
 
-	-- 3. CHAVE UNICA e nao veio de array: devolve o servico direto
 	if id:is("singleton") and not fromArray then
-		local alvo = id:value()
+		local name = id:value()
 		local prop = list:readproperty(id)
 		if prop then
 			return prop
 		end
-		local disponiveis = {}
-		for key in list:properties() do
-			table.insert(disponiveis, tostring(key:value()))
-		end
-		table.sort(disponiveis)
-		error(`[Manifest] "{alvo}" nao existe. Disponiveis: {table.concat(disponiveis, ", ")}`)
+		error(`[ArrayIndexer] "{name}" is not in the manifest. Available: {table.concat(availableNames(), ", ")}`)
 	end
 
-	-- 4. coleta os pedidos
-	local pedidos = {}
+	local requested = {}
 	if id:is("singleton") then
-		pedidos[id:value()] = true
+		requested[id:value()] = true
 	elseif id:is("union") then
-		for _, c in id:components() do
-			if not c:is("singleton") then
-				error(`[Manifest] componentes da union devem ser singleton, recebi {c.tag}`)
+		for _, component in id:components() do
+			if not component:is("singleton") then
+				error(`[ArrayIndexer] union components must be singletons, got {component.tag}`)
 			end
-			pedidos[c:value()] = true
+			requested[component:value()] = true
 		end
 	else
-		error(`[Manifest] id deve ser singleton, union de singletons, ou array deles. Recebi {id.tag}`)
+		error(`[ArrayIndexer] id must be a singleton, a union of singletons, or an array of those. Got {id.tag}`)
 	end
 
-	-- 5. monta o subconjunto
-	local resultado = types.newtable()
+	local result = types.newtable()
 	for key, prop in list:properties() do
-		local nome = key:value()
-		if type(nome) == "string" and pedidos[nome] then
-			pedidos[nome] = nil
+		local name = key:value()
+		if type(name) == "string" and requested[name] then
+			requested[name] = nil
 			if prop.read then
-				resultado:setreadproperty(key, prop.read)
+				result:setreadproperty(key, prop.read)
 			end
 			if prop.write then
-				resultado:setwriteproperty(key, prop.write)
+				result:setwriteproperty(key, prop.write)
 			end
 		end
 	end
 
-	-- 6. o que sobrou foi pedido e nao existe
-	local faltando = {}
-	for nome in pedidos do
-		table.insert(faltando, nome)
+	local missing = {}
+	for name in requested do
+		table.insert(missing, name)
 	end
-	if #faltando > 0 then
-		table.sort(faltando)
-		local disponiveis = {}
-		for key in list:properties() do
-			table.insert(disponiveis, tostring(key:value()))
-		end
-		table.sort(disponiveis)
+	if #missing > 0 then
+		table.sort(missing)
 		error(
-			`[Manifest] nao existe(m): {table.concat(faltando, ", ")}. Disponiveis: {table.concat(disponiveis, ", ")}`
+			`[ArrayIndexer] missing: {table.concat(missing, ", ")}. Available: {table.concat(availableNames(), ", ")}`
 		)
 	end
 
-	return resultado
+	return result
 end
 
 type CurrencyService = Table<ManifestExample, "CurrencyService"> --> AddCash: () -> (), SubtractCash: () -> ()
 type TwoServices = Table<ManifestExample, "PlayerService" | "DataService"> --> {RespawnChar: () -> (), RemoveChar: () -> ()}, {FetchData: () -> (), ClearData: () -> ()}
 
-return {}
+local ArrayIndexer = {}
+ArrayIndexer.__index = ArrayIndexer
+
+export type ArrayIndexer = typeof(setmetatable(
+	{} :: {
+		Next: number,
+		Free: { number },
+		Dense: { number },
+		Index: { [number]: number },
+	},
+	ArrayIndexer
+))
+
+function ArrayIndexer.New(): ArrayIndexer
+	return setmetatable({
+		Next = 1,
+		Free = {} :: { number },
+		Dense = {} :: { number },
+		Index = {} :: { [number]: number },
+	}, ArrayIndexer)
+end
+
+function ArrayIndexer:Acquire(): number
+	local free = self.Free
+	local last = #free
+	local id = free[last]
+	if id ~= nil then
+		free[last] = nil
+	else
+		id = self.Next
+		self.Next += 1
+	end
+	local dense = self.Dense
+	local pos = #dense + 1
+	dense[pos] = id
+	self.Index[id] = pos
+	return id
+end
+
+function ArrayIndexer:Release(id: number)
+	local pos = self.Index[id]
+	if pos == nil then
+		return
+	end
+	local dense = self.Dense
+	local lastPos = #dense
+	local last = dense[lastPos]
+	if pos ~= lastPos then
+		dense[pos] = last
+		self.Index[last] = pos
+	end
+	dense[lastPos] = nil
+	self.Index[id] = nil
+	local free = self.Free
+	free[#free + 1] = id
+end
+
+function ArrayIndexer:Has(id: number): boolean
+	return self.Index[id] ~= nil
+end
+
+function ArrayIndexer:Living(): { number }
+	return self.Dense
+end
+
+return ArrayIndexer

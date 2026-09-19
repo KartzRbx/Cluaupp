@@ -2,59 +2,84 @@
 title: Organization
 ---
 
-A Cluaupp game is laid out like a roblox-ts project on disk. One tagged `.cpp` becomes one Luau instance (`leaderstats.server.luau`, `hud.client.luau`). See [Architecture](/internals/pipeline/).
+`cluaupp init` writes a Roblox service tree. Source folders map 1:1 to live services (`out/ServerScriptService` → ServerScriptService). There is no `src/server`, `src/shared`, or `src/client`.
 
 ```
 src/
-  server/     → Script (out/server)
-  client/     → LocalScript (out/client)
-  shared/     → ModuleScript (out/shared)
-include/cluaupp/   IntelliSense
-libs/              CluauppLibs (full Janitor, Fusion, Cmdr, DataService, …)
-Packages/          extra Wally packages only
+  ReplicatedFirst/Loading/
+  ReplicatedStorage/
+    Shared/
+      Constants/
+        Classes/
+        Primitives/
+        Datas/TemplateData.clh
+      Services/
+      Modules/
+      Utils/
+      Types/
+      Net/
+  ServerScriptService/
+    Boot/DataBoot.server.clpp
+    Configuration/
+    Handlers/PlayerHandler.server.clpp
+    Services/
+  StarterPlayer/
+    StarterPlayerScripts/
+      Controllers/DataController.client.clpp
+      UI/
+      Input/
+    StarterCharacterScripts/
+      Character/
+      Movement/
+      Combat/
+  ServerStorage/
+    Configuration/
+    Modules/
+libs/                 CluauppLibs (Keep, Sweep, Flare, …)
+include/clpp/         IntelliSense
 cluaupp.config.json
 default.project.json
-wally.toml
 ```
 
-## Server / client / shared
+Rojo maps `libs/` to `ReplicatedStorage.CluauppLibs`. Game packages you add later go beside Shared, not inside CluauppLibs.
 
-| Folder | Runs on | Allowed to |
+## Where code runs
+
+| Folder | Runs on | Put here |
 | --- | --- | --- |
-| `src/server` | Server | DataStore, DataService writes, `Net:Fire` |
-| `src/client` | Client | UI, Module3D, Twinkle, camera, `Net:FireServer` |
-| `src/shared` | Both | types, `const` config, FormatNumber, MathUtils |
+| `ServerScriptService/Boot` | Server | `Keep.Server.Init` once |
+| `ServerScriptService/Handlers` | Server | PlayerAdded, leaderstats, combat |
+| `ServerScriptService/Services` | Server | long-lived server systems |
+| `ServerScriptService/Configuration` | Server | store names, feature flags |
+| `ReplicatedStorage/Shared` | Both | TemplateData, types, utils, Flare schemas |
+| `StarterPlayerScripts/Controllers` | Client | `Keep.Client.Init`, HUD controllers |
+| `StarterPlayerScripts/UI` / `Input` | Client | Gleam, user input |
+| `StarterCharacterScripts` | Character | movement, combat locals |
+| `ServerStorage` | Server | secrets, unpublished modules |
+| `ReplicatedFirst` | First | loading UI |
 
-If a file needs `DataStoreService`, it is server. If it needs `UserInputService`, it is client. Shared code must compile in both.
+If a file needs `DataStoreService`, it is server. If it needs `UserInputService`, it is client. Shared must compile on both.
 
 ## Headers vs scripts
 
-- `.clh` in `src/` are inlined (`#include "config.h"`) and can hold `const` values and prototypes.
-- `#include <clpp/...>` is IntelliSense only — never inlined. `cluaupp build` copies those headers into the game `include/` folder. Cursor/clangd also reads `compile_flags.txt`.
+- `.clh` in `src/` are inlined (`#include "TemplateData.clh"`) and hold structs / `const`.
+- `#include <clpp/...>` is IntelliSense — never inlined. `cluaupp build` copies those headers into the game `include/` folder.
 
-Keep config in `src/shared/config.h`:
-
-```clpp
-#pragma once
-const int STARTING_COINS = 0;
-const string REMOTE_COINS = "Coins";
-```
+Keep the save shape in `Shared/Constants/Datas/TemplateData.clh`. Paths exist only because that template has those fields.
 
 ## One module, one job
 
-`leaderstats.server.clpp` creates leaderstats. It does not also open the shop UI. Name files after the system: `inventory.server.clpp`, `shop.client.clpp`.
+`DataBoot.server.clpp` calls `Keep.Server.Init`. `PlayerHandler.server.clpp` only `WaitFor`s. `DataController.client.clpp` calls `Keep.Client.Init`. Do not `Init` twice.
 
-`*.server.clpp` / `*.client.clpp` are **tags** (the same keys roblox-ts uses). Untagged `.cpp` is a ModuleScript. Set `"architecture": true` only if you want the old PascalCase folder split. See [Architecture](/internals/pipeline/) and [OOP structure](oop/index.md).
+`*.server.clpp` / `*.client.clpp` are tags. Untagged `.clp` is a ModuleScript. `"architecture": true` is the old PascalCase folder split — leave it off.
 
-## CluauppLibs vs extra Wally
+## CluauppLibs
 
 | Need | Where |
 | --- | --- |
-| Janitor, Promise, Fusion, Iris, Cmdr, TopbarPlus, Chrono, DataServiceV2, EzVisualz, StateMachine, Spring, Display, Module3D, FormatNumber, Net, MathUtils, Twinkle | `CluauppLibs` (copied on `cluaupp build` from GitHub-vendored `runtime/`) |
-| Some other community package | `wally.toml` → `Packages` |
+| Sweep, Spark, Keep, Flare, Mint, Axiom, Roster, Gleam, Bloom, Lens, Crest, Pin, Stage, Coil, Helm, Shift, Hive, Ember, Echo, Guide, Trace, Promise, Net | `CluauppLibs` |
+| Something not in CluauppLibs | `wally.toml` → extra Packages |
 
-Do not install a second Janitor from Wally unless you have a reason — CluauppLibs already has howmanysmall/Janitor. DataServiceV2 still bundles its own janitor/quicknet/signal inside the DataService folder.
+Do not install a second janitor or ProfileStore. `CluauppLibs.Sweep` is the zelador. `CluauppLibs.Keep` is the session-locked store (trades included).
 
-How-tos: [Libraries](libraries/index.md). Service layout: [OOP](oop/index.md). Copy-paste: [Examples](examples/index.md).
-
-Next: [advanced Cluaupp](/language/advanced/).
+How-tos: [Libraries](/libraries/). Copy-paste: [Examples](/examples/).

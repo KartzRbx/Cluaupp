@@ -195,18 +195,18 @@ const DATATYPE_SPEC = [
 	{
 		name: "RaycastParams",
 		summary: "Filters for WorldRoot:Raycast.",
-		fields: ["Instance* FilterDescendantsInstances", "RaycastFilterType FilterType", "bool IgnoreWater", "string CollisionGroup", "bool RespectCanCollide", "bool BruteForceAllSlow"],
+		fields: ["LuaArray<Instance> FilterDescendantsInstances", "RaycastFilterType FilterType", "bool IgnoreWater", "string CollisionGroup", "bool RespectCanCollide", "bool BruteForceAllSlow"],
 		ctors: [[]],
 	},
 	{
 		name: "RaycastResult",
 		summary: "Result of a raycast.",
-		fields: ["Instance* Instance", "Vector3 Position", "Vector3 Normal", "double Distance", "string Material"],
+		fields: ["Instance Instance", "Vector3 Position", "Vector3 Normal", "double Distance", "string Material"],
 	},
 	{
 		name: "OverlapParams",
 		summary: "Filters for GetPartBoundsInBox / GetPartsInPart.",
-		fields: ["Instance* FilterDescendantsInstances", "RaycastFilterType FilterType", "int MaxParts", "string CollisionGroup", "bool RespectCanCollide", "bool BruteForceAllSlow"],
+		fields: ["LuaArray<Instance> FilterDescendantsInstances", "RaycastFilterType FilterType", "int MaxParts", "string CollisionGroup", "bool RespectCanCollide", "bool BruteForceAllSlow"],
 		ctors: [[]],
 	},
 	{
@@ -371,7 +371,45 @@ const DATATYPE_SPEC = [
 	{ name: "ContentId", fields: [], ctors: [["string uri"]] },
 	{ name: "SharedTable", ctors: [[]] },
 	{ name: "Secret", ctors: [[]] },
-	{ name: "buffer", ctors: [[]] },
+	{
+		name: "buffer",
+		summary: "Luau binary buffer. Library + type: buffer::create, buffer::writeu32, buffer::readf64.",
+		ctors: [[]],
+		staticMethods: [
+			["create", "buffer", ["int size"]],
+			["fromstring", "buffer", ["string str"]],
+			["tostring", "string", ["buffer b"]],
+			["tostring", "string", ["buffer b", "int offset"]],
+			["tostring", "string", ["buffer b", "int offset", "int count"]],
+			["len", "int", ["buffer b"]],
+			["copy", "void", ["buffer target", "int targetOffset", "buffer source"]],
+			["copy", "void", ["buffer target", "int targetOffset", "buffer source", "int sourceOffset"]],
+			["copy", "void", ["buffer target", "int targetOffset", "buffer source", "int sourceOffset", "int count"]],
+			["fill", "void", ["buffer b", "int offset", "int value"]],
+			["fill", "void", ["buffer b", "int offset", "int value", "int count"]],
+			["readi8", "int", ["buffer b", "int offset"]],
+			["readu8", "int", ["buffer b", "int offset"]],
+			["readi16", "int", ["buffer b", "int offset"]],
+			["readu16", "int", ["buffer b", "int offset"]],
+			["readi32", "int", ["buffer b", "int offset"]],
+			["readu32", "int", ["buffer b", "int offset"]],
+			["readf32", "double", ["buffer b", "int offset"]],
+			["readf64", "double", ["buffer b", "int offset"]],
+			["readstring", "string", ["buffer b", "int offset", "int count"]],
+			["readbits", "int", ["buffer b", "int bitOffset", "int bitCount"]],
+			["writei8", "void", ["buffer b", "int offset", "int value"]],
+			["writeu8", "void", ["buffer b", "int offset", "int value"]],
+			["writei16", "void", ["buffer b", "int offset", "int value"]],
+			["writeu16", "void", ["buffer b", "int offset", "int value"]],
+			["writei32", "void", ["buffer b", "int offset", "int value"]],
+			["writeu32", "void", ["buffer b", "int offset", "int value"]],
+			["writef32", "void", ["buffer b", "int offset", "double value"]],
+			["writef64", "void", ["buffer b", "int offset", "double value"]],
+			["writestring", "void", ["buffer b", "int offset", "string value"]],
+			["writestring", "void", ["buffer b", "int offset", "string value", "int count"]],
+			["writebits", "void", ["buffer b", "int bitOffset", "int bitCount", "int value"]],
+		],
+	},
 	{ name: "BinaryString", ctors: [[]] },
 	{ name: "SharedString", ctors: [[]] },
 	{ name: "UniqueId", ctors: [[]] },
@@ -613,7 +651,16 @@ function generate() {
 		if (isService(cls)) {
 			services.push(cls.Name);
 		}
-		if (isCreatable(cls) || cls.Name === "Folder" || cls.Name === "Part") {
+		if (
+			isCreatable(cls) ||
+			cls.Name === "Folder" ||
+			cls.Name === "Part" ||
+			cls.Name === "MeshPart" ||
+			cls.Name === "Model" ||
+			cls.Name === "WedgePart" ||
+			cls.Name === "CornerWedgePart" ||
+			cls.Name === "TrussPart"
+		) {
 			instanceTypes.push(cls.Name);
 		}
 		for (const member of cls.Members) {
@@ -756,33 +803,80 @@ struct RBXScriptSignal {
 	let instHpp = `#pragma once
 #include <clpp/datatypes.clh>
 
+// Flattened members: CL++ IntelliSense does not walk C++ inheritance, so MeshPart
+// lists Size/CFrame/FindFirstChild/WaitForChild itself instead of only MeshId.
+// Creatable classes get Class() and Class(Instance parent).
+
 `;
 	for (const cls of classes) {
 		instHpp += `struct ${ident(cls.Name)};\n`;
 	}
 	instHpp += "\n";
 
+	function inheritedMembers(cls) {
+		const seen = new Set();
+		const out = [];
+		let current = cls;
+		while (current) {
+			for (const member of current.Members || []) {
+				const key = `${member.MemberType}:${member.Name}`;
+				if (seen.has(key)) {
+					continue;
+				}
+				seen.add(key);
+				out.push(member);
+			}
+			if (!current.Superclass || current.Superclass === "<<<ROOT>>>") {
+				break;
+			}
+			current = byName.get(current.Superclass);
+		}
+		return out;
+	}
+
+	function emitMemberLine(clsName, member) {
+		const name = memberIdent(clsName, member.Name);
+		if (member.MemberType === "Property") {
+			return `\t${cppType(member.ValueType)} ${name};\n`;
+		}
+		if (member.MemberType === "Function") {
+			let params = emitParams(member.Parameters);
+			if (member.Name === "WaitForChild") {
+				const list = member.Parameters || [];
+				if (list.length >= 1) {
+					const first = `${cppType(list[0].Type)} ${ident(list[0].Name)}`;
+					return `\t${cppType(member.ReturnType, member.Name)} ${name}(${first});\n\t${cppType(member.ReturnType, member.Name)} ${name}(${first}, double timeOut);\n`;
+				}
+			}
+			return `\t${cppType(member.ReturnType, member.Name)} ${name}(${params});\n`;
+		}
+		if (member.MemberType === "Event") {
+			return `\tRBXScriptSignal ${name};\n`;
+		}
+		if (member.MemberType === "Callback") {
+			return `\tvoid (*${name})();\n`;
+		}
+		return "";
+	}
+
 	for (const cls of classes) {
 		const superName = cls.Superclass && cls.Superclass !== "<<<ROOT>>>" ? ident(cls.Superclass) : "";
 		const parent = superName && byName.has(cls.Superclass) ? ` : ${superName}` : "";
+		const creatable =
+			isCreatable(cls) ||
+			cls.Name === "Folder" ||
+			cls.Name === "Part" ||
+			cls.Name === "MeshPart" ||
+			cls.Name === "Model";
 		instHpp += `struct ${ident(cls.Name)}${parent} {\n`;
-		if (!parent) {
+		if (creatable) {
+			instHpp += `\t${ident(cls.Name)}();\n`;
+			instHpp += `\t${ident(cls.Name)}(Instance parent);\n`;
+		} else if (!parent) {
 			instHpp += `\t${ident(cls.Name)}() = default;\n`;
 		}
-		if (isCreatable(cls) || cls.Name === "Folder" || cls.Name === "Part") {
-			instHpp += `\t${ident(cls.Name)}(Instance parent);\n`;
-		}
-		for (const member of cls.Members) {
-			const name = memberIdent(cls.Name, member.Name);
-			if (member.MemberType === "Property") {
-				instHpp += `\t${cppType(member.ValueType)} ${name};\n`;
-			} else if (member.MemberType === "Function") {
-				instHpp += `\t${cppType(member.ReturnType, member.Name)} ${name}(${emitParams(member.Parameters)});\n`;
-			} else if (member.MemberType === "Event") {
-				instHpp += `\tRBXScriptSignal ${name};\n`;
-			} else if (member.MemberType === "Callback") {
-				instHpp += `\tvoid (*${name})();\n`;
-			}
+		for (const member of inheritedMembers(cls)) {
+			instHpp += emitMemberLine(cls.Name, member);
 		}
 		instHpp += `};\n\n`;
 	}
@@ -826,6 +920,12 @@ void delay(double seconds, void (*callback)());
 	const gameInclude = path.join(ROOT, "..", "game", "include", "clpp");
 	if (fs.existsSync(path.join(ROOT, "..", "game"))) {
 		fs.cpSync(INCLUDE, gameInclude, { recursive: true });
+	}
+	for (const rel of ["examples/game/include/clpp", "templates/game/include/clpp"]) {
+		const dest = path.join(ROOT, rel);
+		if (fs.existsSync(path.dirname(dest))) {
+			fs.cpSync(INCLUDE, dest, { recursive: true });
+		}
 	}
 
 	console.log(

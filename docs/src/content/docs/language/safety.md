@@ -28,14 +28,14 @@ void OnBuy(Player player, int productId) {
 
 Do not store coins only on the client. Do not let the client pass the new coin total — pass the *intent* (`productId`). Full systems: [Shop](examples/shop.md), [Combat](examples/combat.md).
 
-## 2. Clean up with Janitor
+## 2. Clean up with Sweep
 
-Every `Connect` that outlives a player, a GUI, or a tool needs a [Janitor](libraries/janitor.md). Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
+Every `Connect` that outlives a player, a GUI, or a tool needs a [Sweep](/libraries/sweep/). Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
 
 ```clpp
-auto janitor = new Janitor();
-janitor.LinkToInstance(player);
-janitor.Add(players.PlayerAdded~>Connect(OnPlayer));
+auto sweep = new Sweep();
+sweep.LinkToInstance(player);
+sweep.Add(players.PlayerAdded~>Connect(OnPlayer));
 ```
 
 Leaked connections duplicate effects: double coins, stacked cameras, lingering highlights.
@@ -46,7 +46,7 @@ Leaked connections duplicate effects: double coins, stacked cameras, lingering h
 
 ## 4. One writer for persisted data
 
-[DataService](libraries/dataservice.md) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what ProfileStore will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths. The save **shape** is your Template — the library does not ship `Currencies`.
+[Keep](/libraries/keep/) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what Keep will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths. The save **shape** is your Template — the library does not ship `Currencies`.
 
 ## 5. Buffers, not ad-hoc strings
 

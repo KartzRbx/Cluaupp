@@ -45,7 +45,7 @@ player.Name = "Kartz"
 player:FindFirstChild("leaderstats")
 ```
 
-Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Janitor](libraries/janitor.md) cleans them.
+Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Sweep](/libraries/sweep/) cleans them.
 
 ## `null`
 

@@ -21,17 +21,18 @@ src/
   client/hud.client.clpp
 ```
 
-Boot DataService **once**. Other services `WaitFor` after that.
+Boot Keep **once**. Other services `WaitFor` after that.
 
 ## Catalog
 
 | Example | Teaches |
 | --- | --- |
 | [Data boot](/examples/data-boot/) | `Server.Init` / `Client.Init`, your Template, not `main()` |
-| [Leaderstats](/examples/leaderstats/) | Folder `leaderstats`, FormatNumber, `GetChangedSignal`, per-player Janitor |
+| [Leaderstats](/examples/leaderstats/) | Folder `leaderstats`, Mint, `GetChangedSignal`, per-player Sweep |
 | [Combat (server validation)](/examples/combat/) | Client sends **intent**; server checks range, cooldown, health, then `TakeDamage` |
-| [Shop](/examples/shop/) | `Net` buy remote, prices on the server, DataService debit |
-| [HUD](/examples/hud/) | Client `WaitForData`, labels, Twinkle |
+| [Shop](/examples/shop/) | Flare buy query, prices on the server, Keep debit |
+| [HUD](/examples/hud/) | Gleam + Mint + Bloom |
+| [NPC](/examples/npc/) | Shift FSM + Hive ECS |
 | [Sword / Touched](/examples/sword/) | Hitbox on the **server**, debounce, no client damage |
 
 Read with [Libraries](/libraries/), [OOP structure](/language/oop/), and [Safety](/language/safety/).

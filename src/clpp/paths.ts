@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { isGeneratedHeader } from "../flare/index.js";
 
 export const SOURCE_EXTS = [".clpp", ".clp", ".clh"];
 
@@ -107,7 +108,7 @@ export function collectSources(dir: string, files: string[] = []): string[] {
 		const full = path.join(dir, entry.name);
 		if (entry.isDirectory()) {
 			collectSources(full, files);
-		} else if (isSourceFile(entry.name)) {
+		} else if (isSourceFile(entry.name) && !isGeneratedHeader(full)) {
 			files.push(full);
 		}
 	}

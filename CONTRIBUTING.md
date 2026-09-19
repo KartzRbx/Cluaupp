@@ -15,13 +15,13 @@ bin/cluaupp.js       CLI entry
 src/                 TypeScript toolchain (clpp runner, Rojo, libs)
 src/clpp/            CL++ contract, spawn, postprocess
 generated/           tsc output
-include/clpp/            CL++ stubs (`roblox.clh`, libs)
-runtime/             CluauppLibs copied into games on init/build
-templates/game/      `cluaupp init` scaffold (CL++)
-examples/game/       sample CL++ (`src/server`, `src/client`, `src/shared`)
+include/clpp/        CL++ stubs (`roblox.clh`, libs)
+runtime/             CluauppLibs copied into games on init/build (not @cluaupp/* npm packages)
+templates/game/      `cluaupp init` scaffold (Roblox service folders)
+examples/game/       same tree as the init template
 editors/vscode/      optional diagnostics (prefer `clpp install`)
 test/                out/, types, modules, security, clpp contract
-docs/                Starlight site (Astro) — language course stays at kartzrbx.github.io/CLPP
+docs/                `@cluaupp/docs` Starlight site — the only workspace package
 ```
 
 ## Tests
@@ -29,6 +29,8 @@ docs/                Starlight site (Astro) — language course stays at kartzrb
 `npm test` runs security + understander tags, then CL++ compile tests (skipped if `clpp` is missing). CI builds `clpp` from KartzRbx/CLPP.
 
 ## Publishing
+
+Released **1.4.0**. Next version is **1.5.0** (`package.json`). Libs are inside the `cluaupp` tarball. Do not revive `@cluaupp/dataservicev2` / `@cluaupp/janitor`.
 
 ```bash
 npm test

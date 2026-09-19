@@ -8,16 +8,16 @@ description: "@janitor is self.janitor inside Class::Method. The Janitor library
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 <Aside type="tip">
-Default sample Connect is `~>Connect` / `~>Once`. That already wraps `janitor:Add(..., "Disconnect")`. Use `::Connect` only when you will Disconnect yourself.
+Default sample Connect is `~>Connect` / `~>Once`. That already wraps Sweep (the zelador). Use `::Connect` only when you will Disconnect yourself.
 </Aside>
 
-`@janitor` is **not** a second language. It is the field `janitor` on the receiver: `@janitor` → `self.janitor`. You still declare `Janitor janitor;` on the struct and assign it in `init`.
+`@janitor` is **not** a second language. It is the field `janitor` on the receiver: `@janitor` → `self.janitor`. You still declare `Sweep sweep;` (or `Janitor janitor;`) on the struct and assign it in `init`.
 
 Header:
 
 ```clpp
 #pragma once
-#include <clpp/libs/janitor.clh>
+#include <clpp/libs/sweep.clh>
 
 struct LeaderstatsServer {
 	Janitor janitor;
@@ -55,4 +55,4 @@ end
 	</TabItem>
 </Tabs>
 
-Library calls use `.` (instance method), same as Roblox: `janitor.Add`, `janitor.Cleanup`, `janitor.LinkToInstance`. Full API: [Libraries → Janitor](/libraries/janitor/).
+Library calls use `.` (instance method), same as Roblox: `sweep.Add`, `sweep.Cleanup`, `sweep.LinkToInstance`. Full API: [Libraries → Sweep](/libraries/sweep/).

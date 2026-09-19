@@ -1,4 +1,4 @@
-/** Stable CL++ ↔ Cluaupp contract (CL++ 0.3.2). Cluaupp invokes the `clpp` binary. */
+/** Stable CL++ ↔ Cluaupp contract (CL++ 0.3.2 / 0.3.3). Cluaupp invokes the `clpp` binary. */
 
 export interface CompileRequest {
 	source: string;
@@ -48,4 +48,4 @@ export interface LanguageManifest {
 export const MIN_CLPP_VERSION = "0.3.2";
 
 export const CLPP_INSTALL_HINT =
-	"Install CL++ 0.3.2 (clpp-setup.exe or `clpp setup`) and put `clpp` on PATH. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";
+	"Install CL++ 0.3.2 or newer (clpp-setup.exe or `clpp setup`) and put `clpp` on PATH. 0.3.3 is the same JSON contract. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";

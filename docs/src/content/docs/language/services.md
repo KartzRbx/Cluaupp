@@ -8,8 +8,8 @@ Write **one tagged file per system**. Cluaupp emits **one** Luau instance: `Lead
 
 ```clpp
 #include <clpp/roblox.clh>
-#include <clpp/libs/janitor.clh>
-#include <clpp/libs/dataservice.clh>
+#include <clpp/libs/sweep.clh>
+#include <clpp/libs/keep.clh>
 
 void EnsureStat(Folder folder, string name, int value) {
 	return;
@@ -24,12 +24,12 @@ void OnCurrenciesChanged() {
 }
 
 void SetupPlayerManager(Player player) {
-	Data data = DataService.Server.WaitFor(player);
+	Data data = Keep.Server.WaitFor(player);
 	if (data == null) {
 		return;
 	}
 	ApplyCurrencies(player, data);
-	data.GetChangedSignal(DataService.Server.Paths.Currencies)~>Connect(OnCurrenciesChanged);
+	data.GetChangedSignal(Keep.Server.Paths.Currencies)~>Connect(OnCurrenciesChanged);
 }
 
 void init() {
@@ -54,7 +54,7 @@ You own `init` and Janitor cleanup in the same file. You do not write `class Lea
 
 ## Boot vs gameplay
 
-Keep DataService `Init` in `DataBoot.server.clpp` / `DataBoot.client.clpp`. Keep leaderstats / combat in their own `.server.clpp`. Services `WaitFor` after boot has run.
+Keep `Keep.Server.Init` in `DataBoot.server.clpp`. Keep `Keep.Client.Init` in `DataController.client.clpp`. Handlers `WaitFor` after boot has run.
 
 ## Opt-in roles (`"architecture": true`)
 

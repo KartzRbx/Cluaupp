@@ -1,4 +1,4 @@
-import { insertPreamble, MODULES, requireCluauppLib } from "../libs.js";
+import { insertPreamble, libraryNamesFromIncludes, MODULES, requireCluauppLib } from "../libs.js";
 import type { CompileArtifact } from "./contract.js";
 import { isTaggedScript } from "./paths.js";
 
@@ -9,6 +9,7 @@ export type PostprocessOptions = {
 	rootDir?: string;
 	strict?: boolean;
 	skipInit?: boolean;
+	source?: string;
 };
 
 function insertAfterHeader(luau: string, block: string): string {
@@ -21,10 +22,44 @@ function insertAfterHeader(luau: string, block: string): string {
 	return `${luau.slice(0, insertAt)}\n${block}\n${rest}`;
 }
 
-function rewriteClppLibs(luau: string): string {
-	return String(luau).replace(/require\(\s*ClppLibs\.([A-Za-z0-9_]+)\s*\)/g, (_all, name: string) => {
-		return requireCluauppLib(name);
+const CLPP_LIB_FILE: Record<string, string> = {
+	Janitor: "Sweep",
+	Signal: "Spark",
+	MathUtils: "Axiom",
+	FormatNumber: "Mint",
+	Module3D: "Stage",
+	Twinkle: "Bloom",
+	EzVisualz: "Bloom",
+	Spring: "Coil",
+	Display: "Trace",
+	StickyBillboard: "Pin",
+	Icon: "Crest",
+	TopbarPlus: "Crest",
+	Cmdr: "Helm",
+	Chrono: "Echo",
+	Iris: "Lens",
+	Fusion: "Gleam",
+	StateMachine: "Shift",
+	VfxUtil: "Ember",
+	DataService: "Keep",
+	TutorialKit: "Guide",
+	TutorialServer: "Guide",
+};
+
+function rewriteClppLibs(luau: string, relativeName?: string): string {
+	let next = String(luau).replace(/require\(\s*ClppLibs\.([A-Za-z0-9_]+)\s*\)/g, (_all, name: string) => {
+		return requireCluauppLib(CLPP_LIB_FILE[name] || name);
 	});
+	next = next.replace(/CluauppLibs\.Janitor\b/g, "CluauppLibs.Sweep");
+	next = next.replace(/CluauppLibs\.Signal\b/g, "CluauppLibs.Spark");
+	next = next.replace(/:Add\(([^,\n()]+),\s*"Disconnect"\s*\)/g, ":Add($1)");
+	const tagged = relativeName ? isTaggedScript(relativeName) : false;
+	const hasConnect = /:Connect\(/.test(next);
+	const hasSweep = /CluauppLibs\.Sweep/.test(next) || /\bjanitor\b/.test(next) || /\bsweep\b/.test(next);
+	if (tagged && hasConnect && !hasSweep) {
+		next = insertAfterHeader(next, "local sweep = require(ReplicatedStorage.CluauppLibs.Sweep).new()");
+	}
+	return next;
 }
 
 function ensureReplicatedStorage(luau: string): string {
@@ -51,11 +86,23 @@ function ensureStrict(luau: string, strict?: boolean): string {
 	return `--!strict\n${luau}`;
 }
 
+function normalizeLibraryName(name: string): string | null {
+	const mapped = CLPP_LIB_FILE[name] || name;
+	if ((MODULES as Record<string, { file: string; bind: string }>)[mapped]) {
+		return mapped;
+	}
+	return null;
+}
+
 function librarySpecs(names: string[] | undefined) {
 	const specs: Array<{ file: string; bind: string }> = [];
 	const seen = new Set<string>();
 	for (const name of names || []) {
-		const spec = (MODULES as Record<string, { file: string; bind: string }>)[name];
+		const mapped = normalizeLibraryName(name);
+		if (!mapped) {
+			continue;
+		}
+		const spec = (MODULES as Record<string, { file: string; bind: string }>)[mapped];
 		if (!spec || seen.has(spec.bind)) {
 			continue;
 		}
@@ -63,6 +110,21 @@ function librarySpecs(names: string[] | undefined) {
 		specs.push(spec);
 	}
 	return specs;
+}
+
+function includedLibraryNames(artifact: CompileArtifact, source?: string): string[] {
+	const names: string[] = [];
+	for (const name of artifact.libraries || []) {
+		if (name === "*") {
+			names.push(...Object.keys(MODULES));
+			continue;
+		}
+		names.push(name);
+	}
+	if (source) {
+		names.push(...(libraryNamesFromIncludes(source) as string[]));
+	}
+	return names;
 }
 
 function missingLibraries(luau: string, names: string[] | undefined) {
@@ -79,13 +141,13 @@ export function shouldSkipInit(fileName: string, hasSiblingHeader: boolean): boo
 }
 
 export function clppLuauToGame(artifact: CompileArtifact, options: PostprocessOptions): string {
-	let luau = rewriteClppLibs(artifact.luau || "");
+	let luau = rewriteClppLibs(artifact.luau || "", options.relativeName);
 	luau = ensureReplicatedStorage(luau);
 	if (options.skipInit) {
 		luau = stripInitCall(luau);
 	}
 	luau = ensureStrict(luau, options.strict);
-	const missing = missingLibraries(luau, artifact.libraries);
+	const missing = missingLibraries(luau, includedLibraryNames(artifact, options.source));
 	if (missing.length > 0) {
 		luau = insertPreamble(luau, [], missing, options.outName);
 	}

@@ -2,13 +2,15 @@
 title: HUD
 ---
 
-Live source: [`examples/game/src/client/hud.client.clpp`](../../examples/game/src/client/hud.client.clpp). Fusion API: [CL++](https://kartzrbx.github.io/CLPP/).
-
-Client-only (`[[client]]`). `Fusion.scoped` / `Fusion.Value` / `Fusion.Computed` / `Fusion.New` build a coins label. `guard` fails if `LocalPlayer` is missing.
+Gleam + Mint + Bloom. Client-only. Coins come from [Keep](/libraries/keep/) (`WaitForData`); the label is Mint; shine is Bloom; Sweep owns Activated.
 
 ```clpp
 #include <clpp/roblox.clh>
-#include <clpp/libs/fusion.clh>
+#include <clpp/libs/gleam.clh>
+#include <clpp/libs/mint.clh>
+#include <clpp/libs/bloom.clh>
+#include <clpp/libs/keep.clh>
+#include <clpp/libs/sweep.clh>
 
 [[client]]
 void init() {
@@ -18,8 +20,16 @@ void init() {
 		report("LocalPlayer missing");
 		return;
 	}
-	auto scope = Fusion.scoped();
-	auto coins = Fusion.Value(scope, 0);
-	coins(100);
+	Keep.Client.Init();
+	Data data = Keep.Client.WaitForData();
+	GleamSource coins = Gleam.Source(data.Get(Keep.Client.Paths.Currencies.Coins));
+	TextLabel label = Gleam.TextLabel(GleamProps { .Name = "Coins", .TextScaled = true });
+	Gleam.Mount(label, localPlayer.PlayerGui);
+	Gleam.Effect(func () {
+		label.Text = Mint.Compact(coins.Get());
+	});
+	Bloom.Play(label, Bloom.Shine);
 }
 ```
+
+See [Gleam](/libraries/gleam/), [Mint](/libraries/mint/), [Bloom](/libraries/bloom/).

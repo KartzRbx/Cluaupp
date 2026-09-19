@@ -63,13 +63,19 @@ const rewritten = clppLuauToGame(
 	},
 	{ relativeName: "x.server.clpp", outName: "x.server.luau", strict: true },
 );
-contains(rewritten, ["require(ReplicatedStorage.CluauppLibs.Janitor)"], "postprocess ClppLibs → CluauppLibs");
+contains(rewritten, ["require(ReplicatedStorage.CluauppLibs.Sweep)"], "postprocess ClppLibs → CluauppLibs Sweep");
 refuses(rewritten, ["require(ClppLibs."], "postprocess leftover ClppLibs");
 
 const manifest = clppManifest();
 expect(manifest.id === "clpp" || manifest.name === "CL++", `manifest ${JSON.stringify(manifest)}`);
 expect(Array.isArray(manifest.extensions) && manifest.extensions.some((ext) => String(ext).includes("clpp")), "manifest lists .clpp");
-expect(/0\.3\.2/.test(String(manifest.version || "")), `manifest version ${manifest.version} (need 0.3.2)`);
+const versionMatch = String(manifest.version || "").match(/(\d+)\.(\d+)\.(\d+)/);
+const versionOk =
+	versionMatch &&
+	(Number(versionMatch[1]) > 0 ||
+		Number(versionMatch[2]) > 3 ||
+		(Number(versionMatch[2]) === 3 && Number(versionMatch[3]) >= 2));
+expect(versionOk, `manifest version ${manifest.version} (need 0.3.2+)`);
 
 const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures", "clpp-manifest.json"), "utf8"));
 for (const ext of snapshot.extensions) {

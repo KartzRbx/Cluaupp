@@ -2,77 +2,56 @@
 title: More libraries
 ---
 
-Same rule: include the header, call the API. `cluaupp build` already put the Luau in `CluauppLibs`.
+There are **no alias headers**. Use the [native name map](/libraries/) below. Each Cluaupp library page catalogs **every public function** with **Returns**, a short **When** recommendation, and a copy-paste example.
 
-## FormatNumber
+| If you used | Use now |
+| --- | --- |
+| formatnumber | [Mint](/libraries/mint/) |
+| MathUtils | [Axiom](/libraries/axiom/) |
+| table util | [Roster](/libraries/roster/) |
+| Twinkle / EzVisualz | [Bloom](/libraries/bloom/) |
+| Module3D | [Stage](/libraries/stage/) |
+| vfx-util | [Ember](/libraries/ember/) |
+| StickyBillboard | [Pin](/libraries/pin/) |
+| Fusion / Vide | [Gleam](/libraries/gleam/) |
+| Iris | [Lens](/libraries/lens/) |
+| Cmdr | [Helm](/libraries/helm/) |
+| TopbarPlus | [Crest](/libraries/crest/) |
+| Chrono | [Echo](/libraries/echo/) |
+| RobloxStateMachine | [Shift](/libraries/shift/) |
+| spring | [Coil](/libraries/coil/) |
+| Display | [Trace](/libraries/trace/) |
+| TutorialKit | [Guide](/libraries/guide/) |
+| QuickNet | [Flare](/libraries/flare/) |
+| GoodSignal | [Spark](/libraries/spark/) |
+| janitor | [Sweep](/libraries/sweep/) |
+| ProfileStore / DataService | [Keep](/libraries/keep/) |
+| ad-hoc remote rate limits | [Ward](/libraries/ward/) |
 
-```clpp
-#include <clpp/libs/formatnumber.hpp>
+## When to pick each name
 
-post(FormatNumber::Abbreviate(1500));
-post(FormatNumber::Comma(1500));
-```
+- **Mint** — HUD numbers (`12.5K`, grouped coins). Display only; never parse formatted strings back into economy.
+- **Axiom** — Lerps, easing, and math helpers from a `.axiom` schema; ship only the groups you list.
+- **Roster** — Table utilities plus tagged `Pack` / `Unpack` buffers (same spirit as Keep tags, plus arrays and Roblox types).
+- **Bloom** — One Heartbeat-driven UI shine preset for many labels; not full reactive UI.
+- **Stage** — `ViewportFrame` shop preview with a `WorldModel`; replaces Module3D-style showcases.
+- **Ember** — Character-attached VFX with [Sweep](/libraries/sweep/) lifetime; replaces ad-hoc vfx-util spawning.
+- **Pin** — World-space billboards with distance fade; pair with [Occlude](/libraries/occlude/) for line-of-sight.
+- **Gleam** — Client HUD with `Source` / `Effect` and Sweep-owned UI trees; Vide-style props, not Fusion graphs.
+- **Lens** — Studio debug windows (`Window(title, fn)`); uses Trace for in-window dumps.
+- **Helm** — Server-permission admin commands with buffer-packed args; replaces Cmdr-style consoles.
+- **Crest** — Topbar icons that respect Roblox screen inset; replaces TopbarPlus-only wiring.
+- **Echo** — **20 Hz** unreliable **CFrame snapshots** for other players; not full character replication or physics authority.
+- **Shift** — Compiled FSM/HSM with **u8** state ids and buffer `WriteId` / `ReadId`; AI/combat **modes**, not ECS.
+- **Coil** — Springs on Heartbeat (`--!native`); use from Gleam `Spring` or any motion that needs Hz-based smoothing.
+- **Trace** — Studio-safe pretty-print with depth and cycle guards; never a wire format.
+- **Guide** — Multi-step tutorials with per-step Sweep; call `Guide.Start(steps)`, not `Start(player)`.
+- **Flare** — First choice for game remotes and queries with tight buffer packing; prefer over hand-rolled remotes.
+- **Spark** — In-process signals with O(1) disconnect and pooled runners; not cross-network.
+- **Sweep** — Janitor-style cleanup for connections, instances, and tasks; default for `~>` Connect ownership.
+- **Keep** — ProfileStore-class session lock, tagged replication, escrow trades that cannot duplicate on crash; all persisted player data.
+- **Ward** — Server anti-cheat: rate-limit remotes, cap packet size, strike speed/teleport. Does not write Keep.
 
-## MathUtils
+Helpers (also CluauppLibs, not npm packages): [ArrayIndexer](/libraries/arrayindexer/) (dense entity ids for ECS-style games), [Occlude](/libraries/occlude/) (raycast helper for [Pin](/libraries/pin/)).
 
-```clpp
-#include <clpp/libs/math.hpp>
-
-double t = MathUtils::Lerp(0, 1, 0.5);
-```
-
-## Twinkle (UI)
-
-```clpp
-#include <clpp/libs/twinkle.hpp>
-
-Twinkle::Fade(frame, true);
-```
-
-## Module3D
-
-```clpp
-#include <clpp/libs/module3d.hpp>
-
-Module3D::Attach3D(viewport, model);
-```
-
-## VfxUtil
-
-```clpp
-#include <clpp/libs/vfx.hpp>
-
-VfxUtil::Emit(root);
-VfxUtil::Play(emitter);
-```
-
-## StickyBillboard
-
-```clpp
-#include <clpp/libs/stickybillboard.hpp>
-
-auto billboard = StickyBillboard::new_(adornee, gui);
-billboard.SetText("Hello");
-```
-
-## Fusion / Iris / Cmdr / TopbarPlus / Chrono / EzVisualz / StateMachine / Spring / Display
-
-Cluaupp has **no JSX**. Declarative UI is function calls. First-party: Fusion (reactive) and Iris (immediate-mode debug). Vide and Roact/React use the same C++ spelling (`createElement` / `source`), not `<frame />`. Handbook: [Declarative UI](https://kartzrbx.github.io/Cluaupp/docs/ui.html).
-
-Include the matching `<clpp/libs/*.hpp>` and call the same names as the upstream README:
-
-| Lib | Header | Upstream |
-| --- | --- | --- |
-| Fusion | `fusion.hpp` | [dphfox/Fusion](https://github.com/dphfox/Fusion) |
-| Iris | `iris.hpp` | [SirMallard/Iris](https://github.com/SirMallard/Iris) |
-| Cmdr | `cmdr.hpp` | [evaera/Cmdr](https://github.com/evaera/Cmdr) |
-| TopbarPlus | `topbarplus.hpp` | [1ForeverHD/TopbarPlus](https://github.com/1ForeverHD/TopbarPlus) |
-| Chrono | `chrono.hpp` | [Parihsz/Chrono](https://github.com/Parihsz/Chrono) |
-| EzVisualz | `ezvisual.hpp` | [arxkdev/ezVisualz](https://github.com/arxkdev/ezVisualz) |
-| StateMachine | `statemachine.hpp` | [Prooheckcp/RobloxStateMachine](https://github.com/Prooheckcp/RobloxStateMachine) |
-| Spring | `spring.hpp` | [nightcycle/spring](https://github.com/nightcycle/spring) |
-| Display | `display.hpp` | [nightcycle/display](https://github.com/nightcycle/display) |
-
-## Types-only
-
-`ArrayIndexer` (`Table<Manifest, "Name">`) and `Occlude` (`Keys<Data, "field">`) are used by generated `{Service}Types.luau`. You rarely include them from game C++.
+Everything ships **inside the `cluaupp` npm package** (`runtime/` → `libs/` on init).

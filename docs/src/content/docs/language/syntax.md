@@ -28,7 +28,7 @@ This table is law. CL++ does **not** use `->`. There is **no** `:` for tables or
 | `age: int` / `player:Kick()` | type **or** protected `pcall` | `:` / `pcall` |
 | `task::wait` / `Vector3::new` / `Class::Method` / `signal::Connect` | static, method **definition**, **manual** Connect | `.` / `:` |
 | `"hi " .: name` | concat | `..` |
-| `signal~>Connect(fn)` / `~>Once` | Janitor Connect / Once (default) | `janitor:Add(..., "Disconnect")` |
+| `signal~>Connect(fn)` / `~>Once` | Sweep Connect / Once (default) | `sweep:Add(..., "Disconnect")` |
 | `name.Fire(...)` | fire a signal | `:Fire` |
 | `items[0]` / `data["Coins"]` | index **only** | `[key]` |
 | `Enum.Material.Plastic` | enum | same |

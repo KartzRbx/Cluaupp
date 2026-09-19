@@ -2,7 +2,7 @@
 title: Roblox API
 ---
 
-Cluaupp uses the official engine. Spell the call in C++; look up members on [create.roblox.com](https://create.roblox.com/docs/reference/engine). The GitHub Pages site is a **language handbook**, not a dump of every Enum item.
+Cluaupp uses the official engine. Spell the call in CL++ 0.3.2 / 0.3.3; look up members on [create.roblox.com](https://create.roblox.com/docs/reference/engine). `#include <clpp/generated/instances.clh>` lists **flattened** members: `MeshPart` has `Size`, `CFrame`, `FindFirstChild`, and `WaitForChild`, plus `new MeshPart()`.
 
 Handbook: **[Docs](https://kartzrbx.github.io/Cluaupp/docs/)** · [Roblox in Cluaupp](https://kartzrbx.github.io/Cluaupp/docs/engine.html)
 
@@ -28,4 +28,4 @@ frame.Size = UDim2.fromScale(1, 1)
 local material = Enum.Material.Plastic
 ```
 
-Every enum is `Enum.Name.Item` → `Enum.Name.Item`. Services are `GetService<Players>()`. Instances are `new Folder(parent)` and `player.FindFirstChild("x")`.
+Every enum is `Enum.Name.Item`. Services are `GetService<Players>()`. Instances are `new MeshPart()`, `new Folder(parent)`, and `mesh.FindFirstChild("x")`. Binary payloads use Luau `buffer` (`buffer::create`, `buffer::writeu32`, `buffer::readf64`). Networking: write a `.flare` schema and include the generated `Net.clh` — see [Flare](/libraries/flare/).
