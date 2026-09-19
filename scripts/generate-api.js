@@ -432,7 +432,7 @@ function cppType(type, memberName) {
 		if (!name || name === "void" || name === "nil") {
 			return "void";
 		}
-		return "::" + ident(name) + "*";
+		return ident(name);
 	}
 	if (category === "Enum") {
 		return "Enum::" + ident(name);
@@ -446,9 +446,9 @@ function cppType(type, memberName) {
 		}
 		if (name === "Instances") {
 			if (memberName === "GetPlayers" || memberName === "getPlayers" || memberName === "players") {
-				return "LuaArray<::Player*>";
+				return "LuaArray<Player>";
 			}
-			return "LuaArray<::Instance*>";
+			return "LuaArray<Instance>";
 		}
 		if (name === "ContentId" || name === "BinaryString" || name === "ProtectedString" || name === "SharedString") {
 			return "string";
@@ -479,8 +479,8 @@ function cppDefault(p) {
 		return "";
 	}
 	if (raw === "nil" || raw === "null") {
-		if (isPointerCppType(ty)) {
-			return " = nullptr";
+		if (isPointerCppType(ty) || ty === "Instance" || /^[A-Z]/.test(ty)) {
+			return " = null";
 		}
 		if (ty === "bool") {
 			return " = false";
@@ -770,7 +770,7 @@ struct RBXScriptSignal {
 			instHpp += `\t${ident(cls.Name)}() = default;\n`;
 		}
 		if (isCreatable(cls) || cls.Name === "Folder" || cls.Name === "Part") {
-			instHpp += `\t${ident(cls.Name)}(::Instance* parent);\n`;
+			instHpp += `\t${ident(cls.Name)}(Instance parent);\n`;
 		}
 		for (const member of cls.Members) {
 			const name = memberIdent(cls.Name, member.Name);
@@ -799,20 +799,21 @@ struct RBXScriptSignal {
 #include <clpp/libs.clh>
 
 template <typename T>
-T* GetService();
+T GetService();
 
 template <typename T>
-T* GetService(Instance* game_);
+T GetService(Instance game_);
 
-extern DataModel* game;
-extern Workspace* workspace;
-extern LuaSourceContainer* script;
+extern DataModel game;
+extern Workspace workspace;
+extern LuaSourceContainer script;
 
 void post(string message);
 void warn(string message);
 void report(string message);
-void print(string message);
-void error(string message);
+string to_string(auto value);
+double to_number(auto value);
+bool to_bool(auto value);
 
 double tick();
 double time();

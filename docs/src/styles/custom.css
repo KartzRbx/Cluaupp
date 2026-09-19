@@ -1,0 +1,8 @@
+:root {
+	--sl-hue-accent: 210;
+}
+
+.hero-html img,
+.site-title img {
+	border-radius: 12px;
+}

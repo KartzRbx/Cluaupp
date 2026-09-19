@@ -1,21 +1,30 @@
 # Changelog
 
+## 1.3.0
+
+Align with CL++ **0.3.2**.
+
+- Require `clpp` 0.3.2 (`CLPP` / `CLPP_PATH`, then PATH, then `%LOCALAPPDATA%\Programs\CLPP`).
+- Instances are class names: `Player player`, never `Player*`. Default listen is `~>Connect`; fire with `.Fire`.
+- `@this` / `@field` only inside `Class::Method`. `void init()` holds a local Janitor.
+- Compile failures surface `diagnostics[]` (1-based). `watch` compiles with async `spawn`.
+- Templates, examples, headers, and handbook match the 0.3.2 operator table.
+- Docs site is Starlight (Astro) in `docs/`, with the official CL++ TextMate grammar for `clpp` fences.
+
 ## 1.2.1
 
-Align with CL++ **0.2.6** (the current KartzRbx/CLPP release — there is no 0.3.0).
+Align with CL++ **0.3.0** accessors.
 
-- Pick the newest `clpp` on PATH (installer 0.2.6 over stale cargo 0.1.0). Refuse compilers older than **0.2.6**.
-- Stop live `clpp api compile` from the Cluaupp editor helper / LSP (that duplicated `source=clpp` and froze IntelliSense).
-- Range-for is `for (T x in list)`, not C++ `:`.
-- Lambdas are `func [](params)`. `func (params)` and `(void)x` are parse errors on 0.2.6.
-- Table keys use `:` (`Color3:fromRGB`, `UDim2:fromScale`, `Fusion:scoped`, `DataService:Server`).
+- `.` is properties, table keys, **and** instance methods (`player.Name`, `DataService.Server`, `player.FindFirstChild("x")`).
+- `:` is **not** a table/property accessor. It is types (`age: int`) and protected calls (`player:Kick()` → `pcall`).
+- `::` stays for statics and manual Connect (`task::wait`, `Color3::fromRGB`, `players.PlayerAdded::Connect`).
+- Pick the newest `clpp` on PATH. Refuse compilers older than **0.3.0**.
+- Language diagnostics stay with `clpp install` (no keystroke recompile from Cluaupp).
+- Range-for is `for (T x in list)`.
 
 ## 1.2.0
 
-Properties use `.`, methods use `::`: `players.PlayerAdded::Connect(fn)`.
-
-- Templates, examples, README, and handbook match that accessor rule.
-- `~>` is not used in Cluaupp samples (`signal::Connect` / `signal::Once`).
+Properties use `.`. Manual Connect uses `::`: `players.PlayerAdded::Connect(fn)`. Instance methods also use `.` (`player.FindFirstChild`). Do not use `:` for tables.
 
 ## 1.1.0
 

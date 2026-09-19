@@ -2,11 +2,9 @@
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"framework": null,
 	"outputDirectory": "site",
-	"installCommand": "echo skip",
-	"buildCommand": "echo skip",
+	"installCommand": "npm ci",
+	"buildCommand": "npm run site",
 	"rewrites": [
-		{ "source": "/api/chat", "destination": "/api/chat" },
-		{ "source": "/intro", "destination": "/intro.html" },
-		{ "source": "/getting-started", "destination": "/guide/getting-started.html" }
+		{ "source": "/api/chat", "destination": "/api/chat" }
 	]
 }

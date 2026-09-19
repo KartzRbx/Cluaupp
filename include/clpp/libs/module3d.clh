@@ -2,9 +2,9 @@
 
 // TheNexusAvenger/Module3D — ViewportFrame adorn, vendored into CluauppLibs.Module3D
 struct Model3D {
-	Model* Object3D;
-	GuiObject* AdornFrame;
-	Camera* Camera;
+	Model Object3D;
+	GuiObject AdornFrame;
+	Camera Camera;
 	bool Visible;
 	void Update();
 	void SetCFrame(CFrame newCF);
@@ -18,6 +18,6 @@ struct Model3D {
 };
 
 struct Module3D {
-	static Model3D* new_(Instance* model);
-	static Model3D* Attach3D(GuiObject* frame, Instance* model);
+	static Model3D new_(Instance model);
+	static Model3D Attach3D(GuiObject frame, Instance model);
 };

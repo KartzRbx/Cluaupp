@@ -1,0 +1,55 @@
+---
+title: Compile pipeline
+description: How Cluaupp calls clpp, rewrites ClppLibs, and writes out/ for Rojo.
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+<Aside type="note">
+Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api compile` is unchanged; the **language** it accepts did change in 0.3.2.
+</Aside>
+
+```
+.clpp / .clp / .clh
+        │
+        ▼
+ cluaupp build / watch
+        │  JSON stdin
+        ▼
+   clpp api compile
+        │  CompileArtifact (luau + diagnostics)
+        ▼
+ ClppLibs → ReplicatedStorage.CluauppLibs
+        │
+        ▼
+      out/  →  Rojo
+```
+
+<Steps>
+1. **Resolve `clpp`.** `CLPP` or `CLPP_PATH`, then the newest on PATH, then `%LOCALAPPDATA%\Programs\CLPP\clpp.exe`. Refuse anything older than **0.3.2**.
+2. **Compile.** One-shot `build` uses `spawnSync`. `watch` uses async `spawn` so the event loop is not blocked. Failures print `diagnostics[]` (1-based line/column).
+3. **Post-process.** `require(ClppLibs.X)` becomes `require(ReplicatedStorage.CluauppLibs.X)`. `--!strict` from config / `#pragma`.
+4. **Write `out/`.** Filename tags pick Script / LocalScript / ModuleScript. `void init()` is called at the end of Scripts and LocalScripts. Watch does not overwrite `out/` while compile fails.
+</Steps>
+
+## What Cluaupp owns vs CL++
+
+| CL++ (`clpp`) | Cluaupp |
+| --- | --- |
+| Syntax, types, OOP, Luau emit | Roblox API dump headers (`include/clpp`) |
+| `clpp setup` IntelliSense | Rojo project + `cluaupp.config.json` |
+| Language id `clpp` | `init` / `build` / `watch` |
+| | CluauppLibs vendor copy into `libs/` |
+
+## Config
+
+See [`cluaupp.config.json`](/cli/config/). `"architecture": true` (ForeverHD folders) is not generated — one source file is still one `.luau` file.
+
+```
+src/server/leaderstats.server.clpp  →  out/server/leaderstats.server.luau
+src/client/hud.client.clpp          →  out/client/hud.client.luau
+src/shared/config.clp               →  out/shared/config.luau
+src/shared/PlayerData.clh           →  out/shared/PlayerData.luau
+```
+
+CLI reference: [commands](/cli/commands/).

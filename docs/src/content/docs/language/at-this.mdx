@@ -1,0 +1,76 @@
+---
+sidebar:
+  order: 2
+title: "@this and receivers"
+description: "@this, @janitor, and @field exist only inside Class::Method. Instances are class names, never pointers."
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+<Aside type="caution">
+`@this` / `@field` in `void init()` or a free function is a **compile error**. `::` already injects the receiver. Do not put `@this` on the parameter list.
+</Aside>
+
+CL++ is not C++. There is no `Player*`, no `->`, and no `this->x`. Inside a **method definition** `Class::Method`, `@` is the receiver sigil.
+
+| Write | Luau |
+| --- | --- |
+| `@this` | `self` |
+| `@janitor` | `self.janitor` |
+| `@coins` | `self.coins` |
+| `hello.Greet(player)` | `hello:Greet(player)` |
+| `other.Register(@this)` | `other:Register(self)` |
+
+Declare the type in a `.clh`. Implement methods with `Class::Method` in a `.clp` / `.clpp`. `void init()` holds **one** service object and a **local** Janitor.
+
+<Tabs>
+	<TabItem label="CL++ (.clpp)">
+```clpp
+void CombatServer::BindPart(BasePart part) {
+	@janitor.Add(part, "Destroy");
+	other.Register(@this);
+}
+
+void Wallet::Add(int n) {
+	@coins = coins + n;
+	post("wallet " .: @coins);
+}
+```
+	</TabItem>
+	<TabItem label="Luau gerado">
+```lua
+function CombatServer:BindPart(part: BasePart)
+	self.janitor:Add(part, "Destroy")
+	other:Register(self)
+end
+
+function Wallet:Add(n: number)
+	self.coins = self.coins + n
+	print("wallet " .. self.coins)
+end
+```
+	</TabItem>
+</Tabs>
+
+## What `init` looks like
+
+`init` does **not** use `@this`. It constructs the service and captures it in the `~>Connect` callback.
+
+```clpp
+void init() {
+	Players players = GetService<Players>();
+	LeaderstatsServer leaderstatsServer;
+	Janitor janitor = new Janitor();
+	leaderstatsServer.janitor = janitor;
+
+	for (Player player in players.GetPlayers()) {
+		leaderstatsServer.PlayerEntered(player);
+	}
+
+	players.PlayerAdded~>Connect(func (Player playerEntered) {
+		leaderstatsServer.PlayerEntered(playerEntered);
+	});
+}
+```
+
+See [syntax](/language/syntax/) for the operator table, and [Janitor](/language/janitor/) for `@janitor` plus the library.

@@ -4,9 +4,9 @@
 struct DisplayBuilder {};
 
 namespace Display {
-	DisplayBuilder* builder();
+	DisplayBuilder builder();
 	string display(string value);
 	string display(double value);
 	string display(bool value);
-	string display(Instance* value);
+	string display(Instance value);
 }

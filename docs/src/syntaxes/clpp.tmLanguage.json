@@ -1,0 +1,213 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CL++",
+  "scopeName": "source.clpp",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#preprocessor" },
+    { "include": "#attributes" },
+    { "include": "#strings" },
+    { "include": "#receiver" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#numbers" },
+    { "include": "#operators" },
+    { "include": "#properties" },
+    { "include": "#functions" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.clpp",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.clpp",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "preprocessor": {
+      "patterns": [
+        {
+          "name": "meta.preprocessor.include.clpp",
+          "begin": "^\\s*(#include)\\b",
+          "end": "$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.directive.include.clpp" }
+          },
+          "patterns": [
+            {
+              "name": "string.quoted.double.include.clpp",
+              "begin": "\"",
+              "end": "\""
+            },
+            {
+              "name": "string.quoted.other.include.clpp",
+              "begin": "<",
+              "end": ">"
+            }
+          ]
+        },
+        {
+          "match": "^\\s*(#(pragma|define|ifdef|ifndef|endif))\\b.*$",
+          "name": "meta.preprocessor.clpp",
+          "captures": {
+            "1": { "name": "keyword.control.directive.clpp" }
+          }
+        }
+      ]
+    },
+    "attributes": {
+      "name": "support.type.annotation.clpp",
+      "match": "\\[\\[(server|client)\\]\\]"
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.clpp",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.clpp", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.single.clpp",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.clpp", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.other.clpp",
+          "begin": "`",
+          "end": "`",
+          "patterns": [
+            { "name": "constant.character.escape.clpp", "match": "\\\\[\\\\`{}]" },
+            {
+              "name": "meta.interpolation.clpp",
+              "begin": "\\{",
+              "end": "\\}",
+              "patterns": [
+                { "include": "#receiver" },
+                { "include": "#keywords" },
+                { "include": "#types" },
+                { "include": "#constants" },
+                { "include": "#numbers" },
+                { "include": "#operators" },
+                { "include": "#properties" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.clpp",
+          "match": "\\b(if|else|guard|for|in|while|switch|case|default|break|return|match|spawn|parallel|async|await)\\b"
+        },
+        {
+          "name": "keyword.other.clpp",
+          "match": "\\b(struct|class|namespace|using|template|typedef|enum|public|private|protected|static|const|constexpr|inline|extern|new)\\b"
+        },
+        {
+          "name": "storage.modifier.clpp",
+          "match": "\\b(observable|signal|func)\\b"
+        },
+        {
+          "name": "support.function.builtin.clpp",
+          "match": "\\b(post|warn|report|GetService|static_cast|pcall|xpcall|to_string|to_number|to_bool|string_concat)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.clpp",
+          "match": "\\b(void|int|float|double|bool|string|auto|func|array|dictionary|map|optional)\\b"
+        },
+        {
+          "name": "entity.name.type.clpp",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?=\\s+[A-Za-z_])"
+        },
+        {
+          "name": "entity.name.type.clpp",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?=\\s*::)"
+        },
+        {
+          "name": "entity.name.type.clpp",
+          "match": "(?<=\\b(?:struct|class|enum|new)\\s+)([A-Z][A-Za-z0-9_]*)"
+        },
+        {
+          "name": "entity.name.type.clpp",
+          "match": "(?<=<)\\s*(?:void|int|float|double|bool|string|[A-Z][A-Za-z0-9_]*)(?=\\s*>)"
+        }
+      ]
+    },
+    "constants": {
+      "name": "constant.language.clpp",
+      "match": "\\b(true|false|null|nullptr)\\b"
+    },
+    "numbers": {
+      "name": "constant.numeric.clpp",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "receiver": {
+      "patterns": [
+        {
+          "name": "keyword.other.receiver.clpp",
+          "match": "@this\\b"
+        },
+        {
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.other.receiver.clpp" },
+            "2": { "name": "variable.other.property.receiver.clpp" }
+          }
+        },
+        {
+          "name": "keyword.other.receiver.clpp",
+          "match": "\\bthis\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.concat.clpp", "match": "\\.:" },
+        { "name": "keyword.operator.cleanup.clpp", "match": "~>" },
+        { "name": "keyword.operator.scope.clpp", "match": "::" },
+        { "name": "keyword.operator.arrow.clpp", "match": "=>" },
+        { "name": "keyword.operator.comparison.clpp", "match": "==|!=|<=|>=|<|>" },
+        { "name": "keyword.operator.logical.clpp", "match": "&&|\\|\\||!" },
+        { "name": "keyword.operator.assignment.clpp", "match": "\\+=|-=|\\*=|/=|=" }
+      ]
+    },
+    "properties": {
+      "patterns": [
+        {
+          "match": "\\.(?![:.])([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "variable.other.property.clpp" }
+          }
+        },
+        {
+          "match": "(?<![.:]):(?![:])([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "variable.other.property.clpp" }
+          }
+        }
+      ]
+    },
+    "functions": {
+      "name": "entity.name.function.clpp",
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()"
+    }
+  }
+}

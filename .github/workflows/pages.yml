@@ -28,8 +28,6 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Generate API headers
-        run: node scripts/generate-api.js
       - name: Build site
         run: npm run site
         env:

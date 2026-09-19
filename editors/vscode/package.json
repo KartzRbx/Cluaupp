@@ -2,7 +2,7 @@
 	"name": "cluaupp-diagnostics",
 	"displayName": "Cluaupp",
 	"description": "Cluaupp project diagnostics. Language highlighting and IntelliSense come from clpp install (CL++).",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"

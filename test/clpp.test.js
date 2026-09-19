@@ -12,17 +12,24 @@ skipWithoutClpp();
 const hello = compileSource(
 	`#include <clpp/roblox.clh>
 
-void Greet(Player* player) {
+struct HelloServer {
+	void Greet(Player player);
+};
+
+void HelloServer::Greet(Player player) {
 	post("Player name: " .: player.Name);
 }
 
 void init() {
-	Players* players = GetService<Players>();
-	for (Player* player in players::GetPlayers()) {
-		Greet(player);
+	HelloServer hello;
+	Players players = GetService<Players>();
+
+	for (Player player in players.GetPlayers()) {
+		hello.Greet(player);
 	}
-	players.PlayerAdded::Connect(func [](Player* playerEntered) {
-		post("New player connected: " .: playerEntered.Name);
+
+	players.PlayerAdded~>Connect(func (Player playerEntered) {
+		hello.Greet(playerEntered);
 	});
 }
 `,
@@ -32,6 +39,15 @@ void init() {
 
 contains(hello, ['game:GetService("Players")', "init()", "in players:GetPlayers()"], "hello GetService + init + for-in");
 refuses(hello, ["require(ClppLibs."], "hello must not leak ClppLibs");
+refuses(hello, ["Player*"], "hello must not emit Player*");
+
+let funcCaptureFailed = false;
+try {
+	compileSource("void init() { []() {} }\n", "bad.server.clpp", { strict: true });
+} catch (err) {
+	funcCaptureFailed = /func \(params\)|captures|expected/i.test(String(err && err.message || err));
+}
+expect(funcCaptureFailed, "func [] / []() must fail on CL++ 0.3.2");
 
 const rewritten = clppLuauToGame(
 	{
@@ -53,6 +69,7 @@ refuses(rewritten, ["require(ClppLibs."], "postprocess leftover ClppLibs");
 const manifest = clppManifest();
 expect(manifest.id === "clpp" || manifest.name === "CL++", `manifest ${JSON.stringify(manifest)}`);
 expect(Array.isArray(manifest.extensions) && manifest.extensions.some((ext) => String(ext).includes("clpp")), "manifest lists .clpp");
+expect(/0\.3\.2/.test(String(manifest.version || "")), `manifest version ${manifest.version} (need 0.3.2)`);
 
 const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures", "clpp-manifest.json"), "utf8"));
 for (const ext of snapshot.extensions) {

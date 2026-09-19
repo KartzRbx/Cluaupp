@@ -6,7 +6,7 @@ struct IrisState {};
 
 namespace Iris {
 	void Init();
-	void Init(Instance* parent);
+	void Init(Instance parent);
 	void Shutdown();
 	void Connect(void (*callback)());
 	bool Window(string title);
@@ -36,5 +36,5 @@ namespace Iris {
 	void PushConfig(IrisState style);
 	void PopConfig();
 	void ForceRefresh();
-	void Append(GuiObject* instance);
+	void Append(GuiObject instance);
 }

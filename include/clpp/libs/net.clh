@@ -2,13 +2,13 @@
 
 // Buffer-packed RemoteEvent / RemoteFunction. Names are unique per game.
 struct NetEvent {
-	void Fire(Player* player);
+	void Fire(Player player);
 	template <typename A>
-	void Fire(Player* player, A a);
+	void Fire(Player player, A a);
 	template <typename A, typename B>
-	void Fire(Player* player, A a, B b);
+	void Fire(Player player, A a, B b);
 	template <typename A, typename B, typename C>
-	void Fire(Player* player, A a, B b, C c);
+	void Fire(Player player, A a, B b, C c);
 	void FireAll();
 	template <typename A>
 	void FireAll(A a);
@@ -25,9 +25,9 @@ struct NetEvent {
 struct NetFunction {
 	void On(void (*callback)());
 	template <typename R>
-	R Invoke(Player* player);
+	R Invoke(Player player);
 	template <typename R, typename A>
-	R Invoke(Player* player, A a);
+	R Invoke(Player player, A a);
 	template <typename R>
 	R InvokeServer();
 	template <typename R, typename A>
@@ -35,6 +35,6 @@ struct NetFunction {
 };
 
 namespace Net {
-	NetEvent* Event(string name);
-	NetFunction* Function(string name);
+	NetEvent Event(string name);
+	NetFunction Function(string name);
 }

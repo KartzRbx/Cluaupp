@@ -1,0 +1,94 @@
+---
+title: Home
+description: CL++ games on Roblox. You write CL++. Cluaupp runs clpp, maps CluauppLibs, and syncs with Rojo.
+template: splash
+hero:
+  title: The Roblox toolchain for CL++
+  tagline: You write CL++ (.clpp / .clp / .clh). Cluaupp calls clpp 0.3.2, rewrites ClppLibs into ReplicatedStorage.CluauppLibs, and writes out/ for Rojo. Studio runs Luau — never CL++.
+  image:
+    file: ../../assets/logo.png
+    alt: Cluaupp
+  actions:
+    - text: Get started
+      link: getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: CL++ language
+      link: https://kartzrbx.github.io/CLPP/
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, Tabs, TabItem } from "@astrojs/starlight/components";
+
+<CardGrid stagger>
+	<Card title="Toolchain, not compiler" icon="puzzle">
+		[KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) owns syntax, IntelliSense (`clpp setup`), and Luau codegen. This CLI finds sources, runs `clpp api compile`, and maps libraries.
+	</Card>
+	<Card title="Filename tags" icon="document">
+		`*.server.clpp` is a Script. `*.client.clpp` is a LocalScript. `.clp` / `.clh` are ModuleScripts. Entry is `void init()`.
+	</Card>
+	<Card title="CL++ 0.3.2" icon="star">
+		`Player player` — never `Player*`. Default listen is `~>Connect`. Fire with `.Fire`. `@this` only inside `Class::Method`.
+	</Card>
+	<Card title="Rojo-ready out/" icon="rocket">
+		`cluaupp init`, `build`, and `watch` write Luau next to a Rojo project. CluauppLibs land in `ReplicatedStorage`.
+	</Card>
+</CardGrid>
+
+## Hello Script
+
+This is valid CL++ 0.3.2. Fences use language id `clpp`.
+
+<Tabs>
+	<TabItem label="CL++ (.clpp)">
+```clpp
+#include <clpp/roblox.clh>
+
+struct HelloServer {
+	void Greet(Player player);
+};
+
+void HelloServer::Greet(Player player) {
+	post("Player name: " .: player.Name);
+}
+
+void init() {
+	HelloServer hello;
+	Players players = GetService<Players>();
+
+	for (Player player in players.GetPlayers()) {
+		hello.Greet(player);
+	}
+
+	players.PlayerAdded~>Connect(func (Player playerEntered) {
+		hello.Greet(playerEntered);
+	});
+}
+```
+	</TabItem>
+	<TabItem label="Luau gerado">
+```lua
+local Players = game:GetService("Players")
+
+function HelloServer:Greet(player: Player)
+	print("Player name: " .. player.Name)
+end
+
+local function init()
+	local hello = HelloServer
+	local players: Players = game:GetService("Players")
+	for _, player in players:GetPlayers() do
+		hello:Greet(player)
+	end
+	__janitor:Add(players.PlayerAdded:Connect(function(playerEntered: Player)
+		hello:Greet(playerEntered)
+	end), "Disconnect")
+end
+
+init()
+```
+	</TabItem>
+</Tabs>
+
+Install **clpp 0.3.2**, then `cluaupp init my-game`. Next: [Getting started](/getting-started/) · [CLI](/cli/commands/) · [`@this`](/language/at-this/).

@@ -2,12 +2,12 @@
 
 // Cluaupp StickyBillboard — BillboardGui that stays on an adornee.
 struct StickyBillboard {
-	static StickyBillboard* new_(Instance* adornee, GuiObject* gui);
+	static StickyBillboard new_(Instance adornee, GuiObject gui);
 	void SetText(string text);
 	void SetEnabled(bool enabled);
 	void SetMaxDistance(double distance);
 	void Destroy();
-	Instance* Adornee;
-	GuiObject* Gui;
-	BillboardGui* Billboard;
+	Instance Adornee;
+	GuiObject Gui;
+	BillboardGui Billboard;
 };

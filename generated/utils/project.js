@@ -7,6 +7,7 @@ exports.collectSourcesFiles = void 0;
 exports.loadConfig = loadConfig;
 exports.collectCpp = collectCpp;
 exports.build = build;
+exports.buildAsync = buildAsync;
 exports.init = init;
 exports.watch = watch;
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -241,6 +242,19 @@ function createMapper(root, config, rojoPath) {
     mapper.loadSync();
     return mapper;
 }
+function compileOptions(root, config, file, rel) {
+    const srcDir = node_path_1.default.join(root, config.rootDir);
+    return {
+        ...config,
+        filePath: file,
+        relativeName: rel,
+        outName: (0, paths_js_1.toLuauPath)(rel),
+        architecture: config.architecture === true,
+        includeDirs: [node_path_1.default.dirname(file), srcDir, node_path_1.default.join(root, "include")],
+        srcDir,
+        outDir: config.outDir,
+    };
+}
 function compileProject(root, config, mapper) {
     const srcDir = node_path_1.default.join(root, config.rootDir);
     const files = (0, paths_js_1.collectSources)(srcDir);
@@ -250,16 +264,25 @@ function compileProject(root, config, mapper) {
         const source = node_fs_1.default.readFileSync(file, "utf8");
         const rel = posixRel(srcDir, file);
         try {
-            const result = (0, transpile_js_1.transpileSource)(source, rel, {
-                ...config,
-                filePath: file,
-                relativeName: rel,
-                outName: (0, paths_js_1.toLuauPath)(rel),
-                architecture: config.architecture === true,
-                includeDirs: [node_path_1.default.dirname(file), srcDir, node_path_1.default.join(root, "include")],
-                srcDir,
-                outDir: config.outDir,
-            }, mapper);
+            const result = (0, transpile_js_1.transpileSource)(source, rel, compileOptions(root, config, file, rel), mapper);
+            jobs.push({ rel, files: result.files, stale: result.stale || [] });
+        }
+        catch (err) {
+            errors.push({ rel, prefixes: sourcePrefixes(rel), message: err.message });
+        }
+    }
+    return { files, jobs, errors };
+}
+async function compileProjectAsync(root, config, mapper) {
+    const srcDir = node_path_1.default.join(root, config.rootDir);
+    const files = (0, paths_js_1.collectSources)(srcDir);
+    const jobs = [];
+    const errors = [];
+    for (const file of files) {
+        const source = node_fs_1.default.readFileSync(file, "utf8");
+        const rel = posixRel(srcDir, file);
+        try {
+            const result = await (0, transpile_js_1.transpileSourceAsync)(source, rel, compileOptions(root, config, file, rel), mapper);
             jobs.push({ rel, files: result.files, stale: result.stale || [] });
         }
         catch (err) {
@@ -322,30 +345,10 @@ function ensureVendor(root) {
     copyRuntime(root);
     copyHeaders(root);
 }
-function build(root, options = {}) {
+function finishBuild(root, config, compiled, options) {
     const exitOnError = options.exitOnError !== false;
     const holdOnError = options.holdOnError === true;
     const format = options.format === true;
-    const config = loadConfig(root);
-    if (options.strict === true) {
-        config.strict = true;
-    }
-    if (options.syncVendor !== false) {
-        ensureVendor(root);
-    }
-    const srcDir = node_path_1.default.join(root, config.rootDir);
-    if (!node_fs_1.default.existsSync(srcDir) || (0, paths_js_1.collectSources)(srcDir).length === 0) {
-        console.error("no .clpp/.clp/.clh files in", config.rootDir);
-        if (!holdOnError) {
-            pruneOut(root, config, new Set(), []);
-        }
-        if (exitOnError) {
-            process.exit(1);
-        }
-        return { failed: 0, written: new Set() };
-    }
-    const mapper = createMapper(root, config, options.rojo);
-    const compiled = compileProject(root, config, mapper);
     if (compiled.errors.length > 0) {
         for (const err of compiled.errors) {
             console.error(err.message);
@@ -384,6 +387,45 @@ function build(root, options = {}) {
         process.exit(1);
     }
     return { failed: compiled.errors.length, written };
+}
+function prepareBuild(root, options) {
+    const exitOnError = options.exitOnError !== false;
+    const holdOnError = options.holdOnError === true;
+    const config = loadConfig(root);
+    if (options.strict === true) {
+        config.strict = true;
+    }
+    if (options.syncVendor !== false) {
+        ensureVendor(root);
+    }
+    const srcDir = node_path_1.default.join(root, config.rootDir);
+    if (!node_fs_1.default.existsSync(srcDir) || (0, paths_js_1.collectSources)(srcDir).length === 0) {
+        console.error("no .clpp/.clp/.clh files in", config.rootDir);
+        if (!holdOnError) {
+            pruneOut(root, config, new Set(), []);
+        }
+        if (exitOnError) {
+            process.exit(1);
+        }
+        return null;
+    }
+    return { config, mapper: createMapper(root, config, options.rojo) };
+}
+function build(root, options = {}) {
+    const prepared = prepareBuild(root, options);
+    if (!prepared) {
+        return { failed: 0, written: new Set() };
+    }
+    const compiled = compileProject(root, prepared.config, prepared.mapper);
+    return finishBuild(root, prepared.config, compiled, options);
+}
+async function buildAsync(root, options = {}) {
+    const prepared = prepareBuild(root, options);
+    if (!prepared) {
+        return { failed: 0, written: new Set() };
+    }
+    const compiled = await compileProjectAsync(root, prepared.config, prepared.mapper);
+    return finishBuild(root, prepared.config, compiled, options);
 }
 async function init(dest) {
     const target = (0, safe_paths_js_1.assertInitDest)(dest);
@@ -440,7 +482,6 @@ function acquireWatchLock(root) {
 }
 function watch(root, options = {}) {
     acquireWatchLock(root);
-    build(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo });
     const config = loadConfig(root);
     const dir = node_path_1.default.join(root, config.rootDir);
     let timer = null;
@@ -452,24 +493,23 @@ function watch(root, options = {}) {
             return;
         }
         running = true;
-        try {
-            build(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo });
-        }
-        catch (err) {
+        void buildAsync(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo })
+            .catch((err) => {
             console.error(err.message);
-        }
-        finally {
+        })
+            .finally(() => {
             running = false;
             if (queued) {
                 queued = false;
                 run();
             }
-        }
+        });
     };
     console.log("cluaupp", package_info_js_1.pkg.version, "watching", dir, "(libs untouched)");
     if (!node_fs_1.default.existsSync(dir)) {
         node_fs_1.default.mkdirSync(dir, { recursive: true });
     }
+    run();
     node_fs_1.default.watch(dir, { recursive: true }, () => {
         if (timer) {
             clearTimeout(timer);

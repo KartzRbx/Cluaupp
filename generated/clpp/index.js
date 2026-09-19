@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClpp = exports.CLPP_INSTALL_HINT = void 0;
+exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClppAsync = exports.compileViaClpp = exports.MIN_CLPP_VERSION = exports.CLPP_INSTALL_HINT = void 0;
 var contract_js_1 = require("./contract.js");
 Object.defineProperty(exports, "CLPP_INSTALL_HINT", { enumerable: true, get: function () { return contract_js_1.CLPP_INSTALL_HINT; } });
+Object.defineProperty(exports, "MIN_CLPP_VERSION", { enumerable: true, get: function () { return contract_js_1.MIN_CLPP_VERSION; } });
 var runner_js_1 = require("./runner.js");
 Object.defineProperty(exports, "compileViaClpp", { enumerable: true, get: function () { return runner_js_1.compileViaClpp; } });
+Object.defineProperty(exports, "compileViaClppAsync", { enumerable: true, get: function () { return runner_js_1.compileViaClppAsync; } });
 Object.defineProperty(exports, "clppManifest", { enumerable: true, get: function () { return runner_js_1.clppManifest; } });
 Object.defineProperty(exports, "clppVersion", { enumerable: true, get: function () { return runner_js_1.clppVersion; } });
 Object.defineProperty(exports, "hasClpp", { enumerable: true, get: function () { return runner_js_1.hasClpp; } });

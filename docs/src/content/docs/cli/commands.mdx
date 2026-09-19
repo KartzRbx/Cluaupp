@@ -1,0 +1,52 @@
+---
+title: CLI commands
+description: cluaupp init, build, watch, language, and intellisense.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+```
+cluaupp <command> [folder]
+```
+
+Cluaupp orchestrates **CL++ 0.3.2 → Luau**. It does not parse the language. `clpp` compiles each `.clpp` / `.clp` / `.clh`; Cluaupp post-processes and writes `out/`.
+
+<Aside type="caution">
+Need CL++ **0.3.2**. A cargo `clpp 0.1.0` earlier on PATH cannot parse `~>Connect`, `Player player`, or `func (params)`. Run `cluaupp language`. Override with `CLPP` / `CLPP_PATH`.
+</Aside>
+
+## `cluaupp init [folder]`
+
+Creates `src/server`, `src/client`, `src/shared`, Rojo, `rokit.toml`, and a CL++ scaffold. Then run `clpp setup` for editor IntelliSense.
+
+## `cluaupp build [folder]`
+
+Compiles `src/**/*.{clpp,clp,clh}` into `out/`. One tagged file becomes one Luau instance.
+
+```bash
+cluaupp build
+cluaupp build --format --analyze
+cluaupp build --input ./src/server/boot.server.clpp --output ./out/boot.server.luau
+```
+
+`--format` runs StyLua; `--analyze` runs `luau-analyze`.
+
+If `clpp` is missing: install [CL++ 0.3.2](https://github.com/KartzRbx/CLPP/releases/tag/v0.3.2) or set `CLPP` / `CLPP_PATH`.
+
+## `cluaupp watch [folder]`
+
+Rebuilds on save (async `clpp api compile`). Does not write `out/` while compile fails.
+
+## `cluaupp language`
+
+Prints the selected `clpp` binary + version, skipped older installs, and `clpp api manifest`. Needs CL++ **0.3.2**.
+
+## `cluaupp intellisense` / `cluaupp lsp`
+
+Writes `files.associations` for `clpp` and runs `clpp setup`. Language diagnostics stay with the CL++ pack — Cluaupp does not recompile on every keystroke.
+
+## `cluaupp --version` / `--help`
+
+See also [`cluaupp.config.json`](/cli/config/).

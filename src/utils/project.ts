@@ -6,7 +6,7 @@ import { collectSources, toLuauPath } from "../clpp/paths.js";
 import { syncEditorSupport } from "../intellisense.js";
 import { ProcessOrchestrator } from "./process-orchestrator.js";
 import { RojoMapper } from "./rojo-mapper.js";
-import { transpileSource } from "../transpile.js";
+import { transpileSource, transpileSourceAsync } from "../transpile.js";
 import { assertInitDest, assertInside, isInside, safeProjectSubdir, safeRelPath } from "./safe-paths.js";
 
 function readProjectConfig(file: string): Partial<ProjectConfig> {
@@ -245,6 +245,20 @@ function createMapper(root: string, config: ProjectConfig, rojoPath?: string): R
 	return mapper;
 }
 
+function compileOptions(root: string, config: ProjectConfig, file: string, rel: string) {
+	const srcDir = path.join(root, config.rootDir);
+	return {
+		...config,
+		filePath: file,
+		relativeName: rel,
+		outName: toLuauPath(rel),
+		architecture: config.architecture === true,
+		includeDirs: [path.dirname(file), srcDir, path.join(root, "include")],
+		srcDir,
+		outDir: config.outDir,
+	};
+}
+
 function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper) {
 	const srcDir = path.join(root, config.rootDir);
 	const files = collectSources(srcDir);
@@ -255,16 +269,27 @@ function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper)
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
 		try {
-			const result = transpileSource(source, rel, {
-				...config,
-				filePath: file,
-				relativeName: rel,
-				outName: toLuauPath(rel),
-				architecture: config.architecture === true,
-				includeDirs: [path.dirname(file), srcDir, path.join(root, "include")],
-				srcDir,
-				outDir: config.outDir,
-			}, mapper);
+			const result = transpileSource(source, rel, compileOptions(root, config, file, rel), mapper);
+			jobs.push({ rel, files: result.files, stale: result.stale || [] });
+		} catch (err) {
+			errors.push({ rel, prefixes: sourcePrefixes(rel), message: (err as Error).message });
+		}
+	}
+
+	return { files, jobs, errors };
+}
+
+async function compileProjectAsync(root: string, config: ProjectConfig, mapper: RojoMapper) {
+	const srcDir = path.join(root, config.rootDir);
+	const files = collectSources(srcDir);
+	const jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }> = [];
+	const errors: Array<{ rel: string; prefixes: string[]; message: string }> = [];
+
+	for (const file of files) {
+		const source = fs.readFileSync(file, "utf8");
+		const rel = posixRel(srcDir, file);
+		try {
+			const result = await transpileSourceAsync(source, rel, compileOptions(root, config, file, rel), mapper);
 			jobs.push({ rel, files: result.files, stale: result.stale || [] });
 		} catch (err) {
 			errors.push({ rel, prefixes: sourcePrefixes(rel), message: (err as Error).message });
@@ -332,31 +357,15 @@ function ensureVendor(root: string): void {
 	copyHeaders(root);
 }
 
-export function build(root: string, options: BuildOptions = {}): BuildResult {
+function finishBuild(
+	root: string,
+	config: ProjectConfig,
+	compiled: { jobs: Array<{ rel: string; files: Array<{ name: string; contents: string }>; stale: string[] }>; errors: Array<{ rel: string; prefixes: string[]; message: string }> },
+	options: BuildOptions,
+): BuildResult {
 	const exitOnError = options.exitOnError !== false;
 	const holdOnError = options.holdOnError === true;
 	const format = options.format === true;
-	const config = loadConfig(root);
-	if (options.strict === true) {
-		config.strict = true;
-	}
-	if (options.syncVendor !== false) {
-		ensureVendor(root);
-	}
-	const srcDir = path.join(root, config.rootDir);
-	if (!fs.existsSync(srcDir) || collectSources(srcDir).length === 0) {
-		console.error("no .clpp/.clp/.clh files in", config.rootDir);
-		if (!holdOnError) {
-			pruneOut(root, config, new Set(), []);
-		}
-		if (exitOnError) {
-			process.exit(1);
-		}
-		return { failed: 0, written: new Set() };
-	}
-
-	const mapper = createMapper(root, config, options.rojo);
-	const compiled = compileProject(root, config, mapper);
 	if (compiled.errors.length > 0) {
 		for (const err of compiled.errors) {
 			console.error(err.message);
@@ -396,6 +405,48 @@ export function build(root: string, options: BuildOptions = {}): BuildResult {
 		process.exit(1);
 	}
 	return { failed: compiled.errors.length, written };
+}
+
+function prepareBuild(root: string, options: BuildOptions) {
+	const exitOnError = options.exitOnError !== false;
+	const holdOnError = options.holdOnError === true;
+	const config = loadConfig(root);
+	if (options.strict === true) {
+		config.strict = true;
+	}
+	if (options.syncVendor !== false) {
+		ensureVendor(root);
+	}
+	const srcDir = path.join(root, config.rootDir);
+	if (!fs.existsSync(srcDir) || collectSources(srcDir).length === 0) {
+		console.error("no .clpp/.clp/.clh files in", config.rootDir);
+		if (!holdOnError) {
+			pruneOut(root, config, new Set(), []);
+		}
+		if (exitOnError) {
+			process.exit(1);
+		}
+		return null;
+	}
+	return { config, mapper: createMapper(root, config, options.rojo) };
+}
+
+export function build(root: string, options: BuildOptions = {}): BuildResult {
+	const prepared = prepareBuild(root, options);
+	if (!prepared) {
+		return { failed: 0, written: new Set() };
+	}
+	const compiled = compileProject(root, prepared.config, prepared.mapper);
+	return finishBuild(root, prepared.config, compiled, options);
+}
+
+export async function buildAsync(root: string, options: BuildOptions = {}): Promise<BuildResult> {
+	const prepared = prepareBuild(root, options);
+	if (!prepared) {
+		return { failed: 0, written: new Set() };
+	}
+	const compiled = await compileProjectAsync(root, prepared.config, prepared.mapper);
+	return finishBuild(root, prepared.config, compiled, options);
 }
 
 export async function init(dest: string): Promise<void> {
@@ -454,7 +505,6 @@ function acquireWatchLock(root: string): void {
 
 export function watch(root: string, options: BuildOptions = {}): void {
 	acquireWatchLock(root);
-	build(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo });
 	const config = loadConfig(root);
 	const dir = path.join(root, config.rootDir);
 	let timer: NodeJS.Timeout | null = null;
@@ -467,23 +517,24 @@ export function watch(root: string, options: BuildOptions = {}): void {
 			return;
 		}
 		running = true;
-		try {
-			build(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo });
-		} catch (err) {
-			console.error((err as Error).message);
-		} finally {
-			running = false;
-			if (queued) {
-				queued = false;
-				run();
-			}
-		}
+		void buildAsync(root, { exitOnError: false, syncVendor: false, holdOnError: true, format: options.format, rojo: options.rojo })
+			.catch((err) => {
+				console.error((err as Error).message);
+			})
+			.finally(() => {
+				running = false;
+				if (queued) {
+					queued = false;
+					run();
+				}
+			});
 	};
 
 	console.log("cluaupp", pkg.version, "watching", dir, "(libs untouched)");
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true });
 	}
+	run();
 	fs.watch(dir, { recursive: true }, () => {
 		if (timer) {
 			clearTimeout(timer);

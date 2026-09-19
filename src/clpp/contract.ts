@@ -1,10 +1,19 @@
-/** Stable CL++ ↔ Cluaupp contract. Cluaupp invokes the `clpp` binary. */
+/** Stable CL++ ↔ Cluaupp contract (CL++ 0.3.2). Cluaupp invokes the `clpp` binary. */
 
 export interface CompileRequest {
 	source: string;
 	fileName: string;
 	strict?: boolean;
 	cwd?: string;
+}
+
+export interface CompileDiagnostic {
+	message: string;
+	/** 1-based */
+	line: number;
+	/** 1-based */
+	column: number;
+	severity: string;
 }
 
 export interface CompileArtifact {
@@ -18,6 +27,7 @@ export interface CompileArtifact {
 	rojoClass: "Script" | "LocalScript" | "ModuleScript";
 	libraries: string[];
 	error?: string;
+	diagnostics?: CompileDiagnostic[];
 }
 
 export interface LanguageManifest {
@@ -35,7 +45,7 @@ export interface LanguageManifest {
 	io: Array<{ clpp: string; luau: string }>;
 }
 
-export const MIN_CLPP_VERSION = "0.2.6";
+export const MIN_CLPP_VERSION = "0.3.2";
 
 export const CLPP_INSTALL_HINT =
-	"Install CL++ 0.2.6+ and put `clpp` on PATH: https://github.com/KartzRbx/CLPP/releases (`clpp-setup.exe`, then `clpp install`). A stale cargo 0.1.0 on PATH will break for-in / GetService. Override with CLPP_PATH.";
+	"Install CL++ 0.3.2 (clpp-setup.exe or `clpp setup`) and put `clpp` on PATH. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";

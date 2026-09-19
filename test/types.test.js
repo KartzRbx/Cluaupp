@@ -15,8 +15,8 @@ const hello = compileSource(
 	`#include <clpp/roblox.clh>
 
 void init() {
-	Players* players = GetService<Players>();
-	post("online: " .: players::GetPlayers());
+	Players players = GetService<Players>();
+	post("online: " .: players.GetPlayers());
 }
 `,
 	"hello.server.clpp",
@@ -28,7 +28,7 @@ refuses(hello, ["require(ClppLibs."], "no ClppLibs placeholder");
 const concat = compileSource(
 	`#include <clpp/roblox.clh>
 void init() {
-	Player* player = null;
+	Player player = null;
 	post("hi " .: player.Name);
 }
 `,

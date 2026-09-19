@@ -1,15 +1,28 @@
 #pragma once
 #include <clpp/roblox.clh>
 
-void ShowcaseFeatures(int coins, Player* playerRef) {
+struct Wallet {
+	int coins;
+	void Add(int n);
+};
+
+void Wallet::Add(int n) {
+	@coins = coins + n;
+	post("wallet " .: @coins);
+}
+
+void ShowcaseFeatures(int coins, Player playerRef) {
 	int n = 100;
 	float speed = 16.5;
 	string name = "Kartz";
 	bool isActive = true;
-	func callback = func []() {};
+	func callback = func () {};
 	post(speed);
 	post(isActive);
 	callback();
+
+	Wallet pocket;
+	pocket.Add(10);
 
 	array<string> names = {"Kartz", "Player1"};
 	dictionary<string, int> stats = {
@@ -34,29 +47,29 @@ void ShowcaseFeatures(int coins, Player* playerRef) {
 	n += 1;
 
 	observable int wallet = 100;
-	wallet::OnChange(func [](int newValue) {
+	wallet.OnChange(func (int newValue) {
 		post("Coins changed to: " .: newValue);
 	});
 
-	signal<Player*, int> OnCoinsUpdated;
-	OnCoinsUpdated::Connect(func [](Player* player, int newAmount) {
+	signal<Player, int> OnCoinsUpdated;
+	OnCoinsUpdated~>Connect(func (Player player, int newAmount) {
 		post("New coins for " .: player.Name .: ": " .: newAmount);
 	});
-	OnCoinsUpdated::Once(func [](Player* player, int newAmount) {
+	OnCoinsUpdated~>Once(func (Player player, int newAmount) {
 		post("First coins for " .: player.Name .: " " .: newAmount);
 	});
-	OnCoinsUpdated::Fire(playerRef, wallet);
+	OnCoinsUpdated.Fire(playerRef, wallet);
 
 	guard (playerRef != null) else {
 		warn("Invalid player");
 		return;
 	}
 
-	playerRef::GetPropertyChangedSignal("Name")::Connect(func []() {
+	playerRef.GetPropertyChangedSignal("Name")~>Connect(func () {
 		post("Name changed");
 	});
 
-	auto [success, result] = pcall(func []() {
+	auto [success, result] = pcall(func () {
 		return 1;
 	});
 	post(result);

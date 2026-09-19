@@ -16,7 +16,7 @@ namespace Fusion {
 	FusionObserver Observer(FusionState value);
 	template <typename T>
 	T peek(FusionState value);
-	FusionKey Hydrate(Instance* instance);
+	FusionKey Hydrate(Instance instance);
 	FusionKey Children();
 	FusionKey Child();
 	FusionKey OnEvent(string eventName);
@@ -31,10 +31,10 @@ namespace Fusion {
 	FusionState ForKeys(FusionState input, void (*processor)());
 	FusionState ForValues(FusionState input, void (*processor)());
 	FusionState ForPairs(FusionState input, void (*processor)());
-	void doCleanup(Instance* task);
+	void doCleanup(Instance task);
 	FusionScope deriveScope(FusionScope scope);
 	FusionScope innerScope(FusionScope scope);
-	void insert(FusionScope scope, Instance* task);
+	void insert(FusionScope scope, Instance task);
 	template <typename T>
 	FusionContextual Contextual(T defaultValue);
 	void Safe(void (*callback)());

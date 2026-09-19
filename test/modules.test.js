@@ -10,8 +10,8 @@ const libs = compileSource(
 #include <clpp/libs/janitor.clh>
 
 void init() {
-	Janitor* janitor = new Janitor();
-	janitor::Cleanup();
+	Janitor janitor = new Janitor();
+	janitor.Cleanup();
 }
 `,
 	"libs.server.clpp",

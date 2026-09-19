@@ -20,19 +20,19 @@ struct Janitor {
 	P AddPromise(P promise);
 	template <typename P>
 	P AddPromise(P promise, string index);
-	Janitor* Remove(string index);
-	Janitor* RemoveNoClean(string index);
-	Janitor* RemoveList(string index);
-	Janitor* RemoveListNoClean(string index);
+	Janitor Remove(string index);
+	Janitor RemoveNoClean(string index);
+	Janitor RemoveList(string index);
+	Janitor RemoveListNoClean(string index);
 	template <typename T>
 	T Get(string index);
 	void GetAll();
 	void Cleanup();
 	void Destroy();
-	RBXScriptConnection LinkToInstance(Instance* object);
-	RBXScriptConnection LinkToInstance(Instance* object, bool allowMultiple);
-	Janitor* LinkToInstances(Instance* object);
-	static bool Is(Instance* value);
+	RBXScriptConnection LinkToInstance(Instance object);
+	RBXScriptConnection LinkToInstance(Instance object, bool allowMultiple);
+	Janitor LinkToInstances(Instance object);
+	static bool Is(Instance value);
 	static bool Is(string value);
-	static bool instanceof(Instance* value);
+	static bool instanceof(Instance value);
 };

@@ -111,22 +111,22 @@ struct Data {
 struct DataServiceServer {
 	DataPath Paths;
 	template <typename T>
-	DataServiceServer* Init(DataServiceOptions<T> options);
-	Data* WaitFor(Player* player);
-	Data* Get(Player* player);
-	bool HasData(Player* player);
-	DataProfile* GetProfile(Player* player);
-	DataBufferStats* GetBufferStats();
-	DataBufferStats* GetBufferStats(Player* player);
+	DataServiceServer Init(DataServiceOptions<T> options);
+	Data WaitFor(Player player);
+	Data Get(Player player);
+	bool HasData(Player player);
+	DataProfile GetProfile(Player player);
+	DataBufferStats GetBufferStats();
+	DataBufferStats GetBufferStats(Player player);
 	void Destroy();
 };
 
 struct DataServiceClient {
 	DataPath Paths;
-	Data* Init();
-	Data* WaitForData();
-	Data* Get();
-	DataBufferStats* GetBufferStats();
+	Data Init();
+	Data WaitForData();
+	Data Get();
+	DataBufferStats GetBufferStats();
 	void Destroy();
 };
 

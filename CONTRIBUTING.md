@@ -5,6 +5,7 @@ Requires Node.js 18+ and **`clpp` on PATH** ([KartzRbx/CLPP](https://github.com/
 ```bash
 npm test
 npm run build:cli
+npm run site:dev    # Starlight handbook
 ```
 
 ## Layout
@@ -20,7 +21,7 @@ templates/game/      `cluaupp init` scaffold (CL++)
 examples/game/       sample CL++ (`src/server`, `src/client`, `src/shared`)
 editors/vscode/      optional diagnostics (prefer `clpp install`)
 test/                out/, types, modules, security, clpp contract
-docs/                toolchain guides — language lives at kartzrbx.github.io/CLPP
+docs/                Starlight site (Astro) — language course stays at kartzrbx.github.io/CLPP
 ```
 
 ## Tests

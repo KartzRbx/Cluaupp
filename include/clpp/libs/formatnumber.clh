@@ -9,6 +9,6 @@ namespace FormatNumber {
 	string Abbreviate(double value, int digits);
 	string Comma(double value);
 	string Compact(double value);
-	FormatNumberMain* Main();
-	FormatNumberSimple* Simple();
+	FormatNumberMain Main();
+	FormatNumberSimple Simple();
 }

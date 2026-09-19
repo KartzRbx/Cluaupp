@@ -1,0 +1,58 @@
+---
+sidebar:
+  order: 3
+title: "@janitor"
+description: "@janitor is self.janitor inside Class::Method. The Janitor library cleans connections and instances."
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+<Aside type="tip">
+Default sample Connect is `~>Connect` / `~>Once`. That already wraps `janitor:Add(..., "Disconnect")`. Use `::Connect` only when you will Disconnect yourself.
+</Aside>
+
+`@janitor` is **not** a second language. It is the field `janitor` on the receiver: `@janitor` → `self.janitor`. You still declare `Janitor janitor;` on the struct and assign it in `init`.
+
+Header:
+
+```clpp
+#pragma once
+#include <clpp/libs/janitor.clh>
+
+struct LeaderstatsServer {
+	Janitor janitor;
+	void PlayerEntered(Player player);
+};
+```
+
+<Tabs>
+	<TabItem label="CL++ (.clpp)">
+```clpp
+void LeaderstatsServer::PlayerEntered(Player player) {
+	guard (player != null) else {
+		warn("Invalid player");
+		return;
+	}
+	Folder folder = new Folder(player);
+	folder.Name = "leaderstats";
+	@janitor.Add(folder, "Destroy", player.Name);
+}
+```
+	</TabItem>
+	<TabItem label="Luau gerado">
+```lua
+function LeaderstatsServer:PlayerEntered(player: Player)
+	if not player then
+		warn("Invalid player")
+		return
+	end
+	local folder = Instance.new("Folder")
+	folder.Parent = player
+	folder.Name = "leaderstats"
+	self.janitor:Add(folder, "Destroy", player.Name)
+end
+```
+	</TabItem>
+</Tabs>
+
+Library calls use `.` (instance method), same as Roblox: `janitor.Add`, `janitor.Cleanup`, `janitor.LinkToInstance`. Full API: [Libraries → Janitor](/libraries/janitor/).

@@ -1,27 +1,21 @@
-# Cluaupp documentation
+# Cluaupp docs (Starlight)
 
-The live handbook is **[GitHub Pages](https://kartzrbx.github.io/Cluaupp/docs/)**. Language course: **[CL++](https://kartzrbx.github.io/CLPP/)**.
+Astro Starlight handbook for the **toolchain**. The language course stays on [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
-## Start
+```
+docs/
+  astro.config.mjs
+  src/syntaxes/clpp.tmLanguage.json   # official CL++ grammar (Shiki)
+  src/content/docs/
+    index.mdx
+    cli/
+    language/
+    internals/
+```
 
-1. [Intro](intro.md)
-2. [Getting started](getting-started.md)
-3. [CLI](cli.md)
-4. [Config](config.md)
-5. [IntelliSense](intellisense.md) — `clpp install`
-6. [Migration](migration.md) — `.cpp` → `.clpp`
+```bash
+npm run site:dev    # from repo root
+npm run site        # writes ../site for GitHub Pages
+```
 
-## Language
-
-Syntax lives in CL++. Cluaupp [syntax](syntax.md) is a short map of operators and file tags.
-
-## Structure
-
-- [Architecture](architecture.md) — one file in, one file out
-- [OOP / file tags](oop/file-tags.md)
-
-## Roblox
-
-- [Libraries](libraries/index.md)
-- [Examples](examples/index.md)
-- [Comparison](comparison.md)
+Fences use language id `clpp`. Tabs compare CL++ 0.3.2 with emitted Luau. Do not invent C++ (`Player*`, `->`, `fn`, `class`).

@@ -1,28 +1,28 @@
 #pragma strict
 #include <clpp/roblox.clh>
 
-void CreateLeaderstats(Player* player) {
-	if (player::FindFirstChild("leaderstats") != null) {
+void CreateLeaderstats(Player player) {
+	if (player.FindFirstChild("leaderstats") != null) {
 		return;
 	}
 
-	Folder* leaderstats = new Folder(player);
+	Folder leaderstats = new Folder(player);
 	leaderstats.Name = "leaderstats";
 
-	IntValue* coins = new IntValue(leaderstats);
+	IntValue coins = new IntValue(leaderstats);
 	coins.Name = "Coins";
 	coins.Value = 0;
 
-	IntValue* level = new IntValue(leaderstats);
+	IntValue level = new IntValue(leaderstats);
 	level.Name = "Level";
 	level.Value = 0;
 }
 
 void init() {
-	Players* players = GetService<Players>();
-	for (Player* player in players::GetPlayers()) {
+	Players players = GetService<Players>();
+	for (Player player in players.GetPlayers()) {
 		CreateLeaderstats(player);
 	}
 
-	players.PlayerAdded::Connect(CreateLeaderstats);
+	players.PlayerAdded~>Connect(CreateLeaderstats);
 }

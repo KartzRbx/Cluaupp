@@ -13,14 +13,14 @@ struct ChronoPlayer {};
 
 namespace Chrono {
 	void Start();
-	void Start(ModuleScript* config);
-	ChronoHolder* Holder();
-	ChronoEntity* Entity();
-	ChronoStats* Stats();
-	ChronoConfig* Config();
-	ChronoReplicationRules* ReplicationRules();
-	ChronoEvents* Events();
-	ChronoSnapshots* Snapshots();
-	ChronoServerClock* ServerClock();
-	ChronoPlayer* Player();
+	void Start(ModuleScript config);
+	ChronoHolder Holder();
+	ChronoEntity Entity();
+	ChronoStats Stats();
+	ChronoConfig Config();
+	ChronoReplicationRules ReplicationRules();
+	ChronoEvents Events();
+	ChronoSnapshots Snapshots();
+	ChronoServerClock ServerClock();
+	ChronoPlayer Player();
 }

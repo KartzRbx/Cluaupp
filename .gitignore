@@ -17,6 +17,8 @@ secrets.json
 
 # Local playground from `npm run dev` — never part of the CLI
 /game/
+/site/
+/Packages/
 /Packages/
 /libs/
 /out/

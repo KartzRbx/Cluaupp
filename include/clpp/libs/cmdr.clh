@@ -9,8 +9,8 @@ struct CmdrDispatcher {};
 namespace Cmdr {
 	void RegisterDefaultCommands();
 	void RegisterHook(string name, void (*callback)());
-	void RegisterType(string name, CmdrType* typeDefinition);
-	void RegisterCommand(CmdrCommand* commandDefinition);
-	CmdrRegistry* Registry();
-	CmdrDispatcher* Dispatcher();
+	void RegisterType(string name, CmdrType typeDefinition);
+	void RegisterCommand(CmdrCommand commandDefinition);
+	CmdrRegistry Registry();
+	CmdrDispatcher Dispatcher();
 }

@@ -9,20 +9,21 @@
 #include <clpp/libs.clh>
 
 template <typename T>
-T* GetService();
+T GetService();
 
 template <typename T>
-T* GetService(Instance* game_);
+T GetService(Instance game_);
 
-extern DataModel* game;
-extern Workspace* workspace;
-extern LuaSourceContainer* script;
+extern DataModel game;
+extern Workspace workspace;
+extern LuaSourceContainer script;
 
 void post(string message);
 void warn(string message);
 void report(string message);
-void print(string message);
-void error(string message);
+string to_string(auto value);
+double to_number(auto value);
+bool to_bool(auto value);
 
 double tick();
 double time();
