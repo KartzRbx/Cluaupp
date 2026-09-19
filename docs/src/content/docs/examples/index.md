@@ -12,22 +12,22 @@ These are **not** dumps of `int main()`. Entry is `void init()`. Types are `stru
 
 ```
 src/
-  shared/PlayerData.clh
-  shared/config.clp
-  shared/features.clp
-  server/leaderstats.server.clpp
-  server/combat.server.clpp
-  client/init.client.clpp
-  client/hud.client.clpp
+  ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
+  ReplicatedStorage/Shared/Net/Net.flare
+  ServerScriptService/Boot/DataBoot.server.clpp
+  ServerScriptService/Handlers/PlayerHandler.server.clpp
+  ServerScriptService/Handlers/Connection.server.clpp
+  StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
 ```
 
-Boot Keep **once**. Other services `WaitFor` after that.
+Boot Keep **once**. Other services `WaitFor` after that. Gameplay remotes live in `.flare`, not in [Net](/libraries/net/).
 
 ## Catalog
 
 | Example | Teaches |
 | --- | --- |
 | [Data boot](/examples/data-boot/) | `Server.Init` / `Client.Init`, your Template, not `main()` |
+| [Connection (Flare)](/examples/net/) | `.flare` Ready / Welcome / Session after Keep loads |
 | [Leaderstats](/examples/leaderstats/) | Folder `leaderstats`, Mint, `GetChangedSignal`, per-player Sweep |
 | [Combat (server validation)](/examples/combat/) | Client sends **intent**; server checks range, cooldown, health, then `TakeDamage` |
 | [Shop](/examples/shop/) | Flare buy query, prices on the server, Keep debit |

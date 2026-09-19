@@ -2,9 +2,9 @@
 title: Flare
 ---
 
-**Flare** is Cluaupp’s network kernel: Zap-tight packing, batched reliable/unreliable remotes, and query RPC. You do not hand-wire remotes — write `src/shared/Net.flare`, run `cluaupp build`, and use the generated `Net.clh` / `Net.luau` API (`Net.Hit.FireServer`, `Net.GetCoins.Invoke()`, …). This header exposes the low-level `Flare.write*` / `Flare.read*` helpers and `Flare.open` used by generated code.
+**Flare** is Cluaupp’s network kernel: Zap-tight packing, batched reliable/unreliable remotes, and query RPC. You do not hand-wire remotes — write `src/ReplicatedStorage/Shared/Net/Net.flare`, run `cluaupp build`, and use the generated `Net.clh` / `Net.luau` API (`Net.Hit.FireServer`, `Net.GetCoins.Invoke()`, …). This header exposes the low-level `Flare.write*` / `Flare.read*` helpers and `Flare.open` used by generated code.
 
-Header: `#include <clpp/libs/flare.clh>`. Runtime: `CluauppLibs.Flare`.
+Header: `#include <clpp/libs/flare.clh>` (kernel). Gameplay includes the **generated** `Net.clh`. Runtime: `CluauppLibs.Flare`.
 
 ## Why
 
@@ -13,31 +13,101 @@ Header: `#include <clpp/libs/flare.clh>`. Runtime: `CluauppLibs.Flare`.
 - **Inbound client packets are gated by [Ward](/libraries/ward/)** — size cap, token bucket, and `from Client` direction. Forged server-origin ids are struck, not dispatched.
 - **Kernel only in games** — gameplay calls generated `Net.*`; custom codecs in advanced pipelines call `Flare.write*` / `read*`.
 
-When **not** to use: trivial one-off remotes (Net), or declaring packets in CL++ without a `.flare` file (generation owns the game API).
+When **not** to use: trivial one-off remotes (Net), or declaring packets in CL++ without a `.flare` file (generation owns the game API). Keep’s own data handshake (`NotifyReady`) is separate — do not replace it with a Flare packet.
 
-## Example
+## Example — packets and queries
 
-`.flare` (build generates `Net`):
+`src/ReplicatedStorage/Shared/Net/Net.flare` (build generates `Net.clh` + `Net.luau`):
 
 ```
+opt name = Net
+
 packet Hit(Player target, i32 damage) from Client
+packet Announce(string text) from Server
+packet Spark(Vector3 pos) from Server unreliable
 query GetCoins() -> i32
 ```
 
+| Kind | Generated API |
+| --- | --- |
+| `from Client` | `FireServer(...)` on the client; `Connect` on the server (first arg is `Player`) |
+| `from Server` | `Fire(recipient, …fields)` / `FireAll(…fields)` on the server; `Connect` on the client (fields only — no recipient) |
+| `query` | `Invoke(...)` on the client; `On` on the server (first arg is `Player`, return the result) |
+
 ```clpp
+#pragma strict
 #include <clpp/roblox.clh>
-// #include <generated/Net.clh> after build
+#include "Net.clh"
+
+[[server]]
+void init() {
+	Net.Hit~>Connect(func (Player player, Player target, int damage) {
+		if (damage < 1 || damage > 25) {
+			return;
+		}
+		post(player.Name);
+	});
+	Net.GetCoins.On(func (Player player) {
+		return 100;
+	});
+}
 
 [[client]]
 void attack(Player target) {
-	// Net.Hit.FireServer(target, 25);
+	Net.Hit.FireServer(target, 25);
 }
 
 [[client]]
 void showCoins() {
-	// int coins = Net.GetCoins.Invoke(); // 100 if server returns 100
+	int coins = Net.GetCoins.Invoke();
 }
 ```
+
+Full join handshake: [Connection](/examples/net/).
+
+## Example — connection
+
+Client says it is ready; server replies with session identity. Place the schema next to gameplay remotes:
+
+```
+opt name = Net
+
+packet Ready() from Client
+packet Welcome(i32 userId, f64 clock) from Server
+query Session() -> i32
+```
+
+```clpp
+#pragma strict
+#include <clpp/roblox.clh>
+#include "Net.clh"
+#include <clpp/libs/keep.clh>
+#include <clpp/libs/ward.clh>
+
+[[server]]
+void init() {
+	Net.Ready~>Connect(func (Player player) {
+		Ward.Grace(player, 2);
+		Keep.Server.WaitFor(player);
+		Net.Welcome.Fire(player, player.UserId, tick()); // recipient, then schema: i32, f64
+	});
+	Net.Session.On(func (Player player) {
+		return player.UserId;
+	});
+}
+
+[[client]]
+void init() {
+	Keep.Client.Init();
+	Net.Welcome~>Connect(func (int userId, double clock) {
+		post(userId);
+	});
+	Net.Ready.FireServer();
+	int me = Net.Session.Invoke();
+}
+```
+
+After a legitimate server teleport, call `Ward.Grace` so movement checks do not look like a speed hack. Keep still owns persisted data; this channel is gameplay only.
 
 Manual cursor (kernel):
 

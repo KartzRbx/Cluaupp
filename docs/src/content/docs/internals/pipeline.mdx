@@ -46,10 +46,12 @@ Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api 
 See [`cluaupp.config.json`](/cli/config/). `"architecture": true` (ForeverHD folders) is not generated — one source file is still one `.luau` file.
 
 ```
-src/server/leaderstats.server.clpp  →  out/server/leaderstats.server.luau
-src/client/hud.client.clpp          →  out/client/hud.client.luau
-src/shared/config.clp               →  out/shared/config.luau
-src/shared/PlayerData.clh           →  out/shared/PlayerData.luau
+src/ServerScriptService/Handlers/PlayerHandler.server.clpp
+  → out/ServerScriptService/Handlers/PlayerHandler.server.luau
+src/StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
+  → out/StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.luau
+src/ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
+  → out/ReplicatedStorage/Shared/Constants/Datas/TemplateData.luau
 ```
 
 CLI reference: [commands](/cli/commands/).

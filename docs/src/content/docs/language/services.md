@@ -41,7 +41,7 @@ void init() {
 Typical output:
 
 ```
-out/server/services/leaderstats/LeaderstatsServer.server.luau
+out/ServerScriptService/Handlers/LeaderstatsServer.server.luau
 ```
 
 Your functions stay in that file. `init()` runs at the end. There is no fake `Main` that only forwards to a Controller.

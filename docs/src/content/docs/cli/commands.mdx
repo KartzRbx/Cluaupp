@@ -19,7 +19,7 @@ Need CL++ **0.3.2**. A cargo `clpp 0.1.0` earlier on PATH cannot parse `~>Connec
 
 ## `cluaupp init [folder]`
 
-Creates `src/server`, `src/client`, `src/shared`, Rojo, `rokit.toml`, and a CL++ scaffold. Then run `clpp setup` for editor IntelliSense.
+Creates a Roblox service tree under `src/` (`ReplicatedStorage/Shared`, `ServerScriptService`, `StarterPlayer`, `ServerStorage`, `ReplicatedFirst`), Rojo, `rokit.toml`, and a CL++ scaffold. There is no `src/server`, `src/client`, or `src/shared`. Needs Cluaupp **1.4.0+**. Then run `clpp setup` for editor IntelliSense.
 
 ## `cluaupp build [folder]`
 
@@ -28,7 +28,7 @@ Compiles `src/**/*.{clpp,clp,clh}` into `out/`. One tagged file becomes one Luau
 ```bash
 cluaupp build
 cluaupp build --format --analyze
-cluaupp build --input ./src/server/boot.server.clpp --output ./out/boot.server.luau
+cluaupp build --input ./src/ServerScriptService/Boot/DataBoot.server.clpp --output ./out/ServerScriptService/Boot/DataBoot.server.luau
 ```
 
 `--format` runs StyLua; `--analyze` runs `luau-analyze`.

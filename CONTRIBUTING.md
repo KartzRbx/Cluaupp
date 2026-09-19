@@ -30,7 +30,7 @@ docs/                `@cluaupp/docs` Starlight site — the only workspace packa
 
 ## Publishing
 
-Released **1.4.0**. Next version is **1.5.0** (`package.json`). Libs are inside the `cluaupp` tarball. Do not revive `@cluaupp/dataservicev2` / `@cluaupp/janitor`.
+Released **1.4.1**. Next version is **1.5.0** (`package.json`). Libs are inside the `cluaupp` tarball. Do not revive `@cluaupp/dataservicev2` / `@cluaupp/janitor`.
 
 ```bash
 npm test

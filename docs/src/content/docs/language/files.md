@@ -15,9 +15,12 @@ The **filename** decides the Roblox instance (same idea as roblox-ts).
 | `PlayerData.clh` | ModuleScript |
 
 ```
-src/server/boot/DataBoot.server.clpp  →  out/server/boot/DataBoot.server.luau
-src/client/hud.client.clpp            →  out/client/hud.client.luau
-src/shared/config.clp                 →  out/shared/config.luau
+src/ServerScriptService/Boot/DataBoot.server.clpp
+  → out/ServerScriptService/Boot/DataBoot.server.luau
+src/StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
+  → out/StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.luau
+src/ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
+  → out/ReplicatedStorage/Shared/Constants/Datas/TemplateData.luau
 ```
 
 Language details: [CL++ docs](https://kartzrbx.github.io/CLPP/).

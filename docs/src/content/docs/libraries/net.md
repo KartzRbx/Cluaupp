@@ -13,7 +13,7 @@ Header: `#include <clpp/libs/net.clh>`. Runtime: `CluauppLibs.Net`.
 - **Server/client guards** — `Fire` / `Invoke` assert on the server; `FireServer` / `InvokeServer` assert on the client.
 - **[Ward](/libraries/ward/) on the server** — non-buffer payloads, oversized packets, and decode failures are struck instead of unpacked.
 
-When **not** to use: production gameplay traffic (prefer Flare code generation), or when you need unreliable batches and query RPCs (Flare session API).
+When **not** to use: production gameplay traffic (prefer [Flare](/libraries/flare/) `.flare` schemas — [connection example](/examples/net/)), or when you need unreliable batches and query RPCs.
 
 ## Example
 

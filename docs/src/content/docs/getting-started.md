@@ -18,9 +18,11 @@ clpp setup             # VS Code / Cursor language pack
 ## Install Cluaupp
 
 ```bash
-npm install -g cluaupp
+npm install -g cluaupp@latest
 cluaupp --version
 ```
+
+Need **1.4.0+**. A leftover global **1.3.0** still writes `src/server` / `src/client` / `src/shared`. Upgrade, then `init` into a **new** folder.
 
 Or:
 
@@ -46,6 +48,7 @@ my-game/
     ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
     ServerScriptService/Boot/DataBoot.server.clpp
     ServerScriptService/Handlers/PlayerHandler.server.clpp
+    ReplicatedStorage/Shared/Net/Net.flare
     StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
     StarterPlayer/StarterCharacterScripts/Character/CharacterReady.client.clpp
   out/                    ← generated Luau (do not edit)

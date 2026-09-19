@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1
+
+- **`cluaupp init --help`** names the 1.4.0 service tree (`ReplicatedStorage`, `ServerScriptService`, `StarterPlayer`), not `src/server` / `src/client` / `src/shared`.
+- Handbook: Flare **Ready / Welcome / Session** handshake, Connection example, and leftover CLI/path pages aligned with the service layout.
+
 ## 1.4.0
 
 - **Init** writes a Roblox service tree (`ServerScriptService`, `ReplicatedStorage/Shared`, `StarterPlayer`, `ServerStorage`, `ReplicatedFirst`) with DataBoot + TemplateData. Breaking: no more `src/server` / `src/client` / `src/shared`.

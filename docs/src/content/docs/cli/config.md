@@ -26,9 +26,12 @@ File: `cluaupp.config.json` at the game root (next to `src/`).
 
 The template maps:
 
-- `out/server` → `ServerScriptService.Cluaupp`
-- `out/client` → `StarterPlayer.StarterPlayerScripts.Cluaupp`
-- `out/shared` → `ReplicatedStorage.Cluaupp`
+- `out/ServerScriptService` → `ServerScriptService`
+- `out/ReplicatedStorage/Shared` → `ReplicatedStorage.Shared`
+- `out/StarterPlayer/StarterPlayerScripts` → `StarterPlayer.StarterPlayerScripts`
+- `out/StarterPlayer/StarterCharacterScripts` → `StarterPlayer.StarterCharacterScripts`
+- `out/ServerStorage` → `ServerStorage`
+- `out/ReplicatedFirst` → `ReplicatedFirst`
 - `libs` → `ReplicatedStorage.CluauppLibs`
 
 `*.server.clpp` → `*.server.luau` (Script). `*.client.clpp` → LocalScript. `.clp` / `.clh` → ModuleScript.

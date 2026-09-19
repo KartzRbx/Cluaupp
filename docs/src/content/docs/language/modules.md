@@ -7,7 +7,7 @@ Use this when you want a **reusable object** without a tagged Script.
 ## Untagged `.cpp` = ModuleScript
 
 ```
-src/shared/util/Coins.cpp
+src/ReplicatedStorage/Shared/Utils/Coins.clp
 ```
 
 ```clpp
@@ -19,7 +19,7 @@ int DoubleCoins(int coins) {
 ```
 
 ```
-out/shared/util/Coins.luau   -- ModuleScript, exported functions
+out/ReplicatedStorage/Shared/Utils/Coins.luau   -- ModuleScript, exported functions
 ```
 
 Quoted `#include "TemplateData.hpp"` is not inlined when the header has a sibling `.cpp` or is a shared module: `cluaupp build` emits `require(ReplicatedStorage.Cluaupp.constants.TemplateData)` / `require(ServerScriptService.Cluaupp.configurations.PlayerDataVersion)` (Rojo roots from `default.project.json`), never `script.Parent.Parent.shared`.

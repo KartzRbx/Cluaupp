@@ -48,7 +48,7 @@ void init() {
 3. **`clpp` 0.3.2** on PATH from [CL++](https://github.com/KartzRbx/CLPP/releases/tag/v0.3.2) (`clpp-setup.exe` or `clpp setup`). Do not leave a cargo `clpp 0.1.0` first on PATH.
 
 ```bash
-npm install -g cluaupp
+npm install -g cluaupp@latest
 clpp setup
 npx cluaupp init my-game
 cd my-game

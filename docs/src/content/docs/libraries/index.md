@@ -43,4 +43,4 @@ Each page below is written for a **game author**: what it is for, why it is fast
 
 Libraries ship **inside npm `cluaupp`** (`runtime/` → `libs/` on init). There is no `@cluaupp/keep` on npm.
 
-Copy-paste systems: [Examples](/examples/) — HUD (Gleam+Mint+Bloom), NPC (Shift+Hive), data boot (Keep).
+Copy-paste systems: [Examples](/examples/) — data boot (Keep), [connection](/examples/net/) (Flare), HUD (Gleam+Mint+Bloom), NPC (Shift+Hive).

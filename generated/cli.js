@@ -34,7 +34,7 @@ program
 });
 program
     .command("init")
-    .description("create a game (src/server, src/client, src/shared)")
+    .description("create a game (ReplicatedStorage, ServerScriptService, StarterPlayer)")
     .argument("[folder]", "destination folder", ".")
     .action(async (folder) => {
     try {
