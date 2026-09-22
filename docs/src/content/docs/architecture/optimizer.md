@@ -145,6 +145,8 @@ Authoring Flare packets stays schema-driven. Authoring gameplay state stays idio
 
 **Apply v1** — `optimize --apply` inserts `#pragma native`. **`optimize --apply --layout`** adds `#pragma layout soa` and generates `.cluaupp/generated/soa/*Soa.luau` (optional `--buffer` for f32/i32 columns). It does **not** silently rewrite every gameplay struct.
 
+**CL++ 0.8 artifact** — `nativeHints` / `layoutHints` from the compiler opt pipeline feed the same apply path. See [Cluaupp host](../cluaupp-host/).
+
 **PGO format** — `cluaupp profile` writes `cluaupp.profile.json`; `optimize --profile` ranks advice; `profile --ingest` merges Studio JSONL.
 
 Identity wedge still starts with [Typed DataModel](../typed-datamodel/) + Context / Parallel / Flare. This page locks the philosophy: never market “our libs use buffer” as the product.

@@ -14,7 +14,7 @@ sidebar:
 | Piece | Current |
 | --- | --- |
 | Cluaupp npm | **1.5.x** |
-| Required `clpp` | **0.7.0+** |
+| Required `clpp` | **0.8.0+** (docs); host accepts **0.7.0+** until you upgrade |
 | Target profile schema | **2** |
 
 ## Shipped in code (not docs-only)
@@ -41,12 +41,14 @@ sidebar:
 | Incremental + parallel compile | `.cluaupp/compile-cache`; `--no-incremental`, `-j/--jobs` on `build` |
 | Full doctor | `cluaupp target doctor` / `cluaupp analyze` |
 | Wally thin wrap | `cluaupp add <pkg>` |
+| CL++ 0.8 language surface (docs) | `import { } from`, Option/Result/`?`, exhaustive match, host hints |
 
 ## Still later / out of scope
 
 | Item | Why |
 | --- | --- |
-| Silent SoA rewrite of all gameplay structs | Opt-in `#pragma layout soa` + generated `*Soa.luau` only |
+| Silent SoA rewrite of all gameplay structs | Opt-in `#pragma layout soa` + generated `*Soa.luau` only; CL++ may emit layout **hints** |
+| Intent contracts / effects / typestate / newtype / move | Reserved in CL++ RFCs 0014–0018 — not language API yet |
 | Roblox bytecode / custom VM debugger | CluauppNav debug panel + error→CL++ + IDE bridge |
 
 ## Buffer law

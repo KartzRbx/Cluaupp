@@ -44,9 +44,11 @@ sweep.Add(players.PlayerAdded~>Connect(OnPlayer));
 
 Leaked connections duplicate effects: double coins, stacked cameras, lingering highlights.
 
-## 3. Check nil
+## 3. Check nil (and Result)
 
 `FindFirstChild` returns `null`. `WaitForChild` can hang. Prefer `FindFirstChild` plus an early return on the hot path.
+
+For recoverable errors in **your** APIs, prefer `Result<T, E>` + `?` / exhaustive `match` over inventing exception style. `?` is **not** optional chaining. See [Option and Result](../option-result/). Assigning a `Result` to a plain `T` is `CLPP0202`.
 
 ## 4. One writer for persisted data
 

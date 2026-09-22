@@ -6,7 +6,7 @@ The client sends **which product**. The server looks up the price, checks Money,
 
 ## Catalog header
 
-`src/shared/constants/ShopCatalog.hpp`
+`src/shared/constants/ShopCatalog.clh`
 
 Cluaupp has no maps. A function with early returns is the catalog.
 
@@ -34,9 +34,9 @@ int PriceOf(int productId) {
 ```clpp
 #include <clpp/roblox.clh>
 #include <clpp/libs/sweep.clh>
-#include <clpp/libs/net.hpp>
+#include <clpp/libs/net.clh>
 #include <clpp/libs/keep.clh>
-#include "../../../shared/constants/ShopCatalog.hpp"
+#include "../../../shared/constants/ShopCatalog.clh"
 
 Janitor janitor = new Janitor();
 NetEvent* Buy = Net::Event("Buy");
@@ -92,8 +92,8 @@ Debit **before** (or atomically with) the effect. If you grant the item first an
 ```clpp
 #include <clpp/roblox.clh>
 #include <clpp/libs/sweep.clh>
-#include <clpp/libs/net.hpp>
-#include "../../../shared/constants/ShopCatalog.hpp"
+#include <clpp/libs/net.clh>
+#include "../../../shared/constants/ShopCatalog.clh"
 
 Janitor janitor = new Janitor();
 NetEvent* Buy = Net::Event("Buy");

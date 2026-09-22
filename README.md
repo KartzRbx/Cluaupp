@@ -45,7 +45,7 @@ void init() {
 
 1. [Node.js](https://nodejs.org/) 18+
 2. [Rojo](https://rojo.space/) **7.7.0**
-3. **`clpp` 0.7.0+** on PATH from [CL++](https://github.com/KartzRbx/CLPP/releases) (`clpp-setup.exe` or `clpp setup`). Do not leave a cargo `clpp 0.1.0` first on PATH.
+3. **`clpp` 0.8.0+** on PATH from [CL++](https://github.com/KartzRbx/CLPP/releases) (`clpp-setup.exe` or `clpp setup`; host floor 0.7.0+). Do not leave a cargo `clpp 0.1.0` first on PATH.
 
 ```bash
 npm install -g cluaupp@latest
@@ -79,7 +79,7 @@ cluaupp api aux-diff <p>  # optional coverage vs @rbxts/types / LuauTypes
 
 **IntelliSense:** CL++ → `clpp` Language Server + Cluaupp `lsp-index.json`. Schemas (`.flare`/…) → Cluaupp editor extension. Emitted Luau → luau-lsp (optional). Cluaupp does not ship a Roblox class IntelliSense engine.
 
-`clpp` missing? Set `CLPP` / `CLPP_PATH` or install [CL++ 0.7.0+](https://github.com/KartzRbx/CLPP/releases).
+`clpp` missing? Set `CLPP` / `CLPP_PATH` or install [CL++ 0.8.0+](https://github.com/KartzRbx/CLPP/releases).
 
 ## Language
 

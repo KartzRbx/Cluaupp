@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { defineConfig } from "astro/config";
+import mermaid from "astro-mermaid";
 import starlight from "@astrojs/starlight";
 
 const pages = Boolean(process.env.GITHUB_ACTIONS || process.env.SITE_BASE);
@@ -15,6 +16,15 @@ export default defineConfig({
 	outDir: "../site",
 	trailingSlash: "always",
 	integrations: [
+		// Must run before Starlight so ```mermaid fences become live charts.
+		mermaid({
+			autoTheme: true,
+			mermaidConfig: {
+				themeVariables: {
+					fontFamily: "var(--sl-font)",
+				},
+			},
+		}),
 		starlight({
 			title: "Cluaupp",
 			description: "CL++ Roblox project host — Context Safety, API Registry, Flare, Rojo.",

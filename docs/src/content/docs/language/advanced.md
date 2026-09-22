@@ -1,10 +1,11 @@
 ---
 title: Advanced
+description: Supported CL++ 0.8+ surface, gaps, and performance notes for Cluaupp projects.
 ---
 
-CL++ is the language (`clpp` **0.7+**). Cluaupp orchestrates Rojo, the API registry, and CluauppLibs. Full course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+CL++ is the language (`clpp` **0.8+**). Cluaupp orchestrates Rojo, the API registry, and CluauppLibs. Full course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
-## Supported (CL++ 0.7+)
+## Supported (CL++ 0.8+)
 
 - `.clpp` / `.clp` / `.clh`, tags `.server` / `.client`, `#pragma strict`, `void init()`
 - `if` / `else` / `while` / C-style `for` / range-`for (T x in list)` / `switch` / `guard` / `match`
@@ -12,12 +13,24 @@ CL++ is the language (`clpp` **0.7+**). Cluaupp orchestrates Rojo, the API regis
 - Property `.`, instance method `.`, static `::`, Janitor Connect `~>`, concat `.:`
 - Lambdas `func (params) { }`
 - `post` / `warn` / `report`, `null`, `observable`, `signal`, `spawn` / `parallel`
-- Quoted includes; angled `#include <clpp/...>` is IntelliSense-only
+- **`import { Name } from "./path"`** (canonical modules; no `export` keyword)
+- **`Option` / `optional` / `Some` / `None`**, **`Result` / `Ok` / `Err`**, **`?` try**, exhaustive Option/Result `match`
+- Ternary `c ? t : e`, coalesce `??` (precedence below try/`:` — see [syntax](../syntax/))
+- Quoted `#include` (legado); angled `#include <clpp/...>` is IntelliSense / CluauppLibs only
 - Libraries via `#include <clpp/libs/sweep.clh>` → `require(ReplicatedStorage.CluauppLibs.Sweep)`
+- Opt pipeline on by default in `clpp` (`--no-opt` for fair baselines); Cluaupp consumes `nativeHints` / `layoutHints`
 
-## Not in CL++
+## Not in CL++ (or not yet)
 
-`->`, `continue`, ternary, `do/while`, `try/catch`, `goto`, `(void)x`, `func [](…)`, `[]() { }`, C++ captures `[&]`, `Player*`, ISO `std::`, JSX.
+| Item | Note |
+| --- | --- |
+| `->`, `Player*`, ISO `std::`, JSX, C++ captures `[&]` | Never |
+| `do/while`, `goto`, `(void)x`, `func [](…)` | Never |
+| `try/catch` as C++ exceptions | Use `pcall(…)` or **Result + `?`** |
+| `export` keyword | Top-level is implicitly exportable |
+| `import type` / `import * as` | Not yet |
+| Nested match / guards / rich ADTs | RFC later |
+| `requires` / `ensures` / `effect` / `newtype` / `move` | Reserved Intent — do not use as shipped API |
 
 If you need a custom type, it is usually a **ModuleScript in shared** (a `.clp`) or a Wally package.
 
@@ -32,6 +45,7 @@ If you need a custom type, it is usually a **ModuleScript in shared** (a `.clp`)
 | `players.PlayerAdded~>Connect(fn)` | `janitor:Add(..., "Disconnect")` | default listen |
 | `signal::Connect(fn)` | `signal:Connect(fn)` | you Disconnect |
 | `for (Player p in list)` | `for _, p in list do` | range-for |
+| `r?` | early-return unwrap | Result try |
 
 ## Init
 
@@ -59,16 +73,17 @@ void Grant(Player player, int amount) {
 ## Performance notes
 
 - Prefer `const` and locals over recomputing in `RenderStepped`.
-- `Net` already uses `buffer`. Batch when you can; do not fire per-heartbeat for every NPC.
+- `Net` / Flare already use `buffer`. Batch when you can; do not fire per-heartbeat for every NPC.
 - Janitor `Cleanup` is O(tracked objects). Link to the Instance that owns the scope.
+- CL++ may emit SoA / buffer **hints**; Cluaupp applies them selectively (`optimize --apply` / `--layout`) — never blanket `--!native`. See [Optimizer](../../architecture/optimizer/).
 
 ## Conduct that still applies
 
 1. **Initialize everything.** `int coins;` without a value is a bug; write `int coins = 0`.
 2. **Small functions.** One behavior, named after the behavior.
 3. **No magic numbers.** `const int MAX_INVENTORY = 20`.
-4. **Early return.** Flatten `if` pyramids.
+4. **Early return.** Flatten `if` pyramids; prefer `Result` + `?` for recoverable failure.
 5. **Headers declare, scripts define.** Prototypes in `.clh`, bodies in `.clp` / `.clpp`.
-6. **Do not share mutable statics across server and client** — use Net or DataService.
+6. **Do not share mutable statics across server and client** — use Flare/Net or Keep.
 
-See also: [syntax](../syntax/), [libraries](../../libraries/), [Why Cluaupp](../../why-cluaupp/). Language: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+See also: [syntax](../syntax/), [Option and Result](../option-result/), [modules](../modules/), [libraries](../../libraries/), [Why Cluaupp](../../why-cluaupp/).

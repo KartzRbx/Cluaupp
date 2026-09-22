@@ -23,4 +23,4 @@ src/ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
   → out/ReplicatedStorage/Shared/Constants/Datas/TemplateData.luau
 ```
 
-Language details: [CL++ docs](https://kartzrbx.github.io/CLPP/).
+Language details: [CL++ docs](https://kartzrbx.github.io/CLPP/) (**0.8+**). Modules: prefer `import { … } from` — see [Modules](../modules/).

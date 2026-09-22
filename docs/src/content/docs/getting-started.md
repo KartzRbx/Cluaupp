@@ -1,6 +1,6 @@
 ---
 title: Getting started
-description: Install clpp 0.7+, init a Cluaupp game, build, and serve with Rojo.
+description: Install clpp 0.8+, init a Cluaupp game, build, and serve with Rojo.
 sidebar:
   order: 1
 ---
@@ -9,13 +9,13 @@ sidebar:
 
 Cluaupp is the **Roblox project host**. [CL++](https://kartzrbx.github.io/CLPP/) is the **language**.
 
-Language syntax on this site tracks **CL++ 0.7+**. When KartzRbx/CLPP ships new syntax, Cluaupp docs / chat prompt are updated to match — prefer the [CL++ course](https://kartzrbx.github.io/CLPP/) as the live language law if anything here lags.
+Language syntax on this site tracks **CL++ 0.8+** (`import`, Option/Result/`?`, opt hints). Prefer the [CL++ course](https://kartzrbx.github.io/CLPP/) as the live language law if anything here lags.
 
 ## Requirements
 
 - [Node.js](https://nodejs.org/) 18 or newer
 - [Rojo](https://rojo.space/) **7.7.0** (`cluaupp init` writes `rokit.toml`)
-- **`clpp` 0.7.0+ on PATH** from [KartzRbx/CLPP releases](https://github.com/KartzRbx/CLPP/releases). Override with `CLPP` or `CLPP_PATH`.
+- **`clpp` 0.8.0+ on PATH** from [KartzRbx/CLPP releases](https://github.com/KartzRbx/CLPP/releases) (0.7.0 still accepted by the host binary until you upgrade — new syntax needs 0.8). Override with `CLPP` or `CLPP_PATH`.
 
 ```bash
 clpp setup             # VS Code / Cursor language pack
@@ -84,9 +84,12 @@ void init() {
 
 - [Why Cluaupp](../why-cluaupp/) — what competitors don’t have  
 - [Benchmarks](../benchmarks/) — registry + build timings (reproducible)  
+- [Option and Result](../language/option-result/) — `Ok`/`Err`/`?`  
+- [Modules](../language/modules/) — `import { … } from`  
+- [Cluaupp host](../architecture/cluaupp-host/) — `nativeHints` / `layoutHints`  
 - [Roadmap](../roadmap/) — shipped vs later  
 - [CLI](../cli/commands/) — `api`, `optimize`, `bridge`, `target doctor`  
 - [Studio tools](../architecture/studio-tools/) — CluauppNav + IDE bridge  
 - [Flare](../libraries/flare/) — remotes  
 - Language course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/)  
-- Migrating older C++-style trees: [migration](../migration/)
+- Migrating older trees: [migration](../migration/)

@@ -62,8 +62,9 @@ If a file needs `DataStoreService`, it is server. If it needs `UserInputService`
 
 ## Headers vs scripts
 
-- `.clh` in `src/` are inlined (`#include "TemplateData.clh"`) and hold structs / `const`.
-- `#include <clpp/...>` is IntelliSense — never inlined. `cluaupp build` copies those headers into the game `include/` folder.
+- Prefer **`import { Name } from "./TemplateData.clh"`** for language deps between CL++ files (CL++ 0.8+). There is no `export` keyword — top-level is importable.
+- Quoted `#include "….clh"` remains for header/impl splice (same stem) and legacy trees.
+- `#include <clpp/...>` is IntelliSense / CluauppLibs — never a language module. `cluaupp build` copies those headers into the game `include/` folder.
 
 Keep the save shape in `Shared/Constants/Datas/TemplateData.clh`. Paths exist only because that template has those fields.
 

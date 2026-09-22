@@ -11,10 +11,10 @@ import { Aside } from "@astrojs/starlight/components";
 cluaupp <command> [folder]
 ```
 
-Cluaupp orchestrates **CL++ 0.7.x → Luau** and owns the **Roblox Target** (API Registry). It does not parse the language. `clpp` compiles each `.clpp` / `.clp` / `.clh`; Cluaupp post-processes and writes `out/`.
+Cluaupp orchestrates **CL++ 0.8.x → Luau** and owns the **Roblox Target** (API Registry). It does not parse the language. `clpp` compiles each `.clpp` / `.clp` / `.clh`; Cluaupp post-processes and writes `out/`.
 
 <Aside type="caution">
-Need CL++ **0.7.0+**. A cargo `clpp 0.1.0` earlier on PATH cannot parse modern CL++. Run `cluaupp language`. Override with `CLPP` / `CLPP_PATH`.
+Need CL++ **0.8.0+** for Option/Result and canonical `import` (host floor still **0.7.0+**). A cargo `clpp 0.1.0` earlier on PATH cannot parse modern CL++. Run `cluaupp language`. Override with `CLPP` / `CLPP_PATH`.
 </Aside>
 
 ## `cluaupp init [folder]`
@@ -35,7 +35,7 @@ cluaupp build --input ./src/ServerScriptService/Boot/DataBoot.server.clpp --outp
 
 `--format` runs StyLua; `--analyze` runs `luau-analyze`. `--frozen` fails on API lock / Flare version / component contract drift. Incremental compile cache lives under `.cluaupp/compile-cache` (disable with `--no-incremental`). `-j/--jobs` sets parallel transpile workers on the async path (`CLUAUPP_JOBS` env also works).
 
-If `clpp` is missing: install [CL++ 0.7.0+](https://github.com/KartzRbx/CLPP/releases) or set `CLPP` / `CLPP_PATH`.
+If `clpp` is missing: install [CL++ 0.8.0+](https://github.com/KartzRbx/CLPP/releases) or set `CLPP` / `CLPP_PATH`.
 
 ## `cluaupp watch [folder]`
 
@@ -62,7 +62,7 @@ Emitted Luau gets `-- cluaupp-source: …`. With `#pragma native` in CL++, emit 
 
 ## `cluaupp language`
 
-Prints the selected `clpp` binary + version, skipped older installs, and `clpp api manifest`. Needs CL++ **0.7.0+**.
+Prints the selected `clpp` binary + version, skipped older installs, and `clpp api manifest`. Needs CL++ **0.7.0+** (prefer **0.8+**).
 
 ## `cluaupp intellisense` / `cluaupp lsp`
 

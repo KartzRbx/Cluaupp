@@ -1,6 +1,6 @@
 # Contributing
 
-Requires Node.js 18+ and **`clpp` on PATH** ([KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) **0.7.0+**).
+Requires Node.js 18+ and **`clpp` on PATH** ([KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) **0.8.0+** recommended; host floor **0.7.0+**).
 
 ```bash
 npm test
