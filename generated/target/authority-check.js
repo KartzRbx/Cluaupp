@@ -42,6 +42,7 @@ function defaultPolicy() {
     };
 }
 const INCLUDE_RE = /#include\s*[<"]([^>"]+)[>"]/g;
+const IMPORT_RE = /\bimport\s*\{[^}]*\}\s*from\s*"([^"]+)"/g;
 const REQUIRE_RE = /require\s*\(\s*([^)]+)\)/g;
 const GET_SERVICE = /GetService\s*(?:<\s*([A-Za-z_]\w*)\s*>|\(\s*"([A-Za-z_]\w*)"\s*\))/g;
 function checkAuthority(source, fileName, policy = defaultPolicy()) {
@@ -67,6 +68,12 @@ function checkAuthority(source, fileName, policy = defaultPolicy()) {
         while ((m = INCLUDE_RE.exec(clean))) {
             if (re.test(m[1])) {
                 checkToken(m[1], m.index, "CLUAU_AUTH001", `Architecture: ${ctx} must not import/include path involving ${banned}`);
+            }
+        }
+        IMPORT_RE.lastIndex = 0;
+        while ((m = IMPORT_RE.exec(clean))) {
+            if (re.test(m[1])) {
+                checkToken(m[1], m.index, "CLUAU_AUTH001", `Architecture: ${ctx} must not import path involving ${banned}`);
             }
         }
         REQUIRE_RE.lastIndex = 0;

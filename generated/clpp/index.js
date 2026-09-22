@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.rewriteClppEmit = exports.formatLuauRoblox = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClppAsync = exports.compileViaClpp = exports.MIN_CLPP_VERSION = exports.CLPP_INSTALL_HINT = void 0;
+exports.rewriteGameRootedRequires = exports.resolveModuleFile = exports.resolveLanguageDeps = exports.planLayoutFromHints = exports.fingerprintSourceWithDeps = exports.ensureGameServices = exports.collectModuleRefs = exports.collectLanguageModulePaths = exports.applyNativeHintsToLuau = exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.rewriteClppEmit = exports.formatLuauRoblox = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClppAsync = exports.compileViaClpp = exports.MIN_CLPP_VERSION = exports.CLPP_INSTALL_HINT = void 0;
 var contract_js_1 = require("./contract.js");
 Object.defineProperty(exports, "CLPP_INSTALL_HINT", { enumerable: true, get: function () { return contract_js_1.CLPP_INSTALL_HINT; } });
 Object.defineProperty(exports, "MIN_CLPP_VERSION", { enumerable: true, get: function () { return contract_js_1.MIN_CLPP_VERSION; } });
@@ -29,3 +29,13 @@ Object.defineProperty(exports, "isTaggedScript", { enumerable: true, get: functi
 Object.defineProperty(exports, "scriptKind", { enumerable: true, get: function () { return paths_js_1.scriptKind; } });
 Object.defineProperty(exports, "siblingHeader", { enumerable: true, get: function () { return paths_js_1.siblingHeader; } });
 Object.defineProperty(exports, "toLuauPath", { enumerable: true, get: function () { return paths_js_1.toLuauPath; } });
+var modules_js_1 = require("./modules.js");
+Object.defineProperty(exports, "applyNativeHintsToLuau", { enumerable: true, get: function () { return modules_js_1.applyNativeHintsToLuau; } });
+Object.defineProperty(exports, "collectLanguageModulePaths", { enumerable: true, get: function () { return modules_js_1.collectLanguageModulePaths; } });
+Object.defineProperty(exports, "collectModuleRefs", { enumerable: true, get: function () { return modules_js_1.collectModuleRefs; } });
+Object.defineProperty(exports, "ensureGameServices", { enumerable: true, get: function () { return modules_js_1.ensureGameServices; } });
+Object.defineProperty(exports, "fingerprintSourceWithDeps", { enumerable: true, get: function () { return modules_js_1.fingerprintSourceWithDeps; } });
+Object.defineProperty(exports, "planLayoutFromHints", { enumerable: true, get: function () { return modules_js_1.planLayoutFromHints; } });
+Object.defineProperty(exports, "resolveLanguageDeps", { enumerable: true, get: function () { return modules_js_1.resolveLanguageDeps; } });
+Object.defineProperty(exports, "resolveModuleFile", { enumerable: true, get: function () { return modules_js_1.resolveModuleFile; } });
+Object.defineProperty(exports, "rewriteGameRootedRequires", { enumerable: true, get: function () { return modules_js_1.rewriteGameRootedRequires; } });

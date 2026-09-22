@@ -21,11 +21,12 @@ import { loadPlatformPolicy } from "../target/authority-check.js";
 import { buildDatamodelProfile } from "../target/datamodel.js";
 import {
 	defaultJobCount,
-	fingerprintSource,
+	hashText,
 	mapPool,
 	readCachedJob,
 	writeCachedJob,
 } from "../target/build-cache.js";
+import { fingerprintSourceWithDeps } from "../clpp/modules.js";
 
 function readProjectConfig(file: string): Partial<ProjectConfig> {
 	const raw = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -406,7 +407,7 @@ function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper,
 	for (const file of files) {
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
-		const sourceHash = fingerprintSource(source, cfgKey);
+		const sourceHash = fingerprintSourceWithDeps(source, file, cfgKey, srcDir, hashText);
 		try {
 			if (incremental) {
 				const cached = readCachedJob(root, rel, sourceHash);
@@ -451,7 +452,7 @@ async function compileProjectAsync(root: string, config: ProjectConfig, mapper: 
 	const compiled = await mapPool(files, concurrency, async (file) => {
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
-		const sourceHash = fingerprintSource(source, cfgKey);
+		const sourceHash = fingerprintSourceWithDeps(source, file, cfgKey, srcDir, hashText);
 		try {
 			if (incremental) {
 				const cached = readCachedJob(root, rel, sourceHash);

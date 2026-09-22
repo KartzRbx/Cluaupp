@@ -86,7 +86,9 @@ export class RojoMapper {
 		if (!raw) {
 			return null;
 		}
-		const cleanPath = posix(raw).replace(/\.h(pp|h)?$/i, "");
+		const cleanPath = posix(raw)
+			.replace(/\.(clpp|clp|clh)$/i, "")
+			.replace(/\.h(pp|h)?$/i, "");
 		const baseName = path.posix.basename(cleanPath);
 		const key = baseName.toLowerCase();
 
@@ -102,7 +104,9 @@ export class RojoMapper {
 		const resolvedFile = this.resolveQuotedFile(raw, fromFile);
 		const lookupPath =
 			resolvedFile && this.srcDir
-				? posix(path.relative(this.srcDir, resolvedFile)).replace(/\.h(pp|h)?$/i, "")
+				? posix(path.relative(this.srcDir, resolvedFile))
+						.replace(/\.(clpp|clp|clh)$/i, "")
+						.replace(/\.h(pp|h)?$/i, "")
 				: cleanPath;
 
 		const fromTree = this.resolveFromRojoTree(lookupPath, baseName);
@@ -131,6 +135,11 @@ export class RojoMapper {
 			return { alias, path: `ServerStorage.${segments.slice(1).join(".")}` };
 		}
 		return { alias, path: `ReplicatedStorage.${segments.join(".")}` };
+	}
+
+	/** Alias for CL++ 0.8 named `import { } from` paths. */
+	public resolveImportToRequire(modulePath: string, fromFile?: string): RequireBinding | null {
+		return this.resolveIncludeToRequire(modulePath, fromFile);
 	}
 
 	private resolveLibrary(cleanPath: string, key: string): RequireBinding | null {
@@ -180,7 +189,7 @@ export class RojoMapper {
 
 	private guessOutRel(cleanPath: string): string | null {
 		const relative = posix(cleanPath).replace(/^src\//, "");
-		const outName = relative.replace(/\.(cpp|cc|cxx|c|h|hpp|hh)$/i, "");
+		const outName = relative.replace(/\.(cpp|cc|cxx|c|h|hpp|hh|clpp|clp|clh)$/i, "");
 		if (this.outDir) {
 			return posix(path.join(this.outDir, outName));
 		}

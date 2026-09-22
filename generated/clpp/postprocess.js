@@ -6,6 +6,7 @@ exports.shouldSkipInit = shouldSkipInit;
 exports.clppLuauToGame = clppLuauToGame;
 const libs_js_1 = require("../libs.js");
 const format_luau_js_1 = require("./format-luau.js");
+const modules_js_1 = require("./modules.js");
 const paths_js_1 = require("./paths.js");
 const rewrite_janitor_js_1 = require("./rewrite-janitor.js");
 var format_luau_js_2 = require("./format-luau.js");
@@ -58,10 +59,8 @@ function rewriteClppLibs(luau, relativeName) {
     return next;
 }
 function rewriteReplicatedStorageRequires(luau) {
-    let next = String(luau).replace(/script(?:\.Parent)+\.ReplicatedStorage\./g, "ReplicatedStorage.");
-    if (/require\(ReplicatedStorage\./.test(next) && !/GetService\(\s*"ReplicatedStorage"\s*\)/.test(next)) {
-        next = insertAfterHeader(next, 'const ReplicatedStorage = game:GetService("ReplicatedStorage")');
-    }
+    let next = (0, modules_js_1.rewriteGameRootedRequires)(luau);
+    next = (0, modules_js_1.ensureGameServices)(next);
     return next;
 }
 function rewriteRosterNew(luau) {
@@ -137,13 +136,7 @@ function rewriteClppEmit(luau) {
     return (0, format_luau_js_1.formatLuauRoblox)(next);
 }
 function ensureReplicatedStorage(luau) {
-    if (!luau.includes("CluauppLibs") && !/require\(ReplicatedStorage\./.test(luau)) {
-        return luau;
-    }
-    if (/GetService\(\s*"ReplicatedStorage"\s*\)/.test(luau)) {
-        return luau;
-    }
-    return insertAfterHeader(luau, 'const ReplicatedStorage = game:GetService("ReplicatedStorage")');
+    return (0, modules_js_1.ensureGameServices)(luau);
 }
 function stripInitCall(luau) {
     return String(luau).replace(/\ninit\(\)\s*\n?$/m, "\n");
@@ -209,6 +202,7 @@ function shouldSkipInit(fileName, hasSiblingHeader) {
 function clppLuauToGame(artifact, options) {
     let luau = rewriteClppLibs(artifact.luau || "", options.relativeName);
     luau = rewriteClppEmit(luau);
+    luau = (0, modules_js_1.applyNativeHintsToLuau)(luau, options.nativeHints || artifact.nativeHints);
     if (options.skipInit) {
         luau = stripInitCall(luau);
     }

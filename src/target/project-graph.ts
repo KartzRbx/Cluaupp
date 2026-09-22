@@ -1,6 +1,7 @@
-/** Project include/require graph + circular dependency detection. */
+/** Project include/import/require graph + circular dependency detection. */
 import fs from "node:fs";
 import path from "node:path";
+import { collectLanguageModulePaths, resolveModuleFile } from "../clpp/modules.js";
 import { collectSources } from "../clpp/paths.js";
 
 export interface GraphEdge {
@@ -12,16 +13,6 @@ export interface ProjectGraph {
 	nodes: string[];
 	edges: GraphEdge[];
 	cycles: string[][];
-}
-
-function includesOf(source: string): string[] {
-	const out: string[] = [];
-	const re = /#include\s*"([^"]+)"|import\s*\{[^}]+\}\s*from\s*"([^"]+)"/g;
-	let m: RegExpExecArray | null;
-	while ((m = re.exec(source))) {
-		out.push((m[1] || m[2]).replace(/\\/g, "/"));
-	}
-	return out;
 }
 
 function findCycles(nodes: string[], edges: GraphEdge[]): string[][] {
@@ -59,21 +50,21 @@ export function buildProjectGraph(projectRoot: string, rootDir = "src"): Project
 	const files = fs.existsSync(srcDir) ? collectSources(srcDir) : [];
 	const nodes: string[] = [];
 	const edges: GraphEdge[] = [];
-	const byBase = new Map<string, string>();
+	const byAbs = new Map<string, string>();
 
 	for (const file of files) {
 		const rel = path.relative(projectRoot, file).replace(/\\/g, "/");
 		nodes.push(rel);
-		byBase.set(path.basename(file).replace(/\\/g, "/"), rel);
-		byBase.set(path.basename(file, path.extname(file)), rel);
+		byAbs.set(path.resolve(file), rel);
 	}
 
 	for (const file of files) {
 		const rel = path.relative(projectRoot, file).replace(/\\/g, "/");
 		const source = fs.readFileSync(file, "utf8");
-		for (const inc of includesOf(source)) {
-			const base = path.posix.basename(inc);
-			const hit = byBase.get(base) || byBase.get(base.replace(/\.(clh|clpp|clp)$/, ""));
+		for (const mod of collectLanguageModulePaths(source)) {
+			const resolved = resolveModuleFile(mod, file, srcDir);
+			if (!resolved) continue;
+			const hit = byAbs.get(path.resolve(resolved));
 			if (hit && hit !== rel) {
 				edges.push({ from: rel, to: hit });
 			}

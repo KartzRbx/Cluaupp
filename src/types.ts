@@ -26,6 +26,8 @@ export interface RequireBinding {
 export interface CompileOptions {
 	strict?: boolean;
 	architecture?: boolean;
+	/** Pass through to clpp (default true). */
+	optimize?: boolean;
 	rootDir?: string;
 	outDir?: string;
 	filePath?: string;

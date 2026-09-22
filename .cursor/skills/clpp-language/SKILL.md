@@ -49,6 +49,8 @@ import { PlayerData as Data } from "./PlayerData.clh";
 
 No `export` keyword — top-level is importable. Angle `#include <clpp/…>` is host only. Cycles → CLPP1001.
 
+Cluaupp host: resolves imports for Rojo/`require`, AUTH001, project graph, and incremental cache deps (`src/clpp/modules.ts`). Prefer `import` for app modules; keep `#include <clpp/libs/…>` for CluauppLibs.
+
 ## Option / Result
 
 ```clpp

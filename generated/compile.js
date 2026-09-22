@@ -75,6 +75,7 @@ function compileArgs(source, fileName, options) {
             source,
             fileName: diskPath ? diskPath.replace(/\\/g, "/") : relative,
             strict: options.strict,
+            optimize: options.optimize !== false,
             cwd: diskPath ? node_path_1.default.dirname(diskPath) : options.srcDir,
             targetProfilePath: defaultTargetProfilePath(),
             targetCacheDir: node_path_1.default.join(package_info_js_1.projectRoot, "api", ".cache").replace(/\\/g, "/"),
@@ -113,6 +114,8 @@ function finishArtifact(artifact, relative, outName, options, skipInit, source) 
         strict: options.strict,
         skipInit,
         source,
+        nativeHints: artifact.nativeHints,
+        layoutHints: artifact.layoutHints,
     });
     return {
         kind: (0, paths_js_1.emitKind)(relative),

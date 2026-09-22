@@ -50,3 +50,37 @@ refuses(dataBoot, ["require(ClppLibs."], "boot ClppLibs");
 
 console.log("Cluaupp modules ok");
 console.log(outTree.join("\n"));
+
+// Named import — requires CL++ 0.8+. Skip gracefully on 0.7.
+const { clppVersion } = require("../generated/clpp/runner");
+const ver = String(clppVersion() || "");
+const m = ver.match(/(\d+)\.(\d+)/);
+const canImport = m && (Number(m[1]) > 0 || Number(m[2]) >= 8);
+if (canImport) {
+	const imported = makeGame({
+		"src/ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh": `#pragma once
+struct Wallet {
+	int Coins = 0;
+};
+struct PlayerData {
+	int Money = 0;
+};
+`,
+		"src/ServerScriptService/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
+import { Wallet, PlayerData as Data } from "../../ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh";
+
+void init() {
+	Wallet w;
+	Data d;
+	post(w.Coins);
+}
+`,
+	});
+	expect(buildGame(imported).failed === 0, "named import game build", listOut(imported).join("\n"));
+	const bootLuau = readOut(imported, "ServerScriptService/Boot/boot.server.luau");
+	refuses(bootLuau, ["script.Parent.Parent.Parent.ReplicatedStorage"], "import require game-rooted");
+	contains(bootLuau, ["require(ReplicatedStorage"], "import require ReplicatedStorage");
+	console.log("Cluaupp named import build ok");
+} else {
+	console.log(`Cluaupp named import build skipped (clpp ${ver || "missing"} < 0.8)`);
+}

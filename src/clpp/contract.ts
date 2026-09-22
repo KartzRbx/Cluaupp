@@ -1,10 +1,12 @@
-/** Stable CL++ ↔ Cluaupp contract (CL++ 0.7.x). Cluaupp invokes the `clpp` binary. */
+/** Stable CL++ ↔ Cluaupp contract (CL++ 0.8.x). Cluaupp invokes the `clpp` binary. */
 
 export interface CompileRequest {
 	source: string;
 	fileName: string;
 	strict?: boolean;
 	cwd?: string;
+	/** false = skip high-level opts (fair baseline). Default true when omitted. */
+	optimize?: boolean;
 	/** Path to RobloxTargetProfile JSON (Cluaupp target — not embedded in CLPP). */
 	targetProfilePath?: string;
 	/** Directory holding cached target artifacts. */
@@ -26,6 +28,14 @@ export interface CompileDiagnostic {
 	severity: string;
 }
 
+export interface ModuleRequireEntry {
+	name: string;
+	from_file?: string;
+	to_file?: string;
+	fromFile?: string;
+	toFile?: string;
+}
+
 export interface CompileArtifact {
 	ok: boolean;
 	luau: string;
@@ -38,6 +48,17 @@ export interface CompileArtifact {
 	libraries: string[];
 	error?: string;
 	diagnostics?: CompileDiagnostic[];
+	sourceMap?: Array<{ luauLine: number; clppLine: number; file: string }>;
+	/** Named `import` / quoted include requires from CL++ (RFC 0003). */
+	requires?: ModuleRequireEntry[];
+	/** Selective @native candidates (RFC 0011). Not auto-applied as blanket. */
+	nativeHints?: string[];
+	/** Monomorphized generic symbols (`name__Type`). */
+	specialized?: string[];
+	/** Dense / SoA / buffer layout candidates. */
+	layoutHints?: string[];
+	/** False when compiled with --no-opt / optimize:false. */
+	optimized?: boolean;
 }
 
 export interface LanguageManifest {
@@ -58,4 +79,4 @@ export interface LanguageManifest {
 export const MIN_CLPP_VERSION = "0.7.0";
 
 export const CLPP_INSTALL_HINT =
-	"Install CL++ 0.7.0 or newer (`clpp` from https://github.com/KartzRbx/CLPP/releases) and put it on PATH. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";
+	"Install CL++ 0.8.0 or newer when available (`clpp` from https://github.com/KartzRbx/CLPP/releases); host floor is 0.7.0. Put it on PATH. Prefer `import { Name } from \"./x.clh\"` for language modules. Override with CLPP or CLPP_PATH.";

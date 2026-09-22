@@ -1,6 +1,11 @@
 import { insertPreamble, libraryNamesFromIncludes, MODULES, requireCluauppLib } from "../libs.js";
 import type { CompileArtifact } from "./contract.js";
 import { formatLuauRoblox } from "./format-luau.js";
+import {
+	applyNativeHintsToLuau,
+	ensureGameServices,
+	rewriteGameRootedRequires,
+} from "./modules.js";
 import { isTaggedScript } from "./paths.js";
 import { rewriteSweepJanitor } from "./rewrite-janitor.js";
 
@@ -14,6 +19,8 @@ export type PostprocessOptions = {
 	strict?: boolean;
 	skipInit?: boolean;
 	source?: string;
+	nativeHints?: string[];
+	layoutHints?: string[];
 };
 
 function insertAfterHeader(luau: string, block: string): string {
@@ -67,10 +74,8 @@ function rewriteClppLibs(luau: string, relativeName?: string): string {
 }
 
 function rewriteReplicatedStorageRequires(luau: string): string {
-	let next = String(luau).replace(/script(?:\.Parent)+\.ReplicatedStorage\./g, "ReplicatedStorage.");
-	if (/require\(ReplicatedStorage\./.test(next) && !/GetService\(\s*"ReplicatedStorage"\s*\)/.test(next)) {
-		next = insertAfterHeader(next, 'const ReplicatedStorage = game:GetService("ReplicatedStorage")');
-	}
+	let next = rewriteGameRootedRequires(luau);
+	next = ensureGameServices(next);
 	return next;
 }
 
@@ -156,13 +161,7 @@ export function rewriteClppEmit(luau: string): string {
 }
 
 function ensureReplicatedStorage(luau: string): string {
-	if (!luau.includes("CluauppLibs") && !/require\(ReplicatedStorage\./.test(luau)) {
-		return luau;
-	}
-	if (/GetService\(\s*"ReplicatedStorage"\s*\)/.test(luau)) {
-		return luau;
-	}
-	return insertAfterHeader(luau, 'const ReplicatedStorage = game:GetService("ReplicatedStorage")');
+	return ensureGameServices(luau);
 }
 
 function stripInitCall(luau: string): string {
@@ -236,6 +235,7 @@ export function shouldSkipInit(fileName: string, hasSiblingHeader: boolean): boo
 export function clppLuauToGame(artifact: CompileArtifact, options: PostprocessOptions): string {
 	let luau = rewriteClppLibs(artifact.luau || "", options.relativeName);
 	luau = rewriteClppEmit(luau);
+	luau = applyNativeHintsToLuau(luau, options.nativeHints || artifact.nativeHints);
 	if (options.skipInit) {
 		luau = stripInitCall(luau);
 	}

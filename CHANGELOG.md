@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Named `import` host support** — Parse/resolve `import { } from` alongside `#include`; Rojo mapper strips `.clh`/`.clpp`; authority + project graph; game-rooted require rewrite for all services; incremental cache fingerprints imported deps; CompileArtifact `nativeHints`/`layoutHints`/`requires`/`optimize` wired through `clpp api compile`.
 - **CL++ 0.8 docs sync** — Language pages track `import { } from`, Option/Result/`?`, exhaustive match, precedence. New [Option and Result](docs/src/content/docs/language/option-result.md) and [Cluaupp host](docs/src/content/docs/architecture/cluaupp-host.md). Mermaid charts via `astro-mermaid`. Shop example `.hpp` → `.clh`. Chat prompt + `clpp-language` skill aligned. Host `MIN_CLPP_VERSION` remains **0.7.0**; docs recommend **0.8+**.
 - **Docs site sync** — Home / Why / Comparison / Benchmarks / Parallel / Typed DataModel / Product pillars / Getting started aligned to shipped platform. New [Studio tools](docs) page. Real measured benches via `scripts/bench-site.cjs` (registry ~700 ms cold; `examples/game` warm cache ~1.5 s vs cold ~3.7 s) with Mermaid charts. Docs chat prompt updated.
 - **SoA / buffer codegen (opt-in)** — `cluaupp optimize --apply --layout` writes `#pragma layout soa` and emits `.cluaupp/generated/soa/*Soa.luau` (`--buffer` packs f32/i32 columns). Build also regenerates SoA for existing pragmas.

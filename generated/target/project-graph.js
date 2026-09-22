@@ -4,19 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildProjectGraph = buildProjectGraph;
-/** Project include/require graph + circular dependency detection. */
+/** Project include/import/require graph + circular dependency detection. */
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+const modules_js_1 = require("../clpp/modules.js");
 const paths_js_1 = require("../clpp/paths.js");
-function includesOf(source) {
-    const out = [];
-    const re = /#include\s*"([^"]+)"|import\s*\{[^}]+\}\s*from\s*"([^"]+)"/g;
-    let m;
-    while ((m = re.exec(source))) {
-        out.push((m[1] || m[2]).replace(/\\/g, "/"));
-    }
-    return out;
-}
 function findCycles(nodes, edges) {
     const adj = new Map();
     for (const n of nodes)
@@ -56,19 +48,20 @@ function buildProjectGraph(projectRoot, rootDir = "src") {
     const files = node_fs_1.default.existsSync(srcDir) ? (0, paths_js_1.collectSources)(srcDir) : [];
     const nodes = [];
     const edges = [];
-    const byBase = new Map();
+    const byAbs = new Map();
     for (const file of files) {
         const rel = node_path_1.default.relative(projectRoot, file).replace(/\\/g, "/");
         nodes.push(rel);
-        byBase.set(node_path_1.default.basename(file).replace(/\\/g, "/"), rel);
-        byBase.set(node_path_1.default.basename(file, node_path_1.default.extname(file)), rel);
+        byAbs.set(node_path_1.default.resolve(file), rel);
     }
     for (const file of files) {
         const rel = node_path_1.default.relative(projectRoot, file).replace(/\\/g, "/");
         const source = node_fs_1.default.readFileSync(file, "utf8");
-        for (const inc of includesOf(source)) {
-            const base = node_path_1.default.posix.basename(inc);
-            const hit = byBase.get(base) || byBase.get(base.replace(/\.(clh|clpp|clp)$/, ""));
+        for (const mod of (0, modules_js_1.collectLanguageModulePaths)(source)) {
+            const resolved = (0, modules_js_1.resolveModuleFile)(mod, file, srcDir);
+            if (!resolved)
+                continue;
+            const hit = byAbs.get(node_path_1.default.resolve(resolved));
             if (hit && hit !== rel) {
                 edges.push({ from: rel, to: hit });
             }

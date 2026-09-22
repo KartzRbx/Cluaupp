@@ -31,6 +31,7 @@ const component_contracts_js_1 = require("../target/component-contracts.js");
 const authority_check_js_1 = require("../target/authority-check.js");
 const datamodel_js_1 = require("../target/datamodel.js");
 const build_cache_js_1 = require("../target/build-cache.js");
+const modules_js_1 = require("../clpp/modules.js");
 function readProjectConfig(file) {
     const raw = JSON.parse(node_fs_1.default.readFileSync(file, "utf8"));
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -393,7 +394,7 @@ function compileProject(root, config, mapper, options = {}) {
     for (const file of files) {
         const source = node_fs_1.default.readFileSync(file, "utf8");
         const rel = posixRel(srcDir, file);
-        const sourceHash = (0, build_cache_js_1.fingerprintSource)(source, cfgKey);
+        const sourceHash = (0, modules_js_1.fingerprintSourceWithDeps)(source, file, cfgKey, srcDir, build_cache_js_1.hashText);
         try {
             if (incremental) {
                 const cached = (0, build_cache_js_1.readCachedJob)(root, rel, sourceHash);
@@ -436,7 +437,7 @@ async function compileProjectAsync(root, config, mapper, options = {}) {
     const compiled = await (0, build_cache_js_1.mapPool)(files, concurrency, async (file) => {
         const source = node_fs_1.default.readFileSync(file, "utf8");
         const rel = posixRel(srcDir, file);
-        const sourceHash = (0, build_cache_js_1.fingerprintSource)(source, cfgKey);
+        const sourceHash = (0, modules_js_1.fingerprintSourceWithDeps)(source, file, cfgKey, srcDir, build_cache_js_1.hashText);
         try {
             if (incremental) {
                 const cached = (0, build_cache_js_1.readCachedJob)(root, rel, sourceHash);
