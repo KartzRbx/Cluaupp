@@ -1,7 +1,7 @@
 #pragma strict
 #include <clpp/roblox.clh>
 #include <clpp/libs/keep.clh>
-#include "../../ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh"
+import { PlayerTemplate } from "../../ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh";
 
 void init() {
 	PlayerTemplate playerData = PlayerTemplate();

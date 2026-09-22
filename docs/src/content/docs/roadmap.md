@@ -14,7 +14,7 @@ sidebar:
 | Piece | Current |
 | --- | --- |
 | Cluaupp npm | **1.5.x** |
-| Required `clpp` | **0.8.0+** (docs); host accepts **0.7.0+** until you upgrade |
+| Required `clpp` | **0.8.0+** (host refuses older) |
 | Target profile schema | **2** |
 
 ## Shipped in code (not docs-only)

@@ -9,6 +9,6 @@ npm run site        # writes ../site (set SITE_BASE=/Cluaupp for Pages)
 
 Key pages: home splash, [Why Cluaupp](src/content/docs/why-cluaupp.md), [Benchmarks](src/content/docs/benchmarks.md), [Comparison](src/content/docs/comparison.md), [Architecture](src/content/docs/architecture/).
 
-Fences use language id `clpp`. Prefer CL++ **0.7+** examples. Do not invent C++ (`Player*`, `->`, `fn`, `class`).
+Fences use language id `clpp`. Prefer CL++ **0.8+** examples (`import { } from`, Option/Result). Do not invent C++ (`Player*`, `->`, `fn`, `class`).
 
 After editing links, run `node scripts/fix-docs-links.cjs` only if you reintroduce root-absolute `](/…)` links — relative links are required under `base: /Cluaupp/`.

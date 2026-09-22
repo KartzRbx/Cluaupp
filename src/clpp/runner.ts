@@ -30,7 +30,7 @@ function cmpSemver(a: Semver, b: Semver): number {
 }
 
 function minClpp(): Semver {
-	return parseSemver(MIN_CLPP_VERSION) || { major: 0, minor: 7, patch: 0 };
+	return parseSemver(MIN_CLPP_VERSION) || { major: 0, minor: 8, patch: 0 };
 }
 
 function tooOldMessage(bin: string, version: string | null): string {

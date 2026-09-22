@@ -19,4 +19,4 @@ In a `.flare` file, start a line and accept `packet (from Client)`, `query`, or 
 
 `cluaupp lsp` is the same Flare engine over stdio (other editors). It does not compile CL++ on keystroke — that stays with `clpp setup`.
 
-Cluaupp needs **CL++ 0.7.0+** (prefer **0.8.0+** for Option/Result and canonical `import`). Run `cluaupp language` to see which binary is selected.
+Cluaupp needs **CL++ 0.8.0+**. Run `cluaupp language` to see which binary is selected.

@@ -14,6 +14,7 @@ import { assertDatamodelSafe } from "./target/datamodel-check.js";
 import { writeDatamodelArtifacts } from "./target/datamodel-generate.js";
 import { assertParallelSafe } from "./target/parallel-check.js";
 import { assertAuthoritySafe, loadPlatformPolicy } from "./target/authority-check.js";
+import { assertGetServiceSafe } from "./target/get-service.js";
 
 function defaultTargetProfilePath(): string | undefined {
 	const cached = path.join(projectRoot, "api", "normalized", "roblox-target.profile.json");
@@ -104,6 +105,7 @@ function enforcePlatform(source: string, relative: string, args: ReturnType<type
 	}
 	assertParallelSafe(source, relative);
 	assertAuthoritySafe(source, relative, args.policy);
+	assertGetServiceSafe(source, relative);
 }
 
 function finishArtifact(

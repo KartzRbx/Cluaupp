@@ -6,6 +6,7 @@ import {
 	ensureGameServices,
 	rewriteGameRootedRequires,
 } from "./modules.js";
+import { rewriteGetServiceLuau } from "../target/get-service.js";
 import { isTaggedScript } from "./paths.js";
 import { rewriteSweepJanitor } from "./rewrite-janitor.js";
 
@@ -151,6 +152,7 @@ export function rewriteClppEmit(luau: string): string {
 	next = rewriteCamelColon(next);
 	next = rewritePlayerTemplateCtor(next);
 	next = rewriteSweepJanitor(next);
+	next = rewriteGetServiceLuau(next);
 	next = rewriteReplicatedStorageRequires(next);
 	next = ensureReplicatedStorage(next);
 	const stamp = "-- cluaupp: Roster.new / GetService ReplicatedStorage / self.janitor";

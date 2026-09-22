@@ -29,7 +29,7 @@ function cmpSemver(a, b) {
     return a.major - b.major || a.minor - b.minor || a.patch - b.patch;
 }
 function minClpp() {
-    return parseSemver(contract_js_1.MIN_CLPP_VERSION) || { major: 0, minor: 7, patch: 0 };
+    return parseSemver(contract_js_1.MIN_CLPP_VERSION) || { major: 0, minor: 8, patch: 0 };
 }
 function tooOldMessage(bin, version) {
     return `cluaupp: clpp ${version || "unknown"} is too old (${bin}). Need CL++ ${contract_js_1.MIN_CLPP_VERSION}+. Install https://github.com/KartzRbx/CLPP/releases or set CLPP / CLPP_PATH.`;

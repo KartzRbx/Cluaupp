@@ -22,6 +22,7 @@ import { checkLifetime } from "./lifetime-check.js";
 import { adviseOptimizer, adviceAsDiagnostics } from "./optimizer-advise.js";
 import { buildProjectGraph } from "./project-graph.js";
 import { checkFlareVersions } from "./flare-version.js";
+import { checkGetService } from "./get-service.js";
 import type { PlatformDiagnostic } from "./diagnostics.js";
 
 export interface DoctorReport {
@@ -95,6 +96,16 @@ export function runDoctor(gameRoot: string, rootDir = "src"): DoctorReport {
 		);
 		allDiags.push(...checkParallelSafety(source, rel));
 		allDiags.push(...checkAuthority(source, rel, policy));
+		allDiags.push(
+			...checkGetService(source, rel).map((d) => ({
+				code: "CLUAU_SVC001",
+				message: d.message,
+				line: d.line,
+				column: d.column,
+				severity: d.severity as PlatformDiagnostic["severity"],
+				file: rel,
+			})),
+		);
 		allDiags.push(...checkSecurity(source, rel));
 		allDiags.push(...checkLifetime(source, rel));
 		allDiags.push(...adviceAsDiagnostics(adviseOptimizer(source, rel), rel));

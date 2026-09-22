@@ -45,7 +45,7 @@ void init() {
 
 1. [Node.js](https://nodejs.org/) 18+
 2. [Rojo](https://rojo.space/) **7.7.0**
-3. **`clpp` 0.8.0+** on PATH from [CL++](https://github.com/KartzRbx/CLPP/releases) (`clpp-setup.exe` or `clpp setup`; host floor 0.7.0+). Do not leave a cargo `clpp 0.1.0` first on PATH.
+3. **`clpp` 0.8.0+** on PATH from [CL++](https://github.com/KartzRbx/CLPP/releases) (`clpp-setup.exe` or `clpp setup`; host **refuses** older compilers). Do not leave a cargo `clpp 0.1.0` first on PATH.
 
 ```bash
 npm install -g cluaupp@latest

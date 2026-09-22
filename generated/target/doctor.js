@@ -27,6 +27,7 @@ const lifetime_check_js_1 = require("./lifetime-check.js");
 const optimizer_advise_js_1 = require("./optimizer-advise.js");
 const project_graph_js_1 = require("./project-graph.js");
 const flare_version_js_1 = require("./flare-version.js");
+const get_service_js_1 = require("./get-service.js");
 function verifyLockLocal() {
     const lockPath = node_path_1.default.join(package_info_js_1.projectRoot, "api", "roblox-api.lock.json");
     if (!node_fs_1.default.existsSync(lockPath)) {
@@ -85,6 +86,14 @@ function runDoctor(gameRoot, rootDir = "src") {
         })));
         allDiags.push(...(0, parallel_check_js_1.checkParallelSafety)(source, rel));
         allDiags.push(...(0, authority_check_js_1.checkAuthority)(source, rel, policy));
+        allDiags.push(...(0, get_service_js_1.checkGetService)(source, rel).map((d) => ({
+            code: "CLUAU_SVC001",
+            message: d.message,
+            line: d.line,
+            column: d.column,
+            severity: d.severity,
+            file: rel,
+        })));
         allDiags.push(...(0, security_check_js_1.checkSecurity)(source, rel));
         allDiags.push(...(0, lifetime_check_js_1.checkLifetime)(source, rel));
         allDiags.push(...(0, optimizer_advise_js_1.adviceAsDiagnostics)((0, optimizer_advise_js_1.adviseOptimizer)(source, rel), rel));

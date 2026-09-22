@@ -20,6 +20,7 @@ const datamodel_check_js_1 = require("./target/datamodel-check.js");
 const datamodel_generate_js_1 = require("./target/datamodel-generate.js");
 const parallel_check_js_1 = require("./target/parallel-check.js");
 const authority_check_js_1 = require("./target/authority-check.js");
+const get_service_js_1 = require("./target/get-service.js");
 function defaultTargetProfilePath() {
     const cached = node_path_1.default.join(package_info_js_1.projectRoot, "api", "normalized", "roblox-target.profile.json");
     if (node_fs_1.default.existsSync(cached)) {
@@ -104,6 +105,7 @@ function enforcePlatform(source, relative, args) {
     }
     (0, parallel_check_js_1.assertParallelSafe)(source, relative);
     (0, authority_check_js_1.assertAuthoritySafe)(source, relative, args.policy);
+    (0, get_service_js_1.assertGetServiceSafe)(source, relative);
 }
 function finishArtifact(artifact, relative, outName, options, skipInit, source) {
     const luau = (0, postprocess_js_1.clppLuauToGame)(artifact, {

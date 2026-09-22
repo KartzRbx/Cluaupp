@@ -49,7 +49,8 @@ export {
 export { runStudioSmoke, RUNTIME_SUITE } from "./studio-smoke.js";
 export { matchIntents, understandSymbol, INTENT_RULES } from "./understander.js";
 export { computeCacheKey, cacheKeyHash, readCache, writeCache } from "./cache.js";
-export { resolveGetServiceType, runContextFromFileName, defaultRobloxProject } from "../target/roblox.js";
+export { resolveGetServiceType, runContextFromFileName, defaultRobloxProject, isRegisteredService } from "../target/roblox.js";
+export { checkGetService, assertGetServiceSafe, collectGetServiceUses, rewriteGetServiceLuau } from "../target/get-service.js";
 export { builtinCapabilityProfile, capabilitiesForContext, CAPABILITY_PROFILE_SCHEMA_VERSION } from "../target/capabilities.js";
 export { checkContextSafety, assertContextSafe, stripNoise } from "../target/context-check.js";
 export { writeCapabilityProfile, loadCapabilityProfile, capabilityProfilePath } from "../target/capability-profile.js";

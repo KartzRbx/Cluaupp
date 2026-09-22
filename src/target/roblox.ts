@@ -42,8 +42,9 @@ export function defaultRobloxProject(): RobloxProjectModel {
 }
 
 /**
- * Target-side GetService\<T\> — feature of Cluaupp, not a fixed CLPP language rule.
- * CLPP may emit a generic call; Cluaupp maps T to a service class from the registry.
+ * Target-side GetService\<T\> — **Cluaupp Roblox Target feature**, not a CL++ language rule.
+ * CL++ only provides generic-call syntax (`GetService<Players>()`); Cluaupp maps T via the
+ * Canonical Registry, Context Safety, and headers under `#include <clpp/roblox.clh>`.
  */
 export function resolveGetServiceType(typeName: string, profile?: RobloxTargetProfile): string | null {
 	const p = profile || buildRobloxTargetProfile({ skipValidate: true });
@@ -54,6 +55,11 @@ export function resolveGetServiceType(typeName: string, profile?: RobloxTargetPr
 		return typeName;
 	}
 	return null;
+}
+
+/** True when `name` is a registered Roblox service class. */
+export function isRegisteredService(name: string, profile?: RobloxTargetProfile): boolean {
+	return resolveGetServiceType(name, profile) != null;
 }
 
 export function targetProfileSummary(): {

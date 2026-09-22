@@ -43,7 +43,7 @@
 		"dev:cli": "tsx src/cli.ts",
 		"prepare": "tsc",
 		"postinstall": "node scripts/postinstall-editor.js",
-		"test": "node test/security.test.js && node test/understander.test.js && node test/out.test.js && node test/types.test.js && node test/modules.test.js && node test/modules-import.test.js && node test/clpp.test.js && node test/flare.test.js && node test/native.test.js && node test/postprocess.test.js && node test/api.test.js && node test/api-reuse.test.js && node test/context-safety.test.js && node test/datamodel.test.js && node test/platform-analyzers.test.js && node test/platform-extras.test.js && node test/generator.test.js && node test/studio/smoke.test.js",
+		"test": "node test/security.test.js && node test/understander.test.js && node test/out.test.js && node test/types.test.js && node test/modules.test.js && node test/modules-import.test.js && node test/get-service.test.js && node test/clpp.test.js && node test/flare.test.js && node test/native.test.js && node test/postprocess.test.js && node test/api.test.js && node test/api-reuse.test.js && node test/context-safety.test.js && node test/datamodel.test.js && node test/platform-analyzers.test.js && node test/platform-extras.test.js && node test/generator.test.js && node test/studio/smoke.test.js",
 		"test:clpp-contract": "node test/clpp.test.js",
 		"generate-api": "node scripts/generate-api.js",
 		"vendor-libs": "node scripts/vendor-libs.js",

@@ -7,7 +7,7 @@ sidebar:
 
 # Migration
 
-Cluaupp targets **CL++ 0.8+** language docs (Option/Result, canonical `import`). Host still accepts **0.7.0+** binaries until you upgrade. Language course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+Cluaupp targets **CL++ 0.8+** (`import { } from`, Option/Result). Host requires `clpp` **0.8.0+**. Language course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
 ## Files
 

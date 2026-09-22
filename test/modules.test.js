@@ -29,7 +29,7 @@ struct PlayerData {
 `,
 	"src/ServerScriptService/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
 #include <clpp/libs/keep.clh>
-#include "../../ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh"
+import { PlayerData } from "../../ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh";
 
 void init() {
 	PlayerData playerData;

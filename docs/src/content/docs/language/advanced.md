@@ -9,7 +9,8 @@ CL++ is the language (`clpp` **0.8+**). Cluaupp orchestrates Rojo, the API regis
 
 - `.clpp` / `.clp` / `.clh`, tags `.server` / `.client`, `#pragma strict`, `void init()`
 - `if` / `else` / `while` / C-style `for` / range-`for (T x in list)` / `switch` / `guard` / `match`
-- `struct` + `Class::Method`, `new Class(parent)`, `GetService<T>()`, `static_cast<T>(x)`
+- `struct` + `Class::Method`, `new Class(parent)`, `static_cast<T>(x)`
+- **`GetService<T>()`** — Cluaupp Roblox Target (registry + Context Safety), not core CL++
 - Property `.`, instance method `.`, static `::`, Janitor Connect `~>`, concat `.:`
 - Lambdas `func (params) { }`
 - `post` / `warn` / `report`, `null`, `observable`, `signal`, `spawn` / `parallel`

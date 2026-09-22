@@ -15,7 +15,7 @@ Language syntax on this site tracks **CL++ 0.8+** (`import`, Option/Result/`?`, 
 
 - [Node.js](https://nodejs.org/) 18 or newer
 - [Rojo](https://rojo.space/) **7.7.0** (`cluaupp init` writes `rokit.toml`)
-- **`clpp` 0.8.0+ on PATH** from [KartzRbx/CLPP releases](https://github.com/KartzRbx/CLPP/releases) (0.7.0 still accepted by the host binary until you upgrade — new syntax needs 0.8). Override with `CLPP` or `CLPP_PATH`.
+- **`clpp` 0.8.0+ on PATH** from [KartzRbx/CLPP releases](https://github.com/KartzRbx/CLPP/releases) (host refuses older). Override with `CLPP` or `CLPP_PATH`.
 
 ```bash
 clpp setup             # VS Code / Cursor language pack

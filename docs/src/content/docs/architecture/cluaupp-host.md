@@ -28,6 +28,12 @@ import { PlayerData as Data } from "./PlayerData.clh";
 
 See [Modules](../../language/modules/).
 
+## GetService (Cluaupp-owned)
+
+`GetService<T>()` is **not** a CL++ keyword. Cluaupp owns service identity (Canonical Registry), IntelliSense headers, Context Safety, build check **`CLUAU_SVC001`**, and postprocess normalization to `game:GetService("T")`. CL++ only forwards a generic call.
+
+See [Services](../../language/services/).
+
 ## Artifact fields (0.8+)
 
 | Field | Host action |

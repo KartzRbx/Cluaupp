@@ -7,6 +7,7 @@ exports.clppLuauToGame = clppLuauToGame;
 const libs_js_1 = require("../libs.js");
 const format_luau_js_1 = require("./format-luau.js");
 const modules_js_1 = require("./modules.js");
+const get_service_js_1 = require("../target/get-service.js");
 const paths_js_1 = require("./paths.js");
 const rewrite_janitor_js_1 = require("./rewrite-janitor.js");
 var format_luau_js_2 = require("./format-luau.js");
@@ -127,6 +128,7 @@ function rewriteClppEmit(luau) {
     next = rewriteCamelColon(next);
     next = rewritePlayerTemplateCtor(next);
     next = (0, rewrite_janitor_js_1.rewriteSweepJanitor)(next);
+    next = (0, get_service_js_1.rewriteGetServiceLuau)(next);
     next = rewriteReplicatedStorageRequires(next);
     next = ensureReplicatedStorage(next);
     const stamp = "-- cluaupp: Roster.new / GetService ReplicatedStorage / self.janitor";

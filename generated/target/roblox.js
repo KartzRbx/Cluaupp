@@ -4,6 +4,7 @@ exports.FILE_TAG_TO_CONTEXT = void 0;
 exports.runContextFromFileName = runContextFromFileName;
 exports.defaultRobloxProject = defaultRobloxProject;
 exports.resolveGetServiceType = resolveGetServiceType;
+exports.isRegisteredService = isRegisteredService;
 exports.targetProfileSummary = targetProfileSummary;
 const model_js_1 = require("../api/model.js");
 const build_profile_js_1 = require("../api/build-profile.js");
@@ -33,8 +34,9 @@ function defaultRobloxProject() {
     };
 }
 /**
- * Target-side GetService\<T\> — feature of Cluaupp, not a fixed CLPP language rule.
- * CLPP may emit a generic call; Cluaupp maps T to a service class from the registry.
+ * Target-side GetService\<T\> — **Cluaupp Roblox Target feature**, not a CL++ language rule.
+ * CL++ only provides generic-call syntax (`GetService<Players>()`); Cluaupp maps T via the
+ * Canonical Registry, Context Safety, and headers under `#include <clpp/roblox.clh>`.
  */
 function resolveGetServiceType(typeName, profile) {
     const p = profile || (0, build_profile_js_1.buildRobloxTargetProfile)({ skipValidate: true });
@@ -45,6 +47,10 @@ function resolveGetServiceType(typeName, profile) {
         return typeName;
     }
     return null;
+}
+/** True when `name` is a registered Roblox service class. */
+function isRegisteredService(name, profile) {
+    return resolveGetServiceType(name, profile) != null;
 }
 function targetProfileSummary() {
     const profile = (0, build_profile_js_1.buildRobloxTargetProfile)({ skipValidate: true });

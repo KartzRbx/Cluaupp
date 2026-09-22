@@ -88,6 +88,8 @@ Color3 color = Color3(1, 0.25, 0.2);
 Players players = GetService<Players>();
 ```
 
+`GetService<T>()` is **Cluaupp Roblox Target** (registry, Context Safety, `CLUAU_SVC001`, postprocess) — not a CL++ keyword. Include `<clpp/roblox.clh>`.
+
 ## Constructs that do not exist
 
 `namespace` (use `struct`), `->`, `do/while`, C++ `try/catch` (use Result/`?` or `pcall`), `goto`, `Player*`, ISO `std::`, C++ captures `[&]`, invented `export` keyword.
