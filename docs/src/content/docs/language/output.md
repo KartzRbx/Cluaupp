@@ -2,7 +2,7 @@
 title: Output
 ---
 
-CL++ 0.3.2 I/O is `post` / `warn` / `report`. Those emit Roblox `print` / `warn` / `error`. Do not write `print`, `error`, or `cout` in CL++ source.
+CL++ I/O is `post` / `warn` / `report`. Those emit Roblox `print` / `warn` / `error`. Do not write `print`, `error`, or `cout` in CL++ source.
 
 ```clpp
 post("ok");

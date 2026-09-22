@@ -45,7 +45,7 @@ player.Name = "Kartz"
 player:FindFirstChild("leaderstats")
 ```
 
-Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Sweep](/libraries/sweep/) cleans them.
+Lifetime is Roblox’s: parented Instances live until `Destroy` or until a [Sweep](../../libraries/sweep/) cleans them.
 
 ## `null`
 
@@ -62,4 +62,4 @@ if (stats == null) {
 
 Typos, wrong arguments, and `nil` indexing are the majority of live-game bugs. `--!strict` plus CL++ types catch them in the editor. If a function takes `Player`, do not pass a `string`. If a value is `const int`, do not assign to it later.
 
-Next: [const and immutability](/language/const/).
+Next: [const and immutability](../const/).

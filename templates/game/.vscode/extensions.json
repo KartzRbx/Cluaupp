@@ -2,5 +2,7 @@
 	"unwantedRecommendations": [
 		"ms-vscode.cpptools"
 	],
-	"recommendations": []
+	"recommendations": [
+		"kartzdev.cluaupp-flare"
+	]
 }

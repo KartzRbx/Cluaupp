@@ -3,7 +3,7 @@
 #include <clpp/libs/keep.clh>
 
 void BindLeaderstats(Player player) {
-	Data data = Keep.Server.WaitFor(player);
+	auto data = Keep.Server.WaitFor(player);
 	if (player.FindFirstChild("leaderstats") != null) {
 		return;
 	}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClppAsync = exports.compileViaClpp = exports.MIN_CLPP_VERSION = exports.CLPP_INSTALL_HINT = void 0;
+exports.toLuauPath = exports.siblingHeader = exports.scriptKind = exports.isTaggedScript = exports.isSourceFile = exports.isImplFile = exports.isHeaderFile = exports.isEngineStub = exports.fileStem = exports.emitKind = exports.collectSources = exports.SOURCE_EXTS = exports.shouldSkipInit = exports.rewriteClppEmit = exports.formatLuauRoblox = exports.clppLuauToGame = exports.resolveClppBinary = exports.hasClpp = exports.clppVersion = exports.clppManifest = exports.compileViaClppAsync = exports.compileViaClpp = exports.MIN_CLPP_VERSION = exports.CLPP_INSTALL_HINT = void 0;
 var contract_js_1 = require("./contract.js");
 Object.defineProperty(exports, "CLPP_INSTALL_HINT", { enumerable: true, get: function () { return contract_js_1.CLPP_INSTALL_HINT; } });
 Object.defineProperty(exports, "MIN_CLPP_VERSION", { enumerable: true, get: function () { return contract_js_1.MIN_CLPP_VERSION; } });
@@ -13,6 +13,8 @@ Object.defineProperty(exports, "hasClpp", { enumerable: true, get: function () {
 Object.defineProperty(exports, "resolveClppBinary", { enumerable: true, get: function () { return runner_js_1.resolveClppBinary; } });
 var postprocess_js_1 = require("./postprocess.js");
 Object.defineProperty(exports, "clppLuauToGame", { enumerable: true, get: function () { return postprocess_js_1.clppLuauToGame; } });
+Object.defineProperty(exports, "formatLuauRoblox", { enumerable: true, get: function () { return postprocess_js_1.formatLuauRoblox; } });
+Object.defineProperty(exports, "rewriteClppEmit", { enumerable: true, get: function () { return postprocess_js_1.rewriteClppEmit; } });
 Object.defineProperty(exports, "shouldSkipInit", { enumerable: true, get: function () { return postprocess_js_1.shouldSkipInit; } });
 var paths_js_1 = require("./paths.js");
 Object.defineProperty(exports, "SOURCE_EXTS", { enumerable: true, get: function () { return paths_js_1.SOURCE_EXTS; } });

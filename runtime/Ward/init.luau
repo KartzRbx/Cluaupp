@@ -3,6 +3,7 @@
 --!strict
 -- Ward — server anti-cheat primitives. Rate-limit remotes, cap packet size,
 -- strike on speed/teleport. Does not write Keep; Keep stays server-only.
+-- cluaupp: spawn grace / ignore falls / no Studio kick unless KickInStudio
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -15,10 +16,15 @@ local DEFAULT_BURST = 80
 local MAX_PACKET = 24 * 1024
 local MAX_SPEED = 220
 local MAX_TELEPORT = 80
+local SPAWN_GRACE = 3
+local MIN_DT = 1 / 30
+local FLOOD_AT = 80
 
 local Ward = {}
 Ward.OnStrike = Spark.new()
 Ward.KickAt = DEFAULT_KICK
+Ward.KickInStudio = false
+Ward.FloodAt = FLOOD_AT
 Ward.MaxPacketBytes = MAX_PACKET
 Ward.MaxSpeed = MAX_SPEED
 Ward.MaxTeleport = MAX_TELEPORT
@@ -36,6 +42,7 @@ type Record = {
 	lastPos: Vector3?,
 	graceUntil: number,
 	reasons: { [string]: number },
+	denied: { [string]: number },
 }
 
 local records: { [Player]: Record } = {}
@@ -50,6 +57,7 @@ local function rec(player: Player): Record
 			lastPos = nil,
 			graceUntil = 0,
 			reasons = {},
+			denied = {},
 		}
 		records[player] = row
 	end
@@ -84,9 +92,15 @@ function Ward.Allow(player: Player, channel: string, maxPerSec: number?, burst: 
 	bucket.last = now
 	bucket.tokens = math.min(bucket.burst, bucket.tokens + elapsed * bucket.maxPerSec)
 	if bucket.tokens < 1 then
-		Ward.Strike(player, "rate:" .. channel)
+		local denied = (row.denied[channel] or 0) + 1
+		row.denied[channel] = denied
+		if denied >= Ward.FloodAt then
+			row.denied[channel] = 0
+			Ward.Strike(player, "rate:" .. channel)
+		end
 		return false
 	end
+	row.denied[channel] = 0
 	bucket.tokens -= 1
 	return true
 end
@@ -115,7 +129,8 @@ function Ward.Strike(player: Player, reason: string): number
 	local label = if typeof(reason) == "string" and reason ~= "" then reason else "unknown"
 	row.reasons[label] = (row.reasons[label] or 0) + 1
 	Ward.OnStrike:Fire(player, label, row.strikes)
-	if row.strikes >= Ward.KickAt then
+	local studio = RunService:IsStudio()
+	if row.strikes >= Ward.KickAt and (not studio or Ward.KickInStudio == true) then
 		player:Kick("Movement or traffic rejected")
 	end
 	return row.strikes
@@ -138,6 +153,15 @@ function Ward.Strikes(player: Player): number
 	return if row then row.strikes else 0
 end
 
+local function bindSpawnGrace(player: Player)
+	Ward.Grace(player, SPAWN_GRACE)
+	player.CharacterAdded:Connect(function()
+		local row = rec(player)
+		row.lastPos = nil
+		Ward.Grace(player, SPAWN_GRACE)
+	end)
+end
+
 function Ward.WatchMovement()
 	if watching or not RunService:IsServer() then
 		return
@@ -147,19 +171,24 @@ function Ward.WatchMovement()
 		if dt <= 0 then
 			return
 		end
+		local step = math.max(dt, MIN_DT)
 		local now = os.clock()
 		for _, player in Players:GetPlayers() do
 			local character = player.Character
 			local root = character and character:FindFirstChild("HumanoidRootPart")
 			if not (root and root:IsA("BasePart")) then
+				rec(player).lastPos = nil
 				continue
 			end
 			local row = rec(player)
 			local pos = root.Position
 			if row.lastPos and now >= row.graceUntil then
-				local dist = (pos - row.lastPos).Magnitude
-				local speed = dist / dt
-				if dist > Ward.MaxTeleport and speed > Ward.MaxSpeed then
+				local delta = pos - row.lastPos
+				local dist = delta.Magnitude
+				local horizontal = Vector3.new(delta.X, 0, delta.Z).Magnitude
+				local falling = delta.Y < 0 and horizontal < Ward.MaxTeleport
+				local speed = dist / step
+				if not falling and dist > Ward.MaxTeleport and speed > Ward.MaxSpeed then
 					Ward.Strike(player, "speed")
 					root.CFrame = CFrame.new(row.lastPos)
 					pos = row.lastPos
@@ -168,6 +197,10 @@ function Ward.WatchMovement()
 			row.lastPos = pos
 		end
 	end)
+	for _, player in Players:GetPlayers() do
+		bindSpawnGrace(player)
+	end
+	Players.PlayerAdded:Connect(bindSpawnGrace)
 	Players.PlayerRemoving:Connect(Ward.Clear)
 end
 

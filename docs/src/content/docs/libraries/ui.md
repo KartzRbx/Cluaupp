@@ -2,9 +2,9 @@
 title: Declarative UI
 ---
 
-**Declarative UI in Cluaupp** is split by job: reactive HUD ([Gleam](/libraries/gleam/)), formatted numbers ([Mint](/libraries/mint/)), motion presets ([Bloom](/libraries/bloom/)), Studio topbar icons ([Crest](/libraries/crest/)), world billboards ([Pin](/libraries/pin/)), and ViewportFrame previews ([Stage](/libraries/stage/)). There is no JSX — use `GleamProps { .Field = }`, `func` callbacks, and `Gleam.Source(auto)` for state.
+**Declarative UI in Cluaupp** is split by job: reactive HUD ([Gleam](../gleam/)), formatted numbers ([Mint](../mint/)), motion presets ([Bloom](../bloom/)), Studio topbar icons ([Crest](../crest/)), world billboards ([Pin](../pin/)), and ViewportFrame previews ([Stage](../stage/)). There is no JSX — use `GleamProps { .Field = }`, `func` callbacks, and `Gleam.Source(auto)` for state.
 
-Debug panels are [Lens](/libraries/lens/) (`Lens.Window(title, draw)` — no `End()`). Line-of-sight for pins is [Occlude](/libraries/occlude/). Springs inside Gleam use [Coil](/libraries/coil/).
+Debug panels are [Lens](../lens/) (`Lens.Window(title, draw)` — no `End()`). Line-of-sight for pins is [Occlude](../occlude/). Springs inside Gleam use [Coil](../coil/).
 
 ## Why
 
@@ -19,11 +19,11 @@ Debug panels are [Lens](/libraries/lens/) (`Lens.Window(title, draw)` — no `En
 
 - **Mint** strings as economy storage or DataStore payloads — display only; reverse parsing is **`Mint.From`** for UI text, not persistence.
 - **Bloom** / **Ember** for gameplay authority — cosmetic client effects only.
-- **Lens** as an admin panel — server permissions stay on [Helm](/libraries/helm/).
+- **Lens** as an admin panel — server permissions stay on [Helm](../helm/).
 
 ## Example CL++
 
-Pick one stack; full HUD copy: [HUD example](/examples/hud/).
+Pick one stack; full HUD copy: [HUD example](../../examples/hud/).
 
 ```clpp
 #include <clpp/libs/gleam.clh>
@@ -49,11 +49,11 @@ void init() {
 
 | Library | What it is for |
 | --- | --- |
-| [Gleam](/libraries/gleam/) | Reactive instances, `Effect`, list helpers, `Spring` via Coil |
-| [Mint](/libraries/mint/) | `12.5K`, `%`, scientific — label formatting only |
-| [Bloom](/libraries/bloom/) | Shine, hover, fade, one Heartbeat scheduler for presets |
-| [Crest](/libraries/crest/) | Topbar icon buttons, notify badge, select/deselect |
-| [Pin](/libraries/pin/) | `BillboardGui` on an adornee with distance fade/scale |
-| [Stage](/libraries/stage/) | Clone a model into a `ViewportFrame`, orbit with `Update` |
+| [Gleam](../gleam/) | Reactive instances, `Effect`, list helpers, `Spring` via Coil |
+| [Mint](../mint/) | `12.5K`, `%`, scientific — label formatting only |
+| [Bloom](../bloom/) | Shine, hover, fade, one Heartbeat scheduler for presets |
+| [Crest](../crest/) | Topbar icon buttons, notify badge, select/deselect |
+| [Pin](../pin/) | `BillboardGui` on an adornee with distance fade/scale |
+| [Stage](../stage/) | Clone a model into a `ViewportFrame`, orbit with `Update` |
 
 See each page for the full API from `#include <clpp/libs/*.clh>`.

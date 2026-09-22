@@ -1,7 +1,7 @@
 export type { CompileArtifact, CompileDiagnostic, CompileRequest, LanguageManifest } from "./contract.js";
 export { CLPP_INSTALL_HINT, MIN_CLPP_VERSION } from "./contract.js";
 export { compileViaClpp, compileViaClppAsync, clppManifest, clppVersion, hasClpp, resolveClppBinary } from "./runner.js";
-export { clppLuauToGame, shouldSkipInit } from "./postprocess.js";
+export { clppLuauToGame, formatLuauRoblox, rewriteClppEmit, shouldSkipInit } from "./postprocess.js";
 export {
 	SOURCE_EXTS,
 	collectSources,

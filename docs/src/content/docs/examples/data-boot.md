@@ -39,7 +39,7 @@ Bump `.StoreName` when you **intentionally** wipe saves. Changing a field defaul
 #include "../../ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh"
 
 void init() {
-	PlayerTemplate playerData;
+	PlayerTemplate playerData = PlayerTemplate();
 	Keep.Server.Init(DataServiceOptions {
 		.Template = playerData,
 		.StoreName = "PlayerData",
@@ -81,4 +81,4 @@ int coins = data.Get(Keep.Server.Paths.Currencies.Coins);
 - Trades: `Keep.Trade.Begin` / `Reserve` / `Commit` on server profiles only.
 - Never `Init` twice.
 
-See [Keep](/libraries/keep/) and [file tags](/language/files/).
+See [Keep](../../libraries/keep/) and [file tags](../../language/files/).

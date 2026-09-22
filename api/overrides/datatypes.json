@@ -1,0 +1,1579 @@
+{
+	"_meta": {
+		"reason": "Migrated from scripts/generate-api.js DATATYPE_SPEC — Mini dump has no datatype definitions",
+		"source": "scripts/generate-api.js#DATATYPE_SPEC",
+		"introducedAt": "2026-09-22",
+		"reviewAfter": "2027-03-22"
+	},
+	"datatypes": {
+		"Vector3": {
+			"summary": "3D point or direction. Luau: Vector3.new(x, y, z).",
+			"fields": [
+				"double X",
+				"double Y",
+				"double Z",
+				"double Magnitude"
+			],
+			"ctors": [
+				[],
+				[
+					"double x",
+					"double y",
+					"double z"
+				]
+			],
+			"statics": [
+				"zero",
+				"one",
+				"xAxis",
+				"yAxis",
+				"zAxis"
+			],
+			"staticMethods": [
+				[
+					"FromNormalId",
+					"Vector3",
+					[
+						"NormalId normal"
+					]
+				],
+				[
+					"FromAxis",
+					"Vector3",
+					[
+						"Axis axis"
+					]
+				]
+			],
+			"methods": [
+				[
+					"Unit",
+					"Vector3",
+					[]
+				],
+				[
+					"Abs",
+					"Vector3",
+					[]
+				],
+				[
+					"Ceil",
+					"Vector3",
+					[]
+				],
+				[
+					"Floor",
+					"Vector3",
+					[]
+				],
+				[
+					"Sign",
+					"Vector3",
+					[]
+				],
+				[
+					"Cross",
+					"Vector3",
+					[
+						"Vector3 other"
+					]
+				],
+				[
+					"Dot",
+					"double",
+					[
+						"Vector3 other"
+					]
+				],
+				[
+					"Lerp",
+					"Vector3",
+					[
+						"Vector3 goal",
+						"double alpha"
+					]
+				],
+				[
+					"Max",
+					"Vector3",
+					[
+						"Vector3 other"
+					]
+				],
+				[
+					"Min",
+					"Vector3",
+					[
+						"Vector3 other"
+					]
+				],
+				[
+					"FuzzyEq",
+					"bool",
+					[
+						"Vector3 other",
+						"double epsilon"
+					]
+				],
+				[
+					"Angle",
+					"double",
+					[
+						"Vector3 other"
+					]
+				]
+			]
+		},
+		"Vector2": {
+			"summary": "2D point or direction. Luau: Vector2.new(x, y).",
+			"fields": [
+				"double X",
+				"double Y",
+				"double Magnitude"
+			],
+			"ctors": [
+				[],
+				[
+					"double x",
+					"double y"
+				]
+			],
+			"statics": [
+				"zero",
+				"one",
+				"xAxis",
+				"yAxis"
+			],
+			"methods": [
+				[
+					"Unit",
+					"Vector2",
+					[]
+				],
+				[
+					"Abs",
+					"Vector2",
+					[]
+				],
+				[
+					"Ceil",
+					"Vector2",
+					[]
+				],
+				[
+					"Floor",
+					"Vector2",
+					[]
+				],
+				[
+					"Sign",
+					"Vector2",
+					[]
+				],
+				[
+					"Cross",
+					"double",
+					[
+						"Vector2 other"
+					]
+				],
+				[
+					"Dot",
+					"double",
+					[
+						"Vector2 other"
+					]
+				],
+				[
+					"Lerp",
+					"Vector2",
+					[
+						"Vector2 goal",
+						"double alpha"
+					]
+				],
+				[
+					"Max",
+					"Vector2",
+					[
+						"Vector2 other"
+					]
+				],
+				[
+					"Min",
+					"Vector2",
+					[
+						"Vector2 other"
+					]
+				],
+				[
+					"FuzzyEq",
+					"bool",
+					[
+						"Vector2 other",
+						"double epsilon"
+					]
+				],
+				[
+					"Angle",
+					"double",
+					[
+						"Vector2 other"
+					]
+				]
+			]
+		},
+		"Vector3int16": {
+			"summary": "Vector3 with 16-bit integers.",
+			"fields": [
+				"int X",
+				"int Y",
+				"int Z"
+			],
+			"ctors": [
+				[],
+				[
+					"int x",
+					"int y",
+					"int z"
+				]
+			]
+		},
+		"Vector2int16": {
+			"summary": "Vector2 with 16-bit integers.",
+			"fields": [
+				"int X",
+				"int Y"
+			],
+			"ctors": [
+				[],
+				[
+					"int x",
+					"int y"
+				]
+			]
+		},
+		"CFrame": {
+			"summary": "3D position + rotation. Luau: CFrame.new(...) / CFrame.lookAt(...).",
+			"fields": [
+				"Vector3 Position",
+				"Vector3 LookVector",
+				"Vector3 RightVector",
+				"Vector3 UpVector",
+				"Vector3 XVector",
+				"Vector3 YVector",
+				"Vector3 ZVector"
+			],
+			"ctors": [
+				[],
+				[
+					"double x",
+					"double y",
+					"double z"
+				],
+				[
+					"Vector3 pos"
+				],
+				[
+					"Vector3 pos",
+					"Vector3 lookAt"
+				],
+				[
+					"double x",
+					"double y",
+					"double z",
+					"double qX",
+					"double qY",
+					"double qZ",
+					"double qW"
+				]
+			],
+			"statics": [
+				"identity"
+			],
+			"staticMethods": [
+				[
+					"lookAt",
+					"CFrame",
+					[
+						"Vector3 from",
+						"Vector3 lookAt"
+					]
+				],
+				[
+					"lookAt",
+					"CFrame",
+					[
+						"Vector3 from",
+						"Vector3 lookAt",
+						"Vector3 up"
+					]
+				],
+				[
+					"lookAlong",
+					"CFrame",
+					[
+						"Vector3 from",
+						"Vector3 direction"
+					]
+				],
+				[
+					"lookAlong",
+					"CFrame",
+					[
+						"Vector3 from",
+						"Vector3 direction",
+						"Vector3 up"
+					]
+				],
+				[
+					"fromEulerAngles",
+					"CFrame",
+					[
+						"double rx",
+						"double ry",
+						"double rz"
+					]
+				],
+				[
+					"fromEulerAnglesXYZ",
+					"CFrame",
+					[
+						"double rx",
+						"double ry",
+						"double rz"
+					]
+				],
+				[
+					"fromEulerAnglesYXZ",
+					"CFrame",
+					[
+						"double rx",
+						"double ry",
+						"double rz"
+					]
+				],
+				[
+					"fromOrientation",
+					"CFrame",
+					[
+						"double rx",
+						"double ry",
+						"double rz"
+					]
+				],
+				[
+					"fromAxisAngle",
+					"CFrame",
+					[
+						"Vector3 axis",
+						"double angle"
+					]
+				],
+				[
+					"fromMatrix",
+					"CFrame",
+					[
+						"Vector3 pos",
+						"Vector3 vX",
+						"Vector3 vY",
+						"Vector3 vZ"
+					]
+				]
+			],
+			"methods": [
+				[
+					"Rotation",
+					"CFrame",
+					[]
+				],
+				[
+					"Inverse",
+					"CFrame",
+					[]
+				],
+				[
+					"Lerp",
+					"CFrame",
+					[
+						"CFrame goal",
+						"double alpha"
+					]
+				],
+				[
+					"Orthonormalize",
+					"CFrame",
+					[]
+				],
+				[
+					"ToWorldSpace",
+					"CFrame",
+					[
+						"CFrame cf"
+					]
+				],
+				[
+					"ToObjectSpace",
+					"CFrame",
+					[
+						"CFrame cf"
+					]
+				],
+				[
+					"PointToWorldSpace",
+					"Vector3",
+					[
+						"Vector3 v"
+					]
+				],
+				[
+					"PointToObjectSpace",
+					"Vector3",
+					[
+						"Vector3 v"
+					]
+				],
+				[
+					"VectorToWorldSpace",
+					"Vector3",
+					[
+						"Vector3 v"
+					]
+				],
+				[
+					"VectorToObjectSpace",
+					"Vector3",
+					[
+						"Vector3 v"
+					]
+				],
+				[
+					"GetComponents",
+					"void",
+					[]
+				],
+				[
+					"ToEulerAnglesXYZ",
+					"void",
+					[]
+				],
+				[
+					"ToEulerAnglesYXZ",
+					"void",
+					[]
+				],
+				[
+					"ToOrientation",
+					"void",
+					[]
+				],
+				[
+					"ToAxisAngle",
+					"void",
+					[]
+				],
+				[
+					"FuzzyEq",
+					"bool",
+					[
+						"CFrame other",
+						"double epsilon"
+					]
+				]
+			]
+		},
+		"UDim": {
+			"summary": "1D scale + offset (GUI). Luau: UDim.new(scale, offset).",
+			"fields": [
+				"double Scale",
+				"double Offset"
+			],
+			"ctors": [
+				[],
+				[
+					"double scale",
+					"double offset"
+				]
+			]
+		},
+		"UDim2": {
+			"summary": "2D scale + offset (GUI). Luau: UDim2.new / UDim2.fromScale / UDim2.fromOffset.",
+			"fields": [
+				"UDim X",
+				"UDim Y",
+				"UDim Width",
+				"UDim Height"
+			],
+			"ctors": [
+				[],
+				[
+					"double xScale",
+					"double xOffset",
+					"double yScale",
+					"double yOffset"
+				],
+				[
+					"UDim x",
+					"UDim y"
+				]
+			],
+			"staticMethods": [
+				[
+					"fromScale",
+					"UDim2",
+					[
+						"double x",
+						"double y"
+					]
+				],
+				[
+					"fromOffset",
+					"UDim2",
+					[
+						"double x",
+						"double y"
+					]
+				]
+			],
+			"methods": [
+				[
+					"Lerp",
+					"UDim2",
+					[
+						"UDim2 goal",
+						"double alpha"
+					]
+				]
+			]
+		},
+		"Color3": {
+			"summary": "RGB color 0–1. Luau: Color3.new / Color3.fromRGB / Color3.fromHSV / Color3.fromHex.",
+			"fields": [
+				"double R",
+				"double G",
+				"double B"
+			],
+			"ctors": [
+				[],
+				[
+					"double r",
+					"double g",
+					"double b"
+				]
+			],
+			"staticMethods": [
+				[
+					"fromRGB",
+					"Color3",
+					[
+						"double r",
+						"double g",
+						"double b"
+					]
+				],
+				[
+					"fromHSV",
+					"Color3",
+					[
+						"double h",
+						"double s",
+						"double v"
+					]
+				],
+				[
+					"fromHex",
+					"Color3",
+					[
+						"string hex"
+					]
+				]
+			],
+			"methods": [
+				[
+					"Lerp",
+					"Color3",
+					[
+						"Color3 goal",
+						"double alpha"
+					]
+				],
+				[
+					"ToHSV",
+					"void",
+					[]
+				],
+				[
+					"ToHex",
+					"string",
+					[]
+				]
+			]
+		},
+		"BrickColor": {
+			"summary": "Named Roblox color. BrickColor.new(name) or BrickColor.new(r,g,b).",
+			"fields": [
+				"int Number",
+				"string Name",
+				"Color3 Color",
+				"double r",
+				"double g",
+				"double b"
+			],
+			"ctors": [
+				[
+					"string name"
+				],
+				[
+					"int palette"
+				],
+				[
+					"double r",
+					"double g",
+					"double b"
+				],
+				[
+					"Color3 color"
+				]
+			],
+			"statics": [
+				"White",
+				"Gray",
+				"DarkGray",
+				"Black",
+				"Red",
+				"Yellow",
+				"Green",
+				"Blue"
+			],
+			"staticMethods": [
+				[
+					"palette",
+					"BrickColor",
+					[
+						"int index"
+					]
+				],
+				[
+					"random",
+					"BrickColor",
+					[]
+				]
+			]
+		},
+		"Rect": {
+			"summary": "2D rectangle. Rect.new(min, max) or Rect.new(x0,y0,x1,y1).",
+			"fields": [
+				"Vector2 Min",
+				"Vector2 Max",
+				"double Width",
+				"double Height"
+			],
+			"ctors": [
+				[
+					"Vector2 min",
+					"Vector2 max"
+				],
+				[
+					"double x0",
+					"double y0",
+					"double x1",
+					"double y1"
+				]
+			]
+		},
+		"Ray": {
+			"summary": "3D ray. Ray.new(origin, direction).",
+			"fields": [
+				"Vector3 Origin",
+				"Vector3 Direction"
+			],
+			"ctors": [
+				[
+					"Vector3 origin",
+					"Vector3 direction"
+				]
+			],
+			"methods": [
+				[
+					"Unit",
+					"Ray",
+					[]
+				],
+				[
+					"ClosestPoint",
+					"Vector3",
+					[
+						"Vector3 point"
+					]
+				],
+				[
+					"Distance",
+					"double",
+					[
+						"Vector3 point"
+					]
+				]
+			]
+		},
+		"RaycastParams": {
+			"summary": "Filters for WorldRoot:Raycast.",
+			"fields": [
+				"LuaArray<Instance> FilterDescendantsInstances",
+				"RaycastFilterType FilterType",
+				"bool IgnoreWater",
+				"string CollisionGroup",
+				"bool RespectCanCollide",
+				"bool BruteForceAllSlow"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"RaycastResult": {
+			"summary": "Result of a raycast.",
+			"fields": [
+				"Instance Instance",
+				"Vector3 Position",
+				"Vector3 Normal",
+				"double Distance",
+				"string Material"
+			]
+		},
+		"OverlapParams": {
+			"summary": "Filters for GetPartBoundsInBox / GetPartsInPart.",
+			"fields": [
+				"LuaArray<Instance> FilterDescendantsInstances",
+				"RaycastFilterType FilterType",
+				"int MaxParts",
+				"string CollisionGroup",
+				"bool RespectCanCollide",
+				"bool BruteForceAllSlow"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"NumberRange": {
+			"summary": "Numeric interval. NumberRange.new(min, max).",
+			"fields": [
+				"double Min",
+				"double Max"
+			],
+			"ctors": [
+				[
+					"double value"
+				],
+				[
+					"double min",
+					"double max"
+				]
+			]
+		},
+		"NumberSequenceKeypoint": {
+			"fields": [
+				"double Time",
+				"double Value",
+				"double Envelope"
+			],
+			"ctors": [
+				[
+					"double time",
+					"double value"
+				],
+				[
+					"double time",
+					"double value",
+					"double envelope"
+				]
+			]
+		},
+		"NumberSequence": {
+			"summary": "Number curve over time (0–1).",
+			"fields": [
+				"NumberSequenceKeypoint* Keypoints"
+			],
+			"ctors": [
+				[
+					"double value"
+				],
+				[
+					"double n0",
+					"double n1"
+				]
+			]
+		},
+		"ColorSequenceKeypoint": {
+			"fields": [
+				"double Time",
+				"Color3 Value",
+				"double Envelope"
+			],
+			"ctors": [
+				[
+					"double time",
+					"Color3 color"
+				]
+			]
+		},
+		"ColorSequence": {
+			"summary": "Color3 curve over time.",
+			"fields": [
+				"ColorSequenceKeypoint* Keypoints"
+			],
+			"ctors": [
+				[
+					"Color3 color"
+				],
+				[
+					"Color3 c0",
+					"Color3 c1"
+				]
+			]
+		},
+		"TweenInfo": {
+			"summary": "Parameters for TweenService:Create.",
+			"fields": [
+				"double Time",
+				"Enum::EasingStyle EasingStyle",
+				"Enum::EasingDirection EasingDirection",
+				"int RepeatCount",
+				"bool Reverses",
+				"double DelayTime"
+			],
+			"ctors": [
+				[],
+				[
+					"double time"
+				],
+				[
+					"double time",
+					"Enum::EasingStyle style"
+				],
+				[
+					"double time",
+					"Enum::EasingStyle style",
+					"Enum::EasingDirection direction"
+				],
+				[
+					"double time",
+					"Enum::EasingStyle style",
+					"Enum::EasingDirection direction",
+					"int repeatCount",
+					"bool reverses",
+					"double delayTime"
+				]
+			]
+		},
+		"Font": {
+			"summary": "UI font. Font.new(family, weight, style).",
+			"fields": [
+				"string Family",
+				"FontWeight Weight",
+				"FontStyle Style",
+				"bool Bold"
+			],
+			"ctors": [
+				[
+					"string family"
+				],
+				[
+					"string family",
+					"FontWeight weight",
+					"FontStyle style"
+				]
+			],
+			"staticMethods": [
+				[
+					"fromEnum",
+					"Font",
+					[
+						"Font enumFont"
+					]
+				],
+				[
+					"fromName",
+					"Font",
+					[
+						"string name"
+					]
+				],
+				[
+					"fromId",
+					"Font",
+					[
+						"long long id"
+					]
+				]
+			]
+		},
+		"PhysicalProperties": {
+			"summary": "Density, friction, and elasticity of a BasePart.",
+			"fields": [
+				"double Density",
+				"double Friction",
+				"double Elasticity",
+				"double FrictionWeight",
+				"double ElasticityWeight",
+				"double AcousticAbsorption"
+			],
+			"ctors": [
+				[
+					"Material material"
+				],
+				[
+					"double density",
+					"double friction",
+					"double elasticity"
+				],
+				[
+					"double density",
+					"double friction",
+					"double elasticity",
+					"double frictionWeight",
+					"double elasticityWeight"
+				]
+			]
+		},
+		"Region3": {
+			"summary": "Axis-aligned box. Region3.new(min, max).",
+			"fields": [
+				"CFrame CFrame",
+				"Vector3 Size"
+			],
+			"ctors": [
+				[
+					"Vector3 min",
+					"Vector3 max"
+				]
+			],
+			"methods": [
+				[
+					"ExpandToGrid",
+					"Region3",
+					[
+						"double resolution"
+					]
+				]
+			]
+		},
+		"Region3int16": {
+			"fields": [
+				"Vector3int16 Min",
+				"Vector3int16 Max"
+			],
+			"ctors": [
+				[
+					"Vector3int16 min",
+					"Vector3int16 max"
+				]
+			]
+		},
+		"DateTime": {
+			"summary": "UTC instant. DateTime.now() / DateTime.fromUnixTimestamp().",
+			"fields": [
+				"double UnixTimestamp",
+				"double UnixTimestampMillis"
+			],
+			"staticMethods": [
+				[
+					"now",
+					"DateTime",
+					[]
+				],
+				[
+					"fromUnixTimestamp",
+					"DateTime",
+					[
+						"double unixTimestamp"
+					]
+				],
+				[
+					"fromUnixTimestampMillis",
+					"DateTime",
+					[
+						"double unixTimestampMillis"
+					]
+				],
+				[
+					"fromUniversalTime",
+					"DateTime",
+					[
+						"int year",
+						"int month",
+						"int day",
+						"int hour",
+						"int minute",
+						"int second",
+						"int millisecond"
+					]
+				],
+				[
+					"fromLocalTime",
+					"DateTime",
+					[
+						"int year",
+						"int month",
+						"int day",
+						"int hour",
+						"int minute",
+						"int second",
+						"int millisecond"
+					]
+				],
+				[
+					"fromIsoDate",
+					"DateTime",
+					[
+						"string isoDate"
+					]
+				]
+			],
+			"methods": [
+				[
+					"ToUniversalTime",
+					"void",
+					[]
+				],
+				[
+					"ToLocalTime",
+					"void",
+					[]
+				],
+				[
+					"ToIsoDate",
+					"string",
+					[]
+				],
+				[
+					"FormatUniversalTime",
+					"string",
+					[
+						"string format",
+						"string locale"
+					]
+				],
+				[
+					"FormatLocalTime",
+					"string",
+					[
+						"string format",
+						"string locale"
+					]
+				]
+			]
+		},
+		"Random": {
+			"summary": "RNG. Random.new(seed).",
+			"ctors": [
+				[],
+				[
+					"double seed"
+				]
+			],
+			"methods": [
+				[
+					"NextInteger",
+					"int",
+					[
+						"int min",
+						"int max"
+					]
+				],
+				[
+					"NextNumber",
+					"double",
+					[]
+				],
+				[
+					"NextUnitVector",
+					"Vector3",
+					[]
+				],
+				[
+					"Clone",
+					"Random",
+					[]
+				],
+				[
+					"Shuffle",
+					"void",
+					[]
+				]
+			]
+		},
+		"PathWaypoint": {
+			"fields": [
+				"Vector3 Position",
+				"PathWaypointAction Action",
+				"string Label"
+			],
+			"ctors": [
+				[
+					"Vector3 position",
+					"PathWaypointAction action"
+				],
+				[
+					"Vector3 position",
+					"PathWaypointAction action",
+					"string label"
+				]
+			]
+		},
+		"Faces": {
+			"fields": [
+				"bool Top",
+				"bool Bottom",
+				"bool Left",
+				"bool Right",
+				"bool Front",
+				"bool Back"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"Axes": {
+			"fields": [
+				"bool X",
+				"bool Y",
+				"bool Z",
+				"bool Top",
+				"bool Bottom",
+				"bool Left",
+				"bool Right",
+				"bool Front",
+				"bool Back"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"RBXScriptConnection": {
+			"fields": [
+				"bool Connected"
+			],
+			"methods": [
+				[
+					"Disconnect",
+					"void",
+					[]
+				]
+			]
+		},
+		"RBXScriptSignal": {
+			"summary": "Event. playerAdded.Connect(callback) becomes signal:Connect(callback).",
+			"custom": true
+		},
+		"CatalogSearchParams": {
+			"fields": [
+				"string SearchKeyword",
+				"int MinPrice",
+				"int MaxPrice",
+				"CatalogSortType SortType",
+				"CatalogSortAggregation SortAggregation",
+				"CatalogCategoryFilter CategoryFilter",
+				"SalesTypeFilter SalesTypeFilter",
+				"int Limit"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"DockWidgetPluginGuiInfo": {
+			"ctors": [
+				[]
+			]
+		},
+		"FloatCurveKey": {
+			"fields": [
+				"double Time",
+				"double Value",
+				"KeyInterpolationMode Interpolation"
+			],
+			"ctors": [
+				[
+					"double time",
+					"double value"
+				]
+			]
+		},
+		"RotationCurveKey": {
+			"fields": [
+				"double Time",
+				"CFrame Value",
+				"KeyInterpolationMode Interpolation"
+			],
+			"ctors": [
+				[
+					"double time",
+					"CFrame value"
+				]
+			]
+		},
+		"Path2DControlPoint": {
+			"fields": [
+				"UDim2 Position",
+				"UDim2 LeftTangent",
+				"UDim2 RightTangent"
+			],
+			"ctors": [
+				[]
+			]
+		},
+		"Content": {
+			"summary": "Asset reference (replaces several ContentId uses).",
+			"ctors": [
+				[]
+			],
+			"staticMethods": [
+				[
+					"fromUri",
+					"Content",
+					[
+						"string uri"
+					]
+				],
+				[
+					"fromAssetId",
+					"Content",
+					[
+						"long long assetId"
+					]
+				]
+			]
+		},
+		"ContentId": {
+			"fields": [],
+			"ctors": [
+				[
+					"string uri"
+				]
+			]
+		},
+		"SharedTable": {
+			"ctors": [
+				[]
+			]
+		},
+		"Secret": {
+			"ctors": [
+				[]
+			]
+		},
+		"buffer": {
+			"summary": "Luau binary buffer. Library + type: buffer::create, buffer::writeu32, buffer::readf64.",
+			"ctors": [
+				[]
+			],
+			"staticMethods": [
+				[
+					"create",
+					"buffer",
+					[
+						"int size"
+					]
+				],
+				[
+					"fromstring",
+					"buffer",
+					[
+						"string str"
+					]
+				],
+				[
+					"tostring",
+					"string",
+					[
+						"buffer b"
+					]
+				],
+				[
+					"tostring",
+					"string",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"tostring",
+					"string",
+					[
+						"buffer b",
+						"int offset",
+						"int count"
+					]
+				],
+				[
+					"len",
+					"int",
+					[
+						"buffer b"
+					]
+				],
+				[
+					"copy",
+					"void",
+					[
+						"buffer target",
+						"int targetOffset",
+						"buffer source"
+					]
+				],
+				[
+					"copy",
+					"void",
+					[
+						"buffer target",
+						"int targetOffset",
+						"buffer source",
+						"int sourceOffset"
+					]
+				],
+				[
+					"copy",
+					"void",
+					[
+						"buffer target",
+						"int targetOffset",
+						"buffer source",
+						"int sourceOffset",
+						"int count"
+					]
+				],
+				[
+					"fill",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"fill",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value",
+						"int count"
+					]
+				],
+				[
+					"readi8",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readu8",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readi16",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readu16",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readi32",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readu32",
+					"int",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readf32",
+					"double",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readf64",
+					"double",
+					[
+						"buffer b",
+						"int offset"
+					]
+				],
+				[
+					"readstring",
+					"string",
+					[
+						"buffer b",
+						"int offset",
+						"int count"
+					]
+				],
+				[
+					"readbits",
+					"int",
+					[
+						"buffer b",
+						"int bitOffset",
+						"int bitCount"
+					]
+				],
+				[
+					"writei8",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writeu8",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writei16",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writeu16",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writei32",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writeu32",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"int value"
+					]
+				],
+				[
+					"writef32",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"double value"
+					]
+				],
+				[
+					"writef64",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"double value"
+					]
+				],
+				[
+					"writestring",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"string value"
+					]
+				],
+				[
+					"writestring",
+					"void",
+					[
+						"buffer b",
+						"int offset",
+						"string value",
+						"int count"
+					]
+				],
+				[
+					"writebits",
+					"void",
+					[
+						"buffer b",
+						"int bitOffset",
+						"int bitCount",
+						"int value"
+					]
+				]
+			]
+		},
+		"BinaryString": {
+			"ctors": [
+				[]
+			]
+		},
+		"SharedString": {
+			"ctors": [
+				[]
+			]
+		},
+		"UniqueId": {
+			"ctors": [
+				[]
+			]
+		},
+		"ProtectedString": {
+			"ctors": [
+				[]
+			]
+		},
+		"OptionalCoordinateFrame": {
+			"ctors": [
+				[]
+			]
+		},
+		"SecurityCapabilities": {
+			"ctors": [
+				[]
+			]
+		}
+	}
+}

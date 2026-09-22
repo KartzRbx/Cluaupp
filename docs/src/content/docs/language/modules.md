@@ -4,7 +4,58 @@ title: Modules
 
 Use this when you want a **reusable object** without a tagged Script.
 
-## Untagged `.cpp` = ModuleScript
+## Named `import` (language modules)
+
+CL++ can consume a header as a **module** with a named import (not an angled `#include <clpp/…>` IntelliSense stub):
+
+`PlayerData.clh`:
+
+```clpp
+#pragma once
+
+struct Wallet {
+	int Coins = 0;
+};
+
+struct PlayerDataCurrencies {
+	int Coins = 0;
+	int Rebirths = 0;
+};
+
+struct PlayerData {
+	PlayerDataCurrencies Currencies;
+};
+```
+
+Consumer (`.clp` / `.clpp`):
+
+```clpp
+// Language-only consumer: named import (not #include) for modules.
+import { Wallet, PlayerData as Data } from "./PlayerData.clh";
+
+void Demo() {
+	Wallet w;
+	w.Coins = 10;
+	Data d;
+	d.Currencies.Coins = w.Coins;
+}
+```
+
+`as` renames the binding (`PlayerData` → `Data`). Field defaults (`= 0`) stay on the struct.
+
+Shared constants in a small header:
+
+```clpp
+#pragma once
+
+const int STARTING_COINS = 0;
+const string REMOTE_COINS = "Coins";
+const string LEADERSTATS_FOLDER = "leaderstats";
+```
+
+Angled `#include <clpp/roblox.clh>` / `#include <clpp/libs/…>` remain IntelliSense + CluauppLibs requires. Quoted `#include "….clh"` is still valid when you want include-style composition; prefer **`import { … } from`** when you want an explicit module surface.
+
+## Untagged `.clp` / `.clpp` = ModuleScript
 
 ```
 src/ReplicatedStorage/Shared/Utils/Coins.clp
@@ -22,9 +73,9 @@ int DoubleCoins(int coins) {
 out/ReplicatedStorage/Shared/Utils/Coins.luau   -- ModuleScript, exported functions
 ```
 
-Quoted `#include "TemplateData.hpp"` is not inlined when the header has a sibling `.cpp` or is a shared module: `cluaupp build` emits `require(ReplicatedStorage.Cluaupp.constants.TemplateData)` / `require(ServerScriptService.Cluaupp.configurations.PlayerDataVersion)` (Rojo roots from `default.project.json`), never `script.Parent.Parent.shared`.
+Quoted `#include "TemplateData.clh"` is not inlined when the header has a sibling `.clp` / `.clpp` or is a shared module: `cluaupp build` emits a Rojo-rooted `require(...)` (from `default.project.json`), never `script.Parent.Parent.shared`.
 
-`.clh` are **type modules**. A service header becomes `export type Name = { init: (self: Name) -> (), … }` and a typed table. The sibling `.cpp` is the construction (`NameImpl.luau`); the header `require`s that impl and binds the functions. Data-only structs still emit a constructor so `TemplateData()` works. Untagged `.cpp` without a header is a ModuleScript other Luau can `require`. Prefer headers for the public type, tagged `.server.clpp` / `.client.clpp` for scripts, and the sibling `.clp` / `.clpp` for method bodies.
+`.clh` are **type modules**. A service header becomes `export type Name = { init: (self: Name) -> (), … }` and a typed table. The sibling `.clp` / `.clpp` is the construction; the header `require`s that impl and binds the functions. Data-only structs still emit a constructor so `TemplateData()` works. Untagged `.clpp` without a header is a ModuleScript other Luau can `require`. Prefer headers for the public type, tagged `.server.clpp` / `.client.clpp` for scripts, and the sibling `.clp` / `.clpp` for method bodies.
 
 ## Structs = data, not classes
 

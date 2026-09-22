@@ -2,7 +2,7 @@
 title: Net
 ---
 
-**Net** wraps buffer-packed `RemoteEvent` and `RemoteFunction` instances under `ReplicatedStorage.CluauppNet`. Names are unique per game; payloads are encoded with an internal codec (not JSON on the wire). Use [Flare](/libraries/flare/) for schema-driven networking; Net is the manual escape hatch.
+**Net** wraps buffer-packed `RemoteEvent` and `RemoteFunction` instances under `ReplicatedStorage.CluauppNet`. Names are unique per game; payloads are encoded with an internal codec (not JSON on the wire). Use [Flare](../flare/) for schema-driven networking; Net is the manual escape hatch.
 
 Header: `#include <clpp/libs/net.clh>`. Runtime: `CluauppLibs.Net`.
 
@@ -11,9 +11,9 @@ Header: `#include <clpp/libs/net.clh>`. Runtime: `CluauppLibs.Net`.
 - **Quick ad-hoc remotes** when you do not want a `.flare` schema yet.
 - **Typed-ish overloads** in CL++ (`Fire` with zero to three args) without templates inside structs.
 - **Server/client guards** — `Fire` / `Invoke` assert on the server; `FireServer` / `InvokeServer` assert on the client.
-- **[Ward](/libraries/ward/) on the server** — non-buffer payloads, oversized packets, and decode failures are struck instead of unpacked.
+- **[Ward](../ward/) on the server** — non-buffer payloads, oversized packets, and decode failures are struck instead of unpacked.
 
-When **not** to use: production gameplay traffic (prefer [Flare](/libraries/flare/) `.flare` schemas — [connection example](/examples/net/)), or when you need unreliable batches and query RPCs.
+When **not** to use: production gameplay traffic (prefer [Flare](../flare/) `.flare` schemas — [connection example](../../examples/net/)), or when you need unreliable batches and query RPCs.
 
 ## Example
 

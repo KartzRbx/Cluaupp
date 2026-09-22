@@ -47,6 +47,8 @@ struct DataServiceOptions {
 };
 
 struct Data {
+	// IntelliSense only. Do not type fields as Data — CL++ maps it to DataService
+	// and errors CLPP0605. Store the session as `auto Session = null;`.
 	RBXScriptSignal Changed;
 	bool Destroyed;
 

@@ -1,10 +1,20 @@
-/** Stable CL++ ↔ Cluaupp contract (CL++ 0.3.2 / 0.3.3). Cluaupp invokes the `clpp` binary. */
+/** Stable CL++ ↔ Cluaupp contract (CL++ 0.7.x). Cluaupp invokes the `clpp` binary. */
 
 export interface CompileRequest {
 	source: string;
 	fileName: string;
 	strict?: boolean;
 	cwd?: string;
+	/** Path to RobloxTargetProfile JSON (Cluaupp target — not embedded in CLPP). */
+	targetProfilePath?: string;
+	/** Directory holding cached target artifacts. */
+	targetCacheDir?: string;
+	/** Run context from file tags (.server / .client / .plugin). */
+	runContext?: "Server" | "Client" | "Plugin" | "Shared";
+	/** Path to capability-profile.json for Context Safety rules. */
+	capabilityProfilePath?: string;
+	/** Path to Typed DataModel profile JSON (Rojo graph). */
+	datamodelProfilePath?: string;
 }
 
 export interface CompileDiagnostic {
@@ -45,7 +55,7 @@ export interface LanguageManifest {
 	io: Array<{ clpp: string; luau: string }>;
 }
 
-export const MIN_CLPP_VERSION = "0.3.2";
+export const MIN_CLPP_VERSION = "0.7.0";
 
 export const CLPP_INSTALL_HINT =
-	"Install CL++ 0.3.2 or newer (clpp-setup.exe or `clpp setup`) and put `clpp` on PATH. 0.3.3 is the same JSON contract. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";
+	"Install CL++ 0.7.0 or newer (`clpp` from https://github.com/KartzRbx/CLPP/releases) and put it on PATH. Instances are class names (`Player player`, not `Player*`). Override with CLPP or CLPP_PATH.";

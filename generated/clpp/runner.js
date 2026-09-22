@@ -29,10 +29,10 @@ function cmpSemver(a, b) {
     return a.major - b.major || a.minor - b.minor || a.patch - b.patch;
 }
 function minClpp() {
-    return parseSemver(contract_js_1.MIN_CLPP_VERSION) || { major: 0, minor: 3, patch: 2 };
+    return parseSemver(contract_js_1.MIN_CLPP_VERSION) || { major: 0, minor: 7, patch: 0 };
 }
 function tooOldMessage(bin, version) {
-    return `cluaupp: clpp ${version || "unknown"} is too old (${bin}). Need CL++ ${contract_js_1.MIN_CLPP_VERSION}+. Install https://github.com/KartzRbx/CLPP/releases/download/v0.3.2/clpp-setup.exe or set CLPP / CLPP_PATH.`;
+    return `cluaupp: clpp ${version || "unknown"} is too old (${bin}). Need CL++ ${contract_js_1.MIN_CLPP_VERSION}+. Install https://github.com/KartzRbx/CLPP/releases or set CLPP / CLPP_PATH.`;
 }
 function probeVersion(bin) {
     const result = (0, node_child_process_1.spawnSync)(bin, ["--version"], { encoding: "utf8", windowsHide: true });
@@ -170,6 +170,11 @@ function compileViaClpp(request) {
         source: request.source,
         fileName: request.fileName,
         strict: request.strict ?? null,
+        targetProfilePath: request.targetProfilePath ?? null,
+        targetCacheDir: request.targetCacheDir ?? null,
+        runContext: request.runContext ?? null,
+        capabilityProfilePath: request.capabilityProfilePath ?? null,
+        datamodelProfilePath: request.datamodelProfilePath ?? null,
     });
     const result = (0, node_child_process_1.spawnSync)(bin, ["api", "compile"], {
         input: payload,
@@ -222,6 +227,11 @@ function compileViaClppAsync(request) {
             source: request.source,
             fileName: request.fileName,
             strict: request.strict ?? null,
+            targetProfilePath: request.targetProfilePath ?? null,
+            targetCacheDir: request.targetCacheDir ?? null,
+            runContext: request.runContext ?? null,
+            capabilityProfilePath: request.capabilityProfilePath ?? null,
+            datamodelProfilePath: request.datamodelProfilePath ?? null,
         }));
     });
 }

@@ -2,31 +2,31 @@
 title: More libraries
 ---
 
-There are **no alias headers**. Use the [native name map](/libraries/) below. Each Cluaupp library page catalogs **every public function** with **Returns**, a short **When** recommendation, and a copy-paste example.
+There are **no alias headers**. Use the [native name map](../../) below. Each Cluaupp library page catalogs **every public function** with **Returns**, a short **When** recommendation, and a copy-paste example.
 
 | If you used | Use now |
 | --- | --- |
-| formatnumber | [Mint](/libraries/mint/) |
-| MathUtils | [Axiom](/libraries/axiom/) |
-| table util | [Roster](/libraries/roster/) |
-| Twinkle / EzVisualz | [Bloom](/libraries/bloom/) |
-| Module3D | [Stage](/libraries/stage/) |
-| vfx-util | [Ember](/libraries/ember/) |
-| StickyBillboard | [Pin](/libraries/pin/) |
-| Fusion / Vide | [Gleam](/libraries/gleam/) |
-| Iris | [Lens](/libraries/lens/) |
-| Cmdr | [Helm](/libraries/helm/) |
-| TopbarPlus | [Crest](/libraries/crest/) |
-| Chrono | [Echo](/libraries/echo/) |
-| RobloxStateMachine | [Shift](/libraries/shift/) |
-| spring | [Coil](/libraries/coil/) |
-| Display | [Trace](/libraries/trace/) |
-| TutorialKit | [Guide](/libraries/guide/) |
-| QuickNet | [Flare](/libraries/flare/) |
-| GoodSignal | [Spark](/libraries/spark/) |
-| janitor | [Sweep](/libraries/sweep/) |
-| ProfileStore / DataService | [Keep](/libraries/keep/) |
-| ad-hoc remote rate limits | [Ward](/libraries/ward/) |
+| formatnumber | [Mint](../mint/) |
+| MathUtils | [Axiom](../axiom/) |
+| table util | [Roster](../roster/) |
+| Twinkle / EzVisualz | [Bloom](../bloom/) |
+| Module3D | [Stage](../stage/) |
+| vfx-util | [Ember](../ember/) |
+| StickyBillboard | [Pin](../pin/) |
+| Fusion / Vide | [Gleam](../gleam/) |
+| Iris | [Lens](../lens/) |
+| Cmdr | [Helm](../helm/) |
+| TopbarPlus | [Crest](../crest/) |
+| Chrono | [Echo](../echo/) |
+| RobloxStateMachine | [Shift](../shift/) |
+| spring | [Coil](../coil/) |
+| Display | [Trace](../trace/) |
+| TutorialKit | [Guide](../guide/) |
+| QuickNet | [Flare](../flare/) |
+| GoodSignal | [Spark](../spark/) |
+| janitor | [Sweep](../sweep/) |
+| ProfileStore / DataService | [Keep](../keep/) |
+| ad-hoc remote rate limits | [Ward](../ward/) |
 
 ## When to pick each name
 
@@ -35,8 +35,8 @@ There are **no alias headers**. Use the [native name map](/libraries/) below. Ea
 - **Roster** — Table utilities plus tagged `Pack` / `Unpack` buffers (same spirit as Keep tags, plus arrays and Roblox types).
 - **Bloom** — One Heartbeat-driven UI shine preset for many labels; not full reactive UI.
 - **Stage** — `ViewportFrame` shop preview with a `WorldModel`; replaces Module3D-style showcases.
-- **Ember** — Character-attached VFX with [Sweep](/libraries/sweep/) lifetime; replaces ad-hoc vfx-util spawning.
-- **Pin** — World-space billboards with distance fade; pair with [Occlude](/libraries/occlude/) for line-of-sight.
+- **Ember** — Character-attached VFX with [Sweep](../sweep/) lifetime; replaces ad-hoc vfx-util spawning.
+- **Pin** — World-space billboards with distance fade; pair with [Occlude](../occlude/) for line-of-sight.
 - **Gleam** — Client HUD with `Source` / `Effect` and Sweep-owned UI trees; Vide-style props, not Fusion graphs.
 - **Lens** — Studio debug windows (`Window(title, fn)`); uses Trace for in-window dumps.
 - **Helm** — Server-permission admin commands with buffer-packed args; replaces Cmdr-style consoles.
@@ -52,6 +52,6 @@ There are **no alias headers**. Use the [native name map](/libraries/) below. Ea
 - **Keep** — ProfileStore-class session lock, tagged replication, escrow trades that cannot duplicate on crash; all persisted player data.
 - **Ward** — Server anti-cheat: rate-limit remotes, cap packet size, strike speed/teleport. Does not write Keep.
 
-Helpers (also CluauppLibs, not npm packages): [ArrayIndexer](/libraries/arrayindexer/) (dense entity ids for ECS-style games), [Occlude](/libraries/occlude/) (raycast helper for [Pin](/libraries/pin/)).
+Helpers (also CluauppLibs, not npm packages): [ArrayIndexer](../arrayindexer/) (dense entity ids for ECS-style games), [Occlude](../occlude/) (raycast helper for [Pin](../pin/)).
 
 Everything ships **inside the `cluaupp` npm package** (`runtime/` → `libs/` on init).

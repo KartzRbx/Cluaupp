@@ -2,7 +2,7 @@
 title: Occlude
 ---
 
-**Occlude** tests line-of-sight from the **camera** to an **adornee** with `WorldRoot:Raycast`. [Pin](/libraries/pin/) can enable occlusion so billboards hide behind walls. Default ray params **exclude** the adornee from hits.
+**Occlude** tests line-of-sight from the **camera** to an **adornee** with `WorldRoot:Raycast`. [Pin](../pin/) can enable occlusion so billboards hide behind walls. Default ray params **exclude** the adornee from hits.
 
 Header: `#include <clpp/libs/occlude.clh>`. Runtime: `CluauppLibs.Occlude`. `--!native`.
 
@@ -15,7 +15,7 @@ Header: `#include <clpp/libs/occlude.clh>`. Runtime: `CluauppLibs.Occlude`. `--!
 
 **Do not use when:**
 
-- Hit detection or combat — server authority / [Flare](/libraries/flare/).
+- Hit detection or combat — server authority / [Flare](../flare/).
 - The adornee has no resolvable world position (returns occluded / nil ray).
 
 ## Example CL++

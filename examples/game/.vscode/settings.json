@@ -5,6 +5,18 @@
 		"*.clh": "clpp",
 		"*.server.clpp": "clpp",
 		"*.client.clpp": "clpp",
-		"*.plugin.clpp": "clpp"
+		"*.plugin.clpp": "clpp",
+		"*.flare": "flare",
+		"*.hive": "hive",
+		"*.mint": "mint",
+		"*.bloom": "bloom",
+		"*.helm": "helm",
+		"*.shift": "shift",
+		"*.axiom": "axiom"
+	},
+	"[luau]": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"editor.detectIndentation": false
 	}
 }

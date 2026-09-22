@@ -1,0 +1,75 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Flare",
+	"scopeName": "source.flare",
+	"patterns": [
+		{ "include": "#comments" },
+		{ "include": "#strings" },
+		{ "include": "#keywords" },
+		{ "include": "#types" },
+		{ "include": "#operators" },
+		{ "include": "#names" }
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.flare",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.line.number-sign.flare",
+					"match": "#.*$"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.flare",
+			"begin": "\"",
+			"end": "\""
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.declaration.flare",
+					"match": "\\b(packet|query|opt)\\b"
+				},
+				{
+					"name": "keyword.other.flare",
+					"match": "\\b(from|name)\\b"
+				},
+				{
+					"name": "constant.language.flare",
+					"match": "\\b(Client|Server)\\b"
+				},
+				{
+					"name": "storage.modifier.flare",
+					"match": "\\b(unreliable|reliable)\\b"
+				}
+			]
+		},
+		"types": {
+			"name": "storage.type.flare",
+			"match": "\\b(u8|u16|u32|i8|i16|i32|int|f32|f64|float|double|number|bool|boolean|string|Vector3|Vector2|CFrame|Color3|UDim|UDim2|BrickColor|buffer|Instance|Player)\\b"
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.arrow.flare",
+					"match": "->"
+				},
+				{
+					"name": "keyword.operator.assignment.flare",
+					"match": "="
+				}
+			]
+		},
+		"names": {
+			"match": "\\b(packet|query)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+			"captures": {
+				"1": { "name": "keyword.declaration.flare" },
+				"2": { "name": "entity.name.function.flare" }
+			}
+		}
+	}
+}

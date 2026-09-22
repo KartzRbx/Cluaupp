@@ -156,7 +156,7 @@ function Pin.new(adornee: Instance, gui: GuiObject, options: Options?): Pin
 	billboard.StudsOffset = opts.StudsOffset or Vector3.new(0, 2, 0)
 	billboard.StudsOffsetWorldSpace = opts.StudsOffsetWorldSpace or Vector3.zero
 	billboard.MaxDistance = opts.MaxDistance or 120
-	billboard.MinDistance = opts.MinDistance or 0
+	-- BillboardGui has MaxDistance only; MinDistance in PinOptions is reserved / ignored.
 	billboard.AlwaysOnTop = if opts.AlwaysOnTop == nil then true else opts.AlwaysOnTop
 	billboard.LightInfluence = opts.LightInfluence or 0
 	billboard.ResetOnSpawn = false
@@ -185,6 +185,7 @@ function Pin.new(adornee: Instance, gui: GuiObject, options: Options?): Pin
 		_fade = if opts.Fade == nil then true else opts.Fade,
 		_scale = if opts.Scale == nil then true else opts.Scale,
 		_baseSize = baseSize,
+		_minDistance = opts.MinDistance or 0,
 		_canvas = canvas,
 	}, Pin)
 
@@ -213,7 +214,7 @@ function Pin.new(adornee: Instance, gui: GuiObject, options: Options?): Pin
 		if maxDistance <= 0 then
 			maxDistance = 1e9
 		end
-		local minDistance = billboard.MinDistance
+		local minDistance = self._minDistance
 
 		if self._occlude then
 			self._occluded = isOccluded(origin, goal, billboard.Adornee or adornee)
@@ -302,5 +303,7 @@ function Pin:Destroy()
 	end
 	table.clear(self._janitor)
 end
+
+Pin.new_ = Pin.new
 
 return Pin

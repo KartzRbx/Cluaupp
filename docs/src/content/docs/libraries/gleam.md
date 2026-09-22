@@ -2,7 +2,7 @@
 title: Gleam
 ---
 
-**Gleam** is the reactive HUD layer (Vide-style): a `GleamSource` holds value, `Gleam.Effect` re-runs when dependencies `Get`, list helpers rebuild via [Sweep](/libraries/sweep/), and `Gleam.Spring` steps [Coil](/libraries/coil/) on Heartbeat until settled. Props use `GleamProps { .Field = }` — no JSX, no template syntax inside structs. Callbacks are `func`.
+**Gleam** is the reactive HUD layer (Vide-style): a `GleamSource` holds value, `Gleam.Effect` re-runs when dependencies `Get`, list helpers rebuild via [Sweep](../sweep/), and `Gleam.Spring` steps [Coil](../coil/) on Heartbeat until settled. Props use `GleamProps { .Field = }` — no JSX, no template syntax inside structs. Callbacks are `func`.
 
 Header: `#include <clpp/libs/gleam.clh>`. Runtime: `CluauppLibs.Gleam`.
 
@@ -16,9 +16,9 @@ Header: `#include <clpp/libs/gleam.clh>`. Runtime: `CluauppLibs.Gleam`.
 
 **Do not use when:**
 
-- Server economy or persistence — [Keep](/libraries/keep/) + [Flare](/libraries/flare/).
+- Server economy or persistence — [Keep](../keep/) + [Flare](../flare/).
 - Keyed list diffing — `Show` / `Indexes` / `Values` rebuild instances; mutating a table in place without `Set` does not notify.
-- Studio debug panels — [Lens](/libraries/lens/).
+- Studio debug panels — [Lens](../lens/).
 
 ## Example CL++
 
@@ -49,7 +49,7 @@ void init() {
 }
 ```
 
-Full copy: [HUD example](/examples/hud/).
+Full copy: [HUD example](../../examples/hud/).
 
 `GleamProps` fields match Roblox GUI properties and event callbacks (`Activated`, `MouseButton1Click`, `Changed`, …) declared in `gleam.clh`.
 
@@ -273,7 +273,7 @@ Gleam.Mount(label, gui);
 GleamSource smooth = Gleam.Spring(coins);
 ```
 
-**Formula:** Uses [Coil](/libraries/coil/) (`ω = frequency × 2π`) stepped each Heartbeat until settled.
+**Formula:** Uses [Coil](../coil/) (`ω = frequency × 2π`) stepped each Heartbeat until settled.
 
 ### Gleam.Spring (speed)
 

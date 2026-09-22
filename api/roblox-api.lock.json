@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 2,
+	"profileHash": "81e280ef74182ccfe3087e5ded99e51d85cf9368e5d01102b19bda788a5f10bb",
+	"overridesHash": "4d9132f0307a553e92b8863663295b0ddb9fc7cad57db75a8fb7b7d1ab258f46",
+	"robloxApiVersion": "1",
+	"files": {
+		"api/generated/lsp-index.json": "58651ae79c0ce9a0abba227d5e53706eb7f2527c55dc7a9daf6a7d7cfa76ec11"
+	}
+}

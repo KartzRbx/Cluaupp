@@ -1,0 +1,12 @@
+{
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:Admin}",
+		"description": "Generated module name"
+	},
+	"Command": {
+		"prefix": "command",
+		"body": "command ${1:Give}(${2:Player} ${3:target}, ${4:i32} ${5:amount}) permission ${6:Admin}",
+		"description": "Helm command"
+	}
+}

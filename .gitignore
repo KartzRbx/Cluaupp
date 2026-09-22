@@ -14,6 +14,13 @@ secrets.json
 .vercel
 .rojo.pid
 .cluaupp-watch.lock
+.cluaupp/
+
+# API registry cache / large normalized profiles (regenerate with cluaupp api generate)
+api/.cache/
+api/normalized/
+api/generated/
+api/snapshots/
 
 # Local playground from `npm run dev` — never part of the CLI
 /game/

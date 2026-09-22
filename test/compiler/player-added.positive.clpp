@@ -1,0 +1,2 @@
+-- Positive compile intent: Players.PlayerAdded is typed in the registry.
+-- Full clpp compile is covered by test/clpp.test.js when clpp is present.

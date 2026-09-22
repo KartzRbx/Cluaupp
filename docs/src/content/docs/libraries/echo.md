@@ -29,7 +29,7 @@ void init() {
 }
 ```
 
-On the client, read poses with `Echo.Holder().Get(player)` and tear down with [Sweep](/libraries/sweep/) when characters remove.
+On the client, read poses with `Echo.Holder().Get(player)` and tear down with [Sweep](../sweep/) when characters remove.
 
 ## API
 
@@ -118,7 +118,7 @@ CFrame cf = Echo.ReadCFrame(buf);
 
 **Returns:** `EchoStats` — `Packets`, `PacketsSent`, `PacketsReceived`, `BytesSent`, `BytesReceived`, `Snapshots`.
 
-**When:** Studio overlay or [Lens](/libraries/lens/) window for bandwidth tuning.
+**When:** Studio overlay or [Lens](../lens/) window for bandwidth tuning.
 
 ```clpp
 EchoStats s = Echo.Stats();

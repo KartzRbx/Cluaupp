@@ -5,7 +5,10 @@
 // Table = u16 count + key/value pairs. Array = u16 len + values. Methods also work as Roster::X(rawTable).
 
 struct Roster {
+	// Construct with `new Roster()` / `new Roster(table)` — emits Luau Roster.new.
+	// `New` is the CL++ name because `new` is a keyword.
 	static Roster New();
+	static Roster New(auto initial);
 
 	int Size();
 	int Length();
@@ -13,6 +16,7 @@ struct Roster {
 	auto GetData();
 
 	auto At(int index);
+	// Array value search (1-based index). Dictionary keys: Has / Get / Set / Remove.
 	int Find(auto value);
 	int Find(auto value, int initPos);
 	int Find(auto value, int initPos, int maxPos);
@@ -23,6 +27,7 @@ struct Roster {
 	auto Shift();
 	int Unshift(auto value);
 	auto RemoveAt(int index);
+	Roster Remove(auto key);
 
 	Roster Map(func mapper);
 	Roster Filter(func predicate);
@@ -74,6 +79,7 @@ struct Roster {
 	static auto Shift(auto data);
 	static int Unshift(auto data, auto value);
 	static auto RemoveAt(auto data, int index);
+	static Roster Remove(auto data, auto key);
 	static Roster Map(auto data, func mapper);
 	static Roster Filter(auto data, func predicate);
 	static auto Reduce(auto data, func reducer, auto initial);

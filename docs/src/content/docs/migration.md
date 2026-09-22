@@ -1,8 +1,13 @@
 ---
 title: Migration
+description: Move from older C++-style trees or CL++ 0.3.x to CL++ 0.7+ with Cluaupp.
+sidebar:
+  order: 5
 ---
 
-Cluaupp compiles **CL++ 0.3.2**, not a C++ subset. Language: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+# Migration
+
+Cluaupp targets **CL++ 0.7.0+**, not a C++ subset and not the old 0.3.x compiler. Language course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
 ## Files
 
@@ -19,7 +24,7 @@ Quoted includes: `"leaderstats.h"` → `"leaderstats.clh"`.
 
 ## Operators and IO
 
-| Old C++ subset | CL++ 0.3.2 | Luau |
+| Old C++ subset | CL++ 0.7+ | Luau |
 | --- | --- | --- |
 | `player->Name` | `player.Name` | `.` |
 | `player->GetPlayers()` | `player.GetPlayers()` | `:` |
@@ -37,12 +42,17 @@ Quoted includes: `"leaderstats.h"` → `"leaderstats.clh"`.
 
 ## Workflow
 
-1. Install CL++ **0.3.2**: [github.com/KartzRbx/CLPP/releases/tag/v0.3.2](https://github.com/KartzRbx/CLPP/releases/tag/v0.3.2). `cluaupp language` must print 0.3.2.
+1. Install CL++ **0.7.0+**: [github.com/KartzRbx/CLPP/releases](https://github.com/KartzRbx/CLPP/releases). `cluaupp language` must print **0.7.x** (not 0.3.x / 0.1.0).
 2. `clpp setup` (editor highlighting + IntelliSense).
 3. Rename sources and apply the table above.
-4. `cluaupp build` — `clpp` on PATH (`CLPP` / `CLPP_PATH` if needed).
+4. `cluaupp build` — Context Safety runs before `clpp`; illegal server/client APIs fail the build.
+5. Optional: `cluaupp api generate` / `api verify` to refresh the Roblox registry.
 
-`"architecture": true` (ForeverHD folders) is not generated in 1.0. One source file still becomes one `.luau` file.
+`"architecture": true` (ForeverHD folders) is not generated. One source file still becomes one `.luau` file.
+
+## From CL++ 0.3.x
+
+Keep the same file tags and operators. Upgrade the **`clpp` binary** first — older compilers cannot parse 0.7 language features that Cluaupp expects. Then rebuild; fix any new Context Safety diagnostics (for example `LocalPlayer` on a `.server.clpp`).
 
 ## Wally require → native include
 
@@ -61,3 +71,5 @@ Quoted includes: `"leaderstats.h"` → `"leaderstats.clh"`.
 | jecs | `.hive` + `#include <clpp/libs/hive.clh>` | `CluauppLibs.Hive` |
 
 Old headers are gone. Buffer law: no JSON on the hot path. `~>` Connect is Sweep.
+
+Next: [Getting started](../getting-started/) · [Why Cluaupp](../why-cluaupp/) · [Context Safety](../architecture/context-safety/).

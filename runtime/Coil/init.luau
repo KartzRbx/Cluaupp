@@ -174,10 +174,14 @@ function Coil:Impulse(velocity: any)
 end
 
 function Coil:Step(dt: number)
-	if dt ~= dt or dt <= 0 then
+	if typeof(dt) ~= "number" or dt ~= dt or dt <= 0 then
 		return
 	end
-	local omega = self.Frequency * TAU
+	local frequency = self.Frequency
+	if typeof(frequency) ~= "number" then
+		return
+	end
+	local omega = frequency * TAU
 	if omega <= 0 then
 		return
 	end
@@ -205,5 +209,7 @@ function Coil:Update(dt: number): any
 	self:Step(dt)
 	return self.Position
 end
+
+Coil.New = Coil.new
 
 return Coil

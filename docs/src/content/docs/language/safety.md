@@ -2,11 +2,15 @@
 title: Safety
 ---
 
-Safety in Cluaupp is not a sandbox flag. It is a set of habits the compiler and libraries make cheap.
+Safety in Cluaupp is not a sandbox flag. It is **Context Safety at compile time** plus habits the libraries make cheap.
+
+## 0. Context Safety (compile)
+
+`.server.clpp` / `.client.clpp` / `.plugin.clpp` attach a capability set. Illegal APIs fail the build — for example `LocalPlayer` on the server or `DataStoreService` on the client. See [Context Safety](../../architecture/context-safety/).
 
 ## 1. Never trust the client
 
-[Net](libraries/net.md) lets a client `FireServer`. The server must validate:
+Prefer [Flare](../../libraries/flare/) contracts (or [Net](../../libraries/net/) only when you must). The server must validate:
 
 ```clpp
 void OnBuy(Player player, int productId) {
@@ -26,11 +30,11 @@ void OnBuy(Player player, int productId) {
 }
 ```
 
-Do not store coins only on the client. Do not let the client pass the new coin total — pass the *intent* (`productId`). Full systems: [Shop](examples/shop.md), [Combat](examples/combat.md).
+Do not store coins only on the client. Do not let the client pass the new coin total — pass the *intent* (`productId`). Full systems: [Shop](../../examples/shop/), [Combat](../../examples/combat/).
 
 ## 2. Clean up with Sweep
 
-Every `Connect` that outlives a player, a GUI, or a tool needs a [Sweep](/libraries/sweep/). Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
+Every `Connect` that outlives a player, a GUI, or a tool needs a [Sweep](../../libraries/sweep/). Leaving a step, destroying a character, or closing a menu should `Cleanup()` or `LinkToInstance`.
 
 ```clpp
 auto sweep = new Sweep();
@@ -46,7 +50,7 @@ Leaked connections duplicate effects: double coins, stacked cameras, lingering h
 
 ## 4. One writer for persisted data
 
-[Keep](/libraries/keep/) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what Keep will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths. The save **shape** is your Template — the library does not ship `Currencies`.
+[Keep](../../libraries/keep/) distinguishes `Get()` (merged, includes transient admin overlays) from `GetPersisted()` (what Keep will save). Use `SetTransient` for test panels so you never persist cheat values. Only the server writes persisted paths. The save **shape** is your Template — the library does not ship `Currencies`.
 
 ## 5. Buffers, not ad-hoc strings
 
@@ -56,4 +60,4 @@ Leaked connections duplicate effects: double coins, stacked cameras, lingering h
 
 Remote names (`Net::Event("Coins")`) are public protocol. Keep them `const`, short, and unique. Changing a name without a migration breaks old clients.
 
-Next: [organization](/language/organization/), [OOP](oop/index.md), [Examples](examples/index.md).
+Next: [organization](../organization/), [OOP](../oop/), [Examples](../../examples/), [Why Cluaupp](../../why-cluaupp/).

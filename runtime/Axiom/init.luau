@@ -576,15 +576,18 @@ Axiom.Groups = {
 	Color = { "FromHSV", "Contrast", "LerpHSV" },
 } :: { [string]: { string } }
 
-function Axiom.Select(groupNames: { string }): typeof(Axiom)
+function Axiom.Select(names: { string }): typeof(Axiom)
 	local selected: { [string]: unknown } = {}
-	for _, group in groupNames do
-		local names = Axiom.Groups[group]
-		if not names then
-			error(`[Axiom.Select] unknown group "{group}"`)
-		end
-		for _, name in names do
+	for _, name in names do
+		local groupFns = Axiom.Groups[name]
+		if groupFns then
+			for _, fnName in groupFns do
+				selected[fnName] = Axiom[fnName]
+			end
+		elseif typeof(Axiom[name]) == "function" then
 			selected[name] = Axiom[name]
+		else
+			error(`[Axiom.Select] unknown group or function "{name}"`)
 		end
 	end
 	if selected.LerpVector3 ~= nil then

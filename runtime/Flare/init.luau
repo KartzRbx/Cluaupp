@@ -577,8 +577,9 @@ function Flare.open(host: ModuleScript)
 			if not Ward.Allow(player, "flare:query", 10, 20) then
 				return bufferCreate(0)
 			end
+			local packedInstances = table.pack(...) :: any
 			local results = table.pack(pcall(function()
-				local incoming = fromBuffer(buf, table.pack(...) :: any)
+				local incoming = fromBuffer(buf, packedInstances)
 				local id = Flare.readu8(incoming)
 				local spec = queryById[id]
 				local handler = queryHandlers[id]

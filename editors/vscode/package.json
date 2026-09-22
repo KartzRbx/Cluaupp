@@ -1,25 +1,239 @@
 {
-	"name": "cluaupp-diagnostics",
+	"name": "cluaupp-flare",
 	"displayName": "Cluaupp",
-	"description": "Cluaupp project diagnostics. Language highlighting and IntelliSense come from clpp install (CL++).",
-	"version": "1.4.0",
+	"description": "Highlighting and IntelliSense for Cluaupp schemas: .flare, .hive, .mint, .bloom, .helm, .shift, .axiom. CL++ (.clpp) still comes from clpp setup.",
+	"version": "1.5.1",
 	"publisher": "kartzdev",
 	"engines": {
 		"vscode": "^1.74.0"
 	},
 	"categories": [
+		"Programming Languages",
+		"Snippets",
 		"Linters"
 	],
+	"keywords": [
+		"flare",
+		"hive",
+		"cluaupp",
+		"roblox",
+		"clpp"
+	],
 	"activationEvents": [
-		"onLanguage:clpp"
+		"onLanguage:flare",
+		"onLanguage:hive",
+		"onLanguage:mint",
+		"onLanguage:bloom",
+		"onLanguage:helm",
+		"onLanguage:shift",
+		"onLanguage:axiom",
+		"workspaceContains:**/*.flare",
+		"workspaceContains:**/*.hive",
+		"onCommand:cluaupp.openFromBridge",
+		"onCommand:cluaupp.startBridgePoll"
 	],
 	"main": "./extension.js",
 	"contributes": {
+		"languages": [
+			{
+				"id": "flare",
+				"aliases": ["Flare", "flare"],
+				"extensions": [".flare"],
+				"configuration": "./language-configuration.json",
+				"icon": {
+					"light": "./icons/flare.svg",
+					"dark": "./icons/flare.svg"
+				}
+			},
+			{
+				"id": "hive",
+				"aliases": ["Hive", "hive"],
+				"extensions": [".hive"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/hive.svg",
+					"dark": "./icons/hive.svg"
+				}
+			},
+			{
+				"id": "mint",
+				"aliases": ["Mint", "mint"],
+				"extensions": [".mint"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/mint.svg",
+					"dark": "./icons/mint.svg"
+				}
+			},
+			{
+				"id": "bloom",
+				"aliases": ["Bloom", "bloom"],
+				"extensions": [".bloom"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/bloom.svg",
+					"dark": "./icons/bloom.svg"
+				}
+			},
+			{
+				"id": "helm",
+				"aliases": ["Helm", "helm"],
+				"extensions": [".helm"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/helm.svg",
+					"dark": "./icons/helm.svg"
+				}
+			},
+			{
+				"id": "shift",
+				"aliases": ["Shift", "shift"],
+				"extensions": [".shift"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/shift.svg",
+					"dark": "./icons/shift.svg"
+				}
+			},
+			{
+				"id": "axiom",
+				"aliases": ["Axiom", "axiom"],
+				"extensions": [".axiom"],
+				"configuration": "./language-configuration-schema.json",
+				"icon": {
+					"light": "./icons/axiom.svg",
+					"dark": "./icons/axiom.svg"
+				}
+			}
+		],
+		"grammars": [
+			{
+				"language": "flare",
+				"scopeName": "source.flare",
+				"path": "./syntaxes/flare.tmLanguage.json"
+			},
+			{
+				"scopeName": "source.cluaupp-schema",
+				"path": "./syntaxes/schema.tmLanguage.json"
+			},
+			{
+				"language": "hive",
+				"scopeName": "source.hive",
+				"path": "./syntaxes/hive.tmLanguage.json"
+			},
+			{
+				"language": "mint",
+				"scopeName": "source.mint",
+				"path": "./syntaxes/mint.tmLanguage.json"
+			},
+			{
+				"language": "bloom",
+				"scopeName": "source.bloom",
+				"path": "./syntaxes/bloom.tmLanguage.json"
+			},
+			{
+				"language": "helm",
+				"scopeName": "source.helm",
+				"path": "./syntaxes/helm.tmLanguage.json"
+			},
+			{
+				"language": "shift",
+				"scopeName": "source.shift",
+				"path": "./syntaxes/shift.tmLanguage.json"
+			},
+			{
+				"language": "axiom",
+				"scopeName": "source.axiom",
+				"path": "./syntaxes/axiom.tmLanguage.json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "flare",
+				"path": "./snippets/flare.json"
+			},
+			{
+				"language": "hive",
+				"path": "./snippets/hive.json"
+			},
+			{
+				"language": "mint",
+				"path": "./snippets/mint.json"
+			},
+			{
+				"language": "bloom",
+				"path": "./snippets/bloom.json"
+			},
+			{
+				"language": "helm",
+				"path": "./snippets/helm.json"
+			},
+			{
+				"language": "shift",
+				"path": "./snippets/shift.json"
+			},
+			{
+				"language": "axiom",
+				"path": "./snippets/axiom.json"
+			}
+		],
 		"commands": [
 			{
 				"command": "cluaupp.restartIntelliSense",
-				"title": "Cluaupp: Reload editor helper"
+				"title": "Cluaupp: Reload Flare IntelliSense"
+			},
+			{
+				"command": "cluaupp.startBridgePoll",
+				"title": "Cluaupp: Start Studio Bridge Poll (open files from Studio)"
+			},
+			{
+				"command": "cluaupp.openFromBridge",
+				"title": "Cluaupp: Open Path from Bridge Event"
 			}
-		]
+		],
+		"configuration": {
+			"title": "Cluaupp",
+			"properties": {
+				"cluaupp.bridgeUrl": {
+					"type": "string",
+					"default": "http://127.0.0.1:3847",
+					"description": "URL of `cluaupp bridge` for Studio↔IDE sync"
+				},
+				"cluaupp.bridgePollMs": {
+					"type": "number",
+					"default": 1000,
+					"description": "How often to poll the Studio bridge for open/error events"
+				}
+			}
+		},
+		"configurationDefaults": {
+			"files.associations": {
+				"*.flare": "flare",
+				"*.hive": "hive",
+				"*.mint": "mint",
+				"*.bloom": "bloom",
+				"*.helm": "helm",
+				"*.shift": "shift",
+				"*.axiom": "axiom"
+			},
+			"[flare]": {
+				"editor.quickSuggestions": {
+					"other": true,
+					"comments": false,
+					"strings": false
+				},
+				"editor.suggest.insertMode": "replace",
+				"editor.tabCompletion": "on",
+				"editor.wordBasedSuggestions": false
+			},
+			"[hive]": {
+				"editor.quickSuggestions": {
+					"other": true,
+					"comments": false,
+					"strings": true
+				},
+				"editor.tabCompletion": "on"
+			}
+		}
 	}
 }

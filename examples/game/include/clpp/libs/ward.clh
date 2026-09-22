@@ -2,6 +2,7 @@
 
 // Ward — server anti-cheat. Rate-limit remotes, cap packet size, speed strikes.
 // Runtime: CluauppLibs.Ward. Call Ward.Start() once on the server.
+// Spawn/respawn are graced automatically. Studio does not Kick unless KickInStudio.
 
 namespace Ward {
 	void Start();

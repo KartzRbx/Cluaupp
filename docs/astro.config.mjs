@@ -6,6 +6,8 @@ const pages = Boolean(process.env.GITHUB_ACTIONS || process.env.SITE_BASE);
 const base = process.env.SITE_BASE || (pages ? "/Cluaupp" : "/");
 
 const clppGrammar = JSON.parse(fs.readFileSync(new URL("./src/syntaxes/clpp.tmLanguage.json", import.meta.url), "utf8"));
+const flareGrammar = JSON.parse(fs.readFileSync(new URL("../editors/vscode/syntaxes/flare.tmLanguage.json", import.meta.url), "utf8"));
+const schemaGrammar = JSON.parse(fs.readFileSync(new URL("../editors/vscode/syntaxes/schema.tmLanguage.json", import.meta.url), "utf8"));
 
 export default defineConfig({
 	site: "https://kartzrbx.github.io",
@@ -15,7 +17,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: "Cluaupp",
-			description: "CL++ toolchain for Roblox — clpp, Rojo, CluauppLibs.",
+			description: "CL++ Roblox project host — Context Safety, API Registry, Flare, Rojo.",
 			favicon: "/assets/logo.png",
 			logo: {
 				src: "./src/assets/logo.png",
@@ -38,6 +40,17 @@ export default defineConfig({
 							displayName: "CL++",
 							aliases: ["clp", "clh"],
 						},
+						{
+							...flareGrammar,
+							name: "flare",
+							displayName: "Flare",
+						},
+						{
+							...schemaGrammar,
+							name: "hive",
+							displayName: "Hive",
+							aliases: ["mint", "bloom", "helm", "shift", "axiom", "cluaupp-schema"],
+						},
 					],
 				},
 			},
@@ -46,8 +59,16 @@ export default defineConfig({
 					label: "Start",
 					items: [
 						{ label: "Getting started", slug: "getting-started" },
+						{ label: "Why Cluaupp", slug: "why-cluaupp" },
+						{ label: "Benchmarks", slug: "benchmarks" },
+						{ label: "Comparison", slug: "comparison" },
 						{ label: "Migration", slug: "migration" },
+						{ label: "Roadmap", slug: "roadmap" },
 					],
+				},
+				{
+					label: "Architecture",
+					autogenerate: { directory: "architecture" },
 				},
 				{
 					label: "CLI",
@@ -73,7 +94,7 @@ export default defineConfig({
 					label: "Reference",
 					items: [
 						{ label: "Roblox API", slug: "engine" },
-						{ label: "Comparison", slug: "comparison" },
+						{ label: "Roblox reference", slug: "reference/roblox" },
 					],
 				},
 			],

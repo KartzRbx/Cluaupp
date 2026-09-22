@@ -403,6 +403,7 @@ function Crest:Destroy()
 	self._button:Destroy()
 end
 
+Crest.new_ = Crest.new
 Crest.SetLabel = Crest.setLabel
 Crest.SetImage = Crest.setImage
 Crest.SetEnabled = Crest.setEnabled

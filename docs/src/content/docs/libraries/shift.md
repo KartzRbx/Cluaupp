@@ -2,9 +2,9 @@
 title: Shift
 ---
 
-**Shift** is a compiled finite-state machine (FSM / HSM). A `.shift` graph becomes **u8 state ids** in `out/`. Invalid transitions are rejected by `CanEnter` / `ChangeState`; hierarchy walks ancestor enter/leave chains. Not [Hive](/libraries/hive/) (ECS).
+**Shift** is a compiled finite-state machine (FSM / HSM). A `.shift` graph becomes **u8 state ids** in `out/`. Invalid transitions are rejected by `CanEnter` / `ChangeState`; hierarchy walks ancestor enter/leave chains. Not [Hive](../hive/) (ECS).
 
-Header: `#include <clpp/libs/shift.clh>` or generated `Npc.clh`. Runtime: `CluauppLibs.Shift`. **Hot path:** one-byte `WriteId` / `ReadId` buffers for [Flare](/libraries/flare/) — not JSON.
+Header: `#include <clpp/libs/shift.clh>` or generated `Npc.clh`. Runtime: `CluauppLibs.Shift`. **Hot path:** one-byte `WriteId` / `ReadId` buffers for [Flare](../flare/) — not JSON.
 
 ## Why
 
@@ -41,7 +41,7 @@ void init() {
 }
 ```
 
-Pair [Hive](/libraries/hive/) for component columns; Shift for combat / AI **mode**.
+Pair [Hive](../hive/) for component columns; Shift for combat / AI **mode**.
 
 ## API
 
@@ -151,7 +151,7 @@ if (brain.CanEnter("Chase")) {
 
 **Returns:** `buffer` — 1 byte: current state id.
 
-**When:** Pack into [Flare](/libraries/flare/) packets or any replication that should stay JSON-free.
+**When:** Pack into [Flare](../flare/) packets or any replication that should stay JSON-free.
 
 ```clpp
 buffer id = brain.WriteId();

@@ -1,5 +1,5 @@
 #pragma once
-// Generated from Roblox API dump. Enum.Name.Item → Enum::Name::Item
+// Generated from RobloxTargetProfile. Enum.Name.Item → Enum::Name::Item
 namespace Enum {
 	enum class AccessModifierType {
 		Allow = 0,

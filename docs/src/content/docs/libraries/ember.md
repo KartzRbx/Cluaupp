@@ -2,7 +2,7 @@
 title: Ember
 ---
 
-**Ember** runs client VFX templates: particles, beams, trails, sounds, fire/smoke, animations. Sweep owns lifetimes — no Debris. Gameplay hits stay on [Flare](/libraries/flare/); Ember is cosmetic.
+**Ember** runs client VFX templates: particles, beams, trails, sounds, fire/smoke, animations. Sweep owns lifetimes — no Debris. Gameplay hits stay on [Flare](../flare/); Ember is cosmetic.
 
 Header: `#include <clpp/libs/ember.clh>`. Runtime: `CluauppLibs.Ember`.
 

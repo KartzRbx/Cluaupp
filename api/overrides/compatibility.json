@@ -1,0 +1,9 @@
+{
+	"_meta": {
+		"reason": "Compatibility shims between Roblox API versions for Cluaupp generators",
+		"source": "Cluaupp api/overrides",
+		"introducedAt": "2026-09-22",
+		"reviewAfter": "2027-03-22"
+	},
+	"shims": []
+}

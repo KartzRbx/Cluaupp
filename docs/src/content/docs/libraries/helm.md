@@ -9,8 +9,8 @@ Header: `#include <clpp/libs/helm.clh>`. Runtime: `CluauppLibs.Helm`. Generated 
 ## Why
 
 - **Args are buffers, not JSON.** UserId tags unpack to `Player` on the server.
-- **Permission is enforced server-side** (`Admin` attribute, `Permission` / `Helm`, `HelmRank`, or place creator). `Kick` calls `:Kick()`. `Give` fires hooks — wire economy through [Keep](/libraries/keep/) yourself. Amounts outside `1…1e9` are ignored.
-- **[Ward](/libraries/ward/) rate-limits `Run`** (`helm`, 6/s) so a stolen console cannot flood `Give` / `Kick`.
+- **Permission is enforced server-side** (`Admin` attribute, `Permission` / `Helm`, `HelmRank`, or place creator). `Kick` calls `:Kick()`. `Give` fires hooks — wire economy through [Keep](../keep/) yourself. Amounts outside `1…1e9` are ignored.
+- **[Ward](../ward/) rate-limits `Run`** (`helm`, 6/s) so a stolen console cannot flood `Give` / `Kick`.
 - **Do not treat a Lens UI as the only authority for `Give`.** Always run through `Run` on the server.
 
 ## Schema (`Admin.helm`)

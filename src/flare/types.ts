@@ -48,6 +48,8 @@ export type FlareQuery = {
 export type FlareSchema = {
 	name: string;
 	sourcePath: string;
+	/** Optional schema version from `version N;` / `opt version = N`. */
+	version?: number;
 	packets: FlarePacket[];
 	queries: FlareQuery[];
 };

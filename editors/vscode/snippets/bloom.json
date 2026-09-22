@@ -1,0 +1,12 @@
+{
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:HudBloom}",
+		"description": "Generated module name"
+	},
+	"Preset gradient": {
+		"prefix": "preset",
+		"body": "preset ${1:Shine} { gradient 0 #FFC832 1 #FF5A1F speed ${2:0.4} }",
+		"description": "Bloom shine preset"
+	}
+}

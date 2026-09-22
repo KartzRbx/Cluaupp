@@ -4,13 +4,13 @@ title: Flare
 
 **Flare** is Cluaupp’s network kernel: Zap-tight packing, batched reliable/unreliable remotes, and query RPC. You do not hand-wire remotes — write `src/ReplicatedStorage/Shared/Net/Net.flare`, run `cluaupp build`, and use the generated `Net.clh` / `Net.luau` API (`Net.Hit.FireServer`, `Net.GetCoins.Invoke()`, …). This header exposes the low-level `Flare.write*` / `Flare.read*` helpers and `Flare.open` used by generated code.
 
-Header: `#include <clpp/libs/flare.clh>` (kernel). Gameplay includes the **generated** `Net.clh`. Runtime: `CluauppLibs.Flare`.
+Header: `#include <clpp/libs/flare.clh>` (kernel). Gameplay includes the **generated** `Net.clh`. Runtime: `CluauppLibs.Flare`. Editor: `cluaupp intellisense` installs Flare highlighting and completions for `.flare`.
 
 ## Why
 
-- **Schema-first networking** with typed packets and queries instead of ad-hoc [Net](/libraries/net/) tables.
+- **Schema-first networking** with typed packets and queries instead of ad-hoc [Net](../net/) tables.
 - **Binary buffers** on the hot path (QuickNet-style cursors, instance sidecar arrays).
-- **Inbound client packets are gated by [Ward](/libraries/ward/)** — size cap, token bucket, and `from Client` direction. Forged server-origin ids are struck, not dispatched.
+- **Inbound client packets are gated by [Ward](../ward/)** — size cap, token bucket, and `from Client` direction. Forged server-origin ids are struck, not dispatched.
 - **Kernel only in games** — gameplay calls generated `Net.*`; custom codecs in advanced pipelines call `Flare.write*` / `read*`.
 
 When **not** to use: trivial one-off remotes (Net), or declaring packets in CL++ without a `.flare` file (generation owns the game API). Keep’s own data handshake (`NotifyReady`) is separate — do not replace it with a Flare packet.
@@ -63,7 +63,7 @@ void showCoins() {
 }
 ```
 
-Full join handshake: [Connection](/examples/net/).
+Full join handshake: [Connection](../../examples/net/).
 
 ## Example — connection
 

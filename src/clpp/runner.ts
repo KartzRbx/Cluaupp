@@ -30,11 +30,11 @@ function cmpSemver(a: Semver, b: Semver): number {
 }
 
 function minClpp(): Semver {
-	return parseSemver(MIN_CLPP_VERSION) || { major: 0, minor: 3, patch: 2 };
+	return parseSemver(MIN_CLPP_VERSION) || { major: 0, minor: 7, patch: 0 };
 }
 
 function tooOldMessage(bin: string, version: string | null): string {
-	return `cluaupp: clpp ${version || "unknown"} is too old (${bin}). Need CL++ ${MIN_CLPP_VERSION}+. Install https://github.com/KartzRbx/CLPP/releases/download/v0.3.2/clpp-setup.exe or set CLPP / CLPP_PATH.`;
+	return `cluaupp: clpp ${version || "unknown"} is too old (${bin}). Need CL++ ${MIN_CLPP_VERSION}+. Install https://github.com/KartzRbx/CLPP/releases or set CLPP / CLPP_PATH.`;
 }
 
 function probeVersion(bin: string): string | null {
@@ -184,6 +184,11 @@ export function compileViaClpp(request: CompileRequest): CompileArtifact {
 		source: request.source,
 		fileName: request.fileName,
 		strict: request.strict ?? null,
+		targetProfilePath: request.targetProfilePath ?? null,
+		targetCacheDir: request.targetCacheDir ?? null,
+		runContext: request.runContext ?? null,
+		capabilityProfilePath: request.capabilityProfilePath ?? null,
+		datamodelProfilePath: request.datamodelProfilePath ?? null,
 	});
 	const result = spawnSync(bin, ["api", "compile"], {
 		input: payload,
@@ -237,6 +242,11 @@ export function compileViaClppAsync(request: CompileRequest): Promise<CompileArt
 				source: request.source,
 				fileName: request.fileName,
 				strict: request.strict ?? null,
+				targetProfilePath: request.targetProfilePath ?? null,
+				targetCacheDir: request.targetCacheDir ?? null,
+				runContext: request.runContext ?? null,
+				capabilityProfilePath: request.capabilityProfilePath ?? null,
+				datamodelProfilePath: request.datamodelProfilePath ?? null,
 			}),
 		);
 	});

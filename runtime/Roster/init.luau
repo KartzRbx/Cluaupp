@@ -277,6 +277,8 @@ function Roster.new<T>(initial: { T }?): Roster<T>
 	return setmetatable({ Data = initial or {} }, Roster)
 end
 
+Roster.New = Roster.new
+
 function Roster.Size(source: any): number
 	local count = 0
 	for _ in unwrap(source) do
@@ -350,6 +352,12 @@ end
 
 function Roster.RemoveAt(source: any, index: number): any
 	return table.remove(unwrap(source), index)
+end
+
+function Roster.Remove(source: any, key: any): any
+	local data = unwrap(source)
+	data[key] = nil
+	return asRoster(source, data)
 end
 
 function Roster.Map(source: any, mapper: (value: any, index: any) -> any): any

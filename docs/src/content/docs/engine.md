@@ -1,12 +1,17 @@
 ---
 title: Roblox API
+description: How Cluaupp exposes the Roblox engine to CL++ via the Canonical Registry.
 ---
 
-Cluaupp uses the official engine. Spell the call in CL++ 0.3.2 / 0.3.3; look up members on [create.roblox.com](https://create.roblox.com/docs/reference/engine). `#include <clpp/generated/instances.clh>` lists **flattened** members: `MeshPart` has `Size`, `CFrame`, `FindFirstChild`, and `WaitForChild`, plus `new MeshPart()`.
+# Roblox API
 
-Handbook: **[Docs](https://kartzrbx.github.io/Cluaupp/docs/)** · [Roblox in Cluaupp](https://kartzrbx.github.io/Cluaupp/docs/engine.html)
+Cluaupp does **not** invent the engine. It **consumes** the official API dump into a Canonical Registry, then projects CL++ headers and an LSP index.
 
-`#include <clpp/roblox.clh>` is IntelliSense. The compiler ignores the header and emits real Luau.
+- Official docs: [create.roblox.com](https://create.roblox.com/docs/reference/engine)
+- Registry CLI: `cluaupp api inspect Players` · `api search` · `api coverage`
+- Handbook: [Roblox reference](../reference/roblox/) · [Architecture](../architecture/roblox-target/)
+
+`#include <clpp/roblox.clh>` is for IntelliSense / bindings. The compiler emits real Luau.
 
 ## Datatypes
 
@@ -28,4 +33,4 @@ frame.Size = UDim2.fromScale(1, 1)
 local material = Enum.Material.Plastic
 ```
 
-Every enum is `Enum.Name.Item`. Services are `GetService<Players>()`. Instances are `new MeshPart()`, `new Folder(parent)`, and `mesh.FindFirstChild("x")`. Binary payloads use Luau `buffer` (`buffer::create`, `buffer::writeu32`, `buffer::readf64`). Networking: write a `.flare` schema and include the generated `Net.clh` — see [Flare](/libraries/flare/).
+Enums are `Enum.Name.Item`. Services are `GetService<Players>()`. Instances: `new MeshPart()`, `new Folder(parent)`. Networking: [Flare](../libraries/flare/). ThreadSafety metadata: [Parallel safety](../architecture/parallel-safety/).

@@ -5,8 +5,27 @@ import { parseFlare } from "./parse.js";
 import type { FlareEmitResult, FlareSchema } from "./types.js";
 
 export type { FlareEmitResult, FlareSchema } from "./types.js";
-export { parseFlare } from "./parse.js";
 export { emitFlare, emitFlareHeader, emitFlareLuau } from "./emit.js";
+export { parseFlare, FLARE_TYPE_ALIASES, FLARE_IDENT } from "./parse.js";
+export {
+	analyzeFlare,
+	completionsAt,
+	diagnoseFlare,
+	hoverAt,
+	isFlareDocument,
+	signatureAt,
+	symbolsIn,
+	FLARE_CANONICAL_TYPES,
+	FLARE_TYPE_DOCS,
+} from "./language.js";
+export type {
+	FlareAnalysis,
+	FlareCompletion,
+	FlareDiagnostic,
+	FlareHover,
+	FlareSignature,
+	FlareSymbol,
+} from "./language.js";
 
 export function isFlareFile(fileName: string): boolean {
 	return path.extname(fileName).toLowerCase() === ".flare";

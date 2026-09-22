@@ -1,0 +1,5 @@
+opt name = Net
+
+packet Ready() from Client
+packet Welcome(i32 userId, f64 clock) from Server
+query Session() -> i32

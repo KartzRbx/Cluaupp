@@ -1,0 +1,9 @@
+{
+	"_meta": {
+		"reason": "Declarative type-mapping overrides (Roblox Category/Name → CanonicalType)",
+		"source": "Cluaupp api/overrides",
+		"introducedAt": "2026-09-22",
+		"reviewAfter": "2027-03-22"
+	},
+	"mappings": {}
+}

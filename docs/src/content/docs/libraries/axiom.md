@@ -12,7 +12,7 @@ A `.axiom` file lists **groups** so generated `out/` copies only those functions
 
 **Use when:** HUD bars, camera bob, projectile arcs, local juice (easing, bezier, value-noise).
 
-**Do not use when:** economy rolls or loot — [Keep](/libraries/keep/) owns persisted RNG. Networked motion is [Flare](/libraries/flare/) + [Echo](/libraries/echo/), not a client lerp.
+**Do not use when:** economy rolls or loot — [Keep](../keep/) owns persisted RNG. Networked motion is [Flare](../flare/) + [Echo](../echo/), not a client lerp.
 
 ## Example
 
@@ -100,7 +100,7 @@ Axiom.Sign(0);   // 0
 
 **Returns:** `double` rounded half-up. Optional `digits` is decimal places.
 
-**When:** display numbers before [Mint](/libraries/mint/), grid placement.
+**When:** display numbers before [Mint](../mint/), grid placement.
 
 **Formula:** `round(x, p) = floor(x * 10^p + 0.5) / 10^p`
 

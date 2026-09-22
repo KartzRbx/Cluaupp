@@ -1,0 +1,8 @@
+{
+	"_meta": {
+		"reason": "Baseline Roblox/Luau globals for Target Profile; engine dump does not list them as first-class globals",
+		"source": "Cluaupp defaults + Roblox Creator Docs",
+		"introducedAt": "2026-09-22",
+		"reviewAfter": "2027-03-22"
+	}
+}

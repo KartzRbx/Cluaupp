@@ -4,15 +4,19 @@ sidebar:
 title: IntelliSense
 ---
 
-CL++ highlighting, completion, and diagnostics come from **`clpp setup`** ([KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) language pack). Cluaupp does not ship clangd or a C++ engine.
+CL++ highlighting, completion, and diagnostics come from **`clpp setup`** ([KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) language pack).
+
+**`.flare` schemas** use the Cluaupp Flare extension (highlighting, completions, hover, diagnostics, outline). `cluaupp intellisense` copies it into Cursor and VS Code.
 
 ```bash
 clpp setup
-cluaupp intellisense   # writes files.associations for .clpp / .clp / .clh
+cluaupp intellisense   # Flare extension + files.associations for .clpp / .flare
 ```
 
-Reload the editor. Language id is **`clpp`**, not `cpp`.
+Reload the editor. Language ids: **`clpp`** for CL++, **`flare`** for `.flare`.
 
-Do not run `cluaupp lsp` for day-to-day editing. It does not compile on keystroke. Completion and error lens come from the official CL++ pack (`clpp setup`). If both Cluaupp diagnostics and `source=clpp` appear, disable `kartzdev.cluaupp-diagnostics-*` and keep only CL++.
+In a `.flare` file, start a line and accept `packet (from Client)`, `query`, or `opt name`. Types (`i32`, `Player`, `f64`, …) complete inside `(…)`. Hover a packet name to see the generated `Fire` / `Connect` / `Invoke` API. Unknown types squiggle; a quick-fix offers the closest match.
 
-Cluaupp needs **CL++ 0.3.2+**. A cargo `clpp 0.1.0` earlier on PATH cannot parse `for (T x in list)`, `GetService<T>()`, or `#pragma strict`. Run `cluaupp language` to see which binary is selected.
+`cluaupp lsp` is the same Flare engine over stdio (other editors). It does not compile CL++ on keystroke — that stays with `clpp setup`.
+
+Cluaupp needs **CL++ 0.7.0+**. Run `cluaupp language` to see which binary is selected.

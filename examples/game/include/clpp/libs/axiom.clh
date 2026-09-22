@@ -2,7 +2,7 @@
 
 // Axiom — combat / camera / HUD math. Every function returns a concrete type.
 // Groups: Scalar Lerp Vector CFrame Easing Bezier Geometry Trig Probability Noise Color
-// .axiom schema calls Axiom.Select({ "Scalar", "Lerp" }) from generated Luau.
+// .axiom schema: group Lerp (whole pack) or fn LerpVector2 (one function). Axiom.Select accepts both.
 
 namespace Axiom {
 	double Clamp(double value, double min, double max);

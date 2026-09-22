@@ -1,0 +1,89 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Cluaupp Schema",
+	"scopeName": "source.cluaupp-schema",
+	"patterns": [
+		{ "include": "#comments" },
+		{ "include": "#strings" },
+		{ "include": "#hex" },
+		{ "include": "#keywords" },
+		{ "include": "#types" },
+		{ "include": "#operators" },
+		{ "include": "#names" },
+		{ "include": "#numbers" }
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.cluaupp-schema",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.line.number-sign.cluaupp-schema",
+					"match": "#.*$"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.cluaupp-schema",
+			"begin": "\"",
+			"end": "\""
+		},
+		"hex": {
+			"name": "constant.other.color.cluaupp-schema",
+			"match": "#[0-9A-Fa-f]{6}\\b"
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.declaration.cluaupp-schema",
+					"match": "\\b(opt|packet|query|component|formatter|preset|command|state|machine|group)\\b"
+				},
+				{
+					"name": "keyword.other.cluaupp-schema",
+					"match": "\\b(from|name|parent|permission|when|fraction|grouping|gradient|speed)\\b"
+				},
+				{
+					"name": "constant.language.cluaupp-schema",
+					"match": "\\b(Client|Server|compact|group|integer|percent|scientific|on|off)\\b"
+				},
+				{
+					"name": "storage.modifier.cluaupp-schema",
+					"match": "\\b(unreliable|reliable)\\b"
+				}
+			]
+		},
+		"types": {
+			"name": "storage.type.cluaupp-schema",
+			"match": "\\b(u8|u16|u32|i8|i16|i32|int|f32|f64|float|double|number|bool|boolean|string|Vector3|Vector2|CFrame|Color3|UDim|UDim2|BrickColor|buffer|Instance|Player|Model)\\b"
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.arrow.cluaupp-schema",
+					"match": "->"
+				},
+				{
+					"name": "keyword.operator.assignment.cluaupp-schema",
+					"match": "="
+				}
+			]
+		},
+		"names": {
+			"patterns": [
+				{
+					"match": "\\b(component|formatter|preset|command|state|machine|group)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": { "name": "keyword.declaration.cluaupp-schema" },
+						"2": { "name": "entity.name.type.cluaupp-schema" }
+					}
+				}
+			]
+		},
+		"numbers": {
+			"name": "constant.numeric.cluaupp-schema",
+			"match": "\\b\\d+(?:\\.\\d+)?\\b"
+		}
+	}
+}

@@ -2,7 +2,7 @@
 title: Crest
 ---
 
-**Crest** adds Roblox topbar-style icon buttons that follow `TopbarInset`. Chain fluent setters, bind events, and drive notice badges. Client chrome only — shop logic stays on the server / [Flare](/libraries/flare/).
+**Crest** adds Roblox topbar-style icon buttons that follow `TopbarInset`. Chain fluent setters, bind events, and drive notice badges. Client chrome only — shop logic stays on the server / [Flare](../flare/).
 
 Header: `#include <clpp/libs/crest.clh>`. Runtime: `CluauppLibs.Crest`.
 
@@ -15,8 +15,8 @@ Header: `#include <clpp/libs/crest.clh>`. Runtime: `CluauppLibs.Crest`.
 
 **Do not use when:**
 
-- You need in-world billboards — [Pin](/libraries/pin/).
-- You need reactive HUD layout — [Gleam](/libraries/gleam/).
+- You need in-world billboards — [Pin](../pin/).
+- You need reactive HUD layout — [Gleam](../gleam/).
 
 ## Example CL++
 

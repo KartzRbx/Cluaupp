@@ -16,6 +16,7 @@ const package_info_js_1 = require("./package-info.js");
 const contract_js_1 = require("./clpp/contract.js");
 const runner_js_1 = require("./clpp/runner.js");
 const paths_js_1 = require("./clpp/paths.js");
+const editor_install_js_1 = require("./editor-install.js");
 function copyDir(from, to) {
     node_fs_1.default.mkdirSync(to, { recursive: true });
     for (const entry of node_fs_1.default.readdirSync(from, { withFileTypes: true })) {
@@ -81,16 +82,31 @@ function writeVscode(root) {
         "*.server.clpp": "clpp",
         "*.client.clpp": "clpp",
         "*.plugin.clpp": "clpp",
+        "*.flare": "flare",
+        "*.hive": "hive",
+        "*.mint": "mint",
+        "*.bloom": "bloom",
+        "*.helm": "helm",
+        "*.shift": "shift",
+        "*.axiom": "axiom",
     };
     writeJson(settingsPath, {
         ...current,
         "files.associations": associations,
+        "[luau]": {
+            ...((current["[luau]"] && typeof current["[luau]"] === "object" && !Array.isArray(current["[luau]"]))
+                ? current["[luau]"]
+                : {}),
+            "editor.insertSpaces": false,
+            "editor.tabSize": 4,
+            "editor.detectIndentation": false,
+        },
     });
     const extensionsPath = node_path_1.default.join(root, ".vscode", "extensions.json");
     const extensions = readJsonObject(extensionsPath);
     writeJson(extensionsPath, {
         ...extensions,
-        recommendations: uniqueStrings(extensions.recommendations),
+        recommendations: uniqueStrings(extensions.recommendations, ["kartzdev.cluaupp-flare"]),
         unwantedRecommendations: uniqueStrings(extensions.unwantedRecommendations, ["ms-vscode.cpptools"]),
     });
 }
@@ -99,15 +115,38 @@ function diagnosticsFor(_source, _fileName) {
     // from the editor — that duplicates source=clpp and freezes on every keystroke.
     return [];
 }
+function writeStylua(root) {
+    const dest = node_path_1.default.join(root, "stylua.toml");
+    const body = `# cluaupp roblox luau
+syntax = "Luau"
+column_width = 120
+line_endings = "Unix"
+indent_type = "Tabs"
+indent_width = 4
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
+collapse_simple_statement = "Never"
+`;
+    if (node_fs_1.default.existsSync(dest)) {
+        const existing = node_fs_1.default.readFileSync(dest, "utf8");
+        if (!existing.includes("cluaupp roblox luau") && existing.trim() !== "") {
+            return;
+        }
+    }
+    if (!node_fs_1.default.existsSync(dest) || node_fs_1.default.readFileSync(dest, "utf8") !== body) {
+        node_fs_1.default.writeFileSync(dest, body, "utf8");
+    }
+}
 function syncEditorSupport(root, _config = {}) {
     writeVscode(root);
+    writeStylua(root);
 }
 function installEditorExtension(cluauppRoot = package_info_js_1.projectRoot) {
     const from = node_path_1.default.join(cluauppRoot, "editors", "vscode");
     if (!node_fs_1.default.existsSync(from)) {
         return [];
     }
-    const id = `kartzdev.cluaupp-diagnostics-${package_info_js_1.pkg.version}`;
+    const id = `kartzdev.cluaupp-flare-${package_info_js_1.pkg.version}`;
     const homes = [node_path_1.default.join(node_os_1.default.homedir(), ".cursor", "extensions"), node_path_1.default.join(node_os_1.default.homedir(), ".vscode", "extensions")];
     const installed = [];
     for (const home of homes) {
@@ -115,15 +154,50 @@ function installEditorExtension(cluauppRoot = package_info_js_1.projectRoot) {
             continue;
         }
         node_fs_1.default.mkdirSync(home, { recursive: true });
+        try {
+            for (const name of node_fs_1.default.readdirSync(home)) {
+                if (name.startsWith("kartzdev.cluaupp-flare-") && name !== id) {
+                    node_fs_1.default.rmSync(node_path_1.default.join(home, name), { recursive: true, force: true });
+                }
+            }
+        }
+        catch {
+            // ignore prune errors
+        }
         const dest = node_path_1.default.join(home, id);
         copyDir(from, dest);
         node_fs_1.default.writeFileSync(node_path_1.default.join(dest, "cluaupp.root"), node_path_1.default.resolve(cluauppRoot), "utf8");
+        const manifestPath = node_path_1.default.join(dest, "package.json");
+        if (node_fs_1.default.existsSync(manifestPath)) {
+            try {
+                const manifest = JSON.parse(node_fs_1.default.readFileSync(manifestPath, "utf8"));
+                manifest.version = package_info_js_1.pkg.version;
+                node_fs_1.default.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, "\t")}\n`, "utf8");
+            }
+            catch {
+                // keep the copied manifest
+            }
+        }
         installed.push(dest);
+    }
+    const bin = (0, editor_install_js_1.editorBin)();
+    if (bin && installed[0]) {
+        (0, node_child_process_1.spawnSync)(bin, ["--install-extension", installed[0], "--force"], {
+            encoding: "utf8",
+            windowsHide: true,
+            timeout: 120000,
+        });
     }
     return installed;
 }
 async function installEditorSupport() {
     const local = installEditorExtension();
+    if (local.length > 0) {
+        console.log("cluaupp: schema IntelliSense installed (.flare .hive .mint .bloom .helm .shift .axiom)");
+        for (const dest of local) {
+            console.log(" ", dest);
+        }
+    }
     if ((0, runner_js_1.hasClpp)()) {
         const result = (0, node_child_process_1.spawnSync)("clpp", ["install"], { encoding: "utf8", windowsHide: true });
         if (result.status === 0) {

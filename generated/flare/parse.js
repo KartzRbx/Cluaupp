@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.FLARE_IDENT = exports.FLARE_TYPE_ALIASES = void 0;
 exports.parseFlare = parseFlare;
-const TYPES = {
+exports.FLARE_TYPE_ALIASES = {
     u8: "u8",
     u16: "u16",
     u32: "u32",
@@ -28,12 +29,12 @@ const TYPES = {
     Instance: "Instance",
     Player: "Player",
 };
-const IDENT = "[A-Za-z_][A-Za-z0-9_]*";
+exports.FLARE_IDENT = "[A-Za-z_][A-Za-z0-9_]*";
 function fail(file, line, message) {
     throw new Error(`cluaupp flare: ${file}:${line}: ${message}`);
 }
 function parseType(raw, file, line) {
-    const mapped = TYPES[raw];
+    const mapped = exports.FLARE_TYPE_ALIASES[raw];
     if (!mapped) {
         fail(file, line, `unknown type '${raw}'`);
     }
@@ -50,7 +51,7 @@ function parseFields(list, file, line) {
         if (!piece) {
             continue;
         }
-        const match = piece.match(new RegExp(`^(${IDENT})\\s+(${IDENT})$`));
+        const match = piece.match(new RegExp(`^(${exports.FLARE_IDENT})\\s+(${exports.FLARE_IDENT})$`));
         if (!match) {
             fail(file, line, `expected 'Type name' in '${piece}'`);
         }
@@ -71,6 +72,7 @@ function parseSide(raw, file, line) {
 function parseFlare(source, filePath, defaultName) {
     const file = filePath.replace(/\\/g, "/");
     let name = defaultName;
+    let version;
     const packets = [];
     const queries = [];
     let packetId = 1;
@@ -82,6 +84,11 @@ function parseFlare(source, filePath, defaultName) {
         if (!line || line.startsWith("#") || line.startsWith("//")) {
             continue;
         }
+        const verStmt = line.match(/^version\s+(\d+)\s*;?$/i);
+        if (verStmt) {
+            version = Number(verStmt[1]);
+            continue;
+        }
         const opt = line.match(/^opt\s+name\s*=\s*(.+)$/i);
         if (opt) {
             const value = opt[1].trim().replace(/^["']|["']$/g, "");
@@ -91,7 +98,12 @@ function parseFlare(source, filePath, defaultName) {
             name = value;
             continue;
         }
-        const packet = line.match(new RegExp(`^packet\\s+(${IDENT})\\s*\\((.*)\\)\\s+from\\s+(Client|Server)(?:\\s+(unreliable|reliable))?\\s*$`, "i"));
+        const optVer = line.match(/^opt\s+version\s*=\s*(\d+)\s*;?$/i);
+        if (optVer) {
+            version = Number(optVer[1]);
+            continue;
+        }
+        const packet = line.match(new RegExp(`^packet\\s+(${exports.FLARE_IDENT})\\s*\\((.*)\\)\\s+from\\s+(Client|Server)(?:\\s+(unreliable|reliable))?\\s*$`, "i"));
         if (packet) {
             const reliable = String(packet[4] || "reliable").toLowerCase() !== "unreliable";
             if (packetId > 255) {
@@ -107,7 +119,7 @@ function parseFlare(source, filePath, defaultName) {
             });
             continue;
         }
-        const query = line.match(new RegExp(`^query\\s+(${IDENT})\\s*\\((.*)\\)\\s*->\\s*(${IDENT})\\s*$`, "i"));
+        const query = line.match(new RegExp(`^query\\s+(${exports.FLARE_IDENT})\\s*\\((.*)\\)\\s*->\\s*(${exports.FLARE_IDENT})\\s*$`, "i"));
         if (query) {
             if (queryId > 255) {
                 fail(file, lineNo, "too many queries (max 255)");
@@ -126,5 +138,5 @@ function parseFlare(source, filePath, defaultName) {
     if (packets.length === 0 && queries.length === 0) {
         fail(file, 1, "schema is empty — add a packet or query");
     }
-    return { name, sourcePath: file, packets, queries };
+    return { name, sourcePath: file, version, packets, queries };
 }

@@ -4,7 +4,7 @@ title: Sword (Touched)
 
 Melee that uses a **server** `Touched` on the tool handle. The client can play animations; it must not tell the server how much damage to apply.
 
-Same authority as [combat](/examples/combat/), without a Net remote: while the Tool is equipped, `Touched` runs on the server.
+Same authority as [combat](../combat/), without a Net remote: while the Tool is equipped, `Touched` runs on the server.
 
 ## Config
 
@@ -102,4 +102,4 @@ A tagged `Sword.server.clpp` in `src/server/` becomes a service folder in Server
 
 Client: a LocalScript in the same Tool can play an AnimationTrack on `Activated`. It still must not replicate a damage number.
 
-For ranged hits (mouse target → remote), use [combat](/examples/combat/).
+For ranged hits (mouse target → remote), use [combat](../combat/).

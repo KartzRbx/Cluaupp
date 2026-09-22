@@ -2,7 +2,7 @@
 title: Stage
 ---
 
-**Stage** clones a model into a `ViewportFrame` inside a GUI frame, frames it with an internal camera, and optional Y-orbit via `Update(dt)`. Not replication — live characters stay on [Echo](/libraries/echo/).
+**Stage** clones a model into a `ViewportFrame` inside a GUI frame, frames it with an internal camera, and optional Y-orbit via `Update(dt)`. Not replication — live characters stay on [Echo](../echo/).
 
 Header: `#include <clpp/libs/stage.clh>`. Runtime: `CluauppLibs.Stage`.
 

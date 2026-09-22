@@ -113,7 +113,7 @@ Wire `OnHealthPackClicked` to a `TextButton.MouseButton1Click.Connect(OnHealthPa
 
 - `productId < 1` / unknown id → `PriceOf` returns `0` → reject.
 - Do not `FireServer(price)` or `FireServer(newMoney)`.
-- [Leaderstats](/examples/leaderstats/) updates from `GetChangedSignal` after `Set`.
+- [Leaderstats](../leaderstats/) updates from `GetChangedSignal` after `Set`.
 - Same Net name `"Buy"` on both sides.
 
-See [Safety](/language/safety/).
+See [Safety](../../language/safety/).

@@ -4,7 +4,7 @@
 #include "../../ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh"
 
 void init() {
-	PlayerTemplate playerData;
+	PlayerTemplate playerData = PlayerTemplate();
 	Keep.Server.Init(DataServiceOptions {
 		.Template = playerData,
 		.StoreName = "PlayerData",

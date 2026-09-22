@@ -9,6 +9,7 @@ struct HiveWorld {
 	bool Has(int entity, int componentId);
 	auto Query();
 	buffer Snapshot(int componentId);
+	buffer Snapshot(auto component);
 };
 
 namespace Hive {

@@ -2,9 +2,9 @@
 title: Advanced
 ---
 
-CL++ is the language (`clpp` 0.3.2). Cluaupp orchestrates Rojo and CluauppLibs. Full course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+CL++ is the language (`clpp` **0.7+**). Cluaupp orchestrates Rojo, the API registry, and CluauppLibs. Full course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
-## Supported (CL++ 0.3.2)
+## Supported (CL++ 0.7+)
 
 - `.clpp` / `.clp` / `.clh`, tags `.server` / `.client`, `#pragma strict`, `void init()`
 - `if` / `else` / `while` / C-style `for` / range-`for (T x in list)` / `switch` / `guard` / `match`
@@ -71,4 +71,4 @@ void Grant(Player player, int amount) {
 5. **Headers declare, scripts define.** Prototypes in `.clh`, bodies in `.clp` / `.clpp`.
 6. **Do not share mutable statics across server and client** — use Net or DataService.
 
-See also: [syntax](/language/syntax/), [libraries](libraries/index.md). Language: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
+See also: [syntax](../syntax/), [libraries](../../libraries/), [Why Cluaupp](../../why-cluaupp/). Language: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).

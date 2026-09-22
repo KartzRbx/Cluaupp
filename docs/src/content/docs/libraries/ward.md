@@ -2,15 +2,17 @@
 title: Ward
 ---
 
-**Ward** is Cluaupp’s server anti-cheat kernel: remote rate limits, packet-size caps, and movement strikes. It does **not** write [Keep](/libraries/keep/) data — economy stays on the server. Flare, Net, Keep replication, and Helm call Ward on every inbound client buffer.
+**Ward** is Cluaupp’s server anti-cheat kernel: remote rate limits, packet-size caps, and movement strikes. It does **not** write [Keep](../keep/) data — economy stays on the server. Flare, Net, Keep replication, and Helm call Ward on every inbound client buffer.
 
 Header: `#include <clpp/libs/ward.clh>`. Runtime: `CluauppLibs.Ward`.
 
 ## Why
 
 - **One strike pool.** Flooding Flare and teleporting share the same kick counter (`Ward.KickAt`, default 8).
-- **Token bucket per channel.** `Allow(player, "flare", 60, 120)` refills 60 tokens/sec up to a burst of 120.
+- **Token bucket per channel.** `Allow(player, "flare", 60, 120)` refills 60 tokens/sec up to a burst of 120. Empty tokens **drop** the request. A strike (`rate:<channel>`) happens only after `Ward.FloodAt` consecutive denials (default 80) — button mash is not a kick.
 - **Speed revert.** Heartbeat compares `HumanoidRootPart` distance to `MaxTeleport` and `MaxSpeed`; illegal motion is snapped back, then struck.
+- **Spawn is not a hack.** `Start` / `WatchMovement` grace the player for 3 seconds on join and every `CharacterAdded`, and drop `lastPos` when the root is missing. Mostly-vertical falls (horizontal move under `MaxTeleport`) are not struck. Heartbeat speed uses a 1/30 dt floor so a hitch does not look like a teleport.
+- **Studio.** `Ward.KickInStudio` defaults to `false`. Strikes still fire; kicks do not, so placeholder playtests are not disconnected. Set `Ward.KickInStudio = true` only when you want to exercise the kick path in Studio.
 
 When **not** to use: client-side “anti-cheat” (the client is not authority), or treating Ward as a replacement for escrow trades — use `Keep.Trade`.
 
@@ -42,7 +44,7 @@ void onCustomRemote(Player player, buffer packed) {
 }
 ```
 
-The game template already runs this from `Guard.server.clpp`. After a legitimate server teleport, call `Ward.Grace` so the next Heartbeat does not look like a speed hack.
+The game template already runs this from `Guard.server.clpp`. Join and respawn are already graced. After a legitimate server teleport (not spawn), still call `Ward.Grace` so the next Heartbeat does not look like a speed hack.
 
 ## API
 
@@ -92,7 +94,7 @@ if (!Ward.Packet(player, 128)) {
 
 ### `Ward.Strike`
 
-**Returns:** `int` — strike count after this call. Kicks at `Ward.KickAt`.
+**Returns:** `int` — strike count after this call. Kicks at `Ward.KickAt` (skipped in Studio unless `Ward.KickInStudio` is true).
 
 **When:** Custom detections (impossible inventory, forged ids).
 

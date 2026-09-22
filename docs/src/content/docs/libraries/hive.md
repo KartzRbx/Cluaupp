@@ -2,7 +2,7 @@
 title: Hive
 ---
 
-**Hive** is a jecs-style ECS: entities, component columns, and iterators. A `.hive` file bakes **u8 component ids**. `Snapshot` writes a **tagged buffer** (nil / bool / number / string / table) for [Flare](/libraries/flare/) — not JSON. Not a second [Shift](/libraries/shift/).
+**Hive** is a jecs-style ECS: entities, component columns, and iterators. A `.hive` file bakes **u8 component ids**. `Snapshot` writes a **tagged buffer** (nil / bool / number / string / table) for [Flare](../flare/) — not JSON. Not a second [Shift](../shift/).
 
 Header: `#include <clpp/libs/hive.clh>` or generated `NpcWorld.clh`. Runtime: `CluauppLibs.Hive`.
 
@@ -33,7 +33,7 @@ void init() {
 }
 ```
 
-Full loop: [NPC example](/examples/npc/).
+Full loop: [NPC example](../../examples/npc/).
 
 ## API
 
@@ -132,7 +132,7 @@ auto next = world.Query(NpcWorld.Health, NpcWorld.Target);
 
 **Returns:** `buffer` — packed column for one component id (all entities that have a value in that column).
 
-**When:** Replicate or save one component column over [Flare](/libraries/flare/) without JSON.
+**When:** Replicate or save one component column over [Flare](../flare/) without JSON.
 
 ```clpp
 buffer snap = world.Snapshot(NpcWorld.Health);

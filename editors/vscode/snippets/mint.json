@@ -1,0 +1,12 @@
+{
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:HudMint}",
+		"description": "Generated module name"
+	},
+	"Formatter compact": {
+		"prefix": "formatter",
+		"body": "formatter ${1:Coins} compact(\"K\", \"M\", \"B\") fraction ${2:1} grouping on",
+		"description": "Mint compact number formatter"
+	}
+}

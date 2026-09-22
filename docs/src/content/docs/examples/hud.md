@@ -2,7 +2,7 @@
 title: HUD
 ---
 
-Gleam + Mint + Bloom. Client-only. Coins come from [Keep](/libraries/keep/) (`WaitForData`); the label is Mint; shine is Bloom; Sweep owns Activated.
+Gleam + Mint + Bloom. Client-only. Coins come from [Keep](../../libraries/keep/) (`WaitForData`); the label is Mint; shine is Bloom; Sweep owns Activated.
 
 ```clpp
 #include <clpp/roblox.clh>
@@ -32,4 +32,4 @@ void init() {
 }
 ```
 
-See [Gleam](/libraries/gleam/), [Mint](/libraries/mint/), [Bloom](/libraries/bloom/).
+See [Gleam](../../libraries/gleam/), [Mint](../../libraries/mint/), [Bloom](../../libraries/bloom/).

@@ -1,0 +1,27 @@
+{
+	"Packet from Client": {
+		"prefix": ["packetc", "packet"],
+		"body": "packet ${1:Hit}(${2:Player} ${3:target}, ${4:i32} ${5:damage}) from Client",
+		"description": "Client → server packet (FireServer / Connect with Player first)"
+	},
+	"Packet from Server": {
+		"prefix": "packets",
+		"body": "packet ${1:Welcome}(${2:i32} ${3:userId}, ${4:f64} ${5:clock}) from Server",
+		"description": "Server → client packet (Fire recipient first, then schema fields)"
+	},
+	"Packet unreliable": {
+		"prefix": "packetu",
+		"body": "packet ${1:Spark}(${2:Vector3} ${3:pos}) from Server unreliable",
+		"description": "Unreliable server packet — visuals, not economy"
+	},
+	"Query RPC": {
+		"prefix": "query",
+		"body": "query ${1:Session}() -> ${2:i32}",
+		"description": "RPC query (Invoke / On, server must return)"
+	},
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:Net}",
+		"description": "Generated module name (Net.clh / Net.Hit)"
+	}
+}

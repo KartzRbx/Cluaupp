@@ -1,0 +1,5 @@
+{
+	"name": "Helm",
+	"scopeName": "source.helm",
+	"patterns": [{ "include": "source.cluaupp-schema" }]
+}

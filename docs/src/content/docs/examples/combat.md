@@ -2,7 +2,7 @@
 title: Combat (server validation)
 ---
 
-Live source: [`examples/game/src/server/combat.server.clpp`](../../examples/game/src/server/combat.server.clpp). Language: [CL++](https://kartzrbx.github.io/CLPP/).
+Live source: see the game examples under `examples/game/` in the [Cluaupp repo](https://github.com/KartzRbx/Cluaupp). Language: [CL++](https://kartzrbx.github.io/CLPP/).
 
 This sample uses exclusive CL++:
 

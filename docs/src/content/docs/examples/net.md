@@ -4,7 +4,7 @@ title: Connection (Flare)
 
 The client fires **Ready**. The server waits for Keep, then **Welcome**. A **Session** query is RPC for identity. Keep’s tagged `ready` buffer is a different channel — do not replace it with this packet.
 
-Schema: `src/ReplicatedStorage/Shared/Net/Net.flare`. After `cluaupp build`, include the generated `Net.clh` (not `<clpp/libs/net.clh>`). Library: [Flare](/libraries/flare/).
+Schema: `src/ReplicatedStorage/Shared/Net/Net.flare`. After `cluaupp build`, include the generated `Net.clh` (not `<clpp/libs/net.clh>`). Library: [Flare](../../libraries/flare/).
 
 ```
 opt name = Net
@@ -75,4 +75,4 @@ Fire `Ready` after `Keep.Client.Init()` so the replica exists before gameplay pa
 
 - Do not declare remotes by hand (`Instance.new("RemoteEvent")`) — Flare owns the session.
 - Do not send Keep currency or inventory on this channel. Write those with `Keep.Server` only.
-- Do not skip [Ward](/libraries/ward/) `Grace` after a server teleport.
+- Do not skip [Ward](../../libraries/ward/) `Grace` after a server teleport.

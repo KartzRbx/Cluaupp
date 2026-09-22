@@ -1,0 +1,12 @@
+{
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:Sim}",
+		"description": "Generated module name"
+	},
+	"Group": {
+		"prefix": "group",
+		"body": "group ${1:Scalar}",
+		"description": "Axiom math group"
+	}
+}

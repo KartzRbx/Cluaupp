@@ -1,0 +1,72 @@
+{
+	"Version": "fixture-mini-1",
+	"Classes": [
+		{
+			"Name": "Instance",
+			"Superclass": "<<<ROOT>>>",
+			"Tags": ["NotCreatable"],
+			"Members": [
+				{
+					"MemberType": "Property",
+					"Name": "Name",
+					"ValueType": { "Category": "Primitive", "Name": "string" },
+					"Security": { "Read": "None", "Write": "None" }
+				},
+				{
+					"MemberType": "Function",
+					"Name": "FindFirstChild",
+					"ReturnType": { "Category": "Class", "Name": "Instance" },
+					"Parameters": [
+						{ "Name": "name", "Type": { "Category": "Primitive", "Name": "string" } }
+					],
+					"Security": "None"
+				},
+				{
+					"MemberType": "Event",
+					"Name": "ChildAdded",
+					"Parameters": [
+						{ "Name": "child", "Type": { "Category": "Class", "Name": "Instance" } }
+					],
+					"Security": "None"
+				}
+			]
+		},
+		{
+			"Name": "Players",
+			"Superclass": "Instance",
+			"Tags": ["Service", "NotCreatable"],
+			"Members": [
+				{
+					"MemberType": "Event",
+					"Name": "PlayerAdded",
+					"Parameters": [
+						{ "Name": "player", "Type": { "Category": "Class", "Name": "Player" } }
+					],
+					"Security": "None"
+				}
+			]
+		},
+		{
+			"Name": "Player",
+			"Superclass": "Instance",
+			"Tags": ["NotCreatable"],
+			"Members": [
+				{
+					"MemberType": "Property",
+					"Name": "UserId",
+					"ValueType": { "Category": "Primitive", "Name": "int64" },
+					"Security": { "Read": "None", "Write": "None" }
+				}
+			]
+		}
+	],
+	"Enums": [
+		{
+			"Name": "Material",
+			"Items": [
+				{ "Name": "Plastic", "Value": 256 },
+				{ "Name": "Wood", "Value": 512 }
+			]
+		}
+	]
+}

@@ -10,7 +10,7 @@ Header: `#include <clpp/libs/keep.clh>`. Runtime: `CluauppLibs.Keep`.
 
 - **Session-safe saves** with mock mode, key prefixes, and buffer stats for tuning replication.
 - **Merged reads** (`Get`) vs persisted-only (`GetPersisted`) vs session-only transient layers.
-- **Signals** per path for UI ([Gleam](/libraries/gleam/)) and gameplay without polling.
+- **Signals** per path for UI ([Gleam](../gleam/)) and gameplay without polling.
 
 When **not** to use: global non-player state (use `Keep.Store` directly or a custom store), or cross-place inventory without understanding ProfileStore limits.
 

@@ -106,6 +106,22 @@ local function canWrite(self: any): boolean
 	return RunService:IsServer()
 end
 
+-- Generated .hive schemas export Health = { Id = 2, Fields = ... }.
+-- Headers still say const int Health = 2. Accept both.
+local function resolveComponentId(componentId: any): number
+	local kind = typeof(componentId)
+	if kind == "number" then
+		return componentId
+	end
+	if kind == "table" then
+		local id = (componentId :: any).Id
+		if typeof(id) == "number" then
+			return id
+		end
+	end
+	error("[Hive] component id must be a number or { Id = number }, got " .. kind)
+end
+
 function Hive:Entity(): number
 	if not canWrite(self) then
 		return 0
@@ -116,28 +132,29 @@ function Hive:Entity(): number
 	return id
 end
 
-function Hive:Set(entity: number, componentId: number, value: any)
+function Hive:Set(entity: number, componentId: any, value: any)
 	if not canWrite(self) then
 		return
 	end
-	local column = self.Columns[componentId]
+	local id = resolveComponentId(componentId)
+	local column = self.Columns[id]
 	if not column then
 		column = {}
-		self.Columns[componentId] = column
+		self.Columns[id] = column
 	end
 	column[entity] = value
 end
 
-function Hive:Get(entity: number, componentId: number): any
-	local column = self.Columns[componentId]
+function Hive:Get(entity: number, componentId: any): any
+	local column = self.Columns[resolveComponentId(componentId)]
 	return column and column[entity]
 end
 
-function Hive:Remove(entity: number, componentId: number)
+function Hive:Remove(entity: number, componentId: any)
 	if not canWrite(self) then
 		return
 	end
-	local column = self.Columns[componentId]
+	local column = self.Columns[resolveComponentId(componentId)]
 	if column then
 		column[entity] = nil
 	end
@@ -153,13 +170,17 @@ function Hive:Despawn(entity: number)
 	end
 end
 
-function Hive:Has(entity: number, componentId: number): boolean
-	local column = self.Columns[componentId]
+function Hive:Has(entity: number, componentId: any): boolean
+	local column = self.Columns[resolveComponentId(componentId)]
 	return column ~= nil and column[entity] ~= nil
 end
 
-function Hive:Query(...: number): () -> (...any)
-	local ids = { ... }
+function Hive:Query(...: any): () -> (...any)
+	local raw = { ... }
+	local ids = table.create(#raw)
+	for index, componentId in raw do
+		ids[index] = resolveComponentId(componentId)
+	end
 	if #ids == 0 then
 		local entity: number? = nil
 		return function()
@@ -195,14 +216,15 @@ function Hive:Query(...: number): () -> (...any)
 	end
 end
 
-function Hive:Snapshot(componentId: number): buffer
-	local column = self.Columns[componentId] or {}
+function Hive:Snapshot(componentId: any): buffer
+	local id = resolveComponentId(componentId)
+	local column = self.Columns[id] or {}
 	local count = 0
 	for _ in column do
 		count += 1
 	end
 	local buf = buffer.create(math.max(64, 5 + count * 16))
-	buffer.writeu8(buf, 0, componentId)
+	buffer.writeu8(buf, 0, id)
 	buffer.writeu32(buf, 1, count)
 	local cursor = 5
 	for entity, value in column do

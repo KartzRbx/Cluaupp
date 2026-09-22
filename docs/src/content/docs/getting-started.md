@@ -1,17 +1,23 @@
 ---
 title: Getting started
+description: Install clpp 0.7+, init a Cluaupp game, build, and serve with Rojo.
+sidebar:
+  order: 1
 ---
 
-Cluaupp is the **game toolchain**. [CL++](https://kartzrbx.github.io/CLPP/) is the **language**.
+# Getting started
+
+Cluaupp is the **Roblox project host**. [CL++](https://kartzrbx.github.io/CLPP/) is the **language**.
+
+Language syntax on this site tracks **CL++ 0.7+**. When KartzRbx/CLPP ships new syntax, Cluaupp docs / chat prompt are updated to match — prefer the [CL++ course](https://kartzrbx.github.io/CLPP/) as the live language law if anything here lags.
 
 ## Requirements
 
 - [Node.js](https://nodejs.org/) 18 or newer
 - [Rojo](https://rojo.space/) **7.7.0** (`cluaupp init` writes `rokit.toml`)
-- **`clpp` 0.3.2 on PATH** from [KartzRbx/CLPP](https://github.com/KartzRbx/CLPP/releases/tag/v0.3.2) (`clpp-setup.exe` then `clpp setup`). Override with `CLPP` or `CLPP_PATH`.
+- **`clpp` 0.7.0+ on PATH** from [KartzRbx/CLPP releases](https://github.com/KartzRbx/CLPP/releases). Override with `CLPP` or `CLPP_PATH`.
 
 ```bash
-cargo install --path .   # inside a CL++ checkout
 clpp setup             # VS Code / Cursor language pack
 ```
 
@@ -21,8 +27,6 @@ clpp setup             # VS Code / Cursor language pack
 npm install -g cluaupp@latest
 cluaupp --version
 ```
-
-Need **1.4.0+**. A leftover global **1.3.0** still writes `src/server` / `src/client` / `src/shared`. Upgrade, then `init` into a **new** folder.
 
 Or:
 
@@ -45,14 +49,24 @@ my-game/
   cluaupp.config.json
   default.project.json
   src/
-    ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
+    ReplicatedStorage/Shared/...
     ServerScriptService/Boot/DataBoot.server.clpp
     ServerScriptService/Handlers/PlayerHandler.server.clpp
     ReplicatedStorage/Shared/Net/Net.flare
-    StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
-    StarterPlayer/StarterCharacterScripts/Character/CharacterReady.client.clpp
+    StarterPlayer/...
   out/                    ← generated Luau (do not edit)
-  libs/                   ← CluauppLibs
+```
+
+Context Safety runs on every compile: illegal `LocalPlayer` on the server fails the build. See [Context Safety](../architecture/context-safety/).
+
+Useful platform commands after `init`:
+
+```bash
+cluaupp analyze              # doctor: DataModel, Parallel, Authority, Flare, …
+cluaupp optimize             # advisor JSON
+cluaupp optimize --apply --layout   # native + SoA modules (opt-in)
+cluaupp docs                 # .cluaupp/PROJECT.md
+cluaupp bridge               # Studio ↔ IDE (:3847) — keep running with CluauppNav
 ```
 
 ## Tiny program
@@ -66,4 +80,13 @@ void init() {
 }
 ```
 
-Language course and reference: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/). Migrating `.cpp`: [migration](/migration/).
+## Useful next steps
+
+- [Why Cluaupp](../why-cluaupp/) — what competitors don’t have  
+- [Benchmarks](../benchmarks/) — registry + build timings (reproducible)  
+- [Roadmap](../roadmap/) — shipped vs later  
+- [CLI](../cli/commands/) — `api`, `optimize`, `bridge`, `target doctor`  
+- [Studio tools](../architecture/studio-tools/) — CluauppNav + IDE bridge  
+- [Flare](../libraries/flare/) — remotes  
+- Language course: [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/)  
+- Migrating older C++-style trees: [migration](../migration/)

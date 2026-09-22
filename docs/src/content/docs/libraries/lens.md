@@ -15,8 +15,8 @@ Header: `#include <clpp/libs/lens.clh>`. Runtime: `CluauppLibs.Lens`.
 
 **Do not use when:**
 
-- Admin actions (give items, kick) — [Helm](/libraries/helm/) on the server.
-- Production player-facing UI — use [Gleam](/libraries/gleam/).
+- Admin actions (give items, kick) — [Helm](../helm/) on the server.
+- Production player-facing UI — use [Gleam](../gleam/).
 
 ## Example CL++
 

@@ -6,7 +6,7 @@ description: How Cluaupp calls clpp, rewrites ClppLibs, and writes out/ for Rojo
 import { Aside, Steps } from "@astrojs/starlight/components";
 
 <Aside type="note">
-Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api compile` is unchanged; the **language** it accepts did change in 0.3.2.
+Cluaupp does **not** parse CL++. **`clpp` 0.7.0+** does. Cluaupp owns project policies (Context Safety, registry paths) and post-process; `clpp api compile` owns language → Luau.
 </Aside>
 
 ```
@@ -14,7 +14,8 @@ Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api 
         │
         ▼
  cluaupp build / watch
-        │  JSON stdin
+        │  Context Safety (file tag → capabilities)
+        │  JSON stdin (+ runContext, capability profile)
         ▼
    clpp api compile
         │  CompileArtifact (luau + diagnostics)
@@ -26,10 +27,11 @@ Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api 
 ```
 
 <Steps>
-1. **Resolve `clpp`.** `CLPP` or `CLPP_PATH`, then the newest on PATH, then `%LOCALAPPDATA%\Programs\CLPP\clpp.exe`. Refuse anything older than **0.3.2**.
-2. **Compile.** One-shot `build` uses `spawnSync`. `watch` uses async `spawn` so the event loop is not blocked. Failures print `diagnostics[]` (1-based line/column).
-3. **Post-process.** `require(ClppLibs.X)` becomes `require(ReplicatedStorage.CluauppLibs.X)`. `--!strict` from config / `#pragma`.
-4. **Write `out/`.** Filename tags pick Script / LocalScript / ModuleScript. `void init()` is called at the end of Scripts and LocalScripts. Watch does not overwrite `out/` while compile fails.
+1. **Resolve `clpp`.** `CLPP` or `CLPP_PATH`, then the newest on PATH, then `%LOCALAPPDATA%\Programs\CLPP\clpp.exe`. Refuse anything older than **0.7.0**.
+2. **Context Safety.** Map `.server` / `.client` / `.plugin` to a capability set; illegal APIs fail before / with compile. See [Context Safety](../../architecture/context-safety/).
+3. **Compile.** One-shot `build` uses `spawnSync`. `watch` uses async `spawn` so the event loop is not blocked. Failures print `diagnostics[]` (1-based line/column).
+4. **Post-process.** `require(ClppLibs.X)` becomes `require(ReplicatedStorage.CluauppLibs.X)`. `--!strict` from config / `#pragma`.
+5. **Write `out/`.** Filename tags pick Script / LocalScript / ModuleScript. `void init()` is called at the end of Scripts and LocalScripts. Watch does not overwrite `out/` while compile fails.
 </Steps>
 
 ## What Cluaupp owns vs CL++
@@ -43,7 +45,7 @@ Cluaupp does **not** parse CL++. `clpp` 0.3.2 does. The JSON endpoint `clpp api 
 
 ## Config
 
-See [`cluaupp.config.json`](/cli/config/). `"architecture": true` (ForeverHD folders) is not generated — one source file is still one `.luau` file.
+See [`cluaupp.config.json`](../../cli/config/). `"architecture": true` (ForeverHD folders) is not generated — one source file is still one `.luau` file.
 
 ```
 src/ServerScriptService/Handlers/PlayerHandler.server.clpp
@@ -54,4 +56,4 @@ src/ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
   → out/ReplicatedStorage/Shared/Constants/Datas/TemplateData.luau
 ```
 
-CLI reference: [commands](/cli/commands/).
+CLI reference: [commands](../../cli/commands/).

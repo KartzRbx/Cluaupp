@@ -2,14 +2,14 @@
 title: Trace
 ---
 
-**Trace** pretty-prints values for Studio. [Lens](/libraries/lens/) uses `Trace.display` inside windows. Circular tables and max depth are capped so dumps cannot infinite-loop.
+**Trace** pretty-prints values for Studio. [Lens](../lens/) uses `Trace.display` inside windows. Circular tables and max depth are capped so dumps cannot infinite-loop.
 
 Header: `#include <clpp/libs/trace.clh>`. Runtime: `CluauppLibs.Trace`.
 
 ## Why
 
 - **Safe dumps.** Cycles render as `<circular>`; depth overflow as `{...}`. Instances, vectors, `CFrame`, `Color3`, `UDim2`, and `buffer` have dedicated formatting.
-- **Not a network format.** Never send Trace output on [Flare](/libraries/flare/) or expose secrets (DataStore keys, session tokens) on live clients.
+- **Not a network format.** Never send Trace output on [Flare](../flare/) or expose secrets (DataStore keys, session tokens) on live clients.
 
 ## Example
 

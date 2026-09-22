@@ -70,4 +70,4 @@ Keep `Keep.Server.Init` in `DataBoot.server.clpp`. Keep `Keep.Client.Init` in `D
 
 A tiny `print` in `init.client.clpp` stays a single LocalScript.
 
-Copy-paste: [Examples](/examples/).
+Copy-paste: [Examples](../../examples/).

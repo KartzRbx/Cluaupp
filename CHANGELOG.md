@@ -1,5 +1,57 @@
 # Changelog
 
+## Unreleased
+
+- **Docs site sync** — Home / Why / Comparison / Benchmarks / Parallel / Typed DataModel / Product pillars / Getting started aligned to shipped platform. New [Studio tools](docs) page. Real measured benches via `scripts/bench-site.cjs` (registry ~700 ms cold; `examples/game` warm cache ~1.5 s vs cold ~3.7 s) with Mermaid charts. Docs chat prompt updated.
+- **SoA / buffer codegen (opt-in)** — `cluaupp optimize --apply --layout` writes `#pragma layout soa` and emits `.cluaupp/generated/soa/*Soa.luau` (`--buffer` packs f32/i32 columns). Build also regenerates SoA for existing pragmas.
+- **Studio debug panel** — CluauppNav dock: selection CL++ path, ScriptContext.Error → CL++ remap, Open IDE.
+- **Studio↔IDE bridge** — `cluaupp bridge` (:3847); VS Code/Cursor polls and opens CL++ files on Studio events.
+- **Authority call-graph** — `CLUAU_AUTH004` transitive Client/Shared → ServerScriptService/ServerStorage via include graph; `cluaupp check-authority`; wired into doctor.
+- **PGO Studio ingest** — `cluaupp profile --ingest <jsonl>` merges playtest hits; `plugins/CluauppNav/ProfileLogger.luau` stub.
+- **Luau stamps** — `-- cluaupp-source:` + `#pragma native` → `--!native` on emit; source maps no longer pruned.
+- **Build** — `cluaupp build` uses async path so `-j/--jobs` applies; `--frozen` honored on async.
+- **Incremental + parallel compile** — `.cluaupp/compile-cache` fingerprints sources; `build --no-incremental`, `-j/--jobs` (async path). Default incremental on.
+- **Optimizer apply + PGO** — `cluaupp optimize --apply` inserts `#pragma native` on numeric-hot fns; `cluaupp profile` + `optimize --profile` ranks advice via `cluaupp.profile.json`.
+- **Project docs** — `cluaupp docs` writes `.cluaupp/PROJECT.md` (DataModel, graph, Flare, advice).
+- **Typed DataModel** — variable-root `WaitForChild` chains (`auto assets = …; assets.WaitForChild(...)`).
+- **Flare** — parse `version N;` / `opt version = N` into schema; conflicts still via doctor/`--frozen`.
+- **Platform analyzers (code)** — Parallel `CLUAU-PAR*`, Authority `CLUAU-AUTH*` + `cluaupp.config.json` rules, component contracts, Optimizer advisor (`cluaupp optimize`), security scan, lifetime heuristics, project graph, Flare version conflicts, file-level source maps on build, `build --frozen`, expanded `target doctor` / `analyze`. Wally thin `cluaupp add`.
+- **Typed DataModel v1 (code)** — Parse Rojo `default.project.json` (+ `$path` filesystem scan) into an instance graph. Compile-time `WaitForChild`/`FindFirstChild` chain validation (`CLUAU_DM_MISSING_CHILD`). CLI: `cluaupp target datamodel`, `target check-datamodel`. Emits `.cluaupp/datamodel-profile.json` + `include/clpp/generated/datamodel.clh`. Wired into `cluaupp build` / compile payload (`datamodelProfilePath`).
+- **Docs — Cluaupp Optimizer** — Philosophy locked: idiomatic CL++; compiler chooses table/SoA/buffer/native/parallel. Buffer ≠ programming model (wire Flare codecs stay separate). Page `architecture/optimizer`, roadmap + product-pillars + libraries index clarified. Modules demos: named `import { … } from`, Wallet/PlayerData, shared `const`.
+- **Docs site** — Splash + Why / Benchmarks / Comparison / **Roadmap** (shipped vs next vs later). Absolute `/…` links rewritten relative for `base: /Cluaupp/`. CL++ version callouts updated to **0.7.0+**. Docs chat system prompt (`api/chat.js`) aligned to 0.7 + Context Safety / registry.
+- **Product architecture (deep)** — Five true differentiators: Semantic / Authority / **Parallel** / DataModel / Performance compilers. Identity set: Typed DataModel + Thread Safety + Remote Contracts + Authority. Do not reinvent LSP/Rojo/debugger.
+- **ThreadSafety in registry** — Normalize dump `ThreadSafety` onto properties/methods/events/callbacks; surface in `lsp-index.json`. Foundation for Parallel Compiler (`CLUAU-PAR*`).
+- **Product architecture** — Canonical doc: Cluaupp = Roblox project host (five pillars, hard CL++/Cluaupp/ecosystem split, killer combo order). Context Safety v1 shipped; next = Typed DataModel.
+- **Context Safety (v1)** — Compile-time capability rules from RunContext (`.server`/`.client`/`.plugin`): forbid `LocalPlayer` on server, `DataStoreService`/`ServerStorage`/`MessagingService` on client, wrong-direction `FireServer`/`FireClient`. Profile at `api/generated/capability-profile.json`; passed to `clpp` as `runContext` + `capabilityProfilePath`. CLI: `target capabilities`, `target check-context`.
+- **Reuse-first Roblox backend** — Cluaupp integrates CL++ with the Roblox ecosystem (consume dump/docs → registry → bindings); does not reinvent LSP/IDE/sourcemap/docs. Exports `api/generated/lsp-index.json` for the CL++ Language Server. `api aux-diff` for optional `@rbxts/types` / LuauTypes coverage. Docs/CONTRIBUTING matrix CONSUME/GENERATE/IMPLEMENT/DO NOT BUILD.
+- **Roblox Target Registry** — `src/api/` pipeline (loaders → normalize → validate → registry → generators), `RobloxTargetProfile` `schemaVersion` 2, `api/overrides/` (datatype migration from `DATATYPE_SPEC`), CLI `api` / `target`, lock + manifest, Luau `.d.luau` projection, Studio smoke harness, fixtures, coverage/diff.
+- **CL++ contract** — `MIN_CLPP_VERSION` raised to **0.7.0**; compile payload may pass `targetProfilePath` / `targetCacheDir`.
+- `npm run generate-api` delegates to `cluaupp api generate`.
+
+## 1.5.1
+
+- DataBoot `PlayerTemplate()` is rewritten to `TemplateData()` when that module is required (the constructor is the require bind).
+- Cluaupp always reindents emitted Luau with the Roblox tab style (`stylua.toml`: tabs, width 4, double quotes). Nested `Connect` / Sweep `Add` lambdas no longer dump `end` at column 0. Blank lines separate `if` / `for` / `while` scopes at the same indent. Consecutive `Table.Field =` inits (struct tables) are compacted. `--format` still runs StyLua when it is on PATH.
+- Method `~>` Connect hoists Sweep to `self.janitor` (one per controller). Instance binds (`Touched`, etc.) keep a local Sweep and `LinkToInstance` so they die with that instance.
+- Ward rate-limit (`Allow`) drops extra packets instead of striking every deny. A strike happens only after `FloodAt` (80) consecutive denials. Clicker spam is not a kick. Studio still does not Kick unless `KickInStudio`.
+- Ward no longer kicks Studio playtests by default (`KickInStudio = false`). Spawn/respawn get 3s grace, `lastPos` resets when the character is missing, Heartbeat uses a 1/30 dt floor, and mostly-vertical falls are not speed strikes. Placeholder spawn/fall no longer stacks to “Movement or traffic rejected”.
+- Gleam stores per-instance Sweep in a weak table. Assigning `_gleamSweep` on a `ScreenGui` errors (`not a valid member`).
+- Postprocess qualifies bare `HiveWorld` as `Hive.HiveWorld` (or `any` if Hive is not required) and reapplies Roster / ReplicatedStorage rewrites when writing `out/`.
+- Postprocess rewrites `Instance.new("Roster")` to `Roster.new()`, and replaces `script.Parent…ReplicatedStorage` walks with `ReplicatedStorage`. `Roster.New` is an alias of `Roster.new`.
+- Postprocess also rewrites `Sweep.New` / `Spark.New` / `Coil.New` → `.new`, and `Pin.new_` / `Crest.new_` / `Stage.new_` → `.new`. Runtime aliases: `Sweep.New`, `Coil.New`, `Pin.new_`, `Crest.new_`.
+- **Editor** — `npm install` / `cluaupp init` / `cluaupp intellisense` install the Cursor/VS Code extension for `.flare` `.hive` `.mint` `.bloom` `.helm` `.shift` `.axiom` (postinstall + init).
+- **Hive** `Set` / `Get` / `Remove` / `Has` / `Query` / `Snapshot` accept either a numeric component id or a generated schema row `{ Id = n, Fields = … }` (`.hive` Luau emit). Snapshot no longer crashes with `writeu8` on a table.
+- **Pin** no longer assigns `BillboardGui.MinDistance` (not a Roblox property). `PinOptions.MinDistance` stays in the API as reserved/ignored.
+- **Schema highlighting** — `.hive` `.mint` `.bloom` `.helm` `.shift` `.axiom` (plus existing `.flare`) in the Cluaupp editor extension. `cluaupp intellisense` / `cluaupp init` associate the extensions.
+- **CL++ skills book** — `skills/clpp-language`, `clpp-style`, `clpp-hive-flare`. `cluaupp init` copies them to `.cursor/skills/`.
+- **Flare** packs `...` instances **before** the query `pcall`. Nested `function()` cannot see `...` (`Cannot use '...' outside of a vararg function`).
+
+## 1.5.0
+
+- **Flare IntelliSense** — VS Code / Cursor extension for `.flare` (highlighting, completions, hover, diagnostics, outline, snippets). `cluaupp intellisense` installs it; `cluaupp lsp` serves the same engine.
+- **Roster** constructor is `new Roster()` / `new Roster(table)` (emits Luau `Roster.new`). `Find` is array search; dictionary keys use `Has` / `Set` / `Remove`.
+- Init DataBoot builds `PlayerTemplate playerData = PlayerTemplate()` so Keep.Server.Init receives a table. Prefer CL++ **0.3.4** for nested template types and `Roster.new`.
+
 ## 1.4.1
 
 - **`cluaupp init --help`** names the 1.4.0 service tree (`ReplicatedStorage`, `ServerScriptService`, `StarterPlayer`), not `src/server` / `src/client` / `src/shared`.

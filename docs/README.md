@@ -1,21 +1,14 @@
 # Cluaupp docs (Starlight)
 
-Astro Starlight handbook for the **toolchain**. The language course stays on [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
-
-```
-docs/
-  astro.config.mjs
-  src/syntaxes/clpp.tmLanguage.json   # official CL++ grammar (Shiki)
-  src/content/docs/
-    index.mdx
-    cli/
-    language/
-    internals/
-```
+Astro Starlight handbook for the **toolchain** (project host, registry, Context Safety, libraries). The language course stays on [kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/).
 
 ```bash
 npm run site:dev    # from repo root
-npm run site        # writes ../site for GitHub Pages
+npm run site        # writes ../site (set SITE_BASE=/Cluaupp for Pages)
 ```
 
-Fences use language id `clpp`. Tabs compare CL++ 0.3.2 with emitted Luau. Do not invent C++ (`Player*`, `->`, `fn`, `class`).
+Key pages: home splash, [Why Cluaupp](src/content/docs/why-cluaupp.md), [Benchmarks](src/content/docs/benchmarks.md), [Comparison](src/content/docs/comparison.md), [Architecture](src/content/docs/architecture/).
+
+Fences use language id `clpp`. Prefer CL++ **0.7+** examples. Do not invent C++ (`Player*`, `->`, `fn`, `class`).
+
+After editing links, run `node scripts/fix-docs-links.cjs` only if you reintroduce root-absolute `](/…)` links — relative links are required under `base: /Cluaupp/`.

@@ -82,4 +82,4 @@ Keep the save shape in `Shared/Constants/Datas/TemplateData.clh`. Paths exist on
 
 Do not install a second janitor or ProfileStore. `CluauppLibs.Sweep` is the zelador. `CluauppLibs.Keep` is the session-locked store (trades included).
 
-How-tos: [Libraries](/libraries/). Copy-paste: [Examples](/examples/).
+How-tos: [Libraries](../../libraries/). Copy-paste: [Examples](../../examples/).

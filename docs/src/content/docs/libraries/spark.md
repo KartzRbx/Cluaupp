@@ -2,7 +2,7 @@
 title: Spark
 ---
 
-**Spark** is an engine-grade, yield-safe signal: O(1) disconnect, pooled serial runners, queued reentrant `Fire`, and parallel connections that do not poison the pool. Bind listeners with [Sweep](/libraries/sweep/) using `~>` so teardown disconnects automatically. `Spark.Wrap` adapts an `RBXScriptSignal`.
+**Spark** is an engine-grade, yield-safe signal: O(1) disconnect, pooled serial runners, queued reentrant `Fire`, and parallel connections that do not poison the pool. Bind listeners with [Sweep](../sweep/) using `~>` so teardown disconnects automatically. `Spark.Wrap` adapts an `RBXScriptSignal`.
 
 Header: `#include <clpp/libs/spark.clh>`. Runtime: `CluauppLibs.Spark`.
 
@@ -12,7 +12,7 @@ Header: `#include <clpp/libs/spark.clh>`. Runtime: `CluauppLibs.Spark`.
 - **Yield inside handlers** on serial connections; use `ConnectParallel` when Parallel Luau must not share the pooled runner.
 - **Hard limits** — destroyed signals seal; reentrant fire queue (cap 64); listener cap 4096.
 
-When **not** to use: cross-network events ([Flare](/libraries/flare/) generated `Net.*`), or Roblox-only signals you already own (wrap with `Spark.Wrap` if you need Sweep `~>` either way).
+When **not** to use: cross-network events ([Flare](../flare/) generated `Net.*`), or Roblox-only signals you already own (wrap with `Spark.Wrap` if you need Sweep `~>` either way).
 
 ## Example
 

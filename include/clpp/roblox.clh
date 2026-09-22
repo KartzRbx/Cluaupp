@@ -1,8 +1,6 @@
 #pragma once
-// Cluaupp — Roblox API stubs for CL++ IntelliSense.
-// Source: official client dump + datatypes from create.roblox.com
-// clpp emits Luau (Vector3.new, Instance.new, :GetPlayers, ...).
-// CL++ has no default arguments — use overloads (wait / wait(seconds)).
+// Cluaupp — Roblox API stubs for CL++ IntelliSense (generated projection).
+// Source of truth: RobloxTargetProfile registry — not this header.
 
 #include <clpp/generated/enums.clh>
 #include <clpp/datatypes.clh>
@@ -39,4 +37,5 @@ namespace task {
 	void defer(func callback);
 	void synchronize();
 	void desynchronize();
+	void spawn(func callback);
 }

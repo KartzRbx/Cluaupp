@@ -2,7 +2,7 @@
 title: Coil
 ---
 
-**Coil** is a Fraktality damped spring. Frequency is **Hz** (not rad/s). [Gleam.Spring](/libraries/gleam/) builds Coil instances and steps them on Heartbeat.
+**Coil** is a Fraktality damped spring. Frequency is **Hz** (not rad/s). [Gleam.Spring](../gleam/) builds Coil instances and steps them on Heartbeat.
 
 Header: `#include <clpp/libs/coil.clh>`. Runtime: `CluauppLibs.Coil`. `--!native`.
 
@@ -15,7 +15,7 @@ Header: `#include <clpp/libs/coil.clh>`. Runtime: `CluauppLibs.Coil`. `--!native
 
 **Do not use when:**
 
-- Replicated gameplay motion — use [Flare](/libraries/flare/) + [Echo](/libraries/echo/).
+- Replicated gameplay motion — use [Flare](../flare/) + [Echo](../echo/).
 - `omega <= 0` or huge `dt` — spring intentionally no-ops or snaps to goal.
 
 ## Example CL++

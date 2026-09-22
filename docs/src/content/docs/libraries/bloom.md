@@ -2,7 +2,7 @@
 title: Bloom
 ---
 
-**Bloom** is UI motion: gradient presets (shine, rainbow), size motion (grow, bounce), tweens (fade, hover, press), and helpers that delegate to [Stage](/libraries/stage/) for viewports. One shared Heartbeat steps active preset jobs.
+**Bloom** is UI motion: gradient presets (shine, rainbow), size motion (grow, bounce), tweens (fade, hover, press), and helpers that delegate to [Stage](../stage/) for viewports. One shared Heartbeat steps active preset jobs.
 
 Header: `#include <clpp/libs/bloom.clh>`. Runtime: `CluauppLibs.Bloom`. Optional `.bloom` schemas bake named presets.
 
@@ -16,7 +16,7 @@ Header: `#include <clpp/libs/bloom.clh>`. Runtime: `CluauppLibs.Bloom`. Optional
 **Do not use when:**
 
 - Gameplay timing or hitboxes — cosmetic only.
-- You need full reactive UI — pair with [Gleam](/libraries/gleam/).
+- You need full reactive UI — pair with [Gleam](../gleam/).
 
 ## Example CL++
 
@@ -209,7 +209,7 @@ Bloom.Fade(frame, true); // show
 
 **Returns:** `Stage` — `Stage.Attach(frame, model)`.
 
-**When:** 3D preview inside a gui frame (see [Stage](/libraries/stage/)).
+**When:** 3D preview inside a gui frame (see [Stage](../stage/)).
 
 ### Bloom.Type
 

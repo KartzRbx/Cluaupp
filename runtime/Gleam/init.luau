@@ -41,6 +41,16 @@ local pending: { [Scope]: boolean } = {}
 local SETTLE = 0.0005
 
 local ACTION_FLAG = "_gleamAction"
+-- cluaupp: weak-table Sweep (Instance cannot take _gleamSweep)
+local sweeps: { [Instance]: any } = setmetatable({}, { __mode = "k" }) :: any
+
+local function getSweep(instance: Instance): any?
+	return sweeps[instance]
+end
+
+local function setSweep(instance: Instance, sweep: any)
+	sweeps[instance] = sweep
+end
 
 local function peek(): Scope?
 	return stack[#stack]
@@ -270,8 +280,9 @@ local function destroyNode(node: any)
 		return
 	end
 	if typeof(node) == "Instance" then
-		local sweep = (node :: any)._gleamSweep
+		local sweep = getSweep(node)
 		if sweep then
+			sweeps[node] = nil
 			sweep:Destroy()
 		else
 			node:Destroy()
@@ -421,7 +432,7 @@ function Gleam.Create(className: string, props: { [any]: any }?): Instance
 	local sweep = Sweep.new()
 	sweep:Add(instance, "Destroy")
 	sweep:LinkToInstance(instance)
-	;(instance :: any)._gleamSweep = sweep
+	setSweep(instance, sweep)
 
 	local parent = peek()
 	pushSweepScope(sweep)
@@ -695,11 +706,11 @@ end
 
 function Gleam.Apply(instance: Instance): (props: { [any]: any }) -> Instance
 	return function(props)
-		local sweep = (instance :: any)._gleamSweep
+		local sweep = getSweep(instance)
 		if not sweep then
 			sweep = Sweep.new()
 			sweep:LinkToInstance(instance)
-			;(instance :: any)._gleamSweep = sweep
+			setSweep(instance, sweep)
 		end
 		pushSweepScope(sweep)
 		applyProps(instance, props)

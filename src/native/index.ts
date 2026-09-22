@@ -280,15 +280,14 @@ function compileHelm(source: string, file: string, defaultName: string): NativeE
 		id += 1;
 	}
 	const { headerRel, luauRel } = emitPaths(file, name);
-	const headerFns = commands
-		.map((cmd) => {
-			const params = cmd.args.map((arg) => `${arg.type === "i32" ? "int" : arg.type} ${arg.name}`).join(", ");
-			return `\tvoid ${cmd.name}(${params});`;
-		})
+	const headerCmds = commands
+		.map((cmd, index) => `\t// command ${cmd.name} permission ${cmd.permission}\n\tconst int ${cmd.name} = ${index + 1};`)
 		.join("\n");
 	const header = `${headerBanner("helm")}
+#include <clpp/libs/helm.clh>
 namespace ${name} {
-${headerFns}
+${headerCmds}
+	HelmSession Open(Player player);
 }
 `;
 	const rows = commands
@@ -417,7 +416,7 @@ function compileHive(source: string, file: string, defaultName: string): NativeE
 #include <clpp/libs/hive.clh>
 namespace ${name} {
 ${components.map((item, index) => `\tconst int ${item.name} = ${index + 1};`).join("\n")}
-	HiveWorld New();
+	auto New();
 }
 `;
 	const rows = components
@@ -443,32 +442,242 @@ return ${name}
 	return { headerRel, headerPath: headerRel, header, luauRel, luau };
 }
 
+/** Mirrors Axiom.Groups + axiom.clh prototypes for IntelliSense on selected namespaces. */
+const AXIOM_GROUP_DECLS: Record<string, string[]> = {
+	Scalar: [
+		"double Clamp(double value, double min, double max);",
+		"double Map(double value, double inMin, double inMax, double outMin, double outMax);",
+		"double Wrap(double value, double min, double max);",
+		"double Sign(double value);",
+		"double Round(double value);",
+		"double Round(double value, int digits);",
+		"double Snap(double value, double step);",
+		"double PingPong(double t, double length);",
+		"double Saturate(double value);",
+		"double Fract(double value);",
+		"double InvLerp(double from, double to, double value);",
+		"double Approach(double current, double target, double maxDelta);",
+		"bool IsFinite(double value);",
+		"double Abs(double value);",
+		"double Min(double a, double b);",
+		"double Max(double a, double b);",
+		"double Pow(double base, double exp);",
+		"double Sqrt(double value);",
+		"double Cbrt(double value);",
+		"double Hypot(double a, double b);",
+		"double Log(double value);",
+		"double Exp(double value);",
+		"double Smoothstep(double edge0, double edge1, double x);",
+		"double Smootherstep(double edge0, double edge1, double x);",
+		"double Gcd(double a, double b);",
+		"double Lcm(double a, double b);",
+		"bool IsEven(double value);",
+		"bool IsOdd(double value);",
+		"double Factorial(double n);",
+		"double Scale(double value, int index);",
+	],
+	Lerp: [
+		"double Lerp(double from, double to, double alpha);",
+		"double LerpClamped(double from, double to, double alpha);",
+		"Vector2 LerpVector2(Vector2 from, Vector2 to, double alpha);",
+		"Vector3 LerpVector3(Vector3 from, Vector3 to, double alpha);",
+		"Vector3 LerpVector(Vector3 from, Vector3 to, double alpha);",
+		"Color3 LerpColor3(Color3 from, Color3 to, double alpha);",
+		"CFrame LerpCFrame(CFrame from, CFrame to, double alpha);",
+		"UDim2 LerpUDim2(UDim2 from, UDim2 to, double alpha);",
+		"double LerpAngle(double from, double to, double alpha);",
+		"double Inverse(double from, double to, double value);",
+	],
+	Vector: [
+		"Vector3 Project(Vector3 a, Vector3 b);",
+		"Vector3 Reject(Vector3 a, Vector3 b);",
+		"Vector3 Reflect(Vector3 incident, Vector3 normal);",
+		"double Angle(Vector3 a, Vector3 b);",
+		"double Distance(Vector3 a, Vector3 b);",
+		"double Distance2(Vector2 a, Vector2 b);",
+		"CFrame Orthonormal(Vector3 forward);",
+		"CFrame Orthonormal(Vector3 forward, Vector3 up);",
+		"Vector3 Slerp(Vector3 a, Vector3 b, double t);",
+		"CFrame LookAt(Vector3 from, Vector3 look);",
+	],
+	CFrame: ["CFrame SlerpCFrame(CFrame a, CFrame b, double t);", "CFrame Flat(CFrame cf);"],
+	Easing: [
+		"double InSine(double t);",
+		"double OutSine(double t);",
+		"double InOutSine(double t);",
+		"double InQuad(double t);",
+		"double OutQuad(double t);",
+		"double InOutQuad(double t);",
+		"double InCubic(double t);",
+		"double OutCubic(double t);",
+		"double InOutCubic(double t);",
+		"double InQuart(double t);",
+		"double OutQuart(double t);",
+		"double InOutQuart(double t);",
+		"double InQuint(double t);",
+		"double OutQuint(double t);",
+		"double InOutQuint(double t);",
+		"double InExpo(double t);",
+		"double OutExpo(double t);",
+		"double InOutExpo(double t);",
+		"double InCirc(double t);",
+		"double OutCirc(double t);",
+		"double InOutCirc(double t);",
+		"double InBack(double t);",
+		"double OutBack(double t);",
+		"double InOutBack(double t);",
+		"double InElastic(double t);",
+		"double OutElastic(double t);",
+		"double InOutElastic(double t);",
+		"double InBounce(double t);",
+		"double OutBounce(double t);",
+		"double InOutBounce(double t);",
+		"double Linear(double t);",
+	],
+	Bezier: [
+		"Vector3 CubicBezier(double t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3);",
+		"Vector3 QuadraticBezier(double t, Vector3 p0, Vector3 p1, Vector3 p2);",
+		"CFrame Hover(double elapsed, Vector3 anchor, Vector3 look);",
+		"CFrame Float(double elapsed, Vector3 anchor, Vector3 look);",
+		"CFrame FloatSpin(double elapsed, CFrame anchor);",
+	],
+	Geometry: [
+		"bool AabbContains(Vector3 point, Vector3 min, Vector3 max);",
+		"bool SphereContains(Vector3 point, Vector3 center, double radius);",
+		"Vector3 RayPlane(Vector3 origin, Vector3 dir, Vector3 point, Vector3 normal);",
+		"Vector3 Barycentric(Vector3 p, Vector3 a, Vector3 b, Vector3 c);",
+		"Vector3 ClosestPointOnSegment(Vector3 p, Vector3 a, Vector3 b);",
+	],
+	Trig: [
+		"double Deg(double rad);",
+		"double Rad(double deg);",
+		"double DeltaAngle(double from, double to);",
+		"double AngleDiff(double from, double to);",
+		"double DeltaAngleDegrees(double from, double to);",
+		"double NormalizeAngle(double angle);",
+		"double Sin(double x);",
+		"double Cos(double x);",
+		"double Tan(double x);",
+		"double Asin(double x);",
+		"double Acos(double x);",
+		"double Atan2(double y, double x);",
+	],
+	Probability: [
+		"double RandomRange(double min, double max);",
+		"double Random(double min, double max);",
+		"int Weighted(LuaArray<double> weights);",
+		"double Gaussian();",
+		"double Gaussian(double mean, double std);",
+		"double Average(LuaArray<double> values);",
+		"double Sum(LuaArray<double> values);",
+	],
+	Noise: [
+		"double HashU32(double n);",
+		"double Value1(double x);",
+		"double Value2(double x, double y);",
+		"double Value3(double x, double y, double z);",
+	],
+	Color: [
+		"Color3 FromHSV(double h, double s, double v);",
+		"Color3 Contrast(Color3 color, double amount);",
+		"Color3 LerpHSV(Color3 a, Color3 b, double t);",
+	],
+};
+
+function axiomFnDecls(): Record<string, string[]> {
+	const byFn: Record<string, string[]> = {};
+	for (const decls of Object.values(AXIOM_GROUP_DECLS)) {
+		for (const decl of decls) {
+			const match = decl.match(/\b([A-Za-z_][A-Za-z0-9_]*)\s*\(/);
+			if (!match) {
+				continue;
+			}
+			const fn = match[1];
+			if (!byFn[fn]) {
+				byFn[fn] = [];
+			}
+			byFn[fn].push(decl);
+		}
+	}
+	return byFn;
+}
+
+const AXIOM_FN_DECLS = axiomFnDecls();
+
+function axiomHeaderBody(groups: string[], fns: string[], file: string, lineNo: number): string {
+	const decls: string[] = [];
+	const seen = new Set<string>();
+	const pushDecl = (decl: string) => {
+		if (seen.has(decl)) {
+			return;
+		}
+		seen.add(decl);
+		decls.push(`\t${decl}`);
+	};
+	for (const group of groups) {
+		const key = Object.keys(AXIOM_GROUP_DECLS).find((name) => name.toLowerCase() === group.toLowerCase());
+		if (!key) {
+			fail(
+				file,
+				lineNo,
+				`unknown group "${group}" — use Scalar Lerp Vector CFrame Easing Bezier Geometry Trig Probability Noise Color`,
+			);
+		}
+		decls.push(`\t// group ${key}`);
+		for (const decl of AXIOM_GROUP_DECLS[key]) {
+			pushDecl(decl);
+		}
+	}
+	for (const fn of fns) {
+		const key = Object.keys(AXIOM_FN_DECLS).find((name) => name.toLowerCase() === fn.toLowerCase());
+		if (!key) {
+			fail(file, lineNo, `unknown fn "${fn}" — use a name from axiom.clh (e.g. fn LerpVector2)`);
+		}
+		decls.push(`\t// fn ${key}`);
+		for (const decl of AXIOM_FN_DECLS[key]) {
+			pushDecl(decl);
+		}
+	}
+	return decls.join("\n");
+}
+
 function compileAxiom(source: string, file: string, defaultName: string): NativeEmit {
 	const { name, lines } = parseOptName(source, file, defaultName);
 	const groups: string[] = [];
+	const fns: string[] = [];
+	let lastLine = 1;
 	for (const tagged of lines) {
 		const [lineNoRaw, line] = tagged.split("\t");
 		const lineNo = Number(lineNoRaw);
-		const match = line.match(new RegExp(`^group\\s+(${IDENT})\\s*$`, "i"));
-		if (!match) {
-			fail(file, lineNo, `expected group Scalar`);
+		lastLine = lineNo;
+		const groupMatch = line.match(new RegExp(`^group\\s+(${IDENT})\\s*$`, "i"));
+		if (groupMatch) {
+			groups.push(groupMatch[1]);
+			continue;
 		}
-		groups.push(match[1]);
+		const fnMatch = line.match(new RegExp(`^fn\\s+(${IDENT})\\s*$`, "i"));
+		if (fnMatch) {
+			fns.push(fnMatch[1]);
+			continue;
+		}
+		fail(file, lineNo, `expected group Lerp or fn LerpVector2`);
 	}
-	if (groups.length === 0) {
-		fail(file, 1, "schema is empty — add group Scalar");
+	if (groups.length === 0 && fns.length === 0) {
+		fail(file, 1, "schema is empty — add group Lerp or fn LerpVector2");
 	}
+	const body = axiomHeaderBody(groups, fns, file, lastLine);
+	const selectArgs = [...groups, ...fns].map((item) => `"${item}"`).join(", ");
 	const { headerRel, luauRel } = emitPaths(file, name);
 	const header = `${headerBanner("axiom")}
 #include <clpp/libs/axiom.clh>
 namespace ${name} {
-${groups.map((group) => `\t// group ${group}`).join("\n")}
+${body}
 }
 `;
 	const luau = `${luauBanner()}local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Axiom = require(ReplicatedStorage.CluauppLibs.Axiom)
-local ${name} = Axiom.Select({ ${groups.map((group) => `"${group}"`).join(", ")} })
--- out/ only binds groups: ${groups.join(", ")}
+local ${name} = Axiom.Select({ ${selectArgs} })
+-- out/ binds: ${[...groups.map((g) => `group ${g}`), ...fns.map((f) => `fn ${f}`)].join(", ")}
 return ${name}
 `;
 	return { headerRel, headerPath: headerRel, header, luauRel, luau };

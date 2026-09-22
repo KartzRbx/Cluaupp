@@ -9,10 +9,10 @@ Header: `#include <clpp/libs/roster.clh>`. Runtime: `CluauppLibs.Roster`.
 ## Why
 
 - **Array/dictionary helpers** (`Map`, `Filter`, `GroupBy`, …) without copying Luau idioms everywhere.
-- **Binary snapshots** for replication or caches ([Keep](/libraries/keep/) uses similar buffer growth patterns).
+- **Binary snapshots** for replication or caches ([Keep](../keep/) uses similar buffer growth patterns).
 - **Chaining** — many methods return a new `Roster` wrapper.
 
-When **not** to use: deeply nested data that must stay JSON-compatible for external APIs, or when [Flare](/libraries/flare/) already defines your wire format.
+When **not** to use: deeply nested data that must stay JSON-compatible for external APIs, or when [Flare](../flare/) already defines your wire format.
 
 ## Example
 
@@ -20,7 +20,7 @@ When **not** to use: deeply nested data that must stay JSON-compatible for exter
 #include <clpp/libs/roster.clh>
 
 void demo() {
-	Roster r = Roster.New();
+	Roster r = new Roster();
 	r.Push(1);
 	r.Push(2);
 	Roster doubled = r.Map(func (int v, auto i) {
@@ -33,16 +33,21 @@ void demo() {
 
 ## API — instance
 
-### Roster.New
+### new Roster
 
-**Returns:** `Roster` — wrapper around an empty array table `{}`.
+**Returns:** `Roster` — wrapper around an empty array table `{}`, or around `initial` if you pass a table.
 
-**When:** Starting a fluent chain.
+**When:** Starting a fluent chain. CL++ uses the `new` keyword; it emits Luau `Roster.new`. (`New` is only the header name because `new` is a keyword.)
 
 **Example**
 
 ```clpp
-Roster r = Roster.New();
+Roster r = new Roster();
+Roster keyed = new Roster({});
+keyed.Set(player, true);
+if (keyed.Has(player)) {
+	keyed.Remove(player);
+}
 ```
 
 ### Roster::Size
@@ -111,7 +116,7 @@ auto v = r.At(1); // "x"
 
 **Returns:** `int` — first index where `value` equals, or Luau `nil` if missing.
 
-**When:** Linear search in arrays.
+**When:** Linear search in **arrays**. Dictionary membership is `Has(key)`, not `Find`.
 
 **Example**
 
@@ -229,6 +234,19 @@ r.Unshift(0); // inserts at front
 ```clpp
 r.Push(1);
 r.RemoveAt(1);
+```
+
+### Roster::Remove
+
+**Returns:** `Roster` — same wrapper after deleting `key` (`data[key] = nil`).
+
+**When:** Dictionary keys (players, ids). Extra arguments are ignored.
+
+**Example**
+
+```clpp
+r.Set(player, true);
+r.Remove(player);
 ```
 
 ### Roster::Map
@@ -643,7 +661,7 @@ Roster flat = nested.Flatten(2);
 
 **Returns:** `buffer` — tagged binary encoding of wrapped data.
 
-**When:** Replication, save snapshots, [Keep](/libraries/keep/)-style buffers.
+**When:** Replication, save snapshots, [Keep](../keep/)-style buffers.
 
 **Example**
 

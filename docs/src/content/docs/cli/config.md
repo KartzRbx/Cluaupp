@@ -35,3 +35,7 @@ The template maps:
 - `libs` → `ReplicatedStorage.CluauppLibs`
 
 `*.server.clpp` → `*.server.luau` (Script). `*.client.clpp` → LocalScript. `.clp` / `.clh` → ModuleScript.
+
+## Luau style
+
+Every `out/**/*.luau` is reindented on write: **tabs**, indent 4, Roblox/Luau. Nested `Connect` lambdas indent their body and `end`. Blank lines separate `if` / `for` / `while` scopes. Consecutive `Table.Field =` inits stay packed. `cluaupp init` / `cluaupp intellisense` writes `stylua.toml` with the same rules. `cluaupp build --format` also runs StyLua if it is on PATH.

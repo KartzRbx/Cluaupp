@@ -44,6 +44,12 @@ export interface ProjectConfig {
 	outDir: string;
 	strict: boolean;
 	architecture: boolean;
+	rules?: {
+		clientCannotImport?: string[];
+		sharedCannotUse?: string[];
+		serverCannotImport?: string[];
+	};
+	components?: Array<{ path: string; children: Record<string, string> }>;
 }
 
 export interface BuildOptions {
@@ -54,6 +60,12 @@ export interface BuildOptions {
 	analyze?: boolean;
 	rojo?: string;
 	strict?: boolean;
+	/** Fail if api lock / Flare versions / component contracts are dirty. */
+	frozen?: boolean;
+	/** Skip transpile when source fingerprint matches `.cluaupp/compile-cache` (default true). */
+	incremental?: boolean;
+	/** Parallel transpile workers for async build (default: CPU-bounded). Set 1 to disable. */
+	jobs?: number;
 }
 
 export interface BuildResult {

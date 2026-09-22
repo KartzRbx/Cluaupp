@@ -9,9 +9,10 @@ import { clppInstalls, clppManifest, clppVersion, hasClpp, resolveClppBinary } f
 import { installEditorSupport, syncEditorSupport } from "./intellisense.js";
 import { RojoMapper } from "./utils/rojo-mapper.js";
 import { ProcessOrchestrator } from "./utils/process-orchestrator.js";
-import { build as buildProject, init, loadConfig, watch } from "./utils/project.js";
+import { build as buildProject, buildAsync, init, loadConfig, watch } from "./utils/project.js";
 import { transpileSource } from "./transpile.js";
 import type { BuildOptions, BuildResult } from "./types.js";
+import { registerApiCommands, registerTargetCommands, registerPlatformCommands } from "./api-cli.js";
 
 const program = new Command();
 
@@ -45,8 +46,11 @@ program
 	.option("-o, --output <path>", "Luau file or directory")
 	.option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
 	.option("--strict", "Emit --!strict")
-	.option("--format", "Run StyLua on output")
+	.option("--format", "Also run StyLua if it is on PATH")
 	.option("--analyze", "Run luau-analyze on output")
+	.option("--frozen", "Hermetic: fail if API lock / Flare versions / component contracts drift")
+	.option("--no-incremental", "Disable compile cache under .cluaupp/compile-cache")
+	.option("-j, --jobs <n>", "Parallel transpile workers (default: CPU-bounded; env CLUAUPP_JOBS)", (v: string) => Number(v))
 	.action(async (folder: string, options: {
 		input?: string;
 		output?: string;
@@ -54,18 +58,25 @@ program
 		strict?: boolean;
 		format?: boolean;
 		analyze?: boolean;
+		frozen?: boolean;
+		incremental?: boolean;
+		jobs?: number;
 	}) => {
 		if (options.input) {
 			await buildInput(options);
 			return;
 		}
 		try {
-			buildProject(path.resolve(process.cwd(), folder), {
+			const opts = {
 				format: options.format === true,
 				analyze: options.analyze === true,
 				rojo: options.rojo,
 				strict: options.strict === true,
-			});
+				frozen: options.frozen === true,
+				incremental: options.incremental !== false,
+				jobs: Number.isFinite(options.jobs) && (options.jobs as number) > 0 ? options.jobs : undefined,
+			};
+			await buildAsync(path.resolve(process.cwd(), folder), opts);
 		} catch (err) {
 			console.error(err instanceof Error ? err.message : err);
 			process.exit(1);
@@ -77,7 +88,7 @@ program
 	.description("rebuild on save")
 	.argument("[folder]", "project folder", ".")
 	.option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
-	.option("--format", "Run StyLua on output")
+	.option("--format", "Also run StyLua if it is on PATH")
 	.action((folder: string, options: { rojo?: string; format?: boolean }) => {
 		try {
 			watch(path.resolve(process.cwd(), folder), {
@@ -92,7 +103,7 @@ program
 
 program
 	.command("lsp")
-	.description("Language server stdio (JSON-RPC). Use `clpp install` for CL++ IntelliSense.")
+	.description("Language server stdio — Flare `.flare` IntelliSense. CL++ still uses `clpp setup`.")
 	.argument("[folder]", "project folder", ".")
 	.action((folder: string) => {
 		startLsp({ projectRoot: path.resolve(process.cwd(), folder) });
@@ -101,7 +112,7 @@ program
 program
 	.command("intellisense")
 	.alias("intelisense")
-	.description("Point the editor at CL++ (`clpp install`)")
+	.description("Install schema IntelliSense (.flare .hive .mint .bloom .helm .shift .axiom) + sync .vscode; CL++ via clpp install")
 	.argument("[folder]", "project folder", ".")
 	.action(async (folder: string) => {
 		try {
@@ -137,6 +148,10 @@ program
 			process.exit(1);
 		}
 	});
+
+registerApiCommands(program);
+registerTargetCommands(program);
+registerPlatformCommands(program);
 
 async function buildInput(options: {
 	input?: string;

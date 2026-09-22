@@ -1,6 +1,10 @@
 import { insertPreamble, libraryNamesFromIncludes, MODULES, requireCluauppLib } from "../libs.js";
 import type { CompileArtifact } from "./contract.js";
+import { formatLuauRoblox } from "./format-luau.js";
 import { isTaggedScript } from "./paths.js";
+import { rewriteSweepJanitor } from "./rewrite-janitor.js";
+
+export { formatLuauRoblox } from "./format-luau.js";
 
 export type PostprocessOptions = {
 	relativeName: string;
@@ -62,8 +66,97 @@ function rewriteClppLibs(luau: string, relativeName?: string): string {
 	return next;
 }
 
+function rewriteReplicatedStorageRequires(luau: string): string {
+	let next = String(luau).replace(/script(?:\.Parent)+\.ReplicatedStorage\./g, "ReplicatedStorage.");
+	if (/require\(ReplicatedStorage\./.test(next) && !/GetService\(\s*"ReplicatedStorage"\s*\)/.test(next)) {
+		next = insertAfterHeader(next, 'const ReplicatedStorage = game:GetService("ReplicatedStorage")');
+	}
+	return next;
+}
+
+function rewriteRosterNew(luau: string): string {
+	return String(luau)
+		.replace(/Instance\.new\(\s*["']Roster["']\s*\)/g, "Roster.new()")
+		.replace(/Instance\.new\(\s*["']Roster["']\s*,/g, "Roster.new(")
+		.replace(/\bRoster\.New\s*\(/g, "Roster.new(")
+		.replace(/\bSweep\.New\s*\(/g, "Sweep.new(")
+		.replace(/\bSpark\.New\s*\(/g, "Spark.new(")
+		.replace(/\bCoil\.New\s*\(/g, "Coil.new(")
+		.replace(/\bPin\.new_\s*\(/g, "Pin.new(")
+		.replace(/\bCrest\.new_\s*\(/g, "Crest.new(")
+		.replace(/\bStage\.new_\s*\(/g, "Stage.new(");
+}
+
+function rewriteCamelColon(luau: string): string {
+	// CL++ emits instance calls as `.Method(` without self. Any camelCase receiver +
+	// PascalCase call needs `:`. Static calls stay on PascalCase modules (Roster.New, Trace.Display).
+	let next = String(luau).replace(
+		/\b([a-z][A-Za-z0-9]*)(?<!:)\.([A-Z][A-Za-z0-9]*)\s*\(/g,
+		"$1:$2(",
+	);
+	const lowerMethods = ["setName", "setLabel", "getStatus", "display", "andThen", "catch_", "finally"];
+	for (const name of lowerMethods) {
+		next = next.replace(new RegExp(`\\b([a-z][A-Za-z0-9]*)(?<!:)\\.${name}\\s*\\(`, "g"), `$1:${name}(`);
+	}
+	return next;
+}
+
+function rewriteHiveWorldType(luau: string): string {
+	if (!/\bHiveWorld\b/.test(luau)) {
+		return luau;
+	}
+	let next = String(luau).replace(/(?<![\w.])HiveWorld\b/g, "Hive.HiveWorld");
+	const hasHive = /CluauppLibs\.Hive\b/.test(next) || /\b(?:const|local)\s+Hive\b/.test(next);
+	if (!hasHive) {
+		next = next.replace(/\bHive\.HiveWorld\b/g, "any");
+	}
+	return next;
+}
+
+function rewriteCFrameColon(luau: string): string {
+	const methods = [
+		"ToWorldSpace",
+		"ToObjectSpace",
+		"PointToWorldSpace",
+		"PointToObjectSpace",
+		"VectorToWorldSpace",
+		"VectorToObjectSpace",
+		"IsStudio",
+		"IsClient",
+		"IsServer",
+	];
+	let next = String(luau);
+	for (const name of methods) {
+		next = next.replace(new RegExp(`(?<!:)\\.${name}\\s*\\(`, "g"), `:${name}(`);
+	}
+	return next;
+}
+
+function rewritePlayerTemplateCtor(luau: string): string {
+	if (!/const TemplateData = require\(/.test(luau)) {
+		return luau;
+	}
+	return String(luau).replace(/\bPlayerTemplate\s*\(/g, "TemplateData(");
+}
+
+export function rewriteClppEmit(luau: string): string {
+	let next = rewriteRosterNew(luau);
+	next = rewriteHiveWorldType(next);
+	next = rewriteCFrameColon(next);
+	next = rewriteCamelColon(next);
+	next = rewritePlayerTemplateCtor(next);
+	next = rewriteSweepJanitor(next);
+	next = rewriteReplicatedStorageRequires(next);
+	next = ensureReplicatedStorage(next);
+	const stamp = "-- cluaupp: Roster.new / GetService ReplicatedStorage / self.janitor";
+	if (!next.includes(stamp)) {
+		next = insertAfterHeader(next, stamp);
+	}
+	return formatLuauRoblox(next);
+}
+
 function ensureReplicatedStorage(luau: string): string {
-	if (!luau.includes("CluauppLibs")) {
+	if (!luau.includes("CluauppLibs") && !/require\(ReplicatedStorage\./.test(luau)) {
 		return luau;
 	}
 	if (/GetService\(\s*"ReplicatedStorage"\s*\)/.test(luau)) {
@@ -142,7 +235,7 @@ export function shouldSkipInit(fileName: string, hasSiblingHeader: boolean): boo
 
 export function clppLuauToGame(artifact: CompileArtifact, options: PostprocessOptions): string {
 	let luau = rewriteClppLibs(artifact.luau || "", options.relativeName);
-	luau = ensureReplicatedStorage(luau);
+	luau = rewriteClppEmit(luau);
 	if (options.skipInit) {
 		luau = stripInitCall(luau);
 	}

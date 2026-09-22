@@ -23,6 +23,6 @@ struct LeaderstatsServer {
 
 | Page | What you learn |
 | --- | --- |
-| [File tags](/language/files/) | `.server.clpp` / `.client.clpp` / `.clh` |
-| [Services](/language/services/) | `init()` singletons |
-| [Modules](/language/modules/) | shared `.clp` |
+| [File tags](../files/) | `.server.clpp` / `.client.clpp` / `.clh` |
+| [Services](../services/) | `init()` singletons |
+| [Modules](../modules/) | shared `.clp` |

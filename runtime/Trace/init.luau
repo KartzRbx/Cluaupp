@@ -179,6 +179,9 @@ function Trace.builder()
 	local builder = {}
 
 	function builder:MaxDepth(depth: number)
+		if typeof(depth) ~= "number" then
+			return self
+		end
 		maxDepth = math.max(0, depth)
 		return self
 	end

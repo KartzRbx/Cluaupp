@@ -2,7 +2,7 @@
 title: Guide
 ---
 
-**Guide** is onboarding: an ordered list of steps, each with its own [Sweep](/libraries/sweep/). Leaving a step runs `Exit` and destroys that step’s sweep before the next `Enter`. Rewards and persistence still belong on [Keep](/libraries/keep/) on the server.
+**Guide** is onboarding: an ordered list of steps, each with its own [Sweep](../sweep/). Leaving a step runs `Exit` and destroys that step’s sweep before the next `Enter`. Rewards and persistence still belong on [Keep](../keep/) on the server.
 
 Header: `#include <clpp/libs/guide.clh>`. Runtime: `CluauppLibs.Guide`.
 
@@ -39,7 +39,7 @@ void init() {
 }
 ```
 
-`Guide.build` returns a session **without** auto-starting; call `session.Start()` or `session.Start(step)` yourself. Replicate progress as u8 over [Flare](/libraries/flare/) if needed.
+`Guide.build` returns a session **without** auto-starting; call `session.Start()` or `session.Start(step)` yourself. Replicate progress as u8 over [Flare](../flare/) if needed.
 
 ## API
 

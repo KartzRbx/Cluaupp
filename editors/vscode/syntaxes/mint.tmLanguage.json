@@ -1,0 +1,5 @@
+{
+	"name": "Mint",
+	"scopeName": "source.mint",
+	"patterns": [{ "include": "source.cluaupp-schema" }]
+}

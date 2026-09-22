@@ -1,0 +1,5 @@
+{
+	"name": "Axiom",
+	"scopeName": "source.axiom",
+	"patterns": [{ "include": "source.cluaupp-schema" }]
+}

@@ -1,10 +1,10 @@
 ---
 title: Home
-description: CL++ games on Roblox. You write CL++. Cluaupp runs clpp, maps CluauppLibs, and syncs with Rojo.
+description: Cluaupp turns CL++ into a semantically validated Roblox project, then emits idiomatic Luau.
 template: splash
 hero:
-  title: The Roblox toolchain for CL++
-  tagline: You write CL++ (.clpp / .clp / .clh). Cluaupp calls clpp 0.3.2, rewrites ClppLibs into ReplicatedStorage.CluauppLibs, and writes out/ for Rojo. Studio runs Luau — never CL++.
+  title: The Roblox project host for CL++
+  tagline: Not another TypeScript→Luau clone. Cluaupp validates architecture, context, and API surface before play — then emits clean Luau for Rojo and Studio.
   image:
     file: ../../assets/logo.png
     alt: Cluaupp
@@ -13,32 +13,62 @@ hero:
       link: getting-started/
       icon: right-arrow
       variant: primary
+    - text: Why Cluaupp
+      link: why-cluaupp/
+      icon: star
+      variant: secondary
     - text: CL++ language
       link: https://kartzrbx.github.io/CLPP/
       icon: external
       variant: minimal
 ---
 
-import { Card, CardGrid, Tabs, TabItem } from "@astrojs/starlight/components";
+import { Card, CardGrid, Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+<Aside type="tip" title="Positioning">
+**roblox-ts** compiles TypeScript to Luau. **Cluaupp** turns CL++ + project semantics into a **validated Roblox project**, then emits Luau. Compete on platform rules — not on “more syntax.”
+</Aside>
 
 <CardGrid stagger>
-	<Card title="Toolchain, not compiler" icon="puzzle">
-		[KartzRbx/CLPP](https://github.com/KartzRbx/CLPP) owns syntax, IntelliSense (`clpp setup`), and Luau codegen. This CLI finds sources, runs `clpp api compile`, and maps libraries.
+	<Card title="Context Safety" icon="approve-check">
+		`LocalPlayer` on a `.server.clpp` fails the build. DataStores on the client fail the build. Wrong-direction `FireServer` / `FireClient` fail the build. [Details](architecture/context-safety/).
 	</Card>
-	<Card title="Filename tags" icon="document">
-		`*.server.clpp` is a Script. `*.client.clpp` is a LocalScript. `.clp` / `.clh` are ModuleScripts. Entry is `void init()`.
+	<Card title="Typed DataModel" icon="puzzle">
+		Rojo graph → `WaitForChild` / `FindFirstChild` validation (`CLUAU_DM_MISSING_CHILD`), including variable-root chains. [Details](architecture/typed-datamodel/).
 	</Card>
-	<Card title="CL++ 0.3.2" icon="star">
-		`Player player` — never `Player*`. Default listen is `~>Connect`. Fire with `.Fire`. `@this` only inside `Class::Method`.
+	<Card title="API Registry" icon="seti:json">
+		**925** classes · **636** enums · **47** datatypes · **8k+** members with official **ThreadSafety**. Parallel checks: `CLUAU-PAR*`.
 	</Card>
-	<Card title="Rojo-ready out/" icon="rocket">
-		`cluaupp init`, `build`, and `watch` write Luau next to a Rojo project. CluauppLibs land in `ReplicatedStorage`.
+	<Card title="Authority + call-graph" icon="warning">
+		Import / service rules (`CLUAU-AUTH*`) plus transitive Client→Server reaches (`CLUAU_AUTH004`). Doctor / `--frozen`.
+	</Card>
+	<Card title="Flare remotes" icon="rocket">
+		One `.flare` contract → client stub, server stub, buffer codec, Ward gate. Version conflicts under `--frozen`.
+	</Card>
+	<Card title="Optimizer + Studio" icon="rocket">
+		`optimize --apply` / `--layout` SoA modules. Source stamps, CluauppNav, `cluaupp bridge` → IDE. [Studio tools](architecture/studio-tools/).
 	</Card>
 </CardGrid>
 
+## What you get that competitors don’t
+
+| Capability | Cluaupp | Typical TS→Luau toolchain |
+| --- | --- | --- |
+| Server/client capability rules at compile | Yes ([Context Safety](architecture/context-safety/)) | Lint / convention at best |
+| Typed Rojo DataModel paths | Yes ([Typed DataModel](architecture/typed-datamodel/)) | Manual / runtime |
+| API members with ThreadSafety + PAR* | Yes ([Parallel](architecture/parallel-safety/)) | Types only |
+| Authority call-graph | Yes (`CLUAU_AUTH004`) | Convention |
+| Schema remotes + anti-cheat gate | Flare + Ward | Often manual remotes |
+| Platform registry refresh + lock | `api generate` / `verify` / `diff` | Types package updates |
+| Opt-in SoA / native hints | `optimize --apply --layout` | Hand-written |
+| CL++ Language Server | Via `clpp` + `lsp-index.json` | VS Code TS |
+| Compete on TS ecosystem size | No — different bet | Yes |
+
+Full story: [Why Cluaupp](why-cluaupp/) · [vs roblox-ts](comparison/) · [Benchmarks](benchmarks/) · [Roadmap](roadmap/) · [Product architecture](architecture/product-pillars/).
+
 ## Hello Script
 
-This is valid CL++ 0.3.2. Fences use language id `clpp`.
+CL++ **0.7+**. Entry is `void init()`.
 
 <Tabs>
 	<TabItem label="CL++ (.clpp)">
@@ -67,7 +97,7 @@ void init() {
 }
 ```
 	</TabItem>
-	<TabItem label="Luau gerado">
+	<TabItem label="Emitted Luau">
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -93,4 +123,4 @@ init()
 	</TabItem>
 </Tabs>
 
-Install **clpp 0.3.2**, then `cluaupp init my-game`. Next: [Getting started](/getting-started/) · [CLI](/cli/commands/) · [`@this`](/language/at-this/).
+Install **clpp 0.7.0+**, then `cluaupp init my-game`. Next: [Getting started](getting-started/) · [CLI](cli/commands/) · [Architecture](architecture/product-pillars/).

@@ -248,6 +248,8 @@ Sweep.AddPromise = function(self: Sweep, promise: any, index: any?): any
 	return self:Add(promise, "Cancel", index)
 end
 
+Sweep.New = Sweep.new
+
 setmetatable(Sweep, {
 	__call = function()
 		return Sweep.new()

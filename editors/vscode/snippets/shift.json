@@ -1,0 +1,17 @@
+{
+	"opt name": {
+		"prefix": "opt",
+		"body": "opt name = ${1:NpcBrain}",
+		"description": "Generated module name"
+	},
+	"State": {
+		"prefix": "state",
+		"body": "state ${1:Idle}",
+		"description": "Shift FSM state"
+	},
+	"Transition": {
+		"prefix": "trans",
+		"body": "${1:Idle} -> ${2:Chase} when ${3:SeePlayer}",
+		"description": "Shift transition"
+	}
+}

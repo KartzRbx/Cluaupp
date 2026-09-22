@@ -36,4 +36,4 @@ void init() {
 
 RobloxStateMachine used string states and polled `OnDataChanged` every frame. Shift does not. Hive is ECS columns, not a second FSM.
 
-See [Shift](/libraries/shift/) and [Hive](/libraries/hive/).
+See [Shift](../../libraries/shift/) and [Hive](../../libraries/hive/).

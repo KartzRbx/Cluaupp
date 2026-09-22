@@ -4,7 +4,7 @@ sidebar:
 title: Syntax
 ---
 
-Cluaupp does **not** define the language. Write CL++ 0.3.2 (`.clpp` / `.clp` / `.clh`); `clpp` emits Luau. Course and reference: **[kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/)**. Fences use language id `clpp`.
+Cluaupp does **not** define the language. Write CL++ **0.7+** (`.clpp` / `.clp` / `.clh`); `clpp` emits Luau. Course and reference: **[kartzrbx.github.io/CLPP](https://kartzrbx.github.io/CLPP/)**. Fences use language id `clpp`.
 
 ## Files
 
@@ -81,7 +81,7 @@ void SaveData(Player player) { post(player.Name); }
 void UpdateUI() { post("ui"); }
 ```
 
-Inside `Class::Method` only: `@this` → `self`, `@janitor` → `self.janitor`. Not in `void init()`. Details: [`@this`](/language/at-this/).
+Inside `Class::Method` only: `@this` → `self`, `@janitor` → `self.janitor`. Not in `void init()`. Details: [`@this`](../at-this/).
 
 Fusion HUD uses `Fusion.scoped`, `Fusion.Value`, `Fusion.Computed`, `Fusion.New`. See [`examples/game`](https://github.com/KartzRbx/Cluaupp/tree/main/examples/game).
 
@@ -90,3 +90,4 @@ Fusion HUD uses `Fusion.scoped`, `Fusion.Value`, `Fusion.Computed`, `Fusion.New`
 - `require(ClppLibs.X)` → `require(ReplicatedStorage.CluauppLibs.X)`
 - `--!strict` from `cluaupp.config.json` / `#pragma strict`
 - `out/` layout for Rojo (`init`, `build`, `watch`)
+- `local __janitor = Janitor.new()` inside `Class:Method` → `self.janitor` (once). If the Connect target is an Instance parameter, `LinkToInstance` that instance instead.

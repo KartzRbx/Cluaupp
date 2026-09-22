@@ -1,0 +1,5 @@
+{
+	"name": "Hive",
+	"scopeName": "source.hive",
+	"patterns": [{ "include": "source.cluaupp-schema" }]
+}

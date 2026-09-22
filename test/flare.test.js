@@ -45,6 +45,22 @@ contains(emitted.header, ["cluaupp generated", "struct NetHit", "void FireServer
 contains(emitted.luau, ["--!native", "Flare.open(script)", "writeHit", "readHit", "session.packet", "session.query", "CluauppLibs.Flare"], "generated luau");
 refuses(emitted.luau, ["RemoteEvent.new", "Instance.new(\"RemoteEvent\")"], "generated luau must not assemble remotes");
 
+const language = require("../generated/flare/language");
+const unknown = language.diagnoseFlare("packet Hit(Widget x) from Client\n", "Net.flare");
+expect(unknown.some((item) => /unknown type/.test(item.message)), "diagnose unknown type");
+const emptyHint = language.diagnoseFlare("\n// none\n", "Net.flare");
+expect(emptyHint.some((item) => item.severity === "hint" || /empty/.test(item.message)), "empty schema diagnostic");
+const startCompletions = language.completionsAt("", 0, 0);
+expect(startCompletions.some((item) => item.label === "packet"), "complete packet at line start");
+const typeCompletions = language.completionsAt("packet Hit(", 0, 11);
+expect(typeCompletions.some((item) => item.label === "i32"), "complete types inside packet parens");
+const sideCompletions = language.completionsAt("packet Hit() from ", 0, 18);
+expect(sideCompletions.some((item) => item.label === "Client"), "complete from Client/Server");
+const packetHover = language.hoverAt("packet Hit(Player target, i32 damage) from Client\n", 0, 8);
+expect(Boolean(packetHover) && packetHover.contents.includes("FireServer"), "hover packet API");
+const outline = language.symbolsIn("opt name = Net\npacket Hit() from Client\nquery Session() -> i32\n");
+expect(outline.some((item) => item.name === "Hit") && outline.some((item) => item.name === "Session"), "document symbols");
+
 skipWithoutClpp();
 
 const game = makeGame({
@@ -68,6 +84,10 @@ expect(outTree.includes("shared/Net.luau"), "Net.luau out", outTree.join("\n"));
 expect(fs.existsSync(path.join(game, "src/shared/Net.clh")), "generated Net.clh in src");
 const netLuau = readOut(game, "shared/Net.luau");
 contains(netLuau, ["writeHit", "GetCoins", "Flare.open"], "out Net.luau body");
+
+const flareRuntime = fs.readFileSync(path.join(__dirname, "../runtime/Flare/init.luau"), "utf8");
+expect(flareRuntime.includes("local packedInstances = table.pack(...)"), "Flare packs ... before pcall");
+expect(!/pcall\(function\(\)\s*\n\s*local incoming = fromBuffer\(buf, table\.pack\(\.\.\.\)/.test(flareRuntime), "Flare must not capture ... inside pcall");
 
 console.log("Cluaupp flare ok");
 console.log(outTree.join("\n"));

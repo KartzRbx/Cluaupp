@@ -350,6 +350,9 @@ function Spark.IsDestroyed(self: SparkImpl): boolean
 end
 
 function Spark.DisconnectAll(self: SparkImpl)
+	if not self then
+		return
+	end
 	local item = self._head
 	self._head = nil
 	self._tail = nil

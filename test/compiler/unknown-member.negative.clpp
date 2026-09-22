@@ -1,0 +1,2 @@
+-- Negative: unknown member should fail when CLPP + registry diagnostics are wired.
+-- Placeholder for phase-10 negative compile suite.

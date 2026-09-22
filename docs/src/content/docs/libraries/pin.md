@@ -16,7 +16,7 @@ Header: `#include <clpp/libs/pin.clh>`. Runtime: `CluauppLibs.Pin`.
 **Do not use when:**
 
 - Secret or authoritative state (boss true HP) — client billboards are not security.
-- Screen-fixed HUD — [Gleam](/libraries/gleam/).
+- Screen-fixed HUD — [Gleam](../gleam/).
 
 ## Example CL++
 
@@ -55,7 +55,7 @@ Pin p = new Pin(part, label);
 
 **Returns:** `Pin`.
 
-**When:** Full control via `PinOptions` fields: `Name`, `Size`, `StudsOffset`, `StudsOffsetWorldSpace`, `MaxDistance`, `MinDistance`, `AlwaysOnTop`, `LightInfluence`, `Parent`, `Occlude`, `Fade`, `Scale`.
+**When:** Full control via `PinOptions` fields: `Name`, `Size`, `StudsOffset`, `StudsOffsetWorldSpace`, `MaxDistance`, `MinDistance` (reserved; BillboardGui has no MinDistance), `AlwaysOnTop`, `LightInfluence`, `Parent`, `Occlude`, `Fade`, `Scale`.
 
 ### SetText
 

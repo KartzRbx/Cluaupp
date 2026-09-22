@@ -2,7 +2,7 @@
 title: Sweep
 ---
 
-**Sweep** is Cluaupp’s zelador (janitor): register instances, connections, threads, functions, promises, and Sparks; `Cleanup` or `Destroy` runs the right teardown (`Disconnect`, `Destroy`, `Cancel`, etc.). Indexed `Add` replaces and cleans the previous entry. `~>` on a Spark connects through the active Sweep. [Flare](/libraries/flare/) sends; Sweep clears.
+**Sweep** is Cluaupp’s zelador (janitor): register instances, connections, threads, functions, promises, and Sparks; `Cleanup` or `Destroy` runs the right teardown (`Disconnect`, `Destroy`, `Cancel`, etc.). Indexed `Add` replaces and cleans the previous entry. `~>` on a Spark connects through the active Sweep. [Flare](../flare/) sends; Sweep clears.
 
 Header: `#include <clpp/libs/sweep.clh>`. Runtime: `CluauppLibs.Sweep`.
 

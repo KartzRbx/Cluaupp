@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 2,
+	"generatorVersion": "1.5.1",
+	"profileHash": "81e280ef74182ccfe3087e5ded99e51d85cf9368e5d01102b19bda788a5f10bb",
+	"overridesHash": "4d9132f0307a553e92b8863663295b0ddb9fc7cad57db75a8fb7b7d1ab258f46",
+	"sources": {
+		"mini-api-dump": {
+			"id": "mini-api-dump",
+			"path": "C:\\Users\\gtofr\\OneDrive\\Documentos\\GitHub\\Cluaupp\\data\\Mini-API-Dump.json",
+			"hash": "e73d0118d5fc9f134c6d8306fabecc14050ba87f3bb89ca950b0e44077283256",
+			"loadedAt": "2026-09-22T10:52:56.729Z",
+			"version": 1
+		},
+		"overrides": {
+			"id": "overrides",
+			"hash": "4d9132f0307a553e92b8863663295b0ddb9fc7cad57db75a8fb7b7d1ab258f46",
+			"loadedAt": "2026-09-22T10:52:56.886Z",
+			"path": "C:\\Users\\gtofr\\OneDrive\\Documentos\\GitHub\\Cluaupp\\api\\overrides"
+		}
+	},
+	"generatedAt": "2026-09-22T10:52:57.996Z"
+}

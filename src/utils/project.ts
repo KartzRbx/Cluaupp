@@ -2,14 +2,30 @@ import fs from "node:fs";
 import path from "node:path";
 import type { BuildOptions, BuildResult, ProjectConfig } from "../types.js";
 import { pkg } from "../package-info.js";
+import { rewriteClppEmit } from "../clpp/postprocess.js";
 import { collectSources, toLuauPath } from "../clpp/paths.js";
 import { collectFlareFiles, compileFlareFile } from "../flare/index.js";
 import { collectNativeSchemaFiles, compileNativeSchemaFile } from "../native/index.js";
-import { syncEditorSupport } from "../intellisense.js";
+import { installEditorExtension, syncEditorSupport } from "../intellisense.js";
 import { ProcessOrchestrator } from "./process-orchestrator.js";
 import { RojoMapper } from "./rojo-mapper.js";
 import { transpileSource, transpileSourceAsync } from "../transpile.js";
 import { assertInitDest, assertInside, isInside, safeProjectSubdir, safeRelPath } from "./safe-paths.js";
+import { writeSourceMap } from "../target/source-map.js";
+import { stampLuauFromClpp } from "../target/luau-stamp.js";
+import { collectSoaPlansFromProject, writeSoaArtifacts } from "../target/optimizer-soa.js";
+import { verifyLock } from "../api/index.js";
+import { checkFlareVersions } from "../target/flare-version.js";
+import { checkComponentContracts } from "../target/component-contracts.js";
+import { loadPlatformPolicy } from "../target/authority-check.js";
+import { buildDatamodelProfile } from "../target/datamodel.js";
+import {
+	defaultJobCount,
+	fingerprintSource,
+	mapPool,
+	readCachedJob,
+	writeCachedJob,
+} from "../target/build-cache.js";
 
 function readProjectConfig(file: string): Partial<ProjectConfig> {
 	const raw = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -29,6 +45,12 @@ function readProjectConfig(file: string): Partial<ProjectConfig> {
 	}
 	if (typeof data.architecture === "boolean") {
 		parsed.architecture = data.architecture;
+	}
+	if (data.rules && typeof data.rules === "object") {
+		parsed.rules = data.rules as ProjectConfig["rules"];
+	}
+	if (Array.isArray(data.components)) {
+		parsed.components = data.components as ProjectConfig["components"];
 	}
 	return parsed;
 }
@@ -361,45 +383,131 @@ function compileFlareJobs(root: string, config: ProjectConfig, srcDir: string) {
 	return { jobs, errors };
 }
 
-function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper) {
+function configFingerprint(config: ProjectConfig): string {
+	return JSON.stringify({
+		strict: config.strict === true,
+		architecture: config.architecture === true,
+		rootDir: config.rootDir,
+		outDir: config.outDir,
+		v: pkg.version,
+	});
+}
+
+function compileProject(root: string, config: ProjectConfig, mapper: RojoMapper, options: BuildOptions = {}) {
 	const srcDir = path.join(root, config.rootDir);
 	const schema = compileSchemaJobs(root, config, srcDir);
 	const files = collectSources(srcDir);
 	const jobs = [...schema.jobs];
 	const errors = [...schema.errors];
+	const incremental = options.incremental !== false;
+	const cfgKey = configFingerprint(config);
+	let cacheHits = 0;
 
 	for (const file of files) {
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
+		const sourceHash = fingerprintSource(source, cfgKey);
 		try {
+			if (incremental) {
+				const cached = readCachedJob(root, rel, sourceHash);
+				if (cached) {
+					jobs.push({ rel, files: cached.files, stale: cached.stale || [] });
+					cacheHits++;
+					continue;
+				}
+			}
 			const result = transpileSource(source, rel, compileOptions(root, config, file, rel), mapper);
 			jobs.push({ rel, files: result.files, stale: result.stale || [] });
+			if (incremental) {
+				writeCachedJob(root, {
+					rel,
+					sourceHash,
+					files: result.files,
+					stale: result.stale || [],
+				});
+			}
 		} catch (err) {
 			errors.push({ rel, prefixes: sourcePrefixes(rel), message: (err as Error).message });
 		}
 	}
 
+	if (cacheHits > 0) {
+		console.log(`cluaupp: incremental cache hit ${cacheHits}/${files.length}`);
+	}
 	return { files, jobs, errors };
 }
 
-async function compileProjectAsync(root: string, config: ProjectConfig, mapper: RojoMapper) {
+async function compileProjectAsync(root: string, config: ProjectConfig, mapper: RojoMapper, options: BuildOptions = {}) {
 	const srcDir = path.join(root, config.rootDir);
 	const schema = compileSchemaJobs(root, config, srcDir);
 	const files = collectSources(srcDir);
 	const jobs = [...schema.jobs];
 	const errors = [...schema.errors];
+	const incremental = options.incremental !== false;
+	const cfgKey = configFingerprint(config);
+	const concurrency = options.jobs ?? defaultJobCount();
+	let cacheHits = 0;
 
-	for (const file of files) {
+	const compiled = await mapPool(files, concurrency, async (file) => {
 		const source = fs.readFileSync(file, "utf8");
 		const rel = posixRel(srcDir, file);
+		const sourceHash = fingerprintSource(source, cfgKey);
 		try {
+			if (incremental) {
+				const cached = readCachedJob(root, rel, sourceHash);
+				if (cached) {
+					return {
+						ok: true as const,
+						rel,
+						files: cached.files,
+						stale: cached.stale || [],
+						cached: true,
+						sourceHash,
+					};
+				}
+			}
 			const result = await transpileSourceAsync(source, rel, compileOptions(root, config, file, rel), mapper);
-			jobs.push({ rel, files: result.files, stale: result.stale || [] });
+			return {
+				ok: true as const,
+				rel,
+				files: result.files,
+				stale: result.stale || [],
+				cached: false,
+				sourceHash,
+			};
 		} catch (err) {
-			errors.push({ rel, prefixes: sourcePrefixes(rel), message: (err as Error).message });
+			return {
+				ok: false as const,
+				rel,
+				prefixes: sourcePrefixes(rel),
+				message: (err as Error).message,
+			};
+		}
+	});
+
+	for (const item of compiled) {
+		if (item.ok) {
+			jobs.push({ rel: item.rel, files: item.files, stale: item.stale });
+			if (item.cached) {
+				cacheHits++;
+			} else if (incremental) {
+				writeCachedJob(root, {
+					rel: item.rel,
+					sourceHash: item.sourceHash,
+					files: item.files,
+					stale: item.stale,
+				});
+			}
+		} else {
+			errors.push({ rel: item.rel, prefixes: item.prefixes, message: item.message });
 		}
 	}
 
+	if (cacheHits > 0) {
+		console.log(`cluaupp: incremental cache hit ${cacheHits}/${files.length} (jobs=${concurrency})`);
+	} else if (files.length > 1 && concurrency > 1) {
+		console.log(`cluaupp: parallel compile jobs=${concurrency}`);
+	}
 	return { files, jobs, errors };
 }
 
@@ -435,10 +543,24 @@ function writeJobs(root: string, config: ProjectConfig, jobs: Array<{ rel: strin
 			if (!dest) {
 				continue;
 			}
-			const changed = writeTextIfChanged(dest, artifact.contents);
+			let contents = artifact.contents;
+			if (/\.luau$/i.test(dest)) {
+				const srcFile = path.join(root, config.rootDir, job.rel);
+				const clppSource = fs.existsSync(srcFile) ? fs.readFileSync(srcFile, "utf8") : undefined;
+				contents = stampLuauFromClpp(rewriteClppEmit(contents), job.rel, clppSource);
+			}
+			const changed = writeTextIfChanged(dest, contents);
 			written.add(resolveKey(dest));
 			if (changed) {
 				console.log("cluaupp:", job.rel, "→", path.relative(root, dest));
+			}
+			if (/\.luau$/i.test(dest)) {
+				const mapPath = writeSourceMap({
+					outLuauPath: dest,
+					sourceClppRel: job.rel,
+					projectRoot: root,
+				});
+				written.add(resolveKey(mapPath));
 			}
 			if (format && /\.luau$/i.test(dest)) {
 				ProcessOrchestrator.formatWithStyLuaSync(dest);
@@ -486,6 +608,17 @@ function finishBuild(
 	}
 
 	const written = writeJobs(root, config, compiled.jobs, format);
+	try {
+		const soaPlans = collectSoaPlansFromProject(root, config.rootDir);
+		if (soaPlans.length) {
+			const files = writeSoaArtifacts(root, soaPlans, { useBuffer: false });
+			for (const f of files) {
+				console.log("cluaupp: SoA", path.relative(root, f));
+			}
+		}
+	} catch (err) {
+		console.error("cluaupp: SoA emit failed", (err as Error).message);
+	}
 	const failedPrefixes = compiled.errors.flatMap((err) => err.prefixes);
 	pruneOut(root, config, written, failedPrefixes);
 	try {
@@ -535,21 +668,51 @@ function prepareBuild(root: string, options: BuildOptions) {
 	return { config, mapper: createMapper(root, config, options.rojo) };
 }
 
+function enforceFrozen(root: string, config: ProjectConfig): void {
+	const lock = verifyLock();
+	if (!lock.ok) {
+		throw new Error(`cluaupp build --frozen: API lock failed\n${lock.messages.join("\n")}`);
+	}
+	const flare = checkFlareVersions(root, config.rootDir);
+	if (flare.conflicts.length) {
+		throw new Error(`cluaupp build --frozen: Flare version conflicts\n${flare.conflicts.map((c) => c.message).join("\n")}`);
+	}
+	const policy = loadPlatformPolicy(root);
+	const components = config.components || policy.components || [];
+	if (components.length) {
+		const dm = buildDatamodelProfile(root);
+		if (dm) {
+			const bad = checkComponentContracts(dm, components).filter((d) => d.severity === "error");
+			if (bad.length) {
+				throw new Error(`cluaupp build --frozen: component contracts\n${bad.map((b) => b.message).join("\n")}`);
+			}
+		}
+	}
+}
+
 export function build(root: string, options: BuildOptions = {}): BuildResult {
+	if (options.frozen) {
+		const config = loadConfig(root);
+		enforceFrozen(root, config);
+	}
 	const prepared = prepareBuild(root, options);
 	if (!prepared) {
 		return { failed: 0, written: new Set() };
 	}
-	const compiled = compileProject(root, prepared.config, prepared.mapper);
+	const compiled = compileProject(root, prepared.config, prepared.mapper, options);
 	return finishBuild(root, prepared.config, compiled, options);
 }
 
 export async function buildAsync(root: string, options: BuildOptions = {}): Promise<BuildResult> {
+	if (options.frozen) {
+		const config = loadConfig(root);
+		enforceFrozen(root, config);
+	}
 	const prepared = prepareBuild(root, options);
 	if (!prepared) {
 		return { failed: 0, written: new Set() };
 	}
-	const compiled = await compileProjectAsync(root, prepared.config, prepared.mapper);
+	const compiled = await compileProjectAsync(root, prepared.config, prepared.mapper, options);
 	return finishBuild(root, prepared.config, compiled, options);
 }
 
@@ -559,10 +722,20 @@ export async function init(dest: string): Promise<void> {
 	const include = path.join(__dirname, "..", "..", "include");
 	copyDir(template, target);
 	copyDir(include, path.join(target, "include"));
+	const skills = path.join(__dirname, "..", "..", "skills");
+	if (fs.existsSync(skills)) {
+		copyDir(skills, path.join(target, ".cursor", "skills"));
+	}
 	copyRuntime(target);
 	syncEditorSupport(target);
+	try {
+		installEditorExtension();
+	} catch {
+		// editor homes may be missing in CI
+	}
 	console.log("Cluaupp ready in", target);
 	console.log("  clpp install          (CL++ highlighting + IntelliSense)");
+	console.log("  cluaupp intellisense  (schema .flare .hive .mint .bloom .helm .shift .axiom)");
 	console.log("  rokit install");
 	console.log("  cluaupp build");
 	console.log("  rojo serve");

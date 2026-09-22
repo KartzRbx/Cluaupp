@@ -2,11 +2,11 @@
 title: Leaderstats
 ---
 
-Canonical copy (three files): [Docs → Example: Leaderstats](/examples/leaderstats/).
+Canonical copy (three files): [Docs → Example: Leaderstats](../../).
 
 Roblox shows the player list from a Folder named exactly `leaderstats` under the Player. This service **creates** those values, then mirrors DataService coins into them.
 
-It does **not** call `DataService.Init`. Boot that in [Data boot](/examples/data-boot/) with your `PlayerData` Template.
+It does **not** call `DataService.Init`. Boot that in [Data boot](../data-boot/) with your `PlayerData` Template.
 
 ## Files
 
@@ -23,7 +23,7 @@ It does **not** call `DataService.Init`. Boot that in [Data boot](/examples/data
 | Same-stem header | `LeaderstatsServer.clh` + `LeaderstatsServer.server.clpp`. A differently named `leaderstats.clh` is a `require`. |
 | `.server.clpp` | Untagged cpp is a ModuleScript; `init()` will not run by itself. |
 | `Paths.Currencies.Coins` | After `Init`. A local `int Coins` is not a Data path. |
-| `string_concat` or string `+` | Luau `..`. Do not write `..` in the `.cpp`. |
+| `string_concat` or string `+` | Luau `..`. Do not write `..` in the `.clpp`. |
 | Janitor keyed by player name | Leaving the game must `Destroy` the folder. |
 | Lambda or named function | `GetChangedSignal(...).Connect([coinsValue](int n) { ... })` is valid. |
 
@@ -62,4 +62,4 @@ void LeaderstatsServer::PlayerEntered(Player player) {
 }
 ```
 
-`init()` constructs `LeaderstatsServer`, assigns `janitor = new Janitor()`, runs `PlayerEntered` for everyone already in the game, then `PlayerAdded` + `BindToClose`. Full listing is on the [handbook page](/examples/leaderstats/).
+`init()` constructs `LeaderstatsServer`, assigns `janitor = new Janitor()`, runs `PlayerEntered` for everyone already in the game, then `PlayerAdded` + `BindToClose`. Full listing is on the [handbook page](../../).

@@ -46,4 +46,4 @@ void AddCoins(int amount) {
 
 Path tokens (`"Currencies.Coins"`) should be `const string` or a shared header. Never concatenate remote or datastore keys from user input.
 
-Next: [safety](/language/safety/).
+Next: [safety](../safety/).

@@ -22,6 +22,7 @@ const project_js_1 = require("./utils/project.js");
 Object.defineProperty(exports, "init", { enumerable: true, get: function () { return project_js_1.init; } });
 Object.defineProperty(exports, "watch", { enumerable: true, get: function () { return project_js_1.watch; } });
 const transpile_js_1 = require("./transpile.js");
+const api_cli_js_1 = require("./api-cli.js");
 const program = new commander_1.Command();
 exports.program = program;
 program
@@ -53,20 +54,27 @@ program
     .option("-o, --output <path>", "Luau file or directory")
     .option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
     .option("--strict", "Emit --!strict")
-    .option("--format", "Run StyLua on output")
+    .option("--format", "Also run StyLua if it is on PATH")
     .option("--analyze", "Run luau-analyze on output")
+    .option("--frozen", "Hermetic: fail if API lock / Flare versions / component contracts drift")
+    .option("--no-incremental", "Disable compile cache under .cluaupp/compile-cache")
+    .option("-j, --jobs <n>", "Parallel transpile workers (default: CPU-bounded; env CLUAUPP_JOBS)", (v) => Number(v))
     .action(async (folder, options) => {
     if (options.input) {
         await buildInput(options);
         return;
     }
     try {
-        (0, project_js_1.build)(node_path_1.default.resolve(process.cwd(), folder), {
+        const opts = {
             format: options.format === true,
             analyze: options.analyze === true,
             rojo: options.rojo,
             strict: options.strict === true,
-        });
+            frozen: options.frozen === true,
+            incremental: options.incremental !== false,
+            jobs: Number.isFinite(options.jobs) && options.jobs > 0 ? options.jobs : undefined,
+        };
+        await (0, project_js_1.buildAsync)(node_path_1.default.resolve(process.cwd(), folder), opts);
     }
     catch (err) {
         console.error(err instanceof Error ? err.message : err);
@@ -78,7 +86,7 @@ program
     .description("rebuild on save")
     .argument("[folder]", "project folder", ".")
     .option("-r, --rojo <path>", "Path to Rojo default.project.json", "./default.project.json")
-    .option("--format", "Run StyLua on output")
+    .option("--format", "Also run StyLua if it is on PATH")
     .action((folder, options) => {
     try {
         (0, project_js_1.watch)(node_path_1.default.resolve(process.cwd(), folder), {
@@ -93,7 +101,7 @@ program
 });
 program
     .command("lsp")
-    .description("Language server stdio (JSON-RPC). Use `clpp install` for CL++ IntelliSense.")
+    .description("Language server stdio — Flare `.flare` IntelliSense. CL++ still uses `clpp setup`.")
     .argument("[folder]", "project folder", ".")
     .action((folder) => {
     (0, lsp_js_1.start)({ projectRoot: node_path_1.default.resolve(process.cwd(), folder) });
@@ -101,7 +109,7 @@ program
 program
     .command("intellisense")
     .alias("intelisense")
-    .description("Point the editor at CL++ (`clpp install`)")
+    .description("Install schema IntelliSense (.flare .hive .mint .bloom .helm .shift .axiom) + sync .vscode; CL++ via clpp install")
     .argument("[folder]", "project folder", ".")
     .action(async (folder) => {
     try {
@@ -138,6 +146,9 @@ program
         process.exit(1);
     }
 });
+(0, api_cli_js_1.registerApiCommands)(program);
+(0, api_cli_js_1.registerTargetCommands)(program);
+(0, api_cli_js_1.registerPlatformCommands)(program);
 async function buildInput(options) {
     if (!options.input || !options.output) {
         console.error("[Erro] --input e --output são obrigatórios neste modo.");
