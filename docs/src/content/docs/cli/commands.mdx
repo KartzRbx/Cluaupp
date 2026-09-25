@@ -19,7 +19,7 @@ Need CL++ **0.8.0+** for Option/Result and canonical `import` (host floor still 
 
 ## `cluaupp init [folder]`
 
-Creates a Roblox service tree under `src/` (`ReplicatedStorage/Shared`, `ServerScriptService`, `StarterPlayer`, `ServerStorage`, `ReplicatedFirst`), Rojo, `rokit.toml`, and a CL++ scaffold. Needs Cluaupp **1.4.0+**. Then run `clpp setup` for CL++ IntelliSense. `.flare` files use the Flare extension from `cluaupp intellisense`.
+Creates a domain tree under `Src/` (`Declarations`, `Include`, `Modules`, `Client`, `Server`, `Parallel`), Rojo, `rokit.toml`, and a CL++ scaffold. Cluaupp generates `default.project.json` from this tree (GenRojoTree). Then run `clpp setup` for CL++ IntelliSense. `.flare` files use the Flare extension from `cluaupp intellisense`.
 
 ## `cluaupp build [folder]`
 
@@ -30,7 +30,7 @@ cluaupp build
 cluaupp build --format --analyze
 cluaupp build --frozen
 cluaupp build --no-incremental -j 4
-cluaupp build --input ./src/ServerScriptService/Boot/DataBoot.server.clpp --output ./out/ServerScriptService/Boot/DataBoot.server.luau
+cluaupp build --input ./Src/Server/Boot/DataBoot.server.clpp --output ./out/Server/Boot/DataBoot.server.luau
 ```
 
 `--format` runs StyLua; `--analyze` runs `luau-analyze`. `--frozen` fails on API lock / Flare version / component contract drift. Incremental compile cache lives under `.cluaupp/compile-cache` (disable with `--no-incremental`). `-j/--jobs` sets parallel transpile workers on the async path (`CLUAUPP_JOBS` env also works).

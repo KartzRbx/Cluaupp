@@ -36,6 +36,12 @@ For Instances, prefer an explicit `null` check after `FindFirstChild` — same e
 | `Err(e)` | `{ err = e }` |
 | `expr?` | early-return on `err` |
 
+Use `import` for module dependencies:
+
+```clpp
+import { Option, Result } from "Include/Core/OptionResult";
+```
+
 ```clpp
 Result<int, string> parse(string s) {
 	if (s == "") {
@@ -54,6 +60,19 @@ int unwrap_or(Result<int, string> r, int fallback) {
 		Ok v => { return v; },
 		Err e => { return fallback; },
 	}
+}
+```
+
+Conceptual load flow (recoverable DataStore errors):
+
+```clpp
+import { Option, Result } from "Include/Core/OptionResult";
+
+Result<PlayerData, string> LoadData(uint64 userId) {
+	if (DataStoreFailed) {
+		return Err("Falha de conexao com o DataStore");
+	}
+	return Ok(data);
 }
 ```
 

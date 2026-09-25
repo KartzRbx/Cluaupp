@@ -17,7 +17,8 @@ CL++ is the language (`clpp` **0.8+**). Cluaupp orchestrates Rojo, the API regis
 - **`import { Name } from "./path"`** (canonical modules; no `export` keyword)
 - **`Option` / `optional` / `Some` / `None`**, **`Result` / `Ok` / `Err`**, **`?` try**, exhaustive Option/Result `match`
 - Ternary `c ? t : e`, coalesce `??` (precedence below try/`:` — see [syntax](../syntax/))
-- Quoted `#include` (legado); angled `#include <clpp/...>` is IntelliSense / CluauppLibs only
+- Language dependencies use `import { ... } from "..."` (canonical)
+- `#include <clpp/...>` is host prelude/IntelliSense only (roblox + libs)
 - Libraries via `#include <clpp/libs/sweep.clh>` → `require(ReplicatedStorage.CluauppLibs.Sweep)`
 - Opt pipeline on by default in `clpp` (`--no-opt` for fair baselines); Cluaupp consumes `nativeHints` / `layoutHints`
 
@@ -51,6 +52,30 @@ If you need a custom type, it is usually a **ModuleScript in shared** (a `.clp`)
 ## Init
 
 If a file defines `void init()`, `clpp` calls `init()` at the end of Scripts / LocalScripts. Shared modules (`.clp`) should **not** define `init()` unless you want them to run on require.
+
+## Importing Option/Result modules
+
+For CL++ domain modules, require via `import`:
+
+```clpp
+import { Option, Result } from "Include/Core/OptionResult";
+
+Result<PlayerData, string> LoadData(uint64 userId) {
+	if (DataStoreFailed) {
+		return Err("Falha de conexao com o DataStore");
+	}
+	return Ok(data);
+}
+
+void init() {
+	auto dataResult = LoadData(123456);
+	if (dataResult.is_ok()) {
+		post("Dados carregados com sucesso!");
+	} else {
+		post("Erro: " .: dataResult.unwrap_err());
+	}
+}
+```
 
 ## Mixing extra Wally packages
 

@@ -42,7 +42,7 @@ void init() {
 ```
 
 ```
-out/ServerScriptService/Handlers/LeaderstatsServer.server.luau
+out/Modules/Handlers/LeaderstatsServer.server.luau
 ```
 
 `init()` runs at the end. Prefer the typed form `GetService<Players>()` over stringly `GetService("Players")`.

@@ -2,15 +2,15 @@
 title: Data boot
 ---
 
-Start Keep **once** on the server and once on the client. `cluaupp init` already ships this: `ServerScriptService/Boot/DataBoot.server.clpp` and `StarterPlayerScripts/Controllers/DataController.client.clpp`.
+Start Keep **once** on the server and once on the client. `cluaupp init` already ships this: `Src/Server/Boot/DataBoot.server.clpp` and `Src/Client/Controllers/DataController.client.clpp`.
 
 Gameplay scripts (`PlayerHandler`, combat, shop) only `WaitFor` — they do not call `Init`.
 
-The save **shape is yours**. It lives in `Shared/Constants/Datas/TemplateData`.
+The save **shape is yours**. It lives in `Src/Include/GameTypes.clh`.
 
 ## Shared template
 
-`src/ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh`
+`Src/Include/GameTypes.clh`
 
 ```clpp
 #pragma once
@@ -36,7 +36,7 @@ Bump `.StoreName` when you **intentionally** wipe saves. Changing a field defaul
 ```clpp
 #include <clpp/roblox.clh>
 #include <clpp/libs/keep.clh>
-#include "../../ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh"
+import { PlayerTemplate } from "../../Include/GameTypes.clh";
 
 void init() {
 	PlayerTemplate playerData = PlayerTemplate();

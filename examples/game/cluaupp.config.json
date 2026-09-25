@@ -1,5 +1,5 @@
 {
-	"rootDir": "src",
+	"rootDir": "Src",
 	"outDir": "out",
 	"strict": false,
 	"architecture": false

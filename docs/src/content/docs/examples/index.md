@@ -11,13 +11,13 @@ These are **not** dumps of `int main()`. Entry is `void init()`. Types are `stru
 ## Suggested layout
 
 ```
-src/
-  ReplicatedStorage/Shared/Constants/Datas/TemplateData.clh
-  ReplicatedStorage/Shared/Net/Net.flare
-  ServerScriptService/Boot/DataBoot.server.clpp
-  ServerScriptService/Handlers/PlayerHandler.server.clpp
-  ServerScriptService/Handlers/Connection.server.clpp
-  StarterPlayer/StarterPlayerScripts/Controllers/DataController.client.clpp
+Src/
+  Include/GameTypes.clh
+  Declarations/Net.flare
+  Server/Boot/DataBoot.server.clpp
+  Modules/Core/PlayerHandler.server.clpp
+  Modules/Connection/Connection.server.clpp
+  Client/Controllers/DataController.client.clpp
 ```
 
 Boot Keep **once**. Other services `WaitFor` after that. Gameplay remotes live in `.flare`, not in [Net](../libraries/net/).

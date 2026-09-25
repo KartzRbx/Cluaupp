@@ -1,0 +1,4 @@
+#pragma strict
+#include <clpp/roblox.clh>
+
+void init() {}

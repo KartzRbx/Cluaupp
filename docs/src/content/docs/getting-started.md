@@ -48,12 +48,12 @@ rojo serve
 my-game/
   cluaupp.config.json
   default.project.json
-  src/
-    ReplicatedStorage/Shared/...
-    ServerScriptService/Boot/DataBoot.server.clpp
-    ServerScriptService/Handlers/PlayerHandler.server.clpp
-    ReplicatedStorage/Shared/Net/Net.flare
-    StarterPlayer/...
+  Src/
+    Declarations/Net.flare
+    Include/GameTypes.clh
+    Modules/Core/PlayerHandler.server.clpp
+    Server/Boot/DataBoot.server.clpp
+    Client/Controllers/DataController.client.clpp
   out/                    ← generated Luau (do not edit)
 ```
 

@@ -2,9 +2,9 @@
 title: Flare
 ---
 
-**Flare** is Cluaupp’s network kernel: Zap-tight packing, batched reliable/unreliable remotes, and query RPC. You do not hand-wire remotes — write `src/ReplicatedStorage/Shared/Net/Net.flare`, run `cluaupp build`, and use the generated `Net.clh` / `Net.luau` API (`Net.Hit.FireServer`, `Net.GetCoins.Invoke()`, …). This header exposes the low-level `Flare.write*` / `Flare.read*` helpers and `Flare.open` used by generated code.
+**Flare** is Cluaupp’s network kernel: Zap-tight packing, batched reliable/unreliable remotes, and query RPC. You do not hand-wire remotes — write `Src/Declarations/Net.flare`, run `cluaupp build`, and use the generated `Net.clh` / `Net.luau` API (`Net.Hit.FireServer`, `Net.GetCoins.Invoke()`, …). This header exposes the low-level `Flare.write*` / `Flare.read*` helpers and `Flare.open` used by generated code.
 
-Header: `#include <clpp/libs/flare.clh>` (kernel). Gameplay includes the **generated** `Net.clh`. Runtime: `CluauppLibs.Flare`. Editor: `cluaupp intellisense` installs Flare highlighting and completions for `.flare`.
+Header: `#include <clpp/libs/flare.clh>` (kernel). Gameplay imports the **generated** `Net.clh`. Runtime: `CluauppLibs.Flare`. Editor: `cluaupp intellisense` installs Flare highlighting and completions for `.flare`.
 
 ## Why
 
@@ -17,7 +17,7 @@ When **not** to use: trivial one-off remotes (Net), or declaring packets in CL++
 
 ## Example — packets and queries
 
-`src/ReplicatedStorage/Shared/Net/Net.flare` (build generates `Net.clh` + `Net.luau`):
+`Src/Declarations/Net.flare` (build generates `Net.clh` + `Net.luau`):
 
 ```
 opt name = Net
@@ -37,7 +37,7 @@ query GetCoins() -> i32
 ```clpp
 #pragma strict
 #include <clpp/roblox.clh>
-#include "Net.clh"
+import { Net } from "Net.clh";
 
 [[server]]
 void init() {
@@ -80,7 +80,7 @@ query Session() -> i32
 ```clpp
 #pragma strict
 #include <clpp/roblox.clh>
-#include "Net.clh"
+import { Net } from "Net.clh";
 #include <clpp/libs/keep.clh>
 #include <clpp/libs/ward.clh>
 

@@ -187,6 +187,11 @@ export function rewriteGameRootedRequires(luau: string): string {
 		const re = new RegExp(`script(?:\\.Parent)+\\.${svc}\\.`, "g");
 		next = next.replace(re, `${svc}.`);
 	}
+	// Domain root folders are mapped under ReplicatedStorage by GenRojoTree.
+	for (const folder of ["Include", "Modules", "Declarations"]) {
+		const re = new RegExp(`script(?:\\.Parent)+\\.${folder}\\.`, "g");
+		next = next.replace(re, `ReplicatedStorage.${folder}.`);
+	}
 	return next;
 }
 

@@ -19,6 +19,7 @@ import { checkFlareVersions } from "../target/flare-version.js";
 import { checkComponentContracts } from "../target/component-contracts.js";
 import { loadPlatformPolicy } from "../target/authority-check.js";
 import { buildDatamodelProfile } from "../target/datamodel.js";
+import { writeDefaultProject } from "../target/gen-rojo-tree.js";
 import {
 	defaultJobCount,
 	hashText,
@@ -315,6 +316,10 @@ function createMapper(root: string, config: ProjectConfig, rojoPath?: string): R
 	return mapper;
 }
 
+function syncRojoTree(root: string, config: ProjectConfig, rojoPath?: string): void {
+	writeDefaultProject(root, config.rootDir, config.outDir, rojoPath || "default.project.json");
+}
+
 function compileOptions(root: string, config: ProjectConfig, file: string, rel: string) {
 	const srcDir = path.join(root, config.rootDir);
 	return {
@@ -609,6 +614,7 @@ function finishBuild(
 	}
 
 	const written = writeJobs(root, config, compiled.jobs, format);
+	syncRojoTree(root, config, options.rojo);
 	try {
 		const soaPlans = collectSoaPlansFromProject(root, config.rootDir);
 		if (soaPlans.length) {
@@ -649,6 +655,7 @@ function prepareBuild(root: string, options: BuildOptions) {
 	const exitOnError = options.exitOnError !== false;
 	const holdOnError = options.holdOnError === true;
 	const config = loadConfig(root);
+	syncRojoTree(root, config, options.rojo);
 	if (options.strict === true) {
 		config.strict = true;
 	}
@@ -728,6 +735,8 @@ export async function init(dest: string): Promise<void> {
 		copyDir(skills, path.join(target, ".cursor", "skills"));
 	}
 	copyRuntime(target);
+	const initConfig = loadConfig(target);
+	syncRojoTree(target, initConfig);
 	syncEditorSupport(target);
 	try {
 		installEditorExtension();

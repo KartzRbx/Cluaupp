@@ -2,75 +2,62 @@
 title: Organization
 ---
 
-`cluaupp init` writes a Roblox service tree. Source folders map 1:1 to live services (`out/ServerScriptService` → ServerScriptService). There is no `src/server`, `src/shared`, or `src/client`.
+`cluaupp init` writes a **domain `Src/` tree**. Cluaupp builds Luau into `out/`, then generates `default.project.json` from that tree (GenRojoTree).
 
 ```
-src/
-  ReplicatedFirst/Loading/
-  ReplicatedStorage/
-    Shared/
-      Constants/
-        Classes/
-        Primitives/
-        Datas/TemplateData.clh
-      Services/
-      Modules/
-      Utils/
-      Types/
-      Net/
-  ServerScriptService/
+Src/
+  Declarations/
+    Net.flare
+  Include/
+    GameTypes.clh
+    Core/
+    Engine/
+  Modules/
+    Core/
+      PlayerHandler.server.clpp
+      Guard.server.clpp
+  Client/
+    Main.client.clpp
+    Controllers/DataController.client.clpp
+    UI/
+  Server/
+    Main.server.clpp
     Boot/DataBoot.server.clpp
-    Configuration/
-    Handlers/PlayerHandler.server.clpp
     Services/
-  StarterPlayer/
-    StarterPlayerScripts/
-      Controllers/DataController.client.clpp
-      UI/
-      Input/
-    StarterCharacterScripts/
-      Character/
-      Movement/
-      Combat/
-  ServerStorage/
-    Configuration/
-    Modules/
+  Parallel/
 libs/                 CluauppLibs (Keep, Sweep, Flare, …)
 include/clpp/         IntelliSense
 cluaupp.config.json
 default.project.json
 ```
 
-Rojo maps `libs/` to `ReplicatedStorage.CluauppLibs`. Game packages you add later go beside Shared, not inside CluauppLibs.
+Rojo maps `libs/` to `ReplicatedStorage.CluauppLibs`. Game packages you add later go beside `Modules` / `Include`, not inside CluauppLibs.
 
 ## Where code runs
 
-| Folder | Runs on | Put here |
+| Source folder | Runs on | Put here |
 | --- | --- | --- |
-| `ServerScriptService/Boot` | Server | `Keep.Server.Init` once |
-| `ServerScriptService/Handlers` | Server | PlayerAdded, leaderstats, combat |
-| `ServerScriptService/Services` | Server | long-lived server systems |
-| `ServerScriptService/Configuration` | Server | store names, feature flags |
-| `ReplicatedStorage/Shared` | Both | TemplateData, types, utils, Flare schemas |
-| `StarterPlayerScripts/Controllers` | Client | `Keep.Client.Init`, HUD controllers |
-| `StarterPlayerScripts/UI` / `Input` | Client | Gleam, user input |
-| `StarterCharacterScripts` | Character | movement, combat locals |
-| `ServerStorage` | Server | secrets, unpublished modules |
-| `ReplicatedFirst` | First | loading UI |
+| `Server/Boot` | Server | one-time init (`Keep.Server.Init`) |
+| `Server/Services` | Server | long-lived server systems |
+| `Client/Controllers` | Client | `Keep.Client.Init`, HUD controllers |
+| `Client/UI` | Client | view layers |
+| `Modules/**` | Depends on file tag | gameplay domains (`*.server` / `*.client` / module) |
+| `Include/**` | Both | shared types and headers |
+| `Declarations/**` | Both | `.flare` / schemas |
 
 If a file needs `DataStoreService`, it is server. If it needs `UserInputService`, it is client. Shared must compile on both.
 
 ## Headers vs scripts
 
-- Prefer **`import { Name } from "./TemplateData.clh"`** for language deps between CL++ files (CL++ 0.8+). There is no `export` keyword — top-level is importable.
-- Quoted `#include "….clh"` remains for header/impl splice (same stem) and legacy trees.
+- Prefer **`import { Name } from "./GameTypes.clh"`** for language deps between CL++ files (CL++ 0.8+). There is no `export` keyword — top-level is importable.
+- For project modules, use `import { ... } from "..."` (canonical require surface).
 - `#include <clpp/...>` is IntelliSense / CluauppLibs — never a language module. `cluaupp build` copies those headers into the game `include/` folder.
 
-Keep the save shape in `Shared/Constants/Datas/TemplateData.clh`. Paths exist only because that template has those fields.
+Keep the save shape in `Src/Include/GameTypes.clh`.
 
 ## One module, one job
 
-`DataBoot.server.clpp` calls `Keep.Server.Init`. `PlayerHandler.server.clpp` only `WaitFor`s. `DataController.client.clpp` calls `Keep.Client.Init`. Do not `Init` twice.
+`Server/Boot/DataBoot.server.clpp` calls `Keep.Server.Init`. `Modules/Core/PlayerHandler.server.clpp` only `WaitFor`s. `Client/Controllers/DataController.client.clpp` calls `Keep.Client.Init`. Do not `Init` twice.
 
 `*.server.clpp` / `*.client.clpp` are tags. Untagged `.clp` is a ModuleScript. `"architecture": true` is the old PascalCase folder split — leave it off.
 

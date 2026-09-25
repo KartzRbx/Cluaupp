@@ -84,7 +84,7 @@ Keep the same file tags and operators. Upgrade the **`clpp` binary** first — o
 | `require(Janitor)` | `#include <clpp/libs/sweep.clh>` | `CluauppLibs.Sweep` |
 | `require(Signal)` | `#include <clpp/libs/spark.clh>` | `CluauppLibs.Spark` |
 | `require(DataService)` | `#include <clpp/libs/keep.clh>` | `CluauppLibs.Keep` |
-| `require(QuickNet)` | `.flare` schema + `#include "Net.clh"` | `CluauppLibs.Flare` |
+| `require(QuickNet)` | `.flare` schema + `import { Net } from "Net.clh"` | `CluauppLibs.Flare` |
 | `require(Fusion)` | `#include <clpp/libs/gleam.clh>` | `CluauppLibs.Gleam` |
 | `require(Iris)` | `#include <clpp/libs/lens.clh>` | `CluauppLibs.Lens` |
 | `require(Cmdr)` | `#include <clpp/libs/helm.clh>` | `CluauppLibs.Helm` |

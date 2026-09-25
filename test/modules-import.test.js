@@ -41,9 +41,9 @@ expect(!lang.some((p) => p.includes("clpp/roblox")), "angle prelude not a langua
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cluaupp-import-"));
 const root = path.join(tmp, "game");
-const src = path.join(root, "src");
-const shared = path.join(src, "ReplicatedStorage", "Shared");
-const boot = path.join(src, "ServerScriptService", "Boot");
+const src = path.join(root, "Src");
+const shared = path.join(src, "Include");
+const boot = path.join(src, "Server", "Boot");
 fs.mkdirSync(shared, { recursive: true });
 fs.mkdirSync(boot, { recursive: true });
 fs.writeFileSync(
@@ -55,8 +55,8 @@ struct PlayerData { int Money = 0; };
 );
 fs.writeFileSync(
 	path.join(boot, "Boot.server.clpp"),
-	`#include <clpp/roblox.clh>
-import { Wallet, PlayerData as Data } from "../../ReplicatedStorage/Shared/PlayerData.clh";
+		`#include <clpp/roblox.clh>
+import { Wallet, PlayerData as Data } from "../../Include/PlayerData.clh";
 
 void init() {
 	Wallet w;
@@ -71,21 +71,21 @@ fs.writeFileSync(
 		name: "import-test",
 		tree: {
 			$className: "DataModel",
-			ReplicatedStorage: { $path: "out/ReplicatedStorage" },
-			ServerScriptService: { $path: "out/ServerScriptService" },
+			ReplicatedStorage: { $path: "out/Include" },
+			ServerScriptService: { $path: "out/Server" },
 		},
 	}),
 );
 
 const fromBoot = path.join(boot, "Boot.server.clpp");
 const resolved = resolveModuleFile(
-	"../../ReplicatedStorage/Shared/PlayerData.clh",
+	"../../Include/PlayerData.clh",
 	fromBoot,
 	src,
 );
-expect(resolved && resolved.replace(/\\/g, "/").endsWith("Shared/PlayerData.clh"), "resolve relative import", resolved);
+expect(resolved && resolved.replace(/\\/g, "/").endsWith("Include/PlayerData.clh"), "resolve relative import", resolved);
 
-const graph = buildProjectGraph(root, "src");
+const graph = buildProjectGraph(root, "Src");
 expect(graph.edges.some((e) => e.from.includes("Boot.server.clpp") && e.to.includes("PlayerData.clh")), "graph edge import", JSON.stringify(graph.edges));
 
 const auth = checkAuthority(
@@ -96,7 +96,7 @@ expect(auth.some((d) => d.code === "CLUAU_AUTH001"), "AUTH001 on client import o
 
 const mapper = new RojoMapper(path.join(root, "default.project.json"), src, "out");
 mapper.loadSync();
-const binding = mapper.resolveImportToRequire("../../ReplicatedStorage/Shared/PlayerData.clh", fromBoot);
+const binding = mapper.resolveImportToRequire("../../Include/PlayerData.clh", fromBoot);
 expect(binding && binding.path.includes("ReplicatedStorage"), "rojo import binding", JSON.stringify(binding));
 
 const rewritten = ensureGameServices(

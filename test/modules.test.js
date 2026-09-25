@@ -21,15 +21,15 @@ contains(libs, ["Sweep", "CluauppLibs.Sweep"], "Sweep emit + require");
 refuses(libs, ["require(ClppLibs."], "libs must not keep ClppLibs placeholder");
 
 const game = makeGame({
-	"src/ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh": `#pragma once
+	"Src/Include/PlayerData.clh": `#pragma once
 struct PlayerData {
 	int Money = 0;
 	int Level = 1;
 };
 `,
-	"src/ServerScriptService/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
+	"Src/Server/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
 #include <clpp/libs/keep.clh>
-import { PlayerData } from "../../ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh";
+import { PlayerData } from "../../Include/PlayerData.clh";
 
 void init() {
 	PlayerData playerData;
@@ -41,10 +41,10 @@ void init() {
 expect(buildGame(game).failed === 0, "modular game build failed", listOut(game).join("\n"));
 
 const outTree = listOut(game);
-expect(outTree.includes("ReplicatedStorage/Shared/Constants/Datas/PlayerData.luau"), "PlayerData out", outTree.join("\n"));
-expect(outTree.includes("ServerScriptService/Boot/boot.server.luau"), "boot out", outTree.join("\n"));
+expect(outTree.includes("Include/PlayerData.luau"), "PlayerData out", outTree.join("\n"));
+expect(outTree.includes("Server/Boot/boot.server.luau"), "boot out", outTree.join("\n"));
 
-const dataBoot = readOut(game, "ServerScriptService/Boot/boot.server.luau");
+const dataBoot = readOut(game, "Server/Boot/boot.server.luau");
 contains(dataBoot, ["init()", "CluauppLibs.Keep"], "boot init + Keep require");
 refuses(dataBoot, ["require(ClppLibs."], "boot ClppLibs");
 
@@ -58,7 +58,7 @@ const m = ver.match(/(\d+)\.(\d+)/);
 const canImport = m && (Number(m[1]) > 0 || Number(m[2]) >= 8);
 if (canImport) {
 	const imported = makeGame({
-		"src/ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh": `#pragma once
+		"Src/Include/PlayerData.clh": `#pragma once
 struct Wallet {
 	int Coins = 0;
 };
@@ -66,8 +66,8 @@ struct PlayerData {
 	int Money = 0;
 };
 `,
-		"src/ServerScriptService/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
-import { Wallet, PlayerData as Data } from "../../ReplicatedStorage/Shared/Constants/Datas/PlayerData.clh";
+		"Src/Server/Boot/boot.server.clpp": `#include <clpp/roblox.clh>
+import { Wallet, PlayerData as Data } from "../../Include/PlayerData.clh";
 
 void init() {
 	Wallet w;
@@ -77,7 +77,7 @@ void init() {
 `,
 	});
 	expect(buildGame(imported).failed === 0, "named import game build", listOut(imported).join("\n"));
-	const bootLuau = readOut(imported, "ServerScriptService/Boot/boot.server.luau");
+	const bootLuau = readOut(imported, "Server/Boot/boot.server.luau");
 	refuses(bootLuau, ["script.Parent.Parent.Parent.ReplicatedStorage"], "import require game-rooted");
 	contains(bootLuau, ["require(ReplicatedStorage"], "import require ReplicatedStorage");
 	console.log("Cluaupp named import build ok");

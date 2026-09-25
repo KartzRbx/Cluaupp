@@ -64,7 +64,7 @@ expect(tagged.files[0].name.replace(/\\/g, "/") === "hud.client.luau", `client o
 
 const combat = compileSource(
 	require("fs").readFileSync(
-		require("path").join(__dirname, "..", "templates", "game", "src", "ServerScriptService", "Handlers", "PlayerHandler.server.clpp"),
+		require("path").join(__dirname, "..", "templates", "game", "src", "Modules", "Core", "PlayerHandler.server.clpp"),
 		"utf8",
 	),
 	"PlayerHandler.server.clpp",

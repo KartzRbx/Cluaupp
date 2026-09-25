@@ -1,0 +1,13 @@
+#pragma strict
+#include <clpp/roblox.clh>
+#include <clpp/libs/keep.clh>
+import { PlayerTemplate } from "../../Include/GameTypes.clh";
+
+void init() {
+	PlayerTemplate playerData = PlayerTemplate();
+	Keep.Server.Init(DataServiceOptions {
+		.Template = playerData,
+		.StoreName = "PlayerData",
+		.UseMock = true,
+	});
+}

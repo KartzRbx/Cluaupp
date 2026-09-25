@@ -62,11 +62,9 @@ Rules:
 | `import type { … }` | Not yet |
 | `import * as M` | Not yet |
 
-## Legacy / host `#include`
+## Host `#include` only (not module require)
 
 ```clpp
-#include "PlayerData.clh"       // still accepted; prefer import for language deps
-#include "Main.clh"             // same stem as Main.clpp → header/impl splice
 #include <clpp/roblox.clh>      // Cluaupp prelude — NOT a language module
 #include <clpp/libs/sweep.clh>  // IntelliSense + CluauppLibs require
 ```
@@ -74,15 +72,15 @@ Rules:
 | Need | Use |
 | --- | --- |
 | Types/functions from another CL++ file | `import { … } from "…"` |
-| Header/impl pair same stem | `#include "Foo.clh"` in `Foo.clpp` (legado) |
+| Header/impl pair same stem | `import { ... } from "./Foo.clh"` |
 | Engine / generated / libs | `#include <clpp/…>` via Cluaupp |
 
-Quoted `#include "TemplateData.clh"` is not inlined when the header has a sibling `.clp` / `.clpp` or is a shared module: `cluaupp build` emits a Rojo-rooted `require(...)` (from `default.project.json`), never `script.Parent.Parent.shared`.
+`import` emits a Rojo-rooted `require(...)` (from `default.project.json`), never `script.Parent.Parent.shared`.
 
 ## Untagged `.clp` / `.clpp` = ModuleScript
 
 ```
-src/ReplicatedStorage/Shared/Utils/Coins.clp
+Src/Modules/Shared/Coins.clp
 ```
 
 ```clpp
@@ -94,7 +92,7 @@ int DoubleCoins(int coins) {
 ```
 
 ```
-out/ReplicatedStorage/Shared/Utils/Coins.luau   -- ModuleScript, exported functions
+out/Modules/Shared/Coins.luau   -- ModuleScript, exported functions
 ```
 
 `.clh` are **type modules**. A service header becomes a typed Luau table; the sibling `.clp` / `.clpp` is the construction. Data-only structs still emit a constructor so `TemplateData()` works. Prefer headers for the public type, tagged `.server.clpp` / `.client.clpp` for scripts, and the sibling `.clp` / `.clpp` for method bodies.

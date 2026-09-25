@@ -30,6 +30,7 @@ const flare_version_js_1 = require("../target/flare-version.js");
 const component_contracts_js_1 = require("../target/component-contracts.js");
 const authority_check_js_1 = require("../target/authority-check.js");
 const datamodel_js_1 = require("../target/datamodel.js");
+const gen_rojo_tree_js_1 = require("../target/gen-rojo-tree.js");
 const build_cache_js_1 = require("../target/build-cache.js");
 const modules_js_1 = require("../clpp/modules.js");
 function readProjectConfig(file) {
@@ -304,6 +305,9 @@ function createMapper(root, config, rojoPath) {
     const mapper = new rojo_mapper_js_1.RojoMapper(projectJson, node_path_1.default.join(root, config.rootDir), config.outDir);
     mapper.loadSync();
     return mapper;
+}
+function syncRojoTree(root, config, rojoPath) {
+    (0, gen_rojo_tree_js_1.writeDefaultProject)(root, config.rootDir, config.outDir, rojoPath || "default.project.json");
 }
 function compileOptions(root, config, file, rel) {
     const srcDir = node_path_1.default.join(root, config.rootDir);
@@ -586,6 +590,7 @@ function finishBuild(root, config, compiled, options) {
         }
     }
     const written = writeJobs(root, config, compiled.jobs, format);
+    syncRojoTree(root, config, options.rojo);
     try {
         const soaPlans = (0, optimizer_soa_js_1.collectSoaPlansFromProject)(root, config.rootDir);
         if (soaPlans.length) {
@@ -625,6 +630,7 @@ function prepareBuild(root, options) {
     const exitOnError = options.exitOnError !== false;
     const holdOnError = options.holdOnError === true;
     const config = loadConfig(root);
+    syncRojoTree(root, config, options.rojo);
     if (options.strict === true) {
         config.strict = true;
     }
@@ -700,6 +706,8 @@ async function init(dest) {
         copyDir(skills, node_path_1.default.join(target, ".cursor", "skills"));
     }
     copyRuntime(target);
+    const initConfig = loadConfig(target);
+    syncRojoTree(target, initConfig);
     (0, intellisense_js_1.syncEditorSupport)(target);
     try {
         (0, intellisense_js_1.installEditorExtension)();

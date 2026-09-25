@@ -4,7 +4,7 @@ title: Connection (Flare)
 
 The client fires **Ready**. The server waits for Keep, then **Welcome**. A **Session** query is RPC for identity. Keep’s tagged `ready` buffer is a different channel — do not replace it with this packet.
 
-Schema: `src/ReplicatedStorage/Shared/Net/Net.flare`. After `cluaupp build`, include the generated `Net.clh` (not `<clpp/libs/net.clh>`). Library: [Flare](../../libraries/flare/).
+Schema: `Src/Declarations/Net.flare`. After `cluaupp build`, import the generated `Net.clh` module (not `<clpp/libs/net.clh>`). Library: [Flare](../../libraries/flare/).
 
 ```
 opt name = Net
@@ -26,12 +26,12 @@ query Session() -> i32
 
 ## Server
 
-`src/ServerScriptService/Handlers/Connection.server.clpp`
+`Src/Modules/Connection/Connection.server.clpp`
 
 ```clpp
 #pragma strict
 #include <clpp/roblox.clh>
-#include "../../ReplicatedStorage/Shared/Net/Net.clh"
+import { Net } from "../../Declarations/Net.clh";
 #include <clpp/libs/keep.clh>
 #include <clpp/libs/ward.clh>
 
@@ -51,12 +51,12 @@ void init() {
 
 ## Client
 
-`src/StarterPlayer/StarterPlayerScripts/Controllers/Connection.client.clpp`
+`Src/Client/Controllers/Connection.client.clpp`
 
 ```clpp
 #pragma strict
 #include <clpp/roblox.clh>
-#include "../../../ReplicatedStorage/Shared/Net/Net.clh"
+import { Net } from "../../Declarations/Net.clh";
 #include <clpp/libs/keep.clh>
 
 void init() {

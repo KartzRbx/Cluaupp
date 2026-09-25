@@ -77,7 +77,7 @@ function makeGame(files = {}, config = {}) {
 	writeFile(
 		dir,
 		"cluaupp.config.json",
-		JSON.stringify({ rootDir: "src", outDir: "out", strict: true, architecture: false, ...config }, null, "\t"),
+		JSON.stringify({ rootDir: "Src", outDir: "out", strict: true, architecture: false, ...config }, null, "\t"),
 	);
 	fs.copyFileSync(path.join(TEMPLATE, "default.project.json"), path.join(dir, "default.project.json"));
 	for (const [rel, contents] of Object.entries(files)) {
@@ -88,8 +88,8 @@ function makeGame(files = {}, config = {}) {
 
 function copyTemplateGame(config = {}) {
 	const dir = makeGame({}, config);
-	const srcFrom = path.join(TEMPLATE, "src");
-	const srcTo = path.join(dir, "src");
+	const srcFrom = path.join(TEMPLATE, "Src");
+	const srcTo = path.join(dir, "Src");
 	fs.cpSync(srcFrom, srcTo, { recursive: true });
 	return dir;
 }

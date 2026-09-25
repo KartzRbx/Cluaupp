@@ -4,11 +4,11 @@ sidebar:
 title: Configuration
 ---
 
-File: `cluaupp.config.json` at the game root (next to `src/`).
+File: `cluaupp.config.json` at the game root (next to `Src/`).
 
 ```json
 {
-	"rootDir": "src",
+	"rootDir": "Src",
 	"outDir": "out",
 	"strict": false,
 	"architecture": false
@@ -17,7 +17,7 @@ File: `cluaupp.config.json` at the game root (next to `src/`).
 
 | Field | Default | Effect |
 | --- | --- | --- |
-| `rootDir` | `"src"` | Where `.clpp` / `.clp` / `.clh` live |
+| `rootDir` | `"Src"` | Where `.clpp` / `.clp` / `.clh` live |
 | `outDir` | `"out"` | Where Luau is written |
 | `strict` | `false` | Prefix `--!strict` when `clpp` did not already (overridden by `#pragma`) |
 | `architecture` | `false` | Ignored in 1.0 (always one file in, one file out) |
@@ -26,12 +26,12 @@ File: `cluaupp.config.json` at the game root (next to `src/`).
 
 The template maps:
 
-- `out/ServerScriptService` → `ServerScriptService`
-- `out/ReplicatedStorage/Shared` → `ReplicatedStorage.Shared`
-- `out/StarterPlayer/StarterPlayerScripts` → `StarterPlayer.StarterPlayerScripts`
-- `out/StarterPlayer/StarterCharacterScripts` → `StarterPlayer.StarterCharacterScripts`
-- `out/ServerStorage` → `ServerStorage`
-- `out/ReplicatedFirst` → `ReplicatedFirst`
+- `out/Server` → `ServerScriptService`
+- `out/Client` → `StarterPlayer.StarterPlayerScripts`
+- `out/Parallel` → `ServerScriptService.Parallel`
+- `out/Declarations` → `ReplicatedStorage.Declarations`
+- `out/Include` → `ReplicatedStorage.Include`
+- `out/Modules` → split by tag (`*.server` / `*.client` / module)
 - `libs` → `ReplicatedStorage.CluauppLibs`
 
 `*.server.clpp` → `*.server.luau` (Script). `*.client.clpp` → LocalScript. `.clp` / `.clh` → ModuleScript.

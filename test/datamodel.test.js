@@ -26,20 +26,20 @@ const projectJson = {
 				},
 			},
 			Shared: {
-				$path: "src/ReplicatedStorage/Shared",
+				$path: "Src/Include",
 			},
 		},
 		ServerScriptService: {
 			$className: "ServerScriptService",
-			$path: "src/ServerScriptService",
+			$path: "Src/Server",
 		},
 	},
 };
 fs.writeFileSync(path.join(tmp, "default.project.json"), JSON.stringify(projectJson, null, "\t"));
-fs.mkdirSync(path.join(tmp, "src", "ReplicatedStorage", "Shared", "Net"), { recursive: true });
-fs.writeFileSync(path.join(tmp, "src", "ReplicatedStorage", "Shared", "Net", "Net.flare"), "packet X(from Client) {}\n");
-fs.mkdirSync(path.join(tmp, "src", "ServerScriptService", "Boot"), { recursive: true });
-fs.writeFileSync(path.join(tmp, "src", "ServerScriptService", "Boot", "DataBoot.server.clpp"), "void init() {}\n");
+fs.mkdirSync(path.join(tmp, "Src", "Include", "Net"), { recursive: true });
+fs.writeFileSync(path.join(tmp, "Src", "Include", "Net", "Net.flare"), "packet X(from Client) {}\n");
+fs.mkdirSync(path.join(tmp, "Src", "Server", "Boot"), { recursive: true });
+fs.writeFileSync(path.join(tmp, "Src", "Server", "Boot", "DataBoot.server.clpp"), "void init() {}\n");
 
 const profile = dm.buildDatamodelProfile(tmp);
 assert.ok(profile);

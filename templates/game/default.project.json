@@ -2,18 +2,23 @@
 	"name": "cluaupp-game",
 	"tree": {
 		"$className": "DataModel",
-		"ReplicatedFirst": {
-			"$className": "ReplicatedFirst",
-			"$path": "out/ReplicatedFirst"
-		},
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
-			"$path": "out/ServerScriptService"
+			"$path": "out/Server",
+			"Parallel": {
+				"$path": "out/Parallel"
+			}
 		},
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"Shared": {
-				"$path": "out/ReplicatedStorage/Shared"
+			"Declarations": {
+				"$path": "out/Declarations"
+			},
+			"Include": {
+				"$path": "out/Include"
+			},
+			"Modules": {
+				"$path": "out/Modules"
 			},
 			"CluauppLibs": {
 				"$path": "libs"
@@ -23,16 +28,8 @@
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
-				"$path": "out/StarterPlayer/StarterPlayerScripts"
-			},
-			"StarterCharacterScripts": {
-				"$className": "StarterCharacterScripts",
-				"$path": "out/StarterPlayer/StarterCharacterScripts"
+				"$path": "out/Client"
 			}
-		},
-		"ServerStorage": {
-			"$className": "ServerStorage",
-			"$path": "out/ServerStorage"
 		},
 		"HttpService": {
 			"$className": "HttpService",
